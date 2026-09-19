@@ -59,7 +59,6 @@
       : "Mehmon";
     var photo = user ? user.photo_url : null;
 
-    document.getElementById("homeUserName").textContent = user ? user.first_name : "mehmon";
     document.getElementById("profileName").textContent = displayName || "Mehmon";
     document.getElementById("profileUsername").textContent = user && user.username ? "@" + user.username : "Telegramdan tashqarida ochilgan";
 
@@ -140,17 +139,20 @@
     var stats = window.BlueWolfGame.getStats();
     var coins = stats.coins || 0;
     var level = 1 + Math.floor(coins / 100);
-    var entries = buildLeaderboard();
-    var rankIndex = entries.findIndex(function (e) { return e.isMe; });
-    var rankText = rankIndex >= 0 ? "#" + (rankIndex + 1) : "—";
-
-    document.getElementById("statLevel").textContent = level;
-    document.getElementById("statCoins").textContent = coins;
-    document.getElementById("statRank").textContent = rankText;
 
     document.getElementById("profileLevel").textContent = level;
     document.getElementById("profileCoins").textContent = coins;
     document.getElementById("profileGames").textContent = stats.gamesPlayed || 0;
+  }
+
+  function renderResources() {
+    if (!window.BlueWolfGame) return;
+    var coins = window.BlueWolfGame.getStats().coins || 0;
+
+    document.getElementById("resWheat").textContent = 120 + coins * 3;
+    document.getElementById("resWood").textContent = 80 + coins * 2;
+    document.getElementById("resStone").textContent = 40 + coins;
+    document.getElementById("resGems").textContent = coins;
   }
 
   function switchScreen(name) {
@@ -196,6 +198,7 @@
     }
     switchScreen("home");
     renderStats();
+    renderResources();
     renderLeaderboard();
   }
 
@@ -239,6 +242,22 @@
     });
   }
 
+  function initLandscape() {
+    document.querySelectorAll(".plot-empty, .plot-locked").forEach(function (plot) {
+      plot.addEventListener("click", function () {
+        haptic("light");
+        var message = plot.classList.contains("plot-locked")
+          ? "Bu hudud hali qulflangan — keyinroq ochiladi."
+          : "Qurilish tez orada ochiladi...";
+        if (tg && tg.showAlert) {
+          tg.showAlert(message);
+        } else {
+          alert(message);
+        }
+      });
+    });
+  }
+
   function initActions() {
     document.getElementById("shareBtn").addEventListener("click", function () {
       haptic("light");
@@ -267,9 +286,11 @@
     initTelegram();
     applyUser();
     renderStats();
+    renderResources();
     renderLeaderboard();
     initNav();
     initActions();
     initGameScreen();
+    initLandscape();
   });
 })();
