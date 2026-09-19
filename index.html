@@ -55,56 +55,103 @@
 
     <!-- HOME -->
     <section class="screen active" id="screen-home">
-      <div class="hero-card">
-        <div class="hero-glow"></div>
-        <div class="hero-wolf">🐺</div>
-        <h1 class="hero-title">Salom, <span id="homeUserName">mehmon</span>!</h1>
-        <p class="hero-subtitle">Blue Wolf shabloniga xush kelibsiz. Bu — Telegram Mini App uchun asosiy UI andozasi.</p>
-        <button class="btn btn-primary" id="playBtn">
-          <span>▶</span> O'ynashni boshlash
-        </button>
+      <div class="landscape" id="landscape">
+
+        <div class="zone zone-den">
+          <span class="zone-label">🏕 Markaziy qarorgoh</span>
+          <span class="wolf-sprite ws-1">🐺</span>
+          <span class="wolf-sprite ws-2">🐺</span>
+          <div class="zone-plots">
+            <div class="plot plot-built">
+              <span class="plot-icon">🏠</span>
+              <span class="plot-name">Bo'ri uyasi</span>
+            </div>
+            <div class="plot plot-empty" data-plot="den-2">
+              <span class="plot-plus">+</span>
+              <span class="plot-name">Bo'sh joy</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="zone zone-forest">
+          <span class="zone-label">🌲 O'rmon chekkasi</span>
+          <span class="wolf-sprite ws-3">🐺</span>
+          <div class="zone-plots">
+            <div class="plot plot-empty" data-plot="forest-1">
+              <span class="plot-plus">+</span>
+              <span class="plot-name">Bo'sh joy</span>
+            </div>
+            <div class="plot plot-empty" data-plot="forest-2">
+              <span class="plot-plus">+</span>
+              <span class="plot-name">Bo'sh joy</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="zone zone-mountain">
+          <span class="zone-label">⛰ Tog' etagi</span>
+          <span class="wolf-sprite ws-4">🐺</span>
+          <div class="zone-plots">
+            <div class="plot plot-empty" data-plot="mtn-1">
+              <span class="plot-plus">+</span>
+              <span class="plot-name">Bo'sh joy</span>
+            </div>
+            <div class="plot plot-locked">
+              <span class="plot-lock">🔒</span>
+              <span class="plot-name">Qulflangan</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="zone zone-lake">
+          <span class="zone-label">🌊 Ko'l bo'yi</span>
+          <span class="wolf-sprite ws-5">🐺</span>
+          <div class="zone-plots">
+            <div class="plot plot-empty" data-plot="lake-1">
+              <span class="plot-plus">+</span>
+              <span class="plot-name">Bo'sh joy</span>
+            </div>
+            <div class="plot plot-locked">
+              <span class="plot-lock">🔒</span>
+              <span class="plot-name">Qulflangan</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="zone zone-unknown">
+          <span class="zone-label">🌑 Noma'lum hudud</span>
+          <p class="zone-note">Yangi hududlar tez orada ochiladi...</p>
+        </div>
+
       </div>
 
-      <div class="stats-grid">
-        <div class="stat-card">
-          <span class="stat-icon">⭐</span>
-          <span class="stat-value" id="statLevel">1</span>
-          <span class="stat-label">Daraja</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-icon">💠</span>
-          <span class="stat-value" id="statCoins">0</span>
-          <span class="stat-label">Coinlar</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-icon">🏆</span>
-          <span class="stat-value" id="statRank">—</span>
-          <span class="stat-label">O'rin</span>
-        </div>
-      </div>
+      <button class="fab-play" id="playBtn">
+        <span>⚔️</span> Jangga chiqish
+      </button>
+    </section>
 
-      <div class="section-block">
-        <div class="section-header">
-          <h2>Vazifalar</h2>
-          <span class="badge">Tez orada</span>
+    <!-- TASKS -->
+    <section class="screen" id="screen-tasks">
+      <div class="page-header">
+        <h1>Vazifalar</h1>
+        <p class="page-subtitle">Mukofot uchun vazifalarni bajaring</p>
+      </div>
+      <div class="list">
+        <div class="list-item disabled">
+          <span class="list-item-icon">📅</span>
+          <div class="list-item-body">
+            <span class="list-item-title">Kunlik kirish</span>
+            <span class="list-item-desc">Har kuni ilovaga kirib mukofot ol</span>
+          </div>
+          <span class="list-item-arrow">›</span>
         </div>
-        <div class="list">
-          <div class="list-item disabled">
-            <span class="list-item-icon">📅</span>
-            <div class="list-item-body">
-              <span class="list-item-title">Kunlik kirish</span>
-              <span class="list-item-desc">Har kuni ilovaga kirib mukofot ol</span>
-            </div>
-            <span class="list-item-arrow">›</span>
+        <div class="list-item disabled">
+          <span class="list-item-icon">👥</span>
+          <div class="list-item-body">
+            <span class="list-item-title">Do'stlarni taklif qil</span>
+            <span class="list-item-desc">Har bir do'st uchun bonus</span>
           </div>
-          <div class="list-item disabled">
-            <span class="list-item-icon">👥</span>
-            <div class="list-item-body">
-              <span class="list-item-title">Do'stlarni taklif qil</span>
-              <span class="list-item-desc">Har bir do'st uchun bonus</span>
-            </div>
-            <span class="list-item-arrow">›</span>
-          </div>
+          <span class="list-item-arrow">›</span>
         </div>
       </div>
     </section>
@@ -216,6 +263,10 @@
     <button class="nav-btn active" data-screen="home">
       <span class="nav-icon">🏠</span>
       <span class="nav-label">Bosh sahifa</span>
+    </button>
+    <button class="nav-btn" data-screen="tasks">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label">Vazifalar</span>
     </button>
     <button class="nav-btn" data-screen="leaderboard">
       <span class="nav-icon">🏆</span>
