@@ -480,3 +480,170 @@ button {
 .best-score { font-size: 12px !important; color: var(--tg-hint) !important; margin-bottom: 18px !important; }
 
 .topbar.hidden, .bottom-nav.hidden { display: none; }
+
+/* Splash / battle intro */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(120,40,50,0.35), transparent 55%),
+    radial-gradient(circle at 50% 100%, rgba(30,50,110,0.4), transparent 60%),
+    #06050c;
+  transition: opacity .6s ease, visibility .6s ease;
+}
+
+.splash.splash-done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.splash-ember {
+  position: absolute;
+  bottom: -20px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffb15e, #ff3b3b 60%, transparent 72%);
+  box-shadow: 0 0 10px 2px rgba(255, 90, 40, 0.7);
+  animation: emberRise linear infinite;
+}
+
+.splash-ember.e1 { left: 8%;  width: 6px; height: 6px; animation-duration: 6.5s; animation-delay: 0s; }
+.splash-ember.e2 { left: 24%; width: 4px; height: 4px; animation-duration: 8s;   animation-delay: 1.2s; }
+.splash-ember.e3 { left: 42%; width: 5px; height: 5px; animation-duration: 7s;   animation-delay: .4s; }
+.splash-ember.e4 { left: 61%; width: 4px; height: 4px; animation-duration: 9s;   animation-delay: 2.4s; }
+.splash-ember.e5 { left: 78%; width: 6px; height: 6px; animation-duration: 6s;   animation-delay: 1.8s; }
+.splash-ember.e6 { left: 92%; width: 5px; height: 5px; animation-duration: 7.5s; animation-delay: .8s; }
+
+@keyframes emberRise {
+  0%   { transform: translateY(0) scale(1);    opacity: 0; }
+  12%  { opacity: 1; }
+  85%  { opacity: .7; }
+  100% { transform: translateY(-100vh) scale(.35); opacity: 0; }
+}
+
+.splash-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 38%, rgba(140,180,255,0.35), transparent 60%);
+  opacity: 0;
+  animation: lightningFlash 4.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes lightningFlash {
+  0%, 90%, 100% { opacity: 0; }
+  91% { opacity: .9; }
+  92% { opacity: .1; }
+  93% { opacity: .65; }
+  94% { opacity: 0; }
+}
+
+.splash-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  width: 100%;
+  max-width: 320px;
+  padding: 0 24px;
+}
+
+.splash-wolf {
+  font-size: 68px;
+  margin-bottom: 12px;
+  filter:
+    drop-shadow(0 0 16px rgba(255,60,60,0.55))
+    drop-shadow(0 0 32px rgba(59,125,255,0.45));
+  animation: wolfPulse 1.7s ease-in-out infinite;
+}
+
+@keyframes wolfPulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.08); }
+}
+
+.splash-title {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: #eaf0ff;
+  margin: 0 0 10px;
+  text-shadow: 0 0 18px rgba(90,140,255,0.7), 0 2px 0 rgba(0,0,0,0.5);
+}
+
+.splash-title span {
+  color: #ff4d4d;
+  text-shadow: 0 0 18px rgba(255,60,60,0.8), 0 2px 0 rgba(0,0,0,0.5);
+}
+
+.splash-message {
+  min-height: 18px;
+  font-size: 13px;
+  color: #9fb0d8;
+  letter-spacing: .3px;
+  margin: 0 0 22px;
+  transition: opacity .15s ease;
+}
+
+.splash-message.flicker-out { opacity: 0; }
+
+.splash-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.splash-progress-track {
+  flex: 1;
+  height: 10px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  overflow: hidden;
+  position: relative;
+}
+
+.splash-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #ff4d4d, #ff9d3b 45%, #5ab3ff 100%);
+  box-shadow: 0 0 12px rgba(255,120,60,0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.splash-progress-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.28) 0 8px, transparent 8px 16px);
+  animation: stripeMove 1s linear infinite;
+}
+
+@keyframes stripeMove {
+  from { background-position: 0 0; }
+  to   { background-position: 32px 0; }
+}
+
+.splash-progress-pct {
+  font-size: 12px;
+  font-weight: 700;
+  color: #eaf0ff;
+  min-width: 36px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
