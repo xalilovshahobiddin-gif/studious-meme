@@ -145,6 +145,16 @@
     document.getElementById("profileGames").textContent = stats.gamesPlayed || 0;
   }
 
+  function renderResources() {
+    if (!window.BlueWolfGame) return;
+    var coins = window.BlueWolfGame.getStats().coins || 0;
+
+    document.getElementById("resWheat").textContent = 120 + coins * 3;
+    document.getElementById("resWood").textContent = 80 + coins * 2;
+    document.getElementById("resStone").textContent = 40 + coins;
+    document.getElementById("resGems").textContent = coins;
+  }
+
   function switchScreen(name) {
     document.querySelectorAll(".screen").forEach(function (el) {
       el.classList.toggle("active", el.id === "screen-" + name);
@@ -188,6 +198,7 @@
     }
     switchScreen("home");
     renderStats();
+    renderResources();
     renderLeaderboard();
   }
 
@@ -275,6 +286,7 @@
     initTelegram();
     applyUser();
     renderStats();
+    renderResources();
     renderLeaderboard();
     initNav();
     initActions();
