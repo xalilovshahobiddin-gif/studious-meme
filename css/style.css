@@ -313,6 +313,8 @@ button {
   margin-top: 8px;
 }
 
+.app-version a { color: var(--tg-link); }
+
 /* Bottom nav */
 .bottom-nav {
   position: fixed;
