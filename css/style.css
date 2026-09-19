@@ -85,7 +85,6 @@ button {
 }
 
 .avatar-fallback {
-  display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
@@ -386,7 +385,10 @@ button {
 /* Game screen */
 #screen-game.screen.active {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 20;
   display: flex;
   flex-direction: column;
@@ -453,7 +455,10 @@ button {
 
 .game-overlay {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -484,7 +489,10 @@ button {
 /* Splash / battle intro */
 .splash {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 999;
   display: flex;
   align-items: center;
@@ -505,7 +513,10 @@ button {
 
 .splash-bg {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   overflow: hidden;
   pointer-events: none;
 }
@@ -537,7 +548,10 @@ button {
 
 .splash-flash {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   background: radial-gradient(circle at 50% 38%, rgba(140,180,255,0.35), transparent 60%);
   opacity: 0;
   animation: lightningFlash 4.2s ease-in-out infinite;
@@ -629,7 +643,10 @@ button {
 .splash-progress-fill::after {
   content: "";
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.28) 0 8px, transparent 8px 16px);
   animation: stripeMove 1s linear infinite;
 }
