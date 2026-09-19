@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Blue Wolf</title>
+<meta name="description" content="Blue Wolf — Telegram Mini App">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span class="brand-icon">🐺</span>
+      <span class="brand-name">Blue Wolf</span>
+    </div>
+    <div class="topbar-user" id="topbarUser">
+      <img class="avatar avatar-sm" id="userAvatar" alt="">
+      <span class="avatar avatar-sm avatar-fallback" id="userAvatarFallback">?</span>
+    </div>
+  </header>
+
+  <!-- Screens -->
+  <main class="screens">
+
+    <!-- HOME -->
+    <section class="screen active" id="screen-home">
+      <div class="hero-card">
+        <div class="hero-glow"></div>
+        <div class="hero-wolf">🐺</div>
+        <h1 class="hero-title">Salom, <span id="homeUserName">mehmon</span>!</h1>
+        <p class="hero-subtitle">Blue Wolf shabloniga xush kelibsiz. Bu — Telegram Mini App uchun asosiy UI andozasi.</p>
+        <button class="btn btn-primary" id="playBtn">
+          <span>▶</span> O'ynashni boshlash
+        </button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-icon">⭐</span>
+          <span class="stat-value" id="statLevel">1</span>
+          <span class="stat-label">Daraja</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">💠</span>
+          <span class="stat-value" id="statCoins">0</span>
+          <span class="stat-label">Coinlar</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">🏆</span>
+          <span class="stat-value" id="statRank">—</span>
+          <span class="stat-label">O'rin</span>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-header">
+          <h2>Vazifalar</h2>
+          <span class="badge">Tez orada</span>
+        </div>
+        <div class="list">
+          <div class="list-item disabled">
+            <span class="list-item-icon">📅</span>
+            <div class="list-item-body">
+              <span class="list-item-title">Kunlik kirish</span>
+              <span class="list-item-desc">Har kuni ilovaga kirib mukofot ol</span>
+            </div>
+            <span class="list-item-arrow">›</span>
+          </div>
+          <div class="list-item disabled">
+            <span class="list-item-icon">👥</span>
+            <div class="list-item-body">
+              <span class="list-item-title">Do'stlarni taklif qil</span>
+              <span class="list-item-desc">Har bir do'st uchun bonus</span>
+            </div>
+            <span class="list-item-arrow">›</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LEADERBOARD -->
+    <section class="screen" id="screen-leaderboard">
+      <div class="page-header">
+        <h1>Reyting</h1>
+        <p class="page-subtitle">Eng yaxshi o'yinchilar (namuna ma'lumot)</p>
+      </div>
+
+      <div class="podium" id="podium"></div>
+
+      <div class="list" id="leaderboardList"></div>
+    </section>
+
+    <!-- PROFILE -->
+    <section class="screen" id="screen-profile">
+      <div class="profile-header">
+        <img class="avatar avatar-lg" id="profileAvatar" alt="">
+        <span class="avatar avatar-lg avatar-fallback" id="profileAvatarFallback">?</span>
+        <h1 class="profile-name" id="profileName">Mehmon</h1>
+        <p class="profile-username" id="profileUsername"></p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-icon">⭐</span>
+          <span class="stat-value" id="profileLevel">1</span>
+          <span class="stat-label">Daraja</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">💠</span>
+          <span class="stat-value" id="profileCoins">0</span>
+          <span class="stat-label">Coinlar</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">🎮</span>
+          <span class="stat-value" id="profileGames">0</span>
+          <span class="stat-label">O'yinlar</span>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-header"><h2>Sozlamalar</h2></div>
+        <div class="list">
+          <div class="list-item" id="shareBtn">
+            <span class="list-item-icon">📤</span>
+            <div class="list-item-body">
+              <span class="list-item-title">Do'stlarga ulashish</span>
+              <span class="list-item-desc">Ilovani do'stlaringizga yuboring</span>
+            </div>
+            <span class="list-item-arrow">›</span>
+          </div>
+          <div class="list-item disabled">
+            <span class="list-item-icon">🔔</span>
+            <div class="list-item-body">
+              <span class="list-item-title">Bildirishnomalar</span>
+              <span class="list-item-desc">Tez orada</span>
+            </div>
+            <span class="list-item-arrow">›</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="app-version" id="appDebug"></p>
+    </section>
+
+  </main>
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-screen="home">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Bosh sahifa</span>
+    </button>
+    <button class="nav-btn" data-screen="leaderboard">
+      <span class="nav-icon">🏆</span>
+      <span class="nav-label">Reyting</span>
+    </button>
+    <button class="nav-btn" data-screen="profile">
+      <span class="nav-icon">👤</span>
+      <span class="nav-label">Profil</span>
+    </button>
+  </nav>
+
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
