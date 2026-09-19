@@ -82,19 +82,39 @@
       : "Blue Wolf • brauzerda demo rejim (Telegram tashqarisida)";
   }
 
+  function getPlayerName() {
+    var user = getUser();
+    return user && user.first_name ? user.first_name : "Mehmon";
+  }
+
+  function buildLeaderboard() {
+    var stats = window.BlueWolfGame ? window.BlueWolfGame.getStats() : { highScore: 0 };
+    var entries = DEMO_LEADERBOARD.map(function (p) {
+      return { name: p.name, score: p.score, isMe: false };
+    });
+
+    if (stats.highScore > 0) {
+      entries.push({ name: getPlayerName(), score: stats.highScore, isMe: true });
+    }
+
+    entries.sort(function (a, b) { return b.score - a.score; });
+    return entries;
+  }
+
   function renderLeaderboard() {
-    var top3 = DEMO_LEADERBOARD.slice(0, 3);
-    var rest = DEMO_LEADERBOARD.slice(3);
+    var entries = buildLeaderboard();
+    var top3 = entries.slice(0, 3);
+    var rest = entries.slice(3);
     var medals = ["🥇", "🥈", "🥉"];
 
     var podium = document.getElementById("podium");
     podium.innerHTML = top3.map(function (p, i) {
       return (
-        '<div class="podium-card rank-' + (i + 1) + '">' +
+        '<div class="podium-card rank-' + (i + 1) + (p.isMe ? " me" : "") + '">' +
           '<span class="podium-medal">' + medals[i] + "</span>" +
           '<span class="podium-avatar">' + initials(p.name) + "</span>" +
-          '<span class="podium-name">' + p.name + "</span>" +
-          '<span class="podium-score">' + p.score.toLocaleString() + "</span>" +
+          '<span class="podium-name">' + p.name + (p.isMe ? " (Siz)" : "") + "</span>" +
+          '<span class="podium-score">' + Math.floor(p.score).toLocaleString() + "</span>" +
         "</div>"
       );
     }).join("");
@@ -103,16 +123,34 @@
     list.innerHTML = rest.map(function (p, i) {
       var rank = i + 4;
       return (
-        '<div class="list-item">' +
+        '<div class="list-item' + (p.isMe ? " me" : "") + '">' +
           '<span class="lb-rank">#' + rank + "</span>" +
           '<span class="lb-avatar">' + initials(p.name) + "</span>" +
           '<div class="list-item-body">' +
-            '<span class="list-item-title">' + p.name + "</span>" +
+            '<span class="list-item-title">' + p.name + (p.isMe ? " (Siz)" : "") + "</span>" +
           "</div>" +
-          '<span class="lb-score">' + p.score.toLocaleString() + "</span>" +
+          '<span class="lb-score">' + Math.floor(p.score).toLocaleString() + "</span>" +
         "</div>"
       );
     }).join("");
+  }
+
+  function renderStats() {
+    if (!window.BlueWolfGame) return;
+    var stats = window.BlueWolfGame.getStats();
+    var coins = stats.coins || 0;
+    var level = 1 + Math.floor(coins / 100);
+    var entries = buildLeaderboard();
+    var rankIndex = entries.findIndex(function (e) { return e.isMe; });
+    var rankText = rankIndex >= 0 ? "#" + (rankIndex + 1) : "—";
+
+    document.getElementById("statLevel").textContent = level;
+    document.getElementById("statCoins").textContent = coins;
+    document.getElementById("statRank").textContent = rankText;
+
+    document.getElementById("profileLevel").textContent = level;
+    document.getElementById("profileCoins").textContent = coins;
+    document.getElementById("profileGames").textContent = stats.gamesPlayed || 0;
   }
 
   function switchScreen(name) {
@@ -122,6 +160,9 @@
     document.querySelectorAll(".nav-btn").forEach(function (btn) {
       btn.classList.toggle("active", btn.dataset.screen === name);
     });
+    var isGame = name === "game";
+    document.querySelector(".topbar").classList.toggle("hidden", isGame);
+    document.querySelector(".bottom-nav").classList.toggle("hidden", isGame);
     window.scrollTo(0, 0);
   }
 
@@ -134,16 +175,71 @@
     });
   }
 
-  function initActions() {
+  function openGame() {
+    switchScreen("game");
+    document.getElementById("gameOverOverlay").classList.add("hidden");
+    document.getElementById("gameStartOverlay").classList.remove("hidden");
+    document.getElementById("gameScoreLive").textContent = "0";
+    document.getElementById("gameCoinsLive").textContent = "0";
+    if (tg && tg.BackButton) {
+      tg.BackButton.show();
+      tg.BackButton.onClick(closeGame);
+    }
+    window.BlueWolfGame.start();
+  }
+
+  function closeGame() {
+    window.BlueWolfGame.destroy();
+    if (tg && tg.BackButton) {
+      tg.BackButton.offClick(closeGame);
+      tg.BackButton.hide();
+    }
+    switchScreen("home");
+    renderStats();
+    renderLeaderboard();
+  }
+
+  function initGameScreen() {
     document.getElementById("playBtn").addEventListener("click", function () {
       haptic("medium");
-      if (tg && tg.showAlert) {
-        tg.showAlert("O'yin mexanikasi hali qo'shilmagan — bu Blue Wolf UI shabloni.");
-      } else {
-        alert("O'yin mexanikasi hali qo'shilmagan — bu Blue Wolf UI shabloni.");
-      }
+      openGame();
     });
 
+    document.getElementById("gameStartBtn").addEventListener("click", function () {
+      haptic("light");
+      document.getElementById("gameStartOverlay").classList.add("hidden");
+      window.BlueWolfGame.beginRun();
+    });
+
+    document.getElementById("gameRestartBtn").addEventListener("click", function () {
+      haptic("light");
+      document.getElementById("gameOverOverlay").classList.add("hidden");
+      window.BlueWolfGame.beginRun();
+    });
+
+    document.getElementById("gameBackBtn").addEventListener("click", function () {
+      haptic("light");
+      closeGame();
+    });
+
+    document.getElementById("gameHomeBtn").addEventListener("click", function () {
+      haptic("light");
+      closeGame();
+    });
+
+    window.addEventListener("bluewolf:gameover", function (evt) {
+      haptic("heavy");
+      var detail = evt.detail || {};
+      document.getElementById("finalScore").textContent = detail.score || 0;
+      document.getElementById("finalCoins").textContent = detail.coins || 0;
+      document.getElementById("bestScoreLine").textContent = detail.isNewBest
+        ? "🎉 Yangi rekord!"
+        : "Rekord: " + (detail.highScore || 0);
+      document.getElementById("gameOverOverlay").classList.remove("hidden");
+    });
+  }
+
+  function initActions() {
     document.getElementById("shareBtn").addEventListener("click", function () {
       haptic("light");
       if (tg && tg.openTelegramLink) {
@@ -170,8 +266,10 @@
   document.addEventListener("DOMContentLoaded", function () {
     initTelegram();
     applyUser();
+    renderStats();
     renderLeaderboard();
     initNav();
     initActions();
+    initGameScreen();
   });
 })();

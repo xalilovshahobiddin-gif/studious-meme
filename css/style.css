@@ -176,6 +176,16 @@ button {
   width: 100%;
 }
 
+.btn-secondary {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--tg-text);
+  width: 100%;
+  margin-top: 8px;
+}
+
+.hidden { display: none !important; }
+
 /* Stats */
 .stats-grid {
   display: grid;
@@ -315,6 +325,11 @@ button {
 
 .lb-score { font-size: 13px; font-weight: 700; color: var(--wolf-blue-light); }
 
+.list-item.me, .podium-card.me {
+  border-color: rgba(90,179,255,0.55);
+  background: rgba(59,125,255,0.14);
+}
+
 /* Profile */
 .profile-header {
   text-align: center;
@@ -367,3 +382,101 @@ button {
 @media (min-width: 560px) {
   .bottom-nav { left: 50%; transform: translateX(-50%); width: 560px; }
 }
+
+/* Game screen */
+#screen-game.screen.active {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  max-width: none;
+  height: 100vh;
+  background: #0f1626;
+}
+
+.game-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: calc(var(--safe-top) + 10px) 16px 10px;
+  background: rgba(15, 22, 38, 0.9);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.game-back {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-hud {
+  display: flex;
+  gap: 14px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.game-hud-item { display: flex; align-items: center; gap: 4px; }
+
+.game-stage {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #0f1626;
+}
+
+#phaserContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#phaserContainer canvas {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.game-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(10, 15, 28, 0.72);
+  backdrop-filter: blur(6px);
+  z-index: 5;
+}
+
+.game-overlay-card {
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+  padding: 26px 22px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(160deg, rgba(59,125,255,0.18), rgba(20,29,51,0.85));
+  border: 1px solid var(--card-border);
+}
+
+.game-overlay-card h2 { font-size: 19px; margin: 4px 0 10px; }
+.game-overlay-card p { color: var(--tg-hint); font-size: 13px; line-height: 1.45; margin: 0 0 16px; }
+.game-final-score { color: var(--tg-text) !important; font-size: 14px !important; margin: 0 0 4px !important; }
+.game-final-score strong { color: var(--wolf-blue-light); }
+.best-score { font-size: 12px !important; color: var(--tg-hint) !important; margin-bottom: 18px !important; }
+
+.topbar.hidden, .bottom-nav.hidden { display: none; }
