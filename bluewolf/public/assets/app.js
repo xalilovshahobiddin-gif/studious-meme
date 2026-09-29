@@ -72,7 +72,8 @@
     try { localStorage.setItem("bw_dev_user", id); } catch (e) {}
     return id;
   }
-  var DEV_USER = tg ? null : devUser();
+  var DEMO = window.BW_DEMO || null;
+  var DEV_USER = tg || DEMO ? null : devUser();
 
   // ------------------------------------------------------------------ API
 
@@ -80,9 +81,11 @@
     var h = { "Content-Type": "application/json", "X-Client-Version": CLIENT_VERSION };
     if (tg) h["X-Init-Data"] = tg.initData; else h["X-Dev-User"] = DEV_USER;
     if (method === "POST") h["X-Request-Id"] = uuid();
-    return fetch(API.replace(/\/$/, "") + path, { method: method, headers: h, body: method === "POST" ? JSON.stringify(body || {}) : undefined })
-      .then(function (r) { return r.json().catch(function () { return { ok: false, error: { code: "NETWORK", message: "HTTP " + r.status } }; }); })
-      .then(function (res) {
+    // Demo rejim: server oʻrniga brauzer ichidagi dvigatel (assets/demo-engine.js)
+    var call = DEMO ? Promise.resolve(DEMO.request(method, path, body))
+      : fetch(API.replace(/\/$/, "") + path, { method: method, headers: h, body: method === "POST" ? JSON.stringify(body || {}) : undefined })
+        .then(function (r) { return r.json().catch(function () { return { ok: false, error: { code: "NETWORK", message: "HTTP " + r.status } }; }); });
+    return call.then(function (res) {
         if (res.state) applyState(res.state);
         if (!res.ok) { var e = new Error(res.error.message); e.code = res.error.code; e.details = res.error.details || {}; throw e; }
         return res.data;
@@ -173,6 +176,7 @@
     if (p.hunger) flags += '<span class="flag bad">' + t("flag.hunger") + "</span>";
     if (p.shielded) flags += '<span class="flag">' + t("flag.shield") + "</span>";
     if (S.state.incoming.length) flags += '<span class="flag bad pulse">' + t("flag.incoming") + "</span>";
+    if (DEMO) flags += '<button class="flag demo" data-action="demo-sheet">⏩ ' + t("demo.badge") + "</button>";
     $("topFlags").innerHTML = flags;
     var food = r.caps.food;
     var cells = [
@@ -582,7 +586,7 @@
       '<div class="muted small">' + t("profile.lang_soon") + "</div></div>" +
       '<div class="card soon"><b>🛒 ' + t("shop.title") + '</b><p class="muted">' + t("shop.soon") + "</p></div>" +
       (p.tutorial_step < 20 && p.tutorial_step >= S.cfg.tutorial_skip_step ? '<button class="btn ghost" data-action="skip-tutorial">' + t("tutorial.skip") + "</button>" : "") +
-      '<p class="muted small center">Blue Wolf v' + CLIENT_VERSION + (tg ? "" : " · dev #" + DEV_USER) + "</p>";
+      '<p class="muted small center">Blue Wolf v' + CLIENT_VERSION + (DEMO ? " · demo" : tg ? "" : " · dev #" + DEV_USER) + "</p>";
     el.innerHTML = html;
   }
 
@@ -648,7 +652,7 @@
   function renderCoach() {
     var p = S.state.player, el = $("coach");
     var step = p.tutorial_step + 1;
-    if (step > 20) { el.classList.add("hidden"); return; }
+    if (step > 20) { el.classList.add("hidden"); el.innerHTML = ""; return; }
     el.classList.remove("hidden");
     el.className = "coach" + (step === 11 ? " epic" : "");
     el.innerHTML = '<div class="coach-wolf">🐺</div><div class="coach-body"><div class="coach-step">' + t("tutorial.step", { n: step }) + "</div><div>" +
@@ -719,7 +723,17 @@
       case "bld-sheet": bldSheet(el.dataset.type); break;
       case "upgrade": act(api("POST", "/buildings/upgrade", { type: el.dataset.type }), t("bld.started")).then(function () { bldSheet(el.dataset.type); }); break;
       case "free": act(api("POST", "/queue/speedup", { queue_id: id, free: true }), t("queue.done")); break;
-      case "cancel": if (confirm(t("queue.cancel_confirm"))) act(api("POST", "/queue/cancel", { queue_id: id })); break;
+      case "cancel":
+        // confirm() hamma joyda ishlamaydi (masalan, oʻrnatilgan oynada) — ikki marta bosish
+        if (el.dataset.armed) { act(api("POST", "/queue/cancel", { queue_id: id }), t("queue.cancelled")); break; }
+        el.dataset.armed = "1"; el.textContent = t("queue.cancel_tap");
+        setTimeout(function () { delete el.dataset.armed; el.textContent = "✕"; }, 3000);
+        toast(t("queue.cancel_confirm")); break;
+      case "demo-sheet": demoSheet(); break;
+      case "demo-skip": DEMO.skip(+el.dataset.sec); closeSheet(); toast(t("demo.skipped", { t: dur(+el.dataset.sec) }), "ok"); reload(); break;
+      case "demo-reset":
+        if (!el.dataset.armed) { el.dataset.armed = "1"; el.textContent = t("demo.reset_confirm"); break; }
+        DEMO.reset(); closeSheet(); S.targets = S.battles = S.quests = S.profile = null; reload(); break;
       case "speedup-sheet": speedupSheet(id); break;
       case "speedup": closeSheet(); act(api("POST", "/queue/speedup", { queue_id: id, seconds: +el.dataset.sec })); break;
       case "collect": act(api("POST", "/buildings/collect"), t("ws.collected")); break;
@@ -759,6 +773,14 @@
     }
   });
 
+  function demoSheet() {
+    openSheet("<h2>⏩ " + t("demo.title") + '</h2><p class="muted">' + t("demo.desc") + '</p><div class="row2">' +
+      [[60, "+1 " + t("time.m")], [600, "+10 " + t("time.m")], [3600, "+1 " + t("time.h")], [8 * 3600, "+8 " + t("time.h")]].map(function (x) {
+        return '<button class="btn" data-action="demo-skip" data-sec="' + x[0] + '">' + x[1] + "</button>";
+      }).join("") + '</div><p class="muted small">' + t("demo.offset", { t: dur(DEMO.offset()) }) + "</p>" +
+      '<button class="btn big ghost" data-action="demo-reset">↺ ' + t("demo.reset") + "</button>");
+  }
+
   function targetById(id) { return S.targets ? S.targets.targets.filter(function (x) { return x.id === id; })[0] : null; }
 
   // ------------------------------------------------------------------ ishga tushirish
@@ -782,6 +804,7 @@
       return reload();
     }).catch(function (e) {
       $("bootMsg").textContent = (e.code === "UNAUTHORIZED" ? "Telegram orqali oching" : "Server bilan aloqa yoʻq") + " (" + (e.code || e.message) + ")";
+      if (DEMO) console.error(e);
     });
   }
 

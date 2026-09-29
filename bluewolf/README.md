@@ -31,6 +31,8 @@ bluewolf/
 ├── public/                 ← veb-server hujjat ildizi (document root)
 │   ├── index.html          Mini App
 │   ├── assets/app.js       klient (vanilla JS, build yoʻq)
+│   ├── assets/demo-engine.js  serversiz demo dvigateli
+│   ├── demo.html           yigʻilgan serversiz demo (tools/build_demo.php)
 │   ├── assets/style.css
 │   ├── api/index.php       API kirish nuqtasi: /api/v1/*
 │   ├── bot/webhook.php     Telegram bot webhook
@@ -71,6 +73,19 @@ php bin/install.php            # yoki --fresh (hamma jadvallarni oʻchiradi!)
 php -S 127.0.0.1:8080 -t public public/router.php
 # brauzer: http://127.0.0.1:8080/?dev=1   (dev rejimda Telegramsiz, X-Dev-User bilan)
 ```
+
+## Serversiz demo
+
+`public/demo.html` — butun oʻyin bitta faylda: Mini App + brauzer ichidagi demo dvigatel (`assets/demo-engine.js`,
+`src/*.php` mantiqining JS nusxasi). Server, baza va Telegram kerak emas — faylni brauzerda oching.
+Holat shu brauzerning localStorage'ida saqlanadi; yuqoridagi **⏩ Demo** tugmasi vaqtni oldinga suradi.
+
+```bash
+php tools/build_demo.php   # data/, sql/ va assets/ oʻzgargach demo.html ni qayta yigʻish
+```
+
+Demo cheklovlari: bitta oʻyinchi + NPC toʻdalar, bildirishnoma va chastota cheklovi yoʻq.
+Server mantiqini oʻzgartirsangiz, `demo-engine.js` ni ham moslang.
 
 ## Testlar
 

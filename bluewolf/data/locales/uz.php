@@ -25,7 +25,7 @@ return [
   'hunt.go' => 'Ovga chiqish', 'hunt.title' => 'Ov', 'hunt.on' => '{prey} ovi…', 'hunt.started' => 'Ov boshlandi!',
   'hunt.solo' => 'yolgʻiz', 'hunt.desc' => 'Alfa ovga chiqadi. Yirik oʻlja uchun toʻda kerak — inda {n} ta ovchi bor.',
   'queue.free' => 'Bepul', 'queue.speedup' => 'Tezlashtirish', 'queue.done' => 'Tayyor!',
-  'queue.cancel_confirm' => 'Navbatni bekor qilasizmi? Resursning 80% i qaytadi.',
+  'queue.cancel_confirm' => 'Bekor qilish uchun ✕ ni yana bir marta bosing — resursning 80% i qaytadi.',
   'queue.train' => '{n} × {role} ({tier})', 'queue.promote' => '{n} × {role} → {tier}', 'queue.heal' => '{n} × {role} davolanmoqda',
   'speedup.desc' => 'Bugun yana {left} tezlashtirish mumkin (kunlik 25% chegara).',
   'speedup.rule' => 'Tezlashtirish faqat vaqt tejaydi — kuch sotilmaydi. Har keyingi soat qimmatroq.',
@@ -134,6 +134,15 @@ return [
   'tutorial.step.18.text' => 'Raqibni razvedka qilib koʻr.', 'tutorial.step.18.action' => '🔍 Razvedka',
   'tutorial.step.19.text' => 'Sening iningga ham hujum qilishadi.', 'tutorial.step.19.action' => '🛡 Himoya devori',
   'tutorial.step.20.text' => 'Endi siz oʻyinga tayyorsiz. Omad, alfa!', 'tutorial.step.20.action' => '🏆 Yakunlash',
+
+  // Navbatni bekor qilish (ikki marta bosish)
+  'queue.cancel_tap' => 'Yana bos', 'queue.cancelled' => 'Bekor qilindi',
+
+  // Demo rejim (serversiz, brauzerda)
+  'demo.badge' => 'Demo', 'demo.title' => 'Demo vaqti',
+  'demo.desc' => 'Bu brauzerda ishlaydigan demo: oʻyin mantiqi server bilan bir xil, holat shu brauzerda saqlanadi. Qurilish, mashq va yurishlarni kutmaslik uchun vaqtni oldinga suring.',
+  'demo.offset' => 'Hozircha {t} oldinga surilgan.', 'demo.skipped' => 'Vaqt {t} oldinga surildi',
+  'demo.reset' => 'Qaytadan boshlash', 'demo.reset_confirm' => 'Hamma progress oʻchadi — yana bosing',
 
   // Xatolar
   'error.UNAUTHORIZED' => 'Telegram orqali qayta oching', 'error.BANNED' => 'Akkaunt bloklangan',

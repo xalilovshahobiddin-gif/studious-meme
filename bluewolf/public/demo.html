@@ -1,0 +1,2282 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Blue Wolf</title>
+<meta name="theme-color" content="#0f1626">
+<style>
+:root {
+  --bg: var(--tg-theme-bg-color, #0f1626);
+  --bg2: #141d33;
+  --card: rgba(255, 255, 255, 0.045);
+  --line: rgba(255, 255, 255, 0.09);
+  --text: #eaf0ff;
+  --muted: #8392b5;
+  --blue: #3b7dff;
+  --blue2: #5ab3ff;
+  --gold: #f5c04a;
+  --red: #ff5a6a;
+  --green: #45d483;
+  --brown: #c98a4b;
+  --r: 16px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  color-scheme: dark; /* oʻyin atayin bitta toʻq koʻrinishda */
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
+  font: 15px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
+body { background: radial-gradient(circle at 50% -10%, rgba(59,125,255,.28), transparent 55%), var(--bg); }
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+h2 { margin: 6px 0; font-size: 20px; }
+h3 { margin: 18px 4px 8px; font-size: 15px; color: var(--muted); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+p { margin: 8px 0; }
+.muted { color: var(--muted); }
+.small { font-size: 12.5px; }
+.center { text-align: center; }
+.hidden { display: none !important; }
+
+#app { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* Topbar */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px 6px; background: linear-gradient(var(--bg) 70%, transparent); }
+.wolf-chip { display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 0; }
+.wolf-avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-size: 22px;
+  background: linear-gradient(135deg, var(--blue), #1f3f8f); box-shadow: 0 0 0 2px rgba(90,179,255,.35); }
+.wolf-meta { min-width: 0; }
+.wolf-line { display: flex; align-items: center; gap: 6px; }
+.lvl { background: var(--gold); color: #1b1300; font-weight: 800; font-size: 12px; border-radius: 8px; padding: 1px 7px; }
+.wolf-name { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 48vw; }
+.xpbar { height: 5px; width: 150px; background: rgba(255,255,255,.1); border-radius: 4px; margin-top: 4px; overflow: hidden; }
+.xpfill { height: 100%; background: linear-gradient(90deg, var(--blue2), var(--gold)); border-radius: 4px; transition: width .6s; }
+.top-flags { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.flag { font-size: 11px; padding: 3px 7px; border-radius: 10px; background: rgba(90,179,255,.16); }
+.flag.bad { background: rgba(255,90,106,.2); }
+.flag.demo { background: rgba(245,192,74,.2); color: var(--gold); font-weight: 700; }
+.pulse { animation: pulse 1.2s infinite; }
+@keyframes pulse { 50% { opacity: .45; } }
+
+/* Resurs paneli */
+.resbar { display: flex; gap: 6px; overflow-x: auto; padding: 2px 12px 8px; scrollbar-width: none; }
+.resbar::-webkit-scrollbar { display: none; }
+.res { flex: 0 0 auto; display: flex; align-items: center; gap: 4px; background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; padding: 4px 9px; font-weight: 600; font-size: 13px; }
+.res small { color: var(--muted); font-weight: 500; }
+.res.full { border-color: rgba(69,212,131,.6); }
+.res.low { border-color: rgba(255,90,106,.6); }
+.res.gem { background: rgba(245,192,74,.12); }
+
+/* Ekranlar */
+#screens { flex: 1; padding: 0 12px calc(170px + var(--safe-b)); }
+.screen { display: none; animation: fade .25s; }
+.screen.active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; margin-bottom: 10px; }
+.card.danger { border-color: rgba(255,90,106,.5); background: rgba(255,90,106,.08); }
+.card.soon, .card.rule { border-style: dashed; }
+.note { background: rgba(90,179,255,.1); border-radius: 12px; padding: 10px 12px; margin: 10px 0; font-size: 13.5px; }
+.tag { font-size: 10.5px; padding: 1px 6px; border-radius: 6px; background: rgba(201,138,75,.25); color: #f3c99c; vertical-align: middle; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--blue), #2a5fd6); color: #fff; font-weight: 700; transition: transform .1s, opacity .2s; }
+.btn:active { transform: scale(.97); }
+.btn:focus-visible, .nav-btn:focus-visible, .flag:focus-visible { outline: 2px solid var(--blue2); outline-offset: 2px; }
+.btn[disabled] { opacity: .4; pointer-events: none; }
+.btn.big { width: 100%; padding: 14px; font-size: 16px; margin-top: 10px; }
+.btn.sm { padding: 6px 10px; font-size: 13px; border-radius: 10px; }
+.btn.ghost { background: rgba(255,255,255,.07); }
+.btn.gold { background: linear-gradient(135deg, #f7cf63, #e0a02a); color: #231800; }
+.btn.red { background: linear-gradient(135deg, #ff6b7a, #d8384b); }
+.row2 { display: flex; gap: 8px; margin-top: 10px; }
+.row2 .btn { flex: 1; }
+.row-between { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+.bar { height: 7px; background: rgba(255,255,255,.08); border-radius: 5px; overflow: hidden; margin: 8px 0; }
+.bar > div { height: 100%; background: linear-gradient(90deg, var(--blue2), var(--green)); border-radius: 5px; transition: width .5s; }
+
+.timer { position: relative; height: 24px; background: rgba(255,255,255,.07); border-radius: 12px; overflow: hidden; margin: 8px 0; }
+.tfill { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, rgba(59,125,255,.55), rgba(90,179,255,.8)); transition: width 1s linear; }
+.timer span { position: relative; display: block; text-align: center; font-size: 12.5px; font-weight: 700; line-height: 24px; }
+
+/* Alfa kartasi */
+.alpha { background: linear-gradient(160deg, rgba(59,125,255,.2), rgba(255,255,255,.03)); }
+.alpha-row { display: flex; gap: 12px; align-items: center; }
+.alpha-pic { width: 64px; height: 64px; border-radius: 18px; display: grid; place-items: center; font-size: 36px;
+  background: radial-gradient(circle at 30% 30%, #5ab3ff, #1f3f8f); flex: 0 0 auto; }
+.alpha-pic.big { width: 84px; height: 84px; font-size: 48px; margin: 0 auto 6px; border-radius: 50%; }
+.alpha-name { font-weight: 800; font-size: 17px; }
+.stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; font-size: 13px; }
+.stats .cp { color: var(--gold); font-weight: 700; }
+.hunt-live { margin-top: 10px; }
+
+.queue .q-title { font-weight: 600; }
+.q-actions { display: flex; gap: 6px; justify-content: flex-end; }
+
+.ws-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; text-align: center; }
+.ws-cell { background: rgba(255,255,255,.04); border-radius: 10px; padding: 6px 2px; display: flex; flex-direction: column; }
+.ws-cell i { font-style: normal; }
+.ws-cell small { color: var(--muted); }
+
+/* Binolar */
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.bld { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 6px 8px;
+  text-align: center; cursor: pointer; }
+.bld.busy { border-color: rgba(245,192,74,.6); }
+.bld.locked { opacity: .45; }
+.bld-icon { font-size: 30px; }
+.bld-lvl { position: absolute; top: 6px; right: 8px; font-size: 11px; font-weight: 800; background: rgba(90,179,255,.25); border-radius: 7px; padding: 0 6px; }
+.bld-name { font-size: 12.5px; font-weight: 700; margin-top: 2px; }
+.bld-sub { font-size: 11px; color: var(--muted); }
+
+.fx { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13.5px; }
+.fx td, .fx th { padding: 6px 4px; border-bottom: 1px solid var(--line); text-align: left; }
+.fx th { color: var(--muted); font-weight: 500; }
+.fx .up { color: var(--green); font-weight: 700; }
+.next { display: flex; flex-direction: column; gap: 6px; background: rgba(255,255,255,.04); border-radius: 12px; padding: 10px; margin-top: 8px; }
+.cost { display: inline-block; margin-right: 8px; font-weight: 600; }
+.cost.lack { color: var(--red); }
+.heal-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+.heal-row .btn { margin-left: auto; }
+
+/* Ov */
+.prey-list { display: flex; flex-direction: column; gap: 6px; }
+.prey { display: flex; align-items: center; gap: 10px; text-align: left; background: var(--card); border: 1px solid var(--line);
+  border-radius: 14px; padding: 10px; }
+.prey.dis { opacity: .4; }
+.prey .pi { font-size: 26px; }
+.prey .pn { flex: 1; font-weight: 700; display: flex; flex-direction: column; }
+.prey .pn small { font-weight: 400; color: var(--muted); }
+.prey .pp { font-size: 12px; color: var(--muted); }
+
+/* Jang */
+.target { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; }
+.target.strong { border-left: 3px solid var(--red); }
+.target.weak { border-left: 3px solid var(--green); }
+.target.even { border-left: 3px solid var(--gold); }
+.t-name { font-weight: 700; }
+.band { font-size: 11.5px; padding: 2px 8px; border-radius: 8px; background: rgba(255,255,255,.08); }
+.band.strong { color: var(--red); } .band.weak { color: var(--green); } .band.even { color: var(--gold); }
+.t-actions { grid-column: 1 / -1; display: flex; gap: 6px; justify-content: flex-end; }
+.blog { cursor: pointer; }
+.res-win { color: var(--green); font-weight: 800; } .res-loss { color: var(--red); font-weight: 800; } .res-draw { color: var(--gold); font-weight: 800; }
+.locked-card { text-align: center; padding: 28px 16px; }
+.big-icon { font-size: 44px; }
+
+.ep { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,.05); border-radius: 12px; padding: 8px 12px; margin: 10px 0; }
+.rounds { display: flex; flex-direction: column; gap: 6px; }
+.round { display: grid; grid-template-columns: 22px 1fr 70px 70px; gap: 6px; align-items: center; font-size: 13px;
+  opacity: 0; animation: roundIn .35s forwards; }
+@keyframes roundIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+.round .rn { width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,.08); display: grid; place-items: center; font-size: 11px; }
+.hp { height: 8px; background: rgba(255,255,255,.08); border-radius: 4px; overflow: hidden; }
+.hpa { height: 100%; background: var(--red); } .hpd { height: 100%; background: var(--blue2); }
+.loss { font-size: 13.5px; margin: 4px 0; }
+.grade { display: inline-block; padding: 3px 10px; border-radius: 10px; font-weight: 700; background: rgba(255,255,255,.08); }
+.g-fail { color: var(--red); } .g-partial { color: var(--gold); } .g-full, .g-exact { color: var(--green); }
+
+/* Toʻda */
+.role { border-left: 3px solid var(--line); }
+.role-scout { border-left-color: #5ab3ff; } .role-attacker { border-left-color: var(--red); }
+.role-defender { border-left-color: var(--green); } .role-hunter { border-left-color: var(--brown); }
+.role.locked { opacity: .55; }
+.tiers { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; margin-top: 8px; }
+.tier { border-radius: 12px; padding: 7px 8px; background: rgba(255,255,255,.04); border: 1.5px solid rgba(255,255,255,.12);
+  display: flex; flex-direction: column; font-size: 12.5px; }
+.tier small { color: var(--muted); }
+.tf3, .tf4 { border-color: #c9d3e6; } .tf5 { border-color: var(--gold); }
+.tf6 { border-color: #ff8a3d; box-shadow: 0 0 10px rgba(255,138,61,.4); }
+.tabs { display: flex; gap: 6px; margin: 8px 0; flex-wrap: wrap; }
+.tabs button { padding: 6px 12px; border-radius: 10px; background: rgba(255,255,255,.06); font-size: 13px; }
+.tabs button.on { background: var(--blue); font-weight: 700; }
+.pick { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.stepper { display: flex; align-items: center; gap: 4px; }
+.stepper button { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,.08); font-size: 18px; }
+.stepper b { min-width: 36px; text-align: center; }
+.slider { display: block; margin: 12px 0; }
+.slider input { width: 100%; }
+
+/* Vazifalar */
+.quest.claimed { opacity: .55; }
+.quest.locked { opacity: .45; }
+
+/* Profil */
+.profile { text-align: center; }
+.stats3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+.stats3 div { background: rgba(255,255,255,.04); border-radius: 12px; padding: 8px 4px; display: flex; flex-direction: column; }
+.stats3 b { font-size: 17px; } .stats3 small { color: var(--muted); font-size: 11.5px; }
+.ladder { display: flex; flex-direction: column; gap: 3px; margin-bottom: 10px; }
+.rung { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; padding: 6px 10px; border-radius: 10px; background: var(--card); font-size: 13.5px; }
+.rung .rl { font-weight: 800; color: var(--muted); }
+.rung .rx { color: var(--muted); font-size: 12px; }
+.rung.past .rl, .rung.past .rx { color: var(--green); }
+.rung.cur { background: linear-gradient(90deg, rgba(59,125,255,.35), rgba(245,192,74,.15)); border: 1px solid var(--blue2); }
+.rung.v2 { opacity: .5; }
+
+/* Pastki menyu */
+.bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: grid; grid-template-columns: repeat(5, 1fr);
+  padding: 6px 6px calc(6px + var(--safe-b)); background: rgba(15,22,38,.92); backdrop-filter: blur(12px); border-top: 1px solid var(--line); }
+.nav-btn { position: relative; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 5px 0; border-radius: 12px; color: var(--muted); }
+.nav-btn span { font-size: 21px; }
+.nav-btn b { font-size: 11px; font-weight: 600; }
+.nav-btn.active { color: var(--text); background: rgba(59,125,255,.16); }
+.nav-btn .dot { position: absolute; top: 4px; right: 22%; width: 8px; height: 8px; border-radius: 50%; background: var(--red); display: none; }
+
+/* Tanishtiruv yoʻriqchisi */
+.coach { position: fixed; left: 10px; right: 10px; bottom: calc(70px + var(--safe-b)); z-index: 25; display: flex; gap: 10px;
+  padding: 12px; border-radius: 18px; background: linear-gradient(135deg, #1b2b52, #14203d); border: 1px solid rgba(90,179,255,.5);
+  box-shadow: 0 10px 30px rgba(0,0,0,.45); animation: coachIn .35s; }
+@keyframes coachIn { from { transform: translateY(20px); opacity: 0; } }
+.coach.epic { border-color: var(--gold); box-shadow: 0 0 30px rgba(245,192,74,.35); }
+.coach-wolf { font-size: 30px; }
+.coach-body { flex: 1; font-size: 14px; }
+.coach-step { font-size: 11px; color: var(--blue2); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+.coach-actions { display: flex; gap: 6px; margin-top: 8px; }
+
+/* Pastki oyna (sheet) */
+.sheet-backdrop { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.55); }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 41; max-height: 86vh; overflow-y: auto; padding: 8px 16px calc(20px + var(--safe-b));
+  background: var(--bg2); border-radius: 22px 22px 0 0; border-top: 1px solid var(--line); animation: sheetUp .25s; }
+@keyframes sheetUp { from { transform: translateY(40px); opacity: 0; } }
+.sheet-grip { width: 40px; height: 4px; border-radius: 3px; background: rgba(255,255,255,.2); margin: 0 auto 10px; }
+.sheet-head { display: flex; align-items: center; gap: 12px; }
+
+.toast { position: fixed; left: 50%; top: 14px; transform: translateX(-50%); z-index: 60; max-width: 90vw; padding: 10px 16px;
+  border-radius: 14px; background: #22304f; border: 1px solid var(--line); font-weight: 600; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+.toast.ok { border-color: rgba(69,212,131,.6); } .toast.err { border-color: rgba(255,90,106,.7); }
+
+.boot { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  background: radial-gradient(circle at 50% 30%, #1f3f8f, var(--bg) 70%); }
+.boot-wolf { font-size: 72px; animation: pulse 1.4s infinite; }
+.boot-title { font-size: 26px; font-weight: 800; letter-spacing: 1px; }
+.boot-msg { color: var(--muted); padding: 0 20px; text-align: center; }
+
+@media (min-width: 600px) {
+  #app { max-width: 520px; margin: 0 auto; }
+  .bottom-nav, .coach { max-width: 520px; margin: 0 auto; }
+  .grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  .round { opacity: 1; }
+}
+
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="topbar">
+    <div class="wolf-chip" data-action="tab" data-tab="profile">
+      <span class="wolf-avatar">🐺</span>
+      <div class="wolf-meta">
+        <div class="wolf-line"><span class="lvl" id="lvl">1</span><span class="wolf-name" id="wolfName">…</span></div>
+        <div class="xpbar"><div class="xpfill" id="xpFill"></div></div>
+      </div>
+    </div>
+    <div class="top-flags" id="topFlags"></div>
+  </header>
+
+  <div class="resbar" id="resbar"></div>
+
+  <main id="screens">
+    <section class="screen active" id="screen-den"></section>
+    <section class="screen" id="screen-battle"></section>
+    <section class="screen" id="screen-pack"></section>
+    <section class="screen" id="screen-quests"></section>
+    <section class="screen" id="screen-profile"></section>
+  </main>
+
+  <nav class="bottom-nav" id="nav">
+    <button class="nav-btn active" data-action="tab" data-tab="den"><span>🏔</span><b data-t="nav.den"></b></button>
+    <button class="nav-btn" data-action="tab" data-tab="battle"><span>⚔️</span><b data-t="nav.battle"></b></button>
+    <button class="nav-btn" data-action="tab" data-tab="pack"><span>🐺</span><b data-t="nav.pack"></b></button>
+    <button class="nav-btn" data-action="tab" data-tab="quests"><span>📋</span><b data-t="nav.quests"></b><i class="dot" id="questDot"></i></button>
+    <button class="nav-btn" data-action="tab" data-tab="profile"><span>👤</span><b data-t="nav.profile"></b></button>
+  </nav>
+</div>
+
+<div class="coach hidden" id="coach"></div>
+<div class="sheet-backdrop hidden" id="sheetBackdrop" data-action="close-sheet"></div>
+<div class="sheet hidden" id="sheet"></div>
+<div class="toast hidden" id="toast"></div>
+<div class="boot" id="boot"><div class="boot-wolf">🐺</div><div class="boot-title">Blue Wolf</div><div class="boot-msg" id="bootMsg">…</div></div>
+
+
+<script>
+/* AVTOMATIK YARATILGAN: php tools/export_demo_data.php — qoʻlda tahrirlamang. */
+window.BW_DEMO_DATA = {"config":{"xp_base":80.0,"xp_growth":1.38,"stage_early":0.4,"stage_mid":0.7,"stage_mid_level":10.0,"stage_late":1.25,"stage_late_level":15.0,"pack_unlock_level":4.0,"pack_base":10.0,"pack_growth":1.2,"tier_coef":1.45,"tier_step_level":4.0,"tier_step_building":4.0,"alpha_bonus":0.03,"counter_bonus":1.3,"cost_growth":1.3,"time_growth":1.25,"prod_base":20.0,"prod_growth":1.22,"store_base":40.0,"store_growth":1.22,"need_base":0.6,"need_growth":0.1,"raid_coef":0.22,"loot_cap_ratio":0.5,"battle_base_loss":0.4,"battle_max_loss":0.9,"battle_rounds":5.0,"battle_variance":0.1,"att_death_share":0.4,"def_death_share":0.25,"march_speed":20.0,"scout_speed":60.0,"match_offers":9.0,"match_refresh_min":30.0,"pair_limit":3.0,"shield_newbie_level":6.0,"shield_after_raid_h":8.0,"war_duration_h":12.0,"war_power_window":0.2,"war_min_participation":0.25,"war_min_members":0.4,"war_repeat_block_d":7.0,"war_winner_loss":0.2,"war_loser_loss":0.4,"war_member_cap":0.15,"occupancy_normal":0.6,"occupancy_exp":1.8,"occupancy_min":0.5,"occupancy_max":3.0,"promote_loss":0.1,"offline_store_mult":2.0,"offline_prod_rate":0.7,"hunger_cp_penalty":0.3,"hunger_prod_penalty":0.5,"hunger_leave_after_d":7.0,"sleep_shield_h":72.0,"speedup_daily_cap":0.25,"speedup_base_price":10.0,"speedup_price_growth":1.6,"return_price_coef":0.6,"vacation_delay_h":12.0,"vacation_free_h":48.0,"fund_share":0.15,"quest_daily_cap":0.15,"quest_weekly_cap":0.4,"moonlight_passive_base":0.03,"xp_hunt_coef":0.5,"xp_build_coef":0.02,"xp_pvp_coef":0.03,"xp_quest_share":0.1,"catchup_max_mult":0.5,"catchup_gap_coef":1.5,"catchup_gap_threshold":0.3,"catchup_taper_start":15.0,"catchup_taper_end":20.0,"den_speed_coef":0.01,"camp_yield_share_max":0.6,"max_level":10.0,"cp_w_power":2.0,"cp_w_speed":1.5,"cp_w_hp":0.5,"offline_after_min":5.0,"return_grace_min":30.0,"map_size_km":20.0,"start_meat":40.0,"start_stone":200.0,"start_wood":150.0,"start_hide":50.0,"start_bone":150.0,"start_moonstone":50.0,"role_scout_power":8.0,"role_scout_speed":22.0,"role_scout_hp":30.0,"role_attacker_power":20.0,"role_attacker_speed":12.0,"role_attacker_hp":45.0,"role_defender_power":12.0,"role_defender_speed":8.0,"role_defender_hp":90.0,"role_hunter_power":10.0,"role_hunter_speed":14.0,"role_hunter_hp":40.0,"role_hunter_unlock":1.0,"counter_weak":0.77,"train_meat_base":20.0,"train_bone_base":8.0,"train_time_min":4.0,"promote_cost_share":0.6,"promote_time_share":0.5,"final_time_coef_max":5.0,"role_cap_base":6.0,"role_cap_growth":1.2,"role_penalty_exp":2.0,"role_penalty_max":5.0,"train_speed_bonus":0.04,"queue_cancel_refund":0.8,"build_time_base_min":10.0,"bld_food_cave_stone":100.0,"bld_food_cave_wood":60.0,"bld_workshop_stone":150.0,"bld_workshop_wood":100.0,"bld_workshop_bone":40.0,"bld_field_stone":180.0,"bld_field_bone":90.0,"bld_field_meat":150.0,"bld_scout_rock_coef":0.5,"bld_battle_ground_coef":0.7,"bld_defense_wall_coef":0.6,"bld_hunt_path_coef":0.45,"bld_hospital_wood":120.0,"bld_hospital_meat":100.0,"bld_hospital_stone":80.0,"bld_market_stone":130.0,"bld_market_wood":110.0,"time_food_cave":1.0,"time_workshop":1.2,"time_scout_rock":0.8,"time_battle_ground":1.3,"time_defense_wall":1.1,"time_hunt_path":0.7,"time_hospital":0.9,"time_market":1.0,"protect_base":0.3,"protect_growth":0.02,"protect_max":0.85,"water_base":5.0,"water_growth":1.2,"water_need_base":0.4,"water_need_growth":0.04,"workshop_store_hours":10.0,"workshop_slot_base":2.0,"heal_cap_base":2.0,"heal_cap_growth":0.4,"heal_time_min":60.0,"heal_speed_growth":0.05,"heal_meat_share":0.25,"hunt_base_sec":60.0,"hunt_sec_per_kg":6.0,"hunt_hunter_bonus":0.05,"battle_win_ratio":1.1,"battle_full_win_ratio":1.5,"battle_retreat":0.2,"trap_chance":0.15,"trap_damage":0.2,"xp_result_win":1.5,"xp_result_draw":1.0,"xp_result_loss":0.5,"window_low":1.0,"window_high":1.0,"match_refresh_attacks":3.0,"bots_per_level":6.0,"carry_base":15.0,"carry_tier_bonus":0.2,"loot_win_full":1.0,"loot_win_partial":0.55,"loot_revenge":1.2,"loot_offline_coef":0.5,"loot_diff_m3":0.3,"loot_diff_m2":0.5,"loot_diff_m1":0.7,"loot_diff_0":1.0,"loot_diff_p1":1.3,"loot_diff_p2":1.5,"loot_diff_p3":1.7,"loot_repeat_1":1.0,"loot_repeat_2":0.5,"loot_repeat_3":0.25,"loot_repeat_4":0.1,"shield_loss_threshold":0.3,"shield_streak_h":16.0,"scout_partial":1.0,"scout_full":1.5,"scout_exact":2.5,"scout_cooldown_min":10.0,"scout_report_min":30.0,"scout_fail_injury":0.1,"scout_noise":0.2,"hunger_leave_daily":0.01,"hunger_leave_max":0.5,"tutorial_skip_step":12.0,"tutorial_steps":20.0,"quest_daily_count":4.0,"speedup_block_h":1.0,"second_queue_price":1500.0,"tutorial_free_speedups":5.0,"tutorial_hunt_sec":5.0,"share_scout":0.2,"share_defender":0.2,"share_hunter":0.15,"reserve_days":3.0,"bot_army_share":0.6,"bot_regen_sec":3600.0,"notify_daily_budget":6.0,"notify_tz_offset_h":5.0,"notify_night_from":23.0,"notify_night_to":8.0,"offline_report_min":30.0,"rl_read":60.0,"rl_write":30.0,"rl_pvp":20.0,"rl_refresh":10.0,"rl_events":120.0},"levels":{"1":{"name":"Honsyu boʻrisi","sci":"Canis lupus hodophilax","class":"Haqiqiy","weight":15,"xp_cost":0,"xp_total":0,"power":11,"speed":11,"hp":60,"cp":69,"army":1,"stage":0.4},"2":{"name":"Efiopiya boʻrisi","sci":"Canis simensis","class":"Haqiqiy","weight":16,"xp_cost":30,"xp_total":30,"power":13,"speed":13,"hp":71,"cp":81,"army":1,"stage":0.4},"3":{"name":"Arab boʻrisi","sci":"Canis lupus arabs","class":"Haqiqiy","weight":20,"xp_cost":40,"xp_total":70,"power":16,"speed":15,"hp":84,"cp":97,"army":1,"stage":0.4},"4":{"name":"Hind boʻrisi","sci":"Canis lupus pallipes","class":"Haqiqiy","weight":25,"xp_cost":60,"xp_total":130,"power":20,"speed":16,"hp":99,"cp":114,"army":10,"stage":0.4},"5":{"name":"Qizil boʻri","sci":"Canis rufus","class":"Haqiqiy","weight":30,"xp_cost":150,"xp_total":280,"power":25,"speed":18,"hp":116,"cp":135,"army":12,"stage":0.7},"6":{"name":"Italyan boʻrisi","sci":"Canis lupus italicus","class":"Haqiqiy","weight":32,"xp_cost":200,"xp_total":480,"power":30,"speed":20,"hp":137,"cp":159,"army":14,"stage":0.7},"7":{"name":"Meksika boʻrisi","sci":"Canis lupus baileyi","class":"Haqiqiy","weight":33,"xp_cost":280,"xp_total":760,"power":37,"speed":22,"hp":162,"cp":188,"army":17,"stage":0.7},"8":{"name":"Sharqiy boʻri","sci":"Canis lycaon","class":"Haqiqiy","weight":35,"xp_cost":390,"xp_total":1150,"power":45,"speed":25,"hp":191,"cp":223,"army":21,"stage":0.7},"9":{"name":"Iberiya boʻrisi","sci":"Canis lupus signatus","class":"Haqiqiy","weight":38,"xp_cost":530,"xp_total":1680,"power":55,"speed":27,"hp":226,"cp":264,"army":25,"stage":0.7},"10":{"name":"Dasht boʻrisi","sci":"Canis lupus campestris","class":"Haqiqiy","weight":40,"xp_cost":740,"xp_total":2420,"power":66,"speed":33,"hp":266,"cp":315,"army":30,"stage":0.7},"11":{"name":"Himolay boʻrisi","sci":"Canis lupus chanco","class":"Haqiqiy","weight":42,"xp_cost":1450,"xp_total":3870,"power":81,"speed":35,"hp":314,"cp":372,"army":36,"stage":1},"12":{"name":"Ezo boʻrisi","sci":"Canis lupus hattai","class":"Haqiqiy","weight":44,"xp_cost":2000,"xp_total":5870,"power":98,"speed":39,"hp":371,"cp":440,"army":43,"stage":1},"13":{"name":"Tibet boʻrisi","sci":"Canis lupus filchneri","class":"Haqiqiy","weight":45,"xp_cost":2770,"xp_total":8640,"power":119,"speed":43,"hp":437,"cp":521,"army":52,"stage":1},"14":{"name":"Arktika boʻrisi","sci":"Canis lupus arctos","class":"Haqiqiy","weight":46,"xp_cost":3820,"xp_total":12460,"power":144,"speed":48,"hp":516,"cp":618,"army":62,"stage":1},"15":{"name":"Buyuk tekislik boʻrisi","sci":"Canis lupus nubilus","class":"Haqiqiy","weight":48,"xp_cost":5270,"xp_total":17730,"power":176,"speed":55,"hp":609,"cp":739,"army":74,"stage":1},"16":{"name":"Yevroosiyo kulrang boʻrisi","sci":"Canis lupus lupus","class":"Haqiqiy","weight":55,"xp_cost":9080,"xp_total":26810,"power":214,"speed":62,"hp":718,"cp":880,"army":89,"stage":1.25},"17":{"name":"Tundra boʻrisi","sci":"Canis lupus albus","class":"Haqiqiy","weight":57,"xp_cost":12540,"xp_total":39350,"power":262,"speed":69,"hp":848,"cp":1052,"army":107,"stage":1.25},"18":{"name":"Alyaska ichki boʻrisi","sci":"Canis lupus pambasileus","class":"Haqiqiy","weight":60,"xp_cost":17300,"xp_total":56650,"power":319,"speed":77,"hp":1000,"cp":1254,"army":128,"stage":1.25},"19":{"name":"Makkenzi vodiysi boʻrisi","sci":"Canis lupus occidentalis","class":"Haqiqiy","weight":75,"xp_cost":23880,"xp_total":80530,"power":399,"speed":86,"hp":1180,"cp":1517,"army":154,"stage":1.25},"20":{"name":"Beringiya boʻrisi","sci":"Canis lupus (Beringian)","class":"Qadimgi","weight":65,"xp_cost":32950,"xp_total":113480,"power":673,"speed":129,"hp":1880,"cp":2480,"army":185,"stage":1.25},"21":{"name":"Dahshatli boʻri","sci":"Aenocyon dirus","class":"Qadimgi","weight":70,"xp_cost":45470,"xp_total":158950,"power":869,"speed":140,"hp":2219,"cp":3058,"army":222,"stage":1.25},"22":{"name":"Amarok","sci":"Inuit afsonasi","class":"Mifologik","weight":0,"xp_cost":62750,"xp_total":221700,"power":1491,"speed":234,"hp":3491,"cp":5079,"army":266,"stage":1.25},"23":{"name":"Geri va Freki","sci":"Skandinaviya afsonasi","class":"Mifologik","weight":0,"xp_cost":86590,"xp_total":308290,"power":1908,"speed":291,"hp":4119,"cp":6312,"army":319,"stage":1.25},"24":{"name":"Fenrir","sci":"Skandinaviya afsonasi","class":"Mifologik","weight":0,"xp_cost":119490,"xp_total":427780,"power":2576,"speed":284,"hp":4861,"cp":8009,"army":383,"stage":1.25},"25":{"name":"Koʻk Boʻri","sci":"Koʻkboʻri \/ Boʻrte Chino","class":"Mifologik","weight":0,"xp_cost":164900,"xp_total":592680,"power":3434,"speed":355,"hp":5736,"cp":10269,"army":460,"stage":1.25}},"prey":{"rodent":{"kg":0.5,"level":1,"pack":1},"bird":{"kg":1,"level":2,"pack":1},"rabbit":{"kg":2,"level":3,"pack":1},"marmot":{"kg":8,"level":4,"pack":3},"gazelle":{"kg":25,"level":5,"pack":4},"boar":{"kg":50,"level":7,"pack":6},"deer":{"kg":60,"level":9,"pack":8},"reindeer":{"kg":100,"level":11,"pack":10},"argali":{"kg":120,"level":13,"pack":12},"horse":{"kg":250,"level":15,"pack":16},"moose":{"kg":300,"level":17,"pack":20},"bison":{"kg":500,"level":19,"pack":26},"mammoth_calf":{"kg":800,"level":20,"pack":32},"mammoth":{"kg":1200,"level":21,"pack":40},"spirit":{"kg":400,"level":22,"pack":24}},"tutorial":{"1":{"level":1,"check":null,"reward":[]},"2":{"level":1,"check":{"hunts":1},"reward":{"meat":5}},"3":{"level":1,"check":null,"reward":[]},"4":{"level":2,"check":{"building":["food_cave",2]},"reward":{"free_speedups":1}},"5":{"level":2,"check":null,"reward":{"meat":20}},"6":{"level":2,"check":{"building":["workshop",2]},"reward":{"free_speedups":1}},"7":{"level":2,"check":null,"reward":{"stone":100}},"8":{"level":3,"check":{"building":["hunt_path",2]},"reward":{"free_speedups":1}},"9":{"level":3,"check":{"army":["hunter",1]},"reward":[]},"10":{"level":3,"check":{"building":["food_cave",3]},"reward":{"free_speedups":1}},"11":{"level":4,"check":null,"reward":{"army":["hunter",3],"meat":30}},"12":{"level":4,"check":{"hunts":3},"reward":{"meat":8}},"13":{"level":4,"check":{"building":["battle_ground",2]},"reward":{"free_speedups":1}},"14":{"level":4,"check":{"army":["attacker",1]},"reward":[]},"15":{"level":4,"check":null,"reward":{"meat":20}},"16":{"level":4,"check":{"tutorial_battle":true},"reward":{"stone":50}},"17":{"level":5,"check":{"building":["scout_rock",2]},"reward":{"free_speedups":1,"army":["scout",2]}},"18":{"level":5,"check":{"tutorial_scout":true},"reward":[]},"19":{"level":5,"check":{"building":["defense_wall",2]},"reward":{"free_speedups":1}},"20":{"level":5,"check":null,"reward":{"meat":500,"stone":300,"wood":200,"free_speedups":1}}},"quests":{"daily":{"hunt":{"target":3,"reward":{"meat":1.0}},"build":{"target":1,"reward":{"stone":0.5,"wood":0.5}},"train":{"target":1,"reward":{"bone":1.0}},"pvp":{"target":1,"reward":{"stone":0.25,"wood":0.25,"hide":0.25,"bone":0.25},"level":4},"login":{"target":1,"reward":{"meat":0.5}}}},"locales":{"nav.den":"In","nav.battle":"Jang","nav.pack":"Toʻda","nav.quests":"Vazifalar","nav.profile":"Profil","common.level":"Daraja","common.done":"Tayyor","common.now":"Hozir","common.next":"Keyingi","common.save":"Saqlash","common.saved":"Saqlandi","common.soon":"Tez orada","common.soon_long":"Bu boʻlim keyingi versiyada ochiladi.","time.h":"soat","time.m":"daq","time.s":"son","res.meat":"Goʻsht","res.water":"Suv","res.herb":"Shifobaxsh oʻt","res.stone":"Tosh","res.wood":"Shox-shabba","res.hide":"Teri","res.bone":"Suyak","res.moonstone":"Oy toshi","flag.hunger":"🍂 Ochlik","flag.shield":"🛡 Qalqon","flag.incoming":"⚠️ Hujum!","wolf.class.Haqiqiy":"haqiqiy boʻri","wolf.class.Qadimgi":"qadimgi boʻri","wolf.class.Mifologik":"afsonaviy boʻri","den.queues":"Navbat","den.queue_empty":"Navbat boʻsh — bino quring yoki askar tayyorlang.","den.free_speedups":"⚡ bepul: {n}","den.buildings":"Binolar","den.meat_rate":"Toʻda soatiga {v} kg goʻsht yeydi","hunt.go":"Ovga chiqish","hunt.title":"Ov","hunt.on":"{prey} ovi…","hunt.started":"Ov boshlandi!","hunt.solo":"yolgʻiz","hunt.desc":"Alfa ovga chiqadi. Yirik oʻlja uchun toʻda kerak — inda {n} ta ovchi bor.","queue.free":"Bepul","queue.speedup":"Tezlashtirish","queue.done":"Tayyor!","queue.cancel_confirm":"Bekor qilish uchun ✕ ni yana bir marta bosing — resursning 80% i qaytadi.","queue.train":"{n} × {role} ({tier})","queue.promote":"{n} × {role} → {tier}","queue.heal":"{n} × {role} davolanmoqda","speedup.desc":"Bugun yana {left} tezlashtirish mumkin (kunlik 25% chegara).","speedup.rule":"Tezlashtirish faqat vaqt tejaydi — kuch sotilmaydi. Har keyingi soat qimmatroq.","ws.rate":"Soatiga {v} birlik · sigʻim {cap}","ws.collect":"Yigʻish","ws.collected":"Omborga oʻtkazildi","ws.alloc":"Taqsimot","ws.alloc_desc":"Ustaxona soatlik ishlab chiqarishini 4 resurs orasida taqsimlang.","ws.alloc_sum":"Yigʻindi: {s}% (100% boʻlishi kerak)","bld.den":"In","bld.food_cave":"Oziq gʻori","bld.workshop":"Ustaxona qoyasi","bld.scout_rock":"Razvedka qoyasi","bld.battle_ground":"Jang maydoni","bld.defense_wall":"Himoya devori","bld.hunt_path":"Ov soʻqmogʻi","bld.hospital":"Shifo gʻori","bld.market":"Bozor","bld.den.desc":"Toʻdaning asosiy makoni. Darajasi sizning darajangiz bilan birga oʻsadi va mashqni tezlashtiradi.","bld.food_cave.desc":"Goʻsht, suv va oʻtni saqlaydi. Kattaroq gʻor — koʻproq zaxira va reydda kuchliroq himoya.","bld.workshop.desc":"Tosh, shox-shabba, teri va suyak ishlab chiqaradi.","bld.scout_rock.desc":"Razvedkachilar tieri va mashqi.","bld.battle_ground.desc":"Hujumchilar tieri va mashqi.","bld.defense_wall.desc":"Himoyachilar tieri va mashqi.","bld.hunt_path.desc":"Ovchilar tieri va mashqi.","bld.hospital.desc":"Jarohatlangan boʻrilarni davolaydi. Boʻrilar oʻlmaydi — jarohatlanadi.","bld.market.desc":"Resurslarni almashtirish.","bld.den.auto":"In alohida qurilmaydi — daraja koʻtarilganda avtomatik oʻsadi.","bld.next":"{l}-darajaga","bld.upgrade":"Kuchaytirish","bld.started":"Qurilish boshlandi","bld.max_by_level":"Bino oʻyinchi darajasidan oshmaydi. Darajangizni koʻtaring!","fx.capacity":"Sigʻim","fx.protection":"Himoya","fx.water_per_h":"Suv \/ soat","fx.per_hour":"Ishlab chiqarish \/ soat","fx.slots":"Yigʻuvchi slot","fx.max_tier":"Maks tier","fx.soldier_cap":"Askar sigʻimi","fx.train_speed":"Mashq tezligi","fx.heal_cap":"Bir vaqtda davolash","fx.heal_minutes":"Davolash (daq)","hospital.injured":"Jarohatlanganlar","hospital.none":"Jarohatlangan boʻri yoʻq.","hospital.started":"Davolash boshlandi","prey.rodent":"Kemiruvchi","prey.bird":"Qush","prey.rabbit":"Quyon","prey.marmot":"Sugʻur","prey.gazelle":"Jayron","prey.boar":"Yovvoyi choʻchqa","prey.deer":"Kiyik","prey.reindeer":"Bugʻu","prey.argali":"Arxar","prey.horse":"Yovvoyi ot","prey.moose":"Los","prey.bison":"Bizon","prey.mammoth_calf":"Mamont bolasi","prey.mammoth":"Mamont","prey.spirit":"Ruh oʻljasi","role.scout":"Razvedkachi","role.attacker":"Hujumchi","role.defender":"Himoyachi","role.hunter":"Ovchi","role.scout.desc":"Raqibni koʻradi, tuzoqni topadi. Himoyachini yengadi.","role.attacker.desc":"Reyd va janglar. Razvedkachini yengadi.","role.defender.desc":"In va omborni qoʻriqlaydi. Hujumchini yengadi.","role.hunter.desc":"Ovda toʻda boʻladi va koʻproq goʻsht olib keladi.","role.unlock":"{l}-darajada ochiladi","tier.1":"Yosh","tier.2":"Tajribali","tier.3":"Urushchi","tier.4":"Veteran","tier.5":"Elita","tier.6":"Afsonaviy","pack.size":"Toʻda","pack.occupancy":"Toʻlganlik {p}% · mashq vaqti ×{k}","pack.train":"Tayyorlash","pack.promote":"Tierga oʻtkazish","pack.free":"boʻsh joy: {n}","pack.training":"Mashq boshlandi","pack.promoting":"Almashtirish boshlandi","pack.train_note":"Toʻda kam boʻlsa mashq tezroq, toʻla boʻlsa sekinroq.","pick.qty":"Soni","pick.none":"Inda mos askar yoʻq.","pick.time":"Borish {one} · borib-qaytish {both}","pick.scouted":"✔ Razvedka qilingan — tuzoq xavfi yoʻq","pick.trap":"⚠️ Razvedkasiz: 15% tuzoq ehtimoli (+20% zarar)","promote.desc":"Past tier askarlar kuch nisbatida yuqori tierga almashtiriladi (10% yoʻqotish bilan). Foyda — kam goʻsht va kam joy.","promote.rate":"1 ta yuqori tier = {need} ta past tier","promote.have":"Mavjud: {n} · maksimal: {m} ta","clan.title":"Klan (toʻda)","clan.soon":"Klan, lavozimlar, xazina va toʻda urushi keyingi versiyada.","pvp.locked_title":"Jang maydoni yopiq","pvp.locked":"PvP {l}-darajada, toʻda bilan birga ochiladi.","pvp.targets":"Raqiblar","pvp.attack":"Hujum","pvp.scout":"Razvedka","pvp.wild":"yovvoyi","pvp.newbie_note":"1–6 darajada siz qalqon ostidasiz. Hozircha yovvoyi toʻdalarga hujum qilib mashq qiling.","pvp.marches":"Yurishlar","pvp.loot":"Oʻlja","pvp.log":"Jang jurnali","pvp.log_empty":"Hali jang boʻlmagan.","pvp.incoming":"{name} iningizga kelmoqda","pvp.sent":"Toʻda yoʻlga chiqdi!","pvp.scout_sent":"Razvedkachilar yoʻlda","band.weak":"Kuchsiz","band.even":"Teng","band.strong":"Kuchli","march.outbound":"yoʻlda","march.returning":"qaytmoqda","march.recalled":"Qaytarib chaqirildi","march.recall":"Qaytarish","grade.fail":"Muvaffaqiyatsiz","grade.partial":"Qisman","grade.full":"Toʻliq","grade.exact":"Aniq","scout.fail":"Razvedkachilar qoʻlga tushdi. Raqib bundan xabar topdi.","scout.total":"Inda {n} ta boʻri","scout.loot":"Taxminiy oʻlja","scout.valid":"Maʼlumot amal qiladi:","scout.expired":"eskirgan","outcome.win":"Gʻalaba","outcome.loss":"Magʻlubiyat","outcome.draw":"Durang","round.approach":"Yaqinlashuv","round.trap":"Tuzoq!","round.clash":"Toʻqnashuv","round.melee":"Asosiy jang","round.decisive":"Hal qiluvchi","round.att_retreat":"Hujumchi chekinmoqda","round.def_retreat":"Himoyachi chekinmoqda","round.attacker_win":"Hujumchi yutdi","round.defender_win":"Himoyachi yutdi","round.draw":"Durang","battle.trap":"⚠️ Razvedkasiz hujum tuzoqqa tushdi: zarar +20%.","battle.losses":"Yoʻqotishlar","battle.attacker":"Hujumchi","battle.defender":"Himoyachi","quests.daily":"Kundalik vazifalar","quests.weekly":"Haftalik","quests.season":"Mavsum yoʻli","quests.claim":"Olish","quests.got":"Mukofot:","quests.reset":"Yangilanishga {t}","quests.rule":"Mukofot vaqt tejaydi, kuch bermaydi.","quest.hunt":"🐾 Ovchi — 3 marta ov qiling","quest.build":"🪨 Quruvchi — 1 binoni kuchaytiring","quest.train":"➕ Murabbiy — 1 askar tayyorlang","quest.pvp":"⚔️ Jangchi — 1 PvP jangi","quest.login":"🌅 Kirish bonusi","profile.wins":"Gʻalaba","profile.hunts":"Ov","profile.ladder":"Boʻri zinapoyasi (1–25)","profile.lang":"Til","profile.lang_soon":"Ruscha va inglizcha keyingi versiyada.","shop.title":"Doʻkon","shop.soon":"Oy toshi paketlari (Telegram Stars) keyingi versiyada. Hozir test uchun 50 oy toshi berilgan.","return.title":"Qaytganingiz bilan, alfa!","return.away":"Siz {t} yoʻq edingiz. Toʻda sizni kutdi.","return.attacks":"Bu vaqtda iningizga {n} marta hujum boʻldi — jang jurnalini koʻring.","return.go":"Toʻdani boq","tutorial.step":"Qadam {n}\/20","tutorial.skip":"Oʻtkazib yuborish","tutorial.reward":"Mukofot:","tutorial.wait":"Qurilish tugashini kuting: {t}","tutorial.hunt_hint":"ovga chiqib goʻsht toping","tutorial.done_title":"Omad, alfa!","tutorial.done":"Endi siz oʻyinga tayyorsiz. Keyingi maqsad: 6-daraja — Shifo gʻorini oching.","tutorial.step.1.text":"Sen toʻdangni yoʻqotgan yolgʻiz boʻrisan. Omon qolish kerak.","tutorial.step.1.action":"Boshlash","tutorial.step.2.text":"Mana oʻlja. Ov qilib koʻr.","tutorial.step.2.action":"🐁 Ovlash","tutorial.step.3.text":"Yashash uchun in kerak. Mana bu joy yaxshi.","tutorial.step.3.action":"🏔 Inni qoʻyish","tutorial.step.4.text":"Goʻsht buziladi. Uni saqlash uchun Oziq gʻori kerak.","tutorial.step.4.action":"🍖 Oziq gʻorini qurish","tutorial.step.5.text":"Ovlagan goʻshtingni gʻorga sol.","tutorial.step.5.action":"Saqlash","tutorial.step.6.text":"Qurilish uchun tosh kerak. Ustaxona qoyasini qur.","tutorial.step.6.action":"🪨 Ustaxona qurish","tutorial.step.7.text":"Ustaxona sen uchun tosh, shox-shabba, teri va suyak yigʻadi. Taqsimotni tanla.","tutorial.step.7.action":"⚖️ Tasdiqlash","tutorial.step.8.text":"Ov qilish uchun mashq kerak. Ov soʻqmogʻini qur.","tutorial.step.8.action":"🐾 Ov soʻqmogʻi","tutorial.step.9.text":"Birinchi ovchingni tayyorla.","tutorial.step.9.action":"🥩 Ovchi tayyorlash","tutorial.step.10.text":"Binolarni kuchaytirsang, koʻproq sigʻadi.","tutorial.step.10.action":"⬆️ Oziq gʻori L3","tutorial.step.11.text":"Boʻri yolgʻiz kuchsiz. Endi toʻdang boʻladi!","tutorial.step.11.action":"🐺🐺🐺 Toʻdani koʻrish","tutorial.step.12.text":"Toʻda bilan kattaroq oʻlja ovlash mumkin. 3 marta ov qil.","tutorial.step.12.action":"🦫 Toʻda ovi","tutorial.step.13.text":"Jang qiladigan boʻrilar kerak.","tutorial.step.13.action":"⚔️ Jang maydoni","tutorial.step.14.text":"Birinchi hujumchingni tayyorla.","tutorial.step.14.action":"⚔️ Hujumchi tayyorlash","tutorial.step.15.text":"Yolgʻiz boʻri omon qolmaydi. Klanlar tez orada ochiladi — hozircha oʻz toʻdangni kuchaytir.","tutorial.step.15.action":"Tushunarli","tutorial.step.16.text":"Endi birinchi jang. Qoʻrqma — bu mashq jangi.","tutorial.step.16.action":"⚔️ Jangga!","tutorial.step.17.text":"Raqibni oldindan koʻrish uchun razvedkachi kerak.","tutorial.step.17.action":"🔭 Razvedka qoyasi","tutorial.step.18.text":"Raqibni razvedka qilib koʻr.","tutorial.step.18.action":"🔍 Razvedka","tutorial.step.19.text":"Sening iningga ham hujum qilishadi.","tutorial.step.19.action":"🛡 Himoya devori","tutorial.step.20.text":"Endi siz oʻyinga tayyorsiz. Omad, alfa!","tutorial.step.20.action":"🏆 Yakunlash","queue.cancel_tap":"Yana bos","queue.cancelled":"Bekor qilindi","demo.badge":"Demo","demo.title":"Demo vaqti","demo.desc":"Bu brauzerda ishlaydigan demo: oʻyin mantiqi server bilan bir xil, holat shu brauzerda saqlanadi. Qurilish, mashq va yurishlarni kutmaslik uchun vaqtni oldinga suring.","demo.offset":"Hozircha {t} oldinga surilgan.","demo.skipped":"Vaqt {t} oldinga surildi","demo.reset":"Qaytadan boshlash","demo.reset_confirm":"Hamma progress oʻchadi — yana bosing","error.UNAUTHORIZED":"Telegram orqali qayta oching","error.BANNED":"Akkaunt bloklangan","error.NOT_ENOUGH_RESOURCES":"Resurs yetarli emas","error.LEVEL_TOO_LOW":"Daraja yetarli emas ({need_level})","error.BUILDING_TOO_LOW":"Bino darajasi yetarli emas","error.QUEUE_BUSY":"Navbat band","error.CAPACITY_FULL":"Sigʻim toʻlgan","error.TIER_LOCKED":"Tier hali ochilmagan","error.OUT_OF_WINDOW":"Raqib hujum oynasidan tashqarida","error.TARGET_SHIELDED":"Raqib qalqon ostida","error.PAIR_LIMIT":"Bu raqibga bugun 3 marta hujum qildingiz","error.SPEEDUP_CAP":"Kunlik tezlashtirish chegarasi","error.RATE_LIMITED":"Juda tez! Biroz kuting","error.VERSION_OUTDATED":"Ilovani yangilang","error.DEN_AUTO_LEVEL":"In avtomatik oʻsadi","error.NOT_ENOUGH_ARMY":"Askar yetarli emas","error.COOLDOWN":"Biroz kuting","error.TUTORIAL_ORDER":"Qadam tartibi buzildi","error.TUTORIAL_CHECK":"Avval vazifani bajaring","error.NOT_IN_MVP":"Keyingi versiyada","error.NETWORK":"Aloqa xatosi","error.SERVER_ERROR":"Server xatosi","notify.attack_incoming":"⚠️ {from} iningizga hujum qilmoqda! Yetib kelish: {arrives_at}","notify.attack_result":"⚔️ Jang tugadi. Natija: {result}","notify.build_done":"🏗 Qurilish tugadi!","notify.scout_failed":"🔍 {from} iningizni razvedka qilmoqchi boʻldi — qoʻlga tushdi!"}};
+
+/* Blue Wolf — brauzer ichidagi demo server.
+ * src/*.php dagi oʻyin mantiqining JavaScript nusxasi: API soʻrovlarini (method, path, body)
+ * qabul qilib, xuddi PHP server kabi { ok, data, state } javob qaytaradi. Holat localStorage da.
+ * Balans raqamlari va jadvallar demo-data.js dan (sql/ va data/ fayllaridan eksport qilingan).
+ * Faqat bitta oʻyinchi + NPC toʻdalar. Server mantiqi oʻzgarsa, shu fayl ham yangilanadi.
+ */
+(function () {
+  "use strict";
+
+  var D = window.BW_DEMO_DATA;
+  var STORE = "bw_demo_v1";
+  var ROLES = ["scout", "attacker", "defender", "hunter"];
+  var TIERS = 6;
+  var BUILDINGS = ["den", "food_cave", "workshop", "scout_rock", "battle_ground", "defense_wall", "hunt_path", "hospital", "market"];
+  var ROLE_BUILDING = { scout: "scout_rock", attacker: "battle_ground", defender: "defense_wall", hunter: "hunt_path" };
+  var BEATS = { defender: "attacker", attacker: "scout", scout: "defender" };
+  var WS = ["stone", "wood", "hide", "bone"];
+  var RES = ["meat", "water", "herb", "stone", "wood", "hide", "bone"];
+  var LOOT_RES = ["meat", "stone", "wood", "hide", "bone"];
+  var V2_BUILDINGS = ["market"];
+  var HTTP = { UNAUTHORIZED: 401, NOT_FOUND: 404, QUEUE_BUSY: 409, PAIR_LIMIT: 429, SPEEDUP_CAP: 429, COOLDOWN: 429, NOT_IN_MVP: 501 };
+  var TUTORIAL_NAME = "Mashq boʻrisi";
+  var ADJ = ["Kulrang", "Qora", "Oq", "Choʻl", "Togʻ", "Tun", "Qoya", "Dasht", "Yovvoyi", "Sovuq", "Qizil", "Kumush"];
+  var NOUN = ["Toʻda", "Panja", "Tish", "Soya", "Shamol", "Izquvar", "Yirtqich", "Uvlovchi", "Qoʻriqchi", "Daydi"];
+
+  var db = null;
+
+  function ApiError(code, message, details) { this.code = code; this.message = message || code; this.details = details || {}; }
+
+  // ================================================================ konfig va vaqt
+
+  function C(k) { if (!(k in D.config)) throw new Error("game_config kaliti topilmadi: " + k); return D.config[k]; }
+  function CI(k) { return Math.round(C(k)); }
+  function levelRow(l) { var n = Object.keys(D.levels).length; return D.levels[Math.max(1, Math.min(n, l))]; }
+  function nowS() { return Math.floor(Date.now() / 1000) + (db ? db.offset : 0); }
+  function iso(s) { return s == null ? null : new Date(s * 1000).toISOString().replace(".000Z", "Z"); }
+  function rnd() { return Math.random(); }
+  function pick(a) { return a[Math.floor(rnd() * a.length)]; }
+  function randInt(a, b) { return a + Math.floor(rnd() * (b - a + 1)); }
+  function round2(x) { return Math.round(x * 100) / 100; }
+
+  // ================================================================ formulalar (src/F.php)
+
+  var F = {
+    stage: function (l) {
+      if (l <= CI("pack_unlock_level")) return C("stage_early");
+      if (l <= CI("stage_mid_level")) return C("stage_mid");
+      if (l <= CI("stage_late_level")) return 1.0;
+      return C("stage_late");
+    },
+    baseCost: function (type) {
+      switch (type) {
+        case "food_cave": return { stone: C("bld_food_cave_stone"), wood: C("bld_food_cave_wood") };
+        case "workshop": return { stone: C("bld_workshop_stone"), wood: C("bld_workshop_wood"), bone: C("bld_workshop_bone") };
+        case "scout_rock": case "battle_ground": case "defense_wall": case "hunt_path":
+          var k = C("bld_" + type + "_coef");
+          return { stone: C("bld_field_stone") * k, bone: C("bld_field_bone") * k, meat: C("bld_field_meat") * k };
+        case "hospital": return { wood: C("bld_hospital_wood"), meat: C("bld_hospital_meat"), stone: C("bld_hospital_stone") };
+        case "market": return { stone: C("bld_market_stone"), wood: C("bld_market_wood") };
+      }
+      throw new ApiError("BAD_REQUEST", "Nomaʼlum bino");
+    },
+    buildingCost: function (type, to) {
+      var m = Math.pow(C("cost_growth"), to - 2) * F.stage(to), base = F.baseCost(type), out = {};
+      Object.keys(base).forEach(function (k) { out[k] = Math.round(base[k] * m); });
+      return out;
+    },
+    buildingTime: function (type, to) {
+      return Math.round(C("build_time_base_min") * C("time_" + type) * Math.pow(C("time_growth"), to - 2) * F.stage(to) * 60);
+    },
+    foodCap: function (l) { return C("store_base") * Math.pow(C("store_growth"), l - 1); },
+    protection: function (l) { return Math.min(C("protect_max"), C("protect_base") + C("protect_growth") * (l - 1)); },
+    waterRate: function (l) { return C("water_base") * Math.pow(C("water_growth"), l - 1); },
+    workshopRate: function (l) { return C("prod_base") * Math.pow(C("prod_growth"), l - 1); },
+    workshopCap: function (l) { return F.workshopRate(l) * C("workshop_store_hours"); },
+    workshopSlots: function (l) { return CI("workshop_slot_base") + Math.floor(l / 3); },
+    roleCap: function (l) { return C("role_cap_base") * Math.pow(C("role_cap_growth"), l - 1); },
+    trainSpeed: function (l) { return 1 + C("train_speed_bonus") * (l - 1); },
+    denCoef: function (l) { return 1 + C("den_speed_coef") * (l - 1); },
+    healCap: function (l) { return Math.floor(C("heal_cap_base") + C("heal_cap_growth") * (l - 1)); },
+    healTime: function (l) { return Math.round(C("heal_time_min") * 60 / (1 + C("heal_speed_growth") * (l - 1))); },
+    armyCap: function (l) { return levelRow(l).army; },
+    meatNeed: function (l) { return C("need_base") + C("need_growth") * (l - 1); },
+    xpTotal: function (l) { return levelRow(l).xp_total; },
+    roleUnlock: function (role) { return role === "hunter" ? CI("role_hunter_unlock") : CI("pack_unlock_level"); },
+    maxTier: function (role, level, bl) {
+      if (level < F.roleUnlock(role)) return 0;
+      var t = Math.min(TIERS, Math.floor(level / CI("tier_step_level")), Math.floor(bl / CI("tier_step_building")));
+      return Math.max(1, t);
+    },
+    tierCp: function (role, tier, alpha) {
+      var base = C("role_" + role + "_power") * C("cp_w_power") + C("role_" + role + "_speed") * C("cp_w_speed") + C("role_" + role + "_hp") * C("cp_w_hp");
+      return base * Math.pow(C("tier_coef"), tier - 1) * (1 + C("alpha_bonus") * alpha);
+    },
+    trainCost: function (tier) {
+      var m = Math.pow(C("tier_coef"), 2 * (tier - 1));
+      return { meat: Math.round(C("train_meat_base") * m), bone: Math.round(C("train_bone_base") * m) };
+    },
+    trainTime: function (tier) { return C("train_time_min") * 60 * Math.pow(C("tier_coef"), tier - 1); },
+    occupancyCoef: function (occ) {
+      var k = Math.pow(occ / C("occupancy_normal"), C("occupancy_exp"));
+      return Math.max(C("occupancy_min"), Math.min(C("occupancy_max"), k));
+    },
+    buildingPenalty: function (n, cap) {
+      var k = Math.pow(n / Math.max(1, cap), C("role_penalty_exp"));
+      return Math.max(1, Math.min(C("role_penalty_max"), k));
+    },
+    promoteNeed: function (from, to) { return Math.pow(C("tier_coef"), to - from) * (1 + C("promote_loss")); },
+    carry: function (tier) { return C("carry_base") * (1 + C("carry_tier_bonus") * tier); },
+    counter: function (mine, theirs) {
+      if (BEATS[mine] === theirs) return C("counter_bonus");
+      if (BEATS[theirs] === mine) return C("counter_weak");
+      return 1;
+    },
+    lootDiffCoef: function (d) {
+      d = Math.max(-3, Math.min(3, d));
+      return C(d === 0 ? "loot_diff_0" : (d < 0 ? "loot_diff_m" + (-d) : "loot_diff_p" + d));
+    },
+    repeatCoef: function (nth) { return C("loot_repeat_" + Math.max(1, Math.min(4, nth))); },
+    marchSeconds: function (km, scout) { return Math.max(1, Math.round(km / C(scout ? "scout_speed" : "march_speed") * 3600)); },
+    huntSeconds: function (kg) { return Math.round(C("hunt_base_sec") + C("hunt_sec_per_kg") * kg); },
+    speedupPrice: function (used, sec) {
+      var block = Math.round(C("speedup_block_h") * 3600), price = 0, pos = used, end = used + sec;
+      while (pos < end) {
+        var i = Math.floor(pos / block), chunk = Math.min(end, (i + 1) * block) - pos;
+        price += Math.round(C("speedup_base_price") * Math.pow(C("speedup_price_growth"), i)) * chunk / block;
+        pos += chunk;
+      }
+      return Math.ceil(price - 1e-9);
+    },
+    speedupDailyCap: function () { return Math.round(86400 * C("speedup_daily_cap")); },
+    dailyProduction: function (l) { return F.workshopRate(l) * 24; }
+  };
+
+  // ================================================================ jang (src/Battle.php)
+
+  var Battle = {
+    resolve: function (att, def, trap) {
+      var v = C("battle_variance");
+      var attEp = Battle.ep(att.groups, att.level, def.groups, def.level, att.hungry);
+      var defEp = Math.max(1, Battle.ep(def.groups, def.level, att.groups, att.level, def.hungry) +
+        (def.alpha_cp || 0) * (def.hungry ? 1 - C("hunger_cp_penalty") : 1));
+      var r = attEp / defEp, max = C("battle_max_loss"), base = C("battle_base_loss");
+      var attLoss = Math.min(max, base / Math.max(r, 1e-9)) * (1 + v * (2 * rnd() - 1));
+      if (trap) attLoss *= 1 + C("trap_damage");
+      var defLoss = Math.min(max, base * r) * (1 + v * (2 * rnd() - 1));
+      attLoss = Math.max(0, Math.min(max, attLoss));
+      defLoss = Math.max(0, Math.min(max, defLoss));
+      var win = C("battle_win_ratio");
+      var result = r >= win ? "attacker_win" : (r <= 1 / win ? "defender_win" : "draw");
+      var attLost = Battle.split(att.groups, attLoss, C("att_death_share"));
+      var defLost = Battle.split(def.groups, defLoss, C("def_death_share"));
+      return {
+        ep_attacker: Math.round(attEp), ep_defender: Math.round(defEp), ratio: Math.round(r * 1000) / 1000, result: result,
+        full_win: result === "attacker_win" && r >= C("battle_full_win_ratio"), att_loss_pct: attLoss, def_loss_pct: defLoss,
+        att_losses: attLost, def_losses: defLost, att_damage: Math.round(Battle.lostEp(defLost, def.level)),
+        def_damage: Math.round(Battle.lostEp(attLost, att.level)), trap: trap, log: Battle.log(attLoss, defLoss, result, trap)
+      };
+    },
+    ep: function (groups, level, enemy, enemyLevel, hungry) {
+      var share = {}, total = 0, sum = 0;
+      enemy.forEach(function (g) { var e = g.qty * F.tierCp(g.role, g.tier, enemyLevel); share[g.role] = (share[g.role] || 0) + e; total += e; });
+      groups.forEach(function (g) {
+        var k = 1;
+        if (total > 0) { k = 0; Object.keys(share).forEach(function (role) { k += F.counter(g.role, role) * share[role] / total; }); }
+        sum += g.qty * F.tierCp(g.role, g.tier, level) * k;
+      });
+      return hungry ? sum * (1 - C("hunger_cp_penalty")) : sum;
+    },
+    split: function (groups, pct, deathShare) {
+      var total = 0; groups.forEach(function (g) { total += g.qty; });
+      var target = Math.round(total * pct), assigned = 0;
+      var rows = groups.map(function (g, i) { var ex = g.qty * pct; assigned += Math.floor(ex); return { i: i, g: g, n: Math.floor(ex), frac: ex - Math.floor(ex) }; });
+      rows.slice().sort(function (a, b) { return b.frac - a.frac; }).forEach(function (r) {
+        if (assigned < target && r.n < r.g.qty) { r.n++; assigned++; }
+      });
+      var dead = [], injured = [];
+      rows.forEach(function (r) {
+        if (r.n <= 0) return;
+        var d = Math.round(r.n * deathShare);
+        if (d > 0) dead.push({ role: r.g.role, tier: r.g.tier, qty: d });
+        if (r.n - d > 0) injured.push({ role: r.g.role, tier: r.g.tier, qty: r.n - d });
+      });
+      return { dead: dead, injured: injured };
+    },
+    lostEp: function (l, level) {
+      var s = 0; l.dead.concat(l.injured).forEach(function (g) { s += g.qty * F.tierCp(g.role, g.tier, level); }); return s;
+    },
+    log: function (attLoss, defLoss, result, trap) {
+      var rounds = CI("battle_rounds"), retreat = C("battle_retreat"), shares = { 1: 0.2, 2: 0.35, 3: 0.35, 4: 0.1 };
+      var log = [{ round: 0, event: trap ? "trap" : "approach", att: 100, def: 100 }], a = 1, d = 1;
+      for (var i = 1; i < rounds; i++) {
+        a -= attLoss * (shares[i] || 0); d -= defLoss * (shares[i] || 0);
+        var ev = i === 1 ? "clash" : (i === rounds - 1 ? "decisive" : "melee");
+        if (i === rounds - 1 && Math.min(a, d) < retreat) ev = a < d ? "att_retreat" : "def_retreat";
+        log.push({ round: i, event: ev, att: Math.round(a * 100), def: Math.round(d * 100) });
+      }
+      log.push({ round: rounds, event: result, att: Math.round(a * 100), def: Math.round(d * 100) });
+      return log;
+    }
+  };
+
+  // ================================================================ baza (localStorage)
+
+  function emptyDb() {
+    return { v: 1, seq: 1, offset: 0, me: null, players: {}, res: {}, bld: {}, army: {}, queues: [], hunts: [], marches: [],
+      battles: [], reports: [], offers: {}, quests: {}, speedup: {} };
+  }
+  function load() {
+    try { var s = localStorage.getItem(STORE); if (s) { db = JSON.parse(s); return; } } catch (e) {}
+    db = emptyDb();
+  }
+  function persist() { try { localStorage.setItem(STORE, JSON.stringify(db)); } catch (e) {} }
+  function nextId() { return db.seq++; }
+
+  function ctx(pid) {
+    var p = db.players[pid];
+    if (!p) throw new ApiError("NOT_FOUND", "Oʻyinchi topilmadi");
+    return { p: p, r: db.res[pid], b: db.bld[pid], army: db.army[pid] };
+  }
+
+  // ================================================================ oʻyinchi (src/Game.php)
+
+  function randomSpot() { var s = CI("map_size_km"); return [randInt(0, s), randInt(0, s)]; }
+
+  function initEconomy(pid, now, res, bl) {
+    var r = { meat: 0, water: 0, herb: 0, stone: 0, wood: 0, hide: 0, bone: 0, moonstone: 0,
+      alloc_stone: 40, alloc_wood: 30, alloc_hide: 15, alloc_bone: 15, ws_stone: 0, ws_wood: 0, ws_hide: 0, ws_bone: 0, last_tick: now };
+    Object.keys(res).forEach(function (k) { r[k] = res[k]; });
+    db.res[pid] = r;
+    db.bld[pid] = {};
+    BUILDINGS.forEach(function (t) { db.bld[pid][t] = bl || 1; });
+    db.army[pid] = {};
+  }
+
+  function newPlayer(pid, name, level, now, bot) {
+    var xy = randomSpot();
+    db.players[pid] = { id: pid, display_name: name, lang: "uz", level: level, xp: F.xpTotal(level), x: xy[0], y: xy[1],
+      tutorial_step: bot ? CI("tutorial_steps") : 0, shield_until: null, hunger_since: null, hunger_lost_pct: 0,
+      free_speedups: bot ? 0 : CI("tutorial_free_speedups"), second_queue: 0, auto_collect: 0, is_bot: bot ? 1 : 0,
+      def_loss_streak: 0, offers_attacks: 0, stat_hunts: 0, stat_battles: 0, stat_wins: 0, created_at: now, last_seen_at: now };
+  }
+
+  function createMe(now) {
+    var pid = nextId();
+    newPlayer(pid, "Siz", 1, now, false);
+    initEconomy(pid, now, { meat: C("start_meat"), stone: C("start_stone"), wood: C("start_wood"), hide: C("start_hide"),
+      bone: C("start_bone"), moonstone: CI("start_moonstone") });
+    db.me = pid;
+    return pid;
+  }
+
+  function unit(c, role, tier) {
+    var k = role + ":" + tier;
+    if (!c.army[k]) c.army[k] = { role: role, tier: tier, alive: 0, on_march: 0, injured: 0 };
+    return c.army[k];
+  }
+  function soldiers(c, withInjured) {
+    var n = 0;
+    Object.keys(c.army).forEach(function (k) { var a = c.army[k]; n += a.alive + a.on_march + (withInjured === false ? 0 : a.injured); });
+    return n;
+  }
+  function roleCount(c, role) {
+    var n = 0;
+    Object.keys(c.army).forEach(function (k) { var a = c.army[k]; if (a.role === role) n += a.alive + a.on_march + a.injured; });
+    return n;
+  }
+  function homeGroups(c) {
+    var g = [];
+    Object.keys(c.army).forEach(function (k) { var a = c.army[k]; if (a.alive > 0) g.push({ role: a.role, tier: a.tier, qty: a.alive }); });
+    return g;
+  }
+  function hasRes(c, cost) { return Object.keys(cost).every(function (k) { return (c.r[k] || 0) + 1e-6 >= cost[k]; }); }
+  function spend(c, cost) {
+    if (!hasRes(c, cost)) {
+      var missing = {};
+      Object.keys(cost).forEach(function (k) { if ((c.r[k] || 0) + 1e-6 < cost[k]) missing[k] = Math.ceil(cost[k] - c.r[k]); });
+      throw new ApiError("NOT_ENOUGH_RESOURCES", "Resurs yetarli emas", { missing: missing });
+    }
+    Object.keys(cost).forEach(function (k) { c.r[k] -= cost[k]; });
+  }
+  function give(c, res) {
+    Object.keys(res).forEach(function (k) { if (k === "moonstone" || RES.indexOf(k) >= 0) c.r[k] += res[k]; });
+    if ((res.meat || 0) > 0) fed(c);
+  }
+  function addXp(c, xp) {
+    if (xp <= 0) return;
+    c.p.xp += Math.round(xp);
+    var max = CI("max_level");
+    while (c.p.level < max && c.p.xp >= F.xpTotal(c.p.level + 1)) c.p.level++;
+    c.b.den = c.p.level;
+  }
+  function setLevelAtLeast(c, l) {
+    l = Math.min(l, CI("max_level"));
+    if (c.p.level < l) addXp(c, F.xpTotal(l) - c.p.xp);
+  }
+  function isShielded(p, now) {
+    if (p.is_bot) return false;
+    if (p.level <= CI("shield_newbie_level")) return true;
+    if (p.shield_until != null && p.shield_until > now) return true;
+    return now - p.last_seen_at >= C("sleep_shield_h") * 3600;
+  }
+  function cp(c) {
+    var l = c.p.level, ep = levelRow(l).cp;
+    Object.keys(c.army).forEach(function (k) { var a = c.army[k]; ep += (a.alive + a.on_march) * F.tierCp(a.role, a.tier, l); });
+    if (c.p.hunger_since != null) ep *= 1 - C("hunger_cp_penalty");
+    return Math.round(ep);
+  }
+
+  // ---------------------------------------------------------------- iqtisod (src/Economy.php)
+
+  function consumption(c) { return F.meatNeed(c.p.level) * Math.max(1, soldiers(c)) / 86400; }
+  function fed(c) { if (c.r.meat > 0) { c.p.hunger_since = null; c.p.hunger_lost_pct = 0; } }
+
+  function accrue(c, to) {
+    var from = c.r.last_tick;
+    if (to <= from) return;
+    var onlineEnd = c.p.last_seen_at + Math.round(C("offline_after_min") * 60), cuts = [from];
+    if (onlineEnd > from && onlineEnd < to) cuts.push(onlineEnd);
+    cuts.push(to);
+    for (var i = 0; i < cuts.length - 1; i++) segment(c, cuts[i], cuts[i + 1], cuts[i] >= onlineEnd);
+    desertion(c, to);
+    c.r.last_tick = to;
+  }
+  function segment(c, a, b, offline) {
+    var cons = consumption(c);
+    if (c.p.hunger_since == null && cons > 0) {
+      var tZero = a + Math.floor(c.r.meat / cons);
+      if (tZero < b) {
+        applySeg(c, tZero - a, offline, false, cons);
+        c.r.meat = 0; c.p.hunger_since = tZero;
+        applySeg(c, b - tZero, offline, true, cons);
+        return;
+      }
+    }
+    applySeg(c, b - a, offline, c.p.hunger_since != null, cons);
+  }
+  function applySeg(c, dt, offline, hungry, cons) {
+    if (dt <= 0) return;
+    var r = c.r, b = c.b;
+    r.meat = Math.max(0, r.meat - cons * dt);
+    var prodK = (offline ? C("offline_prod_rate") : 1) * (hungry ? 1 - C("hunger_prod_penalty") : 1);
+    var storeK = offline ? C("offline_store_mult") : 1;
+    var waterCap = F.foodCap(b.food_cave) * storeK;
+    if (r.water < waterCap) r.water = Math.min(waterCap, r.water + F.waterRate(b.food_cave) / 3600 * dt * prodK);
+    var add = F.workshopRate(b.workshop) / 3600 * dt * prodK, auto = c.p.auto_collect === 1;
+    if (!auto) {
+      var have = 0; WS.forEach(function (k) { have += r["ws_" + k]; });
+      add = Math.min(add, Math.max(0, F.workshopCap(b.workshop) * storeK - have));
+    }
+    WS.forEach(function (k) { var part = add * r["alloc_" + k] / 100; if (auto) r[k] += part; else r["ws_" + k] += part; });
+  }
+  function desertion(c, to) {
+    if (c.p.hunger_since == null) return;
+    var days = (to - c.p.hunger_since) / 86400 - C("hunger_leave_after_d");
+    if (days <= 0) return;
+    var target = Math.min(C("hunger_leave_max"), C("hunger_leave_daily") * Math.floor(days)), lost = c.p.hunger_lost_pct;
+    if (target <= lost) return;
+    var k = (target - lost) / (1 - lost);
+    Object.keys(c.army).forEach(function (key) { var a = c.army[key]; a.alive -= Math.floor(a.alive * k); });
+    c.p.hunger_lost_pct = target;
+  }
+
+  // ---------------------------------------------------------------- voqealar
+
+  function processEvents(c, to) {
+    var pid = c.p.id;
+    for (var guard = 0; guard < 500; guard++) {
+      var cands = [];
+      db.queues.forEach(function (q) { if (q.player_id === pid && q.state === "running" && q.ends_at <= to) cands.push({ ev: "queue", at: q.ends_at, o: q }); });
+      db.hunts.forEach(function (h) { if (h.player_id === pid && h.state === "running" && h.ends_at <= to) cands.push({ ev: "hunt", at: h.ends_at, o: h }); });
+      db.marches.forEach(function (m) {
+        if (m.player_id === pid && (m.state === "returning" || m.state === "recalled") && m.returns_at <= to) cands.push({ ev: "return", at: m.returns_at, o: m });
+      });
+      if (!cands.length) break;
+      cands.sort(function (a, b) { return a.at - b.at || a.o.id - b.o.id; });
+      var e = cands[0];
+      accrue(c, e.at);
+      if (e.ev === "queue") completeQueue(c, e.o, e.at);
+      else if (e.ev === "hunt") completeHunt(c, e.o, e.at);
+      else completeReturn(c, e.o);
+    }
+    accrue(c, to);
+  }
+
+  function sync(pid, now) {
+    resolveDue(pid, now);
+    processEvents(ctx(pid), now);
+  }
+
+  // ---------------------------------------------------------------- navbatlar (src/Queues.php)
+
+  function xpFor(cost) { var s = 0; WS.forEach(function (k) { s += cost[k] || 0; }); return s * C("xp_build_coef"); }
+
+  function completeQueue(c, q, at) {
+    q.state = "done";
+    var u;
+    if (q.kind === "build") {
+      c.b[q.building_type] = Math.max(c.b[q.building_type], q.target_level);
+      addXp(c, xpFor(F.buildingCost(q.building_type, q.target_level)));
+      questBump(c.p.id, "build", 1, at);
+    } else if (q.kind === "train") {
+      u = unit(c, q.role, q.tier); u.alive += q.qty;
+      addXp(c, xpFor({ bone: F.trainCost(q.tier).bone * q.qty }));
+      questBump(c.p.id, "train", q.qty, at);
+    } else {
+      u = unit(c, q.role, q.tier); u.alive += q.qty;
+    }
+  }
+  function costOf(q) {
+    if (q.kind === "build") return F.buildingCost(q.building_type, q.target_level);
+    var c = F.trainCost(q.tier);
+    if (q.kind === "train") return { meat: c.meat * q.qty, bone: c.bone * q.qty };
+    if (q.kind === "promote") return { meat: c.meat * q.qty * C("promote_cost_share"), bone: c.bone * q.qty * C("promote_cost_share") };
+    return { meat: c.meat * C("heal_meat_share") * q.qty };
+  }
+  function myQueue(pid, qid) {
+    var q = db.queues.filter(function (x) { return x.id === qid && x.player_id === pid && x.state === "running"; })[0];
+    if (!q) throw new ApiError("NOT_FOUND", "Navbat topilmadi");
+    return q;
+  }
+  function queueCancel(pid, qid) {
+    var c = ctx(pid), q = myQueue(pid, qid), refund = {}, cost = costOf(q);
+    Object.keys(cost).forEach(function (k) { refund[k] = Math.floor(cost[k] * C("queue_cancel_refund")); });
+    give(c, refund);
+    if (q.kind === "promote") unit(c, q.role, q.from_tier).alive += Math.ceil(q.qty * F.promoteNeed(q.from_tier, q.tier));
+    else if (q.kind === "heal") unit(c, q.role, q.tier).injured += q.qty;
+    q.state = "cancelled";
+    return { refund: refund };
+  }
+  function queueSpeedup(pid, qid, seconds, free, now) {
+    var c = ctx(pid), q = myQueue(pid, qid), left = Math.max(0, q.ends_at - now);
+    if (free) {
+      if (c.p.free_speedups <= 0) throw new ApiError("NOT_ENOUGH_RESOURCES", "Bepul tezlashtirish qolmagan");
+      c.p.free_speedups--; q.ends_at = now;
+      sync(pid, now);
+      return { speeded: left, price: 0 };
+    }
+    seconds = Math.min(seconds, left);
+    if (seconds <= 0) throw new ApiError("BAD_REQUEST", "Tezlashtirish soniyasi notoʻgʻri");
+    var day = iso(now).slice(0, 10), cap = F.speedupDailyCap(), used = db.speedup[day] || 0;
+    if (used + seconds > cap) throw new ApiError("SPEEDUP_CAP", "Kunlik tezlashtirish chegarasi", { left_seconds: Math.max(0, cap - used) });
+    var price = F.speedupPrice(used, seconds);
+    if (c.r.moonstone < price) throw new ApiError("NOT_ENOUGH_RESOURCES", "Oy toshi yetarli emas", { missing: { moonstone: price - c.r.moonstone } });
+    c.r.moonstone -= price; db.speedup[day] = used + seconds; q.ends_at -= seconds;
+    sync(pid, now);
+    return { speeded: seconds, price: price };
+  }
+  function speedupQuote(seconds, now) {
+    var used = db.speedup[iso(now).slice(0, 10)] || 0;
+    return { price: F.speedupPrice(used, seconds), used_seconds: used, cap_seconds: F.speedupDailyCap() };
+  }
+  function running(pid, fn) { return db.queues.filter(function (q) { return q.player_id === pid && q.state === "running" && fn(q); }); }
+
+  // ---------------------------------------------------------------- binolar (src/Buildings.php)
+
+  function effect(type, l, pl) {
+    var role = Object.keys(ROLE_BUILDING).filter(function (r) { return ROLE_BUILDING[r] === type; })[0];
+    if (role) return { max_tier: F.maxTier(role, pl, l), soldier_cap: Math.floor(F.roleCap(l)), train_speed: round2(F.trainSpeed(l)), role: role };
+    switch (type) {
+      case "den": return { train_speed: round2(F.denCoef(l)) };
+      case "food_cave": return { capacity: Math.floor(F.foodCap(l)), protection: round2(F.protection(l)), water_per_h: Math.round(F.waterRate(l) * 10) / 10 };
+      case "workshop": return { per_hour: Math.round(F.workshopRate(l) * 10) / 10, capacity: Math.floor(F.workshopCap(l)), slots: F.workshopSlots(l) };
+      case "hospital": return { heal_cap: F.healCap(l), heal_minutes: Math.round(F.healTime(l) / 6) / 10 };
+    }
+    return {};
+  }
+  function describeBuildings(c) {
+    var lvl = c.p.level, busy = {};
+    running(c.p.id, function (q) { return q.kind === "build"; }).forEach(function (q) { busy[q.building_type] = { queue_id: q.id, ends_at: iso(q.ends_at) }; });
+    return BUILDINGS.map(function (type) {
+      var l = c.b[type], row = { type: type, level: l, max_level: lvl, auto: type === "den", mvp: V2_BUILDINGS.indexOf(type) < 0,
+        effect: effect(type, l, lvl), busy: busy[type] || null, next: null };
+      if (type !== "den" && l < lvl && l < CI("max_level")) {
+        row.next = { level: l + 1, cost: F.buildingCost(type, l + 1), seconds: F.buildingTime(type, l + 1), effect: effect(type, l + 1, lvl) };
+      }
+      return row;
+    });
+  }
+  function upgrade(pid, type, now) {
+    if (type === "den") throw new ApiError("DEN_AUTO_LEVEL", "In darajasi oʻyinchi darajasi bilan avtomatik oʻsadi");
+    if (BUILDINGS.indexOf(type) < 0) throw new ApiError("BAD_REQUEST", "Nomaʼlum bino");
+    if (V2_BUILDINGS.indexOf(type) >= 0) throw new ApiError("NOT_IN_MVP", "Bu bino keyingi versiyada ochiladi");
+    var c = ctx(pid), to = c.b[type] + 1;
+    if (to > c.p.level || to > CI("max_level")) throw new ApiError("LEVEL_TOO_LOW", "Bino oʻyinchi darajasidan oshmaydi", { need_level: to });
+    var run = running(pid, function (q) { return q.kind === "build"; });
+    if (run.some(function (q) { return q.building_type === type; })) throw new ApiError("QUEUE_BUSY", "Bu bino allaqachon qurilmoqda");
+    if (run.length >= 1 + c.p.second_queue) throw new ApiError("QUEUE_BUSY", "Qurilish navbati band");
+    spend(c, F.buildingCost(type, to));
+    var sec = F.buildingTime(type, to), id = nextId();
+    db.queues.push({ id: id, player_id: pid, kind: "build", slot: run.length + 1, building_type: type, target_level: to,
+      role: null, tier: null, from_tier: null, qty: null, started_at: now, ends_at: now + sec, state: "running" });
+    return { queue_id: id, ends_at: iso(now + sec), seconds: sec };
+  }
+  function collect(pid) {
+    var c = ctx(pid), got = {};
+    WS.forEach(function (k) { var n = Math.floor(c.r["ws_" + k]); got[k] = n; c.r[k] += n; c.r["ws_" + k] -= n; });
+    return { collected: got };
+  }
+  function setAllocation(pid, a) {
+    var sum = 0, c = ctx(pid);
+    WS.forEach(function (k) {
+      var v = a[k];
+      if (typeof v !== "number" || v % 1 || v < 0 || v > 100) throw new ApiError("BAD_REQUEST", "Taqsimot 0..100 butun son boʻlishi kerak");
+      sum += v;
+    });
+    if (sum !== 100) throw new ApiError("BAD_REQUEST", "Taqsimot yigʻindisi 100 boʻlishi kerak");
+    WS.forEach(function (k) { c.r["alloc_" + k] = a[k]; });
+    return { allocation: a };
+  }
+
+  // ---------------------------------------------------------------- qoʻshin (src/Army.php)
+
+  function describeArmy(c) {
+    var lvl = c.p.level, cap = F.armyCap(lvl), occ = soldiers(c, false) / Math.max(1, cap);
+    var roles = ROLES.map(function (role) {
+      var bl = c.b[ROLE_BUILDING[role]], max = F.maxTier(role, lvl, bl), tiers = [];
+      for (var t = 1; t <= TIERS; t++) {
+        var u = c.army[role + ":" + t] || { alive: 0, on_march: 0, injured: 0 };
+        tiers.push({ tier: t, alive: u.alive, on_march: u.on_march, injured: u.injured, cp: Math.round(F.tierCp(role, t, lvl) * 10) / 10,
+          unlocked: t <= max, cost: F.trainCost(t) });
+      }
+      return { role: role, unlock_level: F.roleUnlock(role), unlocked: max > 0, building: ROLE_BUILDING[role], building_level: bl,
+        max_tier: max, count: roleCount(c, role), building_cap: Math.floor(F.roleCap(bl)), tiers: tiers };
+    });
+    return { roles: roles, count: soldiers(c), cap: cap, occupancy: Math.round(occ * 1000) / 1000, time_coef: round2(F.occupancyCoef(occ)),
+      hospital: { cap: F.healCap(c.b.hospital), minutes: Math.round(F.healTime(c.b.hospital) / 6) / 10 } };
+  }
+  function checkRole(c, role, tier) {
+    if (ROLES.indexOf(role) < 0) throw new ApiError("BAD_REQUEST", "Nomaʼlum rol");
+    if (c.p.level < F.roleUnlock(role)) throw new ApiError("LEVEL_TOO_LOW", "Rol hali ochilmagan", { need_level: F.roleUnlock(role) });
+    var max = F.maxTier(role, c.p.level, c.b[ROLE_BUILDING[role]]);
+    if (tier < 1 || tier > max) throw new ApiError("TIER_LOCKED", "Tier hali ochilmagan", { max_tier: max });
+  }
+  function roleQueueBusy(pid, role) {
+    if (running(pid, function (q) { return q.role === role && (q.kind === "train" || q.kind === "promote"); }).length)
+      throw new ApiError("QUEUE_BUSY", "Bu rol binosida mashq davom etmoqda");
+  }
+  function trainPlan(c, role, tier, qty) {
+    var lvl = c.p.level, bl = c.b[ROLE_BUILDING[role]], occ = soldiers(c, false) / Math.max(1, F.armyCap(lvl));
+    var coef = Math.min(C("final_time_coef_max"), F.buildingPenalty(roleCount(c, role) + qty, F.roleCap(bl)) * F.occupancyCoef(occ));
+    var sec = Math.ceil(F.trainTime(tier) * qty * coef / (F.trainSpeed(bl) * F.denCoef(lvl))), cc = F.trainCost(tier);
+    return { cost: { meat: cc.meat * qty, bone: cc.bone * qty }, seconds: sec };
+  }
+  function train(pid, role, tier, qty, now) {
+    if (qty < 1) throw new ApiError("BAD_REQUEST", "Miqdor notoʻgʻri");
+    var c = ctx(pid);
+    checkRole(c, role, tier);
+    roleQueueBusy(pid, role);
+    var pending = 0; running(pid, function (q) { return q.kind === "train"; }).forEach(function (q) { pending += q.qty; });
+    var cap = F.armyCap(c.p.level);
+    if (soldiers(c) + pending + qty > cap) throw new ApiError("CAPACITY_FULL", "Qoʻshin sigʻimi toʻlgan", { free: Math.max(0, cap - soldiers(c) - pending) });
+    var plan = trainPlan(c, role, tier, qty), id = nextId();
+    spend(c, plan.cost);
+    db.queues.push({ id: id, player_id: pid, kind: "train", slot: 1, building_type: null, target_level: null, role: role, tier: tier,
+      from_tier: null, qty: qty, started_at: now, ends_at: now + plan.seconds, state: "running" });
+    return { queue_id: id, seconds: plan.seconds, ends_at: iso(now + plan.seconds) };
+  }
+  function promotePlan(c, role, from, to, qty) {
+    if (from < 1 || to <= from) throw new ApiError("BAD_REQUEST", "Tierlar notoʻgʻri");
+    checkRole(c, role, to);
+    var need = Math.ceil(qty * F.promoteNeed(from, to)), cc = F.trainCost(to), share = C("promote_cost_share");
+    var bl = c.b[ROLE_BUILDING[role]], have = (c.army[role + ":" + from] || { alive: 0 }).alive;
+    return { consumes: need, produces: qty, available: have,
+      cost: { meat: Math.ceil(cc.meat * share * qty), bone: Math.ceil(cc.bone * share * qty) },
+      seconds: Math.ceil(F.trainTime(to) * C("promote_time_share") * qty / (F.trainSpeed(bl) * F.denCoef(c.p.level))),
+      cp_before: Math.round(need * F.tierCp(role, from, c.p.level)), cp_after: Math.round(qty * F.tierCp(role, to, c.p.level)) };
+  }
+  function promote(pid, role, from, to, qty, now) {
+    if (qty < 1) throw new ApiError("BAD_REQUEST", "Miqdor notoʻgʻri");
+    var c = ctx(pid), plan = promotePlan(c, role, from, to, qty);
+    roleQueueBusy(pid, role);
+    if (plan.available < plan.consumes) throw new ApiError("NOT_ENOUGH_ARMY", "Past tier askar yetarli emas", { need: plan.consumes });
+    spend(c, plan.cost);
+    unit(c, role, from).alive -= plan.consumes;
+    var id = nextId();
+    db.queues.push({ id: id, player_id: pid, kind: "promote", slot: 1, building_type: null, target_level: null, role: role, tier: to,
+      from_tier: from, qty: qty, started_at: now, ends_at: now + plan.seconds, state: "running" });
+    plan.queue_id = id;
+    return plan;
+  }
+  function heal(pid, role, tier, qty, now) {
+    var c = ctx(pid), u = unit(c, role, tier), cap = F.healCap(c.b.hospital);
+    if (qty < 1 || qty > u.injured) throw new ApiError("NOT_ENOUGH_ARMY", "Jarohatlangan boʻri yetarli emas");
+    if (qty > cap) throw new ApiError("CAPACITY_FULL", "Shifo gʻori sigʻimi", { cap: cap });
+    if (running(pid, function (q) { return q.kind === "heal"; }).length) throw new ApiError("QUEUE_BUSY", "Shifo gʻori band");
+    var cost = { meat: Math.ceil(F.trainCost(tier).meat * C("heal_meat_share") * qty) };
+    spend(c, cost);
+    u.injured -= qty;
+    var sec = F.healTime(c.b.hospital), id = nextId();
+    db.queues.push({ id: id, player_id: pid, kind: "heal", slot: 1, building_type: null, target_level: null, role: role, tier: tier,
+      from_tier: null, qty: qty, started_at: now, ends_at: now + sec, state: "running" });
+    return { queue_id: id, seconds: sec, cost: cost };
+  }
+  function normalizePayload(c, payload, only) {
+    if (!Array.isArray(payload) || !payload.length) throw new ApiError("BAD_REQUEST", "Qoʻshin tanlanmagan");
+    var sum = {};
+    payload.forEach(function (g) {
+      var role = g.role, tier = +g.tier || 0, qty = +g.qty || 0;
+      if (ROLES.indexOf(role) < 0 || tier < 1 || tier > TIERS || qty < 0) throw new ApiError("BAD_REQUEST", "Qoʻshin tarkibi notoʻgʻri");
+      if (only && only.indexOf(role) < 0) throw new ApiError("BAD_REQUEST", "Bu vazifaga bu rol yuborilmaydi");
+      if (qty > 0) sum[role + ":" + tier] = (sum[role + ":" + tier] || 0) + qty;
+    });
+    var out = Object.keys(sum).map(function (k) {
+      var p = k.split(":");
+      if ((c.army[k] ? c.army[k].alive : 0) < sum[k]) throw new ApiError("NOT_ENOUGH_ARMY", "Inda yetarli askar yoʻq", { role: p[0], tier: +p[1] });
+      return { role: p[0], tier: +p[1], qty: sum[k] };
+    });
+    if (!out.length) throw new ApiError("BAD_REQUEST", "Qoʻshin tanlanmagan");
+    return out;
+  }
+  function move(c, groups, from, to) {
+    (groups || []).forEach(function (g) { var u = unit(c, g.role, g.tier); u[from] -= g.qty; u[to] += g.qty; });
+  }
+
+  // ---------------------------------------------------------------- ov (src/Hunt.php)
+
+  function huntSec(c, kg) { return c.p.tutorial_step < CI("tutorial_steps") ? CI("tutorial_hunt_sec") : F.huntSeconds(kg); }
+  function preyList(c) {
+    return Object.keys(D.prey).filter(function (k) { return D.prey[k].level <= CI("max_level"); }).map(function (k) {
+      var p = D.prey[k];
+      return { key: k, kg: p.kg, level: p.level, pack: p.pack, unlocked: c.p.level >= p.level, seconds: huntSec(c, p.kg),
+        xp: Math.round(p.kg * C("xp_hunt_coef")) };
+    });
+  }
+  function huntStart(pid, key, payload, now) {
+    var prey = D.prey[key];
+    if (!prey) throw new ApiError("BAD_REQUEST", "Nomaʼlum oʻlja");
+    var c = ctx(pid);
+    if (c.p.level < prey.level) throw new ApiError("LEVEL_TOO_LOW", "Bu oʻlja hali ochilmagan", { need_level: prey.level });
+    if (db.hunts.some(function (h) { return h.player_id === pid && h.state === "running"; })) throw new ApiError("QUEUE_BUSY", "Alfa hozir ovda");
+    var groups = Array.isArray(payload) && payload.length ? normalizePayload(c, payload, ["hunter"]) : [];
+    var pack = 1, bonus = 0;
+    groups.forEach(function (g) { pack += g.qty; bonus += g.qty * g.tier; });
+    if (pack < prey.pack) throw new ApiError("NOT_ENOUGH_ARMY", "Bu oʻljani yolgʻiz ovlab boʻlmaydi — toʻda kerak", { need_pack: prey.pack });
+    var extra = Math.max(0, bonus - (prey.pack - 1));
+    var meat = round2(prey.kg * (1 + C("hunt_hunter_bonus") * extra)), xp = Math.max(1, Math.round(prey.kg * C("xp_hunt_coef")));
+    var sec = huntSec(c, prey.kg), id = nextId();
+    move(c, groups, "alive", "on_march");
+    db.hunts.push({ id: id, player_id: pid, prey_key: key, payload: groups, meat: meat, xp: xp, started_at: now, ends_at: now + sec, state: "running" });
+    return { hunt_id: id, seconds: sec, ends_at: iso(now + sec), meat: meat };
+  }
+  function completeHunt(c, h, at) {
+    h.state = "done";
+    move(c, h.payload, "on_march", "alive");
+    c.r.meat += Math.max(0, Math.min(h.meat, F.foodCap(c.b.food_cave) - c.r.meat));
+    fed(c);
+    addXp(c, h.xp);
+    c.p.stat_hunts++;
+    questBump(c.p.id, "hunt", 1, at);
+  }
+
+  // ---------------------------------------------------------------- NPC toʻdalar (src/Bots.php)
+
+  function composition(level) {
+    var cap = Math.max(1, Math.round(F.armyCap(level) * C("bot_army_share")));
+    if (level < CI("pack_unlock_level")) return [{ role: "hunter", tier: 1, qty: cap }];
+    var tier = F.maxTier("attacker", level, level);
+    var scout = Math.round(cap * C("share_scout")), def = Math.round(cap * C("share_defender"));
+    var hunter = Math.max(1, Math.round(cap * C("share_hunter"))), att = Math.max(0, cap - scout - def - hunter);
+    return [["scout", scout], ["attacker", att], ["defender", def], ["hunter", hunter]]
+      .filter(function (x) { return x[1] > 0; }).map(function (x) { return { role: x[0], tier: tier, qty: x[1] }; });
+  }
+  function stock(level) {
+    var ws = F.workshopRate(Math.max(1, level - 1)) * 8 / 4;
+    return { meat: round2(F.meatNeed(level) * F.armyCap(level) * C("reserve_days") + 5), stone: ws, wood: ws, hide: ws, bone: ws };
+  }
+  function createBot(level, name, now, tutorial) {
+    var pid = nextId();
+    newPlayer(pid, name, level, now, true);
+    initEconomy(pid, now, stock(level), Math.max(1, level - 1));
+    db.bld[pid].den = level;
+    var c = ctx(pid);
+    (tutorial ? [{ role: "hunter", tier: 1, qty: 1 }] : composition(level)).forEach(function (g) { unit(c, g.role, g.tier).alive = g.qty; });
+    return pid;
+  }
+  function ensureBots(now) {
+    for (var l = 1; l <= CI("max_level"); l++) {
+      var have = Object.keys(db.players).filter(function (id) { var p = db.players[id]; return p.is_bot && p.level === l && p.display_name !== TUTORIAL_NAME; }).length;
+      for (var i = have; i < CI("bots_per_level"); i++) createBot(l, pick(ADJ) + " " + pick(NOUN), now, false);
+    }
+    if (tutorialBot() == null) createBot(CI("pack_unlock_level"), TUTORIAL_NAME, now, true);
+  }
+  function tutorialBot() {
+    var ids = Object.keys(db.players).filter(function (id) { return db.players[id].is_bot && db.players[id].display_name === TUTORIAL_NAME; });
+    return ids.length ? +ids[0] : null;
+  }
+  function botRefresh(c, at) {
+    var from = c.r.last_tick, k = Math.min(1, Math.max(0, (at - from) / C("bot_regen_sec"))), full = stock(c.p.level);
+    Object.keys(full).forEach(function (res) { if (c.r[res] < full[res]) c.r[res] += (full[res] - c.r[res]) * k; });
+    c.r.last_tick = Math.max(at, from);
+    c.p.hunger_since = null;
+    var last = null;
+    db.battles.forEach(function (b) { if (b.defender_id === c.p.id && (last == null || b.created_at > last)) last = b.created_at; });
+    if ((last == null || at - last >= C("bot_regen_sec")) && c.p.display_name !== TUTORIAL_NAME) {
+      Object.keys(c.army).forEach(function (key) { c.army[key].alive = 0; c.army[key].injured = 0; });
+      composition(c.p.level).forEach(function (g) { unit(c, g.role, g.tier).alive = g.qty; });
+    }
+  }
+
+  // ---------------------------------------------------------------- PvP (src/Pvp.php)
+
+  function requireUnlocked(c) {
+    if (c.p.level < CI("pack_unlock_level")) throw new ApiError("LEVEL_TOO_LOW", "PvP 4-darajada ochiladi", { need_level: CI("pack_unlock_level") });
+  }
+  function band(v, mine) {
+    var r = v / mine, w = C("war_power_window");
+    return r < 1 - w ? "weak" : (r > 1 + w ? "strong" : "even");
+  }
+  function pairCount(att, def, now) {
+    return db.battles.filter(function (b) { return b.attacker_id === att && b.defender_id === def && b.created_at > now - 86400; }).length +
+      db.marches.filter(function (m) { return m.player_id === att && m.target_player === def && m.kind === "attack" && m.state === "outbound"; }).length;
+  }
+  function generateOffers(c, now) {
+    var lvl = c.p.level, lo = lvl - CI("window_low"), hi = lvl + CI("window_high");
+    var pool = Object.keys(db.players).map(Number).filter(function (id) {
+      var p = db.players[id]; return p.is_bot && p.level >= Math.max(1, lo) && p.level <= hi && p.display_name !== TUTORIAL_NAME;
+    }).sort(function () { return rnd() - 0.5; }).slice(0, CI("match_offers"));
+    var exp = now + Math.round(C("match_refresh_min") * 60);
+    db.offers[c.p.id] = pool.map(function (id, i) {
+      var t = db.players[id];
+      return { slot: i + 1, target_id: id, distance_km: Math.max(1, round2(Math.hypot(t.x - c.p.x, t.y - c.p.y))), expires_at: exp };
+    });
+    c.p.offers_attacks = 0;
+    return db.offers[c.p.id];
+  }
+  function targets(pid, now, force) {
+    var c = ctx(pid);
+    requireUnlocked(c);
+    var offers = db.offers[pid] || [];
+    if (force || !offers.length || offers[0].expires_at <= now || c.p.offers_attacks >= CI("match_refresh_attacks")) offers = generateOffers(c, now);
+    var mine = Math.max(1, cp(c));
+    return { targets: offers.map(function (o) {
+      var t = ctx(o.target_id), rep = db.reports.filter(function (r) { return r.player_id === pid && r.target_id === o.target_id && r.expires_at > now; }).pop();
+      return { id: o.target_id, name: t.p.display_name, level: t.p.level, wolf: levelRow(t.p.level).name, distance_km: o.distance_km,
+        power_band: band(cp(t), mine), shielded: isShielded(t.p, now), is_bot: t.p.is_bot === 1, last_seen: iso(t.p.last_seen_at),
+        scouted: rep ? rep.grade : null, march_minutes: Math.round(F.marchSeconds(o.distance_km) / 60),
+        attacks_today: pairCount(pid, o.target_id, now) };
+    }), expires_at: iso(offers[0] ? offers[0].expires_at : null), pair_limit: CI("pair_limit") };
+  }
+  function offerOf(pid, tid) {
+    var o = (db.offers[pid] || []).filter(function (x) { return x.target_id === tid; })[0];
+    if (!o) throw new ApiError("OUT_OF_WINDOW", "Raqib taklif roʻyxatida yoʻq");
+    return o;
+  }
+  function attack(pid, tid, payload, now) {
+    var o = offerOf(pid, tid), c = ctx(pid);
+    requireUnlocked(c);
+    var t = db.players[tid], diff = t.level - c.p.level;
+    if (diff < -CI("window_low") || diff > CI("window_high")) throw new ApiError("OUT_OF_WINDOW", "Raqib hujum oynasidan tashqarida");
+    if (isShielded(t, now)) throw new ApiError("TARGET_SHIELDED", "Raqib qalqon ostida");
+    if (pairCount(pid, tid, now) >= CI("pair_limit")) throw new ApiError("PAIR_LIMIT", "Bu raqibga bugungi hujumlar tugadi");
+    var groups = normalizePayload(c, payload);
+    move(c, groups, "alive", "on_march");
+    var sec = F.marchSeconds(o.distance_km), id = nextId();
+    db.marches.push({ id: id, player_id: pid, target_player: tid, kind: "attack", payload: groups, distance_km: o.distance_km,
+      departs_at: now, arrives_at: now + sec, returns_at: now + 2 * sec, loot: null, state: "outbound" });
+    c.p.shield_until = null;
+    c.p.offers_attacks++;
+    return { march_id: id, arrives_at: iso(now + sec), returns_at: iso(now + 2 * sec) };
+  }
+  function scout(pid, tid, payload, now) {
+    var o = offerOf(pid, tid), c = ctx(pid);
+    requireUnlocked(c);
+    if (isShielded(db.players[tid], now)) throw new ApiError("TARGET_SHIELDED", "Raqib qalqon ostida");
+    var recent = null;
+    db.reports.forEach(function (r) { if (r.player_id === pid && r.target_id === tid && (recent == null || r.created_at > recent)) recent = r.created_at; });
+    var pending = db.marches.some(function (m) { return m.player_id === pid && m.target_player === tid && m.kind === "scout" && m.state === "outbound"; });
+    var cool = Math.round(C("scout_cooldown_min") * 60);
+    if (pending || (recent != null && recent > now - cool)) throw new ApiError("COOLDOWN", "Razvedka kutish vaqti");
+    var groups = normalizePayload(c, payload, ["scout"]);
+    move(c, groups, "alive", "on_march");
+    var sec = F.marchSeconds(o.distance_km, true), id = nextId();
+    db.marches.push({ id: id, player_id: pid, target_player: tid, kind: "scout", payload: groups, distance_km: o.distance_km,
+      departs_at: now, arrives_at: now + sec, returns_at: now + 2 * sec, loot: null, state: "outbound" });
+    return { march_id: id, arrives_at: iso(now + sec) };
+  }
+  function recall(pid, mid, now) {
+    var m = db.marches.filter(function (x) { return x.id === mid && x.player_id === pid; })[0];
+    if (!m || m.state !== "outbound") throw new ApiError("BAD_REQUEST", "Faqat yoʻldagi yurishni qaytarish mumkin");
+    m.state = "recalled"; m.returns_at = now + (now - m.departs_at);
+    return { returns_at: iso(m.returns_at) };
+  }
+  function resolveDue(pid, now) {
+    db.marches.filter(function (m) { return m.state === "outbound" && m.arrives_at <= now && (m.player_id === pid || m.target_player === pid); })
+      .sort(function (a, b) { return a.arrives_at - b.arrives_at || a.id - b.id; }).forEach(resolveMarch);
+  }
+  function resolveMarch(m) {
+    if (m.state !== "outbound") return;
+    var at = m.arrives_at, att = ctx(m.player_id), def = ctx(m.target_player);
+    processEvents(att, at);
+    if (def.p.is_bot) botRefresh(def, at); else processEvents(def, at);
+    if (m.kind === "attack") fight(att, def, m, at); else scoutArrive(att, def, m, at);
+  }
+  function subtract(groups, minus) {
+    return groups.map(function (g) {
+      var q = g.qty;
+      minus.forEach(function (x) { if (x.role === g.role && x.tier === g.tier) q -= x.qty; });
+      return { role: g.role, tier: g.tier, qty: q };
+    }).filter(function (g) { return g.qty > 0; });
+  }
+  function fight(att, def, m, at) {
+    var aid = att.p.id, did = def.p.id, groups = m.payload;
+    var scouted = db.reports.some(function (r) { return r.player_id === aid && r.target_id === did && r.grade !== "fail" && r.expires_at > at; });
+    var trap = !scouted && rnd() < C("trap_chance");
+    var b = Battle.resolve({ groups: groups, level: att.p.level, hungry: att.p.hunger_since != null },
+      { groups: homeGroups(def), level: def.p.level, hungry: def.p.hunger_since != null, alpha_cp: levelRow(def.p.level).cp }, trap);
+    var survivors = subtract(groups, b.att_losses.dead.concat(b.att_losses.injured));
+    b.att_losses.dead.forEach(function (g) { unit(att, g.role, g.tier).on_march -= g.qty; });
+    b.def_losses.dead.forEach(function (g) { unit(def, g.role, g.tier).alive -= g.qty; });
+    b.def_losses.injured.forEach(function (g) { var u = unit(def, g.role, g.tier); u.alive -= g.qty; u.injured += g.qty; });
+    var loot = b.result === "attacker_win" ? lootOf(att, def, survivors, b.full_win, at) : {};
+    Object.keys(loot).forEach(function (k) { def.r[k] -= loot[k]; });
+    def.p.def_loss_streak = b.result === "attacker_win" ? def.p.def_loss_streak + 1 : 0;
+    var shieldH = b.def_loss_pct >= C("shield_loss_threshold") ? C("shield_after_raid_h") : 0;
+    if (def.p.def_loss_streak >= 2) shieldH = Math.max(shieldH, C("shield_streak_h"));
+    if (shieldH > 0 && !def.p.is_bot) def.p.shield_until = at + Math.round(shieldH * 3600);
+    var attRes = b.result === "attacker_win" ? "win" : (b.result === "draw" ? "draw" : "loss");
+    var defRes = attRes === "win" ? "loss" : (attRes === "loss" ? "win" : "draw");
+    addXp(att, b.att_damage * C("xp_pvp_coef") * C("xp_result_" + attRes));
+    addXp(def, b.def_damage * C("xp_pvp_coef") * C("xp_result_" + defRes));
+    att.p.stat_battles++; def.p.stat_battles++;
+    if (attRes === "win") att.p.stat_wins++; else if (defRes === "win") def.p.stat_wins++;
+    var bid = nextId();
+    db.battles.push({ id: bid, kind: def.p.is_bot ? "bot" : "pvp", trap: trap, attacker_id: aid, defender_id: did,
+      ep_attacker: b.ep_attacker, ep_defender: b.ep_defender, ratio: b.ratio, result: b.result, att_losses: b.att_losses,
+      def_losses: b.def_losses, loot: loot, log: b.log, created_at: at });
+    m.state = "returning"; m.returns_at = at + (at - m.departs_at); m.payload = survivors;
+    m.loot = { res: loot, injured: b.att_losses.injured, battle_id: bid };
+    questBump(aid, "pvp", 1, at);
+  }
+  function lootOf(att, def, survivors, full, at) {
+    var aid = att.p.id, did = def.p.id;
+    var nth = 1 + db.battles.filter(function (b) { return b.attacker_id === aid && b.defender_id === did && b.created_at > at - 86400; }).length;
+    var revenge = db.battles.some(function (b) { return b.attacker_id === did && b.defender_id === aid && b.created_at > at - 86400; });
+    var k = C("raid_coef") * C(full ? "loot_win_full" : "loot_win_partial") * F.lootDiffCoef(def.p.level - att.p.level) *
+      F.repeatCoef(nth) * (revenge ? C("loot_revenge") : 1) * (!def.p.is_bot && at - def.p.last_seen_at >= 86400 ? C("loot_offline_coef") : 1);
+    var unprot = 1 - F.protection(def.b.food_cave), want = {}, total = 0, carry = 0;
+    LOOT_RES.forEach(function (res) { want[res] = Math.max(0, def.r[res]) * unprot * k; total += want[res]; });
+    survivors.forEach(function (g) { carry += g.qty * F.carry(g.tier); });
+    var scale = total > carry && total > 0 ? carry / total : 1, out = {};
+    LOOT_RES.forEach(function (res) { var n = Math.floor(want[res] * scale); if (n > 0) out[res] = n; });
+    return out;
+  }
+  function scoutPower(groups, level) {
+    var s = 0;
+    groups.forEach(function (g) { if (g.role === "scout") s += g.qty * Math.pow(C("tier_coef"), g.tier - 1); });
+    return s * (1 + C("alpha_bonus") * level);
+  }
+  function grade(ratio) {
+    if (Math.abs(ratio - C("scout_partial")) < 0.05) return rnd() < 0.5 ? "partial" : "fail";
+    if (ratio <= C("scout_partial")) return "fail";
+    if (ratio <= C("scout_full")) return "partial";
+    return ratio <= C("scout_exact") ? "full" : "exact";
+  }
+  function scoutArrive(att, def, m, at) {
+    var groups = m.payload, mine = scoutPower(groups, att.p.level), theirs = scoutPower(homeGroups(def), def.p.level);
+    var ratio = theirs > 0 ? mine / theirs : 99, g = grade(ratio), injured = [];
+    if (g === "fail") {
+      injured = Battle.split(groups, C("scout_fail_injury"), 0).injured;
+      if (!injured.length) injured = [{ role: groups[0].role, tier: groups[0].tier, qty: 1 }];
+      groups = subtract(groups, injured);
+    }
+    writeReport(att, def, g, ratio, at);
+    m.state = "returning"; m.returns_at = at + (at - m.departs_at); m.payload = groups; m.loot = { res: {}, injured: injured };
+  }
+  function writeReport(att, def, g, ratio, at) {
+    var data = null, home = homeGroups(def);
+    if (g !== "fail") {
+      var total = 0; home.forEach(function (x) { total += x.qty; });
+      data = { army_total: total };
+      if (g === "full" || g === "exact") {
+        var byRole = {}; home.forEach(function (x) { byRole[x.role] = (byRole[x.role] || 0) + x.qty; });
+        data.by_role = byRole;
+        var unprot = 1 - F.protection(def.b.food_cave), noise = g === "exact" ? 0 : C("scout_noise"), est = {};
+        LOOT_RES.forEach(function (k) { est[k] = Math.round(Math.max(0, def.r[k]) * unprot * C("raid_coef") * (1 + noise * (2 * rnd() - 1))); });
+        data.loot_estimate = est;
+      }
+      if (g === "exact") {
+        data.groups = home; data.cp = cp(def); data.food_cave = def.b.food_cave;
+        data.protection = round2(F.protection(def.b.food_cave)); data.shield_until = iso(def.p.shield_until);
+      }
+    }
+    var id = nextId();
+    db.reports.push({ id: id, player_id: att.p.id, target_id: def.p.id, ratio: Math.min(999, Math.round(ratio * 1000) / 1000), grade: g,
+      payload: data, created_at: at, expires_at: at + Math.round(C("scout_report_min") * 60) });
+    return id;
+  }
+  function report(pid, tid, now) {
+    var r = db.reports.filter(function (x) { return x.player_id === pid && x.target_id === tid; }).pop();
+    if (!r) return null;
+    return { target_id: tid, name: db.players[tid].display_name, grade: r.grade, ratio: r.ratio, data: r.payload,
+      created_at: iso(r.created_at), expires_at: iso(r.expires_at), valid: r.expires_at > now };
+  }
+  function completeReturn(c, m) {
+    m.state = "done";
+    move(c, m.payload, "on_march", "alive");
+    var loot = m.loot || {};
+    move(c, loot.injured || [], "on_march", "injured");
+    var res = Object.assign({}, loot.res || {});
+    if (res.meat != null) res.meat = Math.max(0, Math.min(res.meat, F.foodCap(c.b.food_cave) - c.r.meat));
+    give(c, res);
+  }
+  function battleOut(b, pid, full) {
+    var isAtt = b.attacker_id === pid, a = db.players[b.attacker_id], d = db.players[b.defender_id];
+    var won = (b.result === "attacker_win" && isAtt) || (b.result === "defender_win" && !isAtt);
+    var out = { id: b.id, kind: b.kind, side: isAtt ? "attacker" : "defender", opponent: isAtt ? d.display_name : a.display_name,
+      opponent_level: isAtt ? d.level : a.level, result: b.result, outcome: b.result === "draw" ? "draw" : (won ? "win" : "loss"),
+      ratio: b.ratio, ep_attacker: b.ep_attacker, ep_defender: b.ep_defender, loot: b.loot || {}, trap: !!b.trap,
+      created_at: iso(b.created_at), att_losses: b.att_losses, def_losses: b.def_losses };
+    if (full) { out.log = b.log; out.attacker = a.display_name; out.defender = d.display_name; }
+    return out;
+  }
+  function battleById(pid, id) {
+    var b = db.battles.filter(function (x) { return x.id === id && (x.attacker_id === pid || x.defender_id === pid); })[0];
+    if (!b) throw new ApiError("NOT_FOUND", "Jang topilmadi");
+    return battleOut(b, pid, true);
+  }
+  function marchOut(m) {
+    return { id: m.id, kind: m.kind, state: m.state, target_id: m.target_player, target_name: db.players[m.target_player].display_name,
+      payload: m.payload, departs_at: iso(m.departs_at), arrives_at: iso(m.arrives_at), returns_at: iso(m.returns_at),
+      loot: m.loot ? (m.loot.res || {}) : null };
+  }
+
+  // ---------------------------------------------------------------- vazifalar (src/Quests.php)
+
+  function nextMidnight(now) { return (Math.floor(now / 86400) + 1) * 86400; }
+  function questsEnsure(pid, now) {
+    var qs = db.quests[pid] = db.quests[pid] || {};
+    Object.keys(D.quests.daily).forEach(function (key) {
+      var def = D.quests.daily[key], q = qs[key];
+      if (!q) qs[key] = { id: nextId(), key: key, progress: 0, target: def.target, claimed_at: null, resets_at: nextMidnight(now) };
+      else if (q.resets_at <= now) { q.progress = 0; q.claimed_at = null; q.target = def.target; q.resets_at = nextMidnight(now); }
+    });
+    return qs;
+  }
+  function questBump(pid, key, n, now) {
+    if (!D.quests.daily[key] || db.players[pid].is_bot) return;
+    var q = questsEnsure(pid, now)[key];
+    if (q.claimed_at == null) q.progress = Math.min(q.target, q.progress + n);
+  }
+  function questReward(c, key) {
+    var def = D.quests.daily[key], budget = F.dailyProduction(c.b.workshop) * C("quest_daily_cap") / C("quest_daily_count"), out = {};
+    Object.keys(def.reward).forEach(function (r) { out[r] = Math.round(budget * def.reward[r]); });
+    return out;
+  }
+  function questsList(pid, now) {
+    var qs = questsEnsure(pid, now), c = ctx(pid);
+    return { daily: Object.keys(D.quests.daily).map(function (key) {
+      var q = qs[key], def = D.quests.daily[key];
+      return { id: q.id, key: key, kind: "daily", progress: q.progress, target: q.target, claimed: q.claimed_at != null,
+        locked: c.p.level < (def.level || 1), reward: questReward(c, key), resets_at: iso(q.resets_at) };
+    }), weekly: [], milestone: [] };
+  }
+  function questClaim(pid, qid, now) {
+    var c = ctx(pid), qs = questsEnsure(pid, now);
+    var q = Object.keys(qs).map(function (k) { return qs[k]; }).filter(function (x) { return x.id === qid; })[0];
+    if (!q) throw new ApiError("NOT_FOUND", "Vazifa topilmadi");
+    if (q.claimed_at != null || q.progress < q.target || q.resets_at <= now) throw new ApiError("BAD_REQUEST", "Vazifa hali bajarilmagan");
+    var reward = questReward(c, q.key), sum = 0;
+    give(c, reward);
+    Object.keys(reward).forEach(function (k) { sum += reward[k]; });
+    addXp(c, sum * C("xp_quest_share"));
+    q.claimed_at = now;
+    return { reward: reward };
+  }
+
+  // ---------------------------------------------------------------- tanishtiruv (src/Tutorial.php)
+
+  function grant(c, reward) {
+    Object.keys(reward).forEach(function (k) {
+      if (k === "free_speedups") c.p.free_speedups += reward[k];
+      else if (k === "army") unit(c, reward[k][0], 1).alive += reward[k][1];
+      else { var r = {}; r[k] = reward[k]; give(c, r); }
+    });
+  }
+  function tutorialStep(pid, step, now) {
+    var c = ctx(pid), steps = D.tutorial, cur = c.p.tutorial_step;
+    if (step !== cur + 1 || !steps[step]) throw new ApiError("TUTORIAL_ORDER", "Qadam tartibi notoʻgʻri", { current: cur });
+    var def = steps[step], extra = tutorialCheck(c, def.check, now);
+    grant(c, def.reward);
+    c.p.tutorial_step = step;
+    setLevelAtLeast(c, steps[step + 1] ? steps[step + 1].level : def.level);
+    var out = { step: step, reward: def.reward };
+    Object.keys(extra).forEach(function (k) { out[k] = extra[k]; });
+    return out;
+  }
+  function tutorialSkip(pid) {
+    var c = ctx(pid), last = Math.max.apply(null, Object.keys(D.tutorial).map(Number));
+    if (c.p.tutorial_step < CI("tutorial_skip_step")) throw new ApiError("TUTORIAL_ORDER", "Oʻtkazib yuborish 12-qadamdan keyin");
+    if (c.p.tutorial_step < last) { grant(c, D.tutorial[last].reward); c.p.tutorial_step = last; setLevelAtLeast(c, D.tutorial[last].level); }
+    return { step: last };
+  }
+  function tutorialCheck(c, check, now) {
+    if (!check) return {};
+    var pid = c.p.id;
+    if (check.hunts != null && c.p.stat_hunts < check.hunts) throw new ApiError("TUTORIAL_CHECK", "Avval ov qiling", { need_hunts: check.hunts });
+    if (check.building && c.b[check.building[0]] < check.building[1])
+      throw new ApiError("TUTORIAL_CHECK", "Avval binoni quring", { building: check.building[0], level: check.building[1] });
+    if (check.army) {
+      var queued = 0;
+      running(pid, function (q) { return q.kind === "train" && q.role === check.army[0]; }).forEach(function (q) { queued += q.qty; });
+      if (roleCount(c, check.army[0]) + queued < check.army[1]) throw new ApiError("TUTORIAL_CHECK", "Avval askar tayyorlang", { role: check.army[0] });
+    }
+    if (check.tutorial_battle) return { battle: tutorialBattle(c, now) };
+    if (check.tutorial_scout) {
+      var bot = ctx(tutorialBot());
+      writeReport(c, bot, "exact", 99, now);
+      return { report: report(pid, bot.p.id, now) };
+    }
+    return {};
+  }
+  function tutorialBattle(c, now) {
+    var bot = ctx(tutorialBot());
+    var groups = homeGroups(c).filter(function (g) { return g.role !== "scout"; });
+    if (!groups.length) groups = [{ role: "hunter", tier: 1, qty: 1 }];
+    var b = Battle.resolve({ groups: groups, level: c.p.level }, { groups: homeGroups(bot), level: 1, alpha_cp: 0 }, false);
+    b.log[b.log.length - 1].event = "attacker_win";
+    var id = nextId();
+    db.battles.push({ id: id, kind: "tutorial", trap: false, attacker_id: c.p.id, defender_id: bot.p.id, ep_attacker: b.ep_attacker,
+      ep_defender: b.ep_defender, ratio: Math.min(99999, b.ratio), result: "attacker_win", att_losses: { dead: [], injured: [] },
+      def_losses: b.def_losses, loot: { stone: 50 }, log: b.log, created_at: now });
+    return battleById(c.p.id, id);
+  }
+
+  // ================================================================ snapshot
+
+  function snapshot(pid, now, full) {
+    var c = ctx(pid), p = c.p, r = c.r, b = c.b, lvl = p.level, lv = levelRow(lvl);
+    var next = Math.min(Object.keys(D.levels).length, lvl + 1), res = {}, ws = {};
+    RES.forEach(function (k) { res[k] = Math.floor(r[k]); });
+    res.moonstone = r.moonstone;
+    WS.forEach(function (k) { ws[k] = Math.floor(r["ws_" + k]); });
+    res.workshop = ws;
+    res.alloc = { stone: r.alloc_stone, wood: r.alloc_wood, hide: r.alloc_hide, bone: r.alloc_bone };
+    res.caps = { food: Math.floor(F.foodCap(b.food_cave)), workshop: Math.floor(F.workshopCap(b.workshop)) };
+    res.rates = { meat_per_h: -round2(F.meatNeed(lvl) * Math.max(1, soldiers(c)) / 24), water_per_h: Math.round(F.waterRate(b.food_cave) * 10) / 10,
+      workshop_per_h: Math.round(F.workshopRate(b.workshop) * 10) / 10 };
+    var st = {
+      player: { id: p.id, name: p.display_name, level: lvl, xp: p.xp, xp_level: F.xpTotal(lvl),
+        xp_next: lvl >= CI("max_level") ? null : F.xpTotal(next), max_level: CI("max_level"),
+        wolf: { name: lv.name, sci: lv.sci, class: lv.class, weight: lv.weight, power: lv.power, speed: lv.speed, hp: lv.hp, cp: lv.cp },
+        cp: cp(c), tutorial_step: p.tutorial_step, free_speedups: p.free_speedups, second_queue: p.second_queue,
+        shield_until: iso(p.shield_until), shielded: isShielded(p, now), hunger: p.hunger_since != null,
+        army: { count: soldiers(c), cap: F.armyCap(lvl) }, lang: "uz" },
+      resources: res,
+      queues: running(pid, function () { return true; }).sort(function (a, b2) { return a.ends_at - b2.ends_at; }).map(function (q) {
+        return { id: q.id, kind: q.kind, slot: q.slot, building_type: q.building_type, target_level: q.target_level, role: q.role,
+          tier: q.tier, from_tier: q.from_tier, qty: q.qty, started_at: iso(q.started_at), ends_at: iso(q.ends_at) };
+      }),
+      hunts: db.hunts.filter(function (h) { return h.player_id === pid && h.state === "running"; }).map(function (h) {
+        return { id: h.id, prey: h.prey_key, meat: h.meat, xp: h.xp, started_at: iso(h.started_at), ends_at: iso(h.ends_at), payload: h.payload };
+      }),
+      marches: db.marches.filter(function (m) { return m.player_id === pid && ["outbound", "returning", "recalled"].indexOf(m.state) >= 0; }).map(marchOut),
+      incoming: [],
+      server_time: iso(now)
+    };
+    if (full) { st.buildings = describeBuildings(c); st.army = describeArmy(c); }
+    return st;
+  }
+
+  // ================================================================ marshrutlash (src/Api.php)
+
+  function route(method, path, q, b, pid, now, prevSeen) {
+    var key = method + " " + path, m;
+    var int = function (v) { return parseInt(v, 10) || 0; };
+    switch (key) {
+      case "GET /state":
+        questBump(pid, "login", 1, now);
+        var out = snapshot(pid, now, true), away = now - prevSeen;
+        if (away >= C("offline_report_min") * 60) {
+          out.offline_report = { away_seconds: away, attacks: [] };
+        }
+        return out;
+      case "GET /profile":
+        var c = ctx(pid);
+        return { name: c.p.display_name, level: c.p.level, cp: cp(c), army: describeArmy(c),
+          stats: { hunts: c.p.stat_hunts, battles: c.p.stat_battles, wins: c.p.stat_wins }, league: null, season_rank: null, created_at: iso(c.p.created_at) };
+      case "POST /profile/allocation": return setAllocation(pid, b);
+      case "GET /buildings": return { buildings: describeBuildings(ctx(pid)) };
+      case "POST /buildings/upgrade": return upgrade(pid, String(b.type || ""), now);
+      case "POST /buildings/collect": return collect(pid);
+      case "POST /hospital/heal": return heal(pid, b.role, int(b.tier), int(b.qty), now);
+      case "GET /army": return describeArmy(ctx(pid));
+      case "POST /army/train": return train(pid, b.role, int(b.tier), int(b.qty), now);
+      case "POST /army/promote": return promote(pid, b.role, int(b.from_tier), int(b.to_tier), int(b.qty), now);
+      case "GET /army/promote/preview": return promotePlan(ctx(pid), q.role, int(q.from_tier), int(q.to_tier), Math.max(1, int(q.qty)));
+      case "POST /queue/cancel": return queueCancel(pid, int(b.queue_id));
+      case "POST /queue/speedup": return queueSpeedup(pid, int(b.queue_id), int(b.seconds), !!b.free, now);
+      case "GET /queue/speedup/quote": return speedupQuote(Math.max(1, int(q.seconds || 3600)), now);
+      case "GET /hunt": return { prey: preyList(ctx(pid)) };
+      case "POST /hunt": return huntStart(pid, String(b.prey || ""), b.payload || [], now);
+      case "GET /pvp/targets": return targets(pid, now, false);
+      case "POST /pvp/targets/refresh": return targets(pid, now, true);
+      case "POST /pvp/scout": return scout(pid, int(b.target_id), b.payload, now);
+      case "POST /pvp/attack": return attack(pid, int(b.target_id), b.payload, now);
+      case "GET /battles":
+        var list = db.battles.filter(function (x) { return x.attacker_id === pid || x.defender_id === pid; })
+          .sort(function (x, y) { return y.id - x.id; }).slice(0, Math.max(1, Math.min(50, int(q.limit || 20))));
+        return { battles: list.map(function (x) { return battleOut(x, pid, false); }), cursor: null };
+      case "GET /quests": return questsList(pid, now);
+      case "POST /tutorial/step": return tutorialStep(pid, int(b.step), now);
+      case "POST /tutorial/skip": return tutorialSkip(pid);
+      case "POST /events": return { logged: 0 };
+    }
+    if (method === "GET" && (m = path.match(/^\/pvp\/scout\/(\d+)$/))) return { report: report(pid, +m[1], now) };
+    if (method === "POST" && (m = path.match(/^\/march\/(\d+)\/recall$/))) return recall(pid, +m[1], now);
+    if (method === "GET" && (m = path.match(/^\/battles\/(\d+)$/))) return battleById(pid, +m[1]);
+    if (method === "POST" && (m = path.match(/^\/quests\/(\d+)\/claim$/))) return questClaim(pid, +m[1], now);
+    throw new ApiError("NOT_FOUND", "Endpoint topilmadi");
+  }
+
+  function publicConfig() {
+    var levels = {};
+    Object.keys(D.levels).forEach(function (l) { var r = D.levels[l]; levels[l] = { name: r.name, xp_total: r.xp_total, cp: r.cp, army: r.army }; });
+    return { max_level: CI("max_level"), levels: levels, prey: D.prey, tutorial_skip_step: CI("tutorial_skip_step"), roles: ROLES, tiers: TIERS,
+      role_building: ROLE_BUILDING, beats: BEATS, march_speed: C("march_speed"), scout_speed: C("scout_speed"),
+      pack_unlock_level: CI("pack_unlock_level"), speedup: { daily_cap_seconds: F.speedupDailyCap() } };
+  }
+
+  /** Soʻrov: xuddi fetch javobi kabi { ok, data, state } yoki { ok:false, error }. */
+  function request(method, url, body) {
+    if (!db) load();
+    var parts = url.split("?"), path = "/" + parts[0].replace(/^\/+|\/+$/g, ""), query = {};
+    new URLSearchParams(parts[1] || "").forEach(function (v, k) { query[k] = v; });
+    if (method === "GET" && path === "/config") return { ok: true, data: publicConfig() };
+    if (method === "GET" && path === "/locales/uz") return { ok: true, data: D.locales };
+    var now = nowS();
+    if (db.me == null) { ensureBots(now); createMe(now); }
+    var pid = db.me, backup = JSON.stringify(db);
+    try {
+      if (/^\/(clans|wars|camp|oases|season|shop|vacation|market|notifications)/.test(path)) throw new ApiError("NOT_IN_MVP", "Bu boʻlim keyingi versiyada ochiladi");
+      var prevSeen = db.players[pid].last_seen_at;
+      sync(pid, now);
+      db.players[pid].last_seen_at = now;
+      var data = route(method, path, query, body || {}, pid, now, prevSeen);
+      persist();
+      return { ok: true, data: data, state: snapshot(pid, now, false) };
+    } catch (e) {
+      db = JSON.parse(backup); // tranzaksiya bekor
+      if (!(e instanceof ApiError)) { console.error(e); e = new ApiError("SERVER_ERROR", String(e && e.message || e)); }
+      return { ok: false, error: { code: e.code, message: e.message, details: e.details }, state: snapshot(pid, now, false) };
+    }
+  }
+
+  window.BW_DEMO = {
+    request: request,
+    /** Demo vaqtini oldinga surish (soniya) — kutmasdan qurilish/mashq/yurish tugashini koʻrish uchun */
+    skip: function (sec) { if (!db) load(); db.offset += sec; persist(); },
+    reset: function () { db = emptyDb(); persist(); },
+    offset: function () { if (!db) load(); return db.offset; }
+  };
+})();
+
+/* Blue Wolf — Telegram Mini App klienti.
+ * Server hamma narsani hisoblaydi; klient faqat holatni chizadi va taymerlarni
+ * server vaqti (state.server_time) bilan sinxron yuritadi. Matnlar — locales dan: t('kalit').
+ */
+(function () {
+  "use strict";
+
+  var CLIENT_VERSION = "1.0.0";
+  var tg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData ? window.Telegram.WebApp : null;
+  var params = new URLSearchParams(location.search);
+  var API = params.get("api") || window.BW_API || "api/v1";
+
+  var S = {
+    state: null, L: {}, cfg: null, tab: "den", skew: 0,
+    buildings: null, army: null, prey: null, targets: null, battles: null, quests: null, profile: null,
+    busy: false, lastLoad: 0
+  };
+
+  var ROLE_ICON = { scout: "🔍", attacker: "⚔️", defender: "🛡", hunter: "🏹" };
+  var BLD_ICON = { den: "🏔", food_cave: "🍖", workshop: "🪨", scout_rock: "🔭", battle_ground: "⚔️",
+    defense_wall: "🛡", hunt_path: "🐾", hospital: "🏥", market: "🛒" };
+  var RES_ICON = { meat: "🥩", water: "💧", stone: "🪨", wood: "🌲", hide: "🐾", bone: "🦴", moonstone: "🌕" };
+  var PREY_ICON = { rodent: "🐁", bird: "🐦", rabbit: "🐇", marmot: "🦫", gazelle: "🦌", boar: "🐗", deer: "🦌",
+    reindeer: "🦌", argali: "🐏", horse: "🐎", moose: "🫎", bison: "🦬", mammoth_calf: "🦣", mammoth: "🦣", spirit: "👻" };
+
+  // ------------------------------------------------------------------ yordamchilar
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  var nf = new Intl.NumberFormat("uz-UZ");
+  function n(x) { return nf.format(Math.floor(x || 0)); }
+
+  function t(key, p) {
+    var s = S.L[key];
+    if (s == null) return key;
+    if (p) Object.keys(p).forEach(function (k) { s = s.split("{" + k + "}").join(p[k]); });
+    return s;
+  }
+
+  function now() { return Date.now() + S.skew; }
+  function ts(iso) { return iso ? Date.parse(iso) : 0; }
+  function left(iso) { return Math.max(0, Math.ceil((ts(iso) - now()) / 1000)); }
+  function dur(sec) {
+    sec = Math.max(0, Math.round(sec));
+    var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+    if (h > 0) return h + " " + t("time.h") + " " + m + " " + t("time.m");
+    if (m > 0) return m + " " + t("time.m") + " " + s + " " + t("time.s");
+    return s + " " + t("time.s");
+  }
+  function costHtml(cost, have) {
+    return Object.keys(cost || {}).map(function (k) {
+      var lack = have && (have[k] || 0) < cost[k];
+      return '<span class="cost' + (lack ? " lack" : "") + '">' + RES_ICON[k] + " " + n(cost[k]) + "</span>";
+    }).join(" ");
+  }
+  function uuid() {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+      var r = Math.random() * 16 | 0; return (c === "x" ? r : (r & 3 | 8)).toString(16); });
+  }
+  function haptic(kind) {
+    try { if (tg && tg.HapticFeedback) kind === "ok" ? tg.HapticFeedback.notificationOccurred("success")
+      : kind === "err" ? tg.HapticFeedback.notificationOccurred("error") : tg.HapticFeedback.impactOccurred("light"); } catch (e) {}
+  }
+
+  function devUser() {
+    var id = null;
+    try { id = localStorage.getItem("bw_dev_user"); } catch (e) {}
+    if (params.get("dev")) id = params.get("dev");
+    if (!id || id === "1") id = String(100000 + Math.floor(Math.random() * 800000));
+    try { localStorage.setItem("bw_dev_user", id); } catch (e) {}
+    return id;
+  }
+  var DEMO = window.BW_DEMO || null;
+  var DEV_USER = tg || DEMO ? null : devUser();
+
+  // ------------------------------------------------------------------ API
+
+  function api(method, path, body) {
+    var h = { "Content-Type": "application/json", "X-Client-Version": CLIENT_VERSION };
+    if (tg) h["X-Init-Data"] = tg.initData; else h["X-Dev-User"] = DEV_USER;
+    if (method === "POST") h["X-Request-Id"] = uuid();
+    // Demo rejim: server oʻrniga brauzer ichidagi dvigatel (assets/demo-engine.js)
+    var call = DEMO ? Promise.resolve(DEMO.request(method, path, body))
+      : fetch(API.replace(/\/$/, "") + path, { method: method, headers: h, body: method === "POST" ? JSON.stringify(body || {}) : undefined })
+        .then(function (r) { return r.json().catch(function () { return { ok: false, error: { code: "NETWORK", message: "HTTP " + r.status } }; }); });
+    return call.then(function (res) {
+        if (res.state) applyState(res.state);
+        if (!res.ok) { var e = new Error(res.error.message); e.code = res.error.code; e.details = res.error.details || {}; throw e; }
+        return res.data;
+      });
+  }
+
+  function errText(e) {
+    var k = "error." + (e.code || "NETWORK");
+    var msg = S.L[k] ? t(k, e.details || {}) : (e.message || e.code);
+    if (e.code === "NOT_ENOUGH_RESOURCES" && e.details && e.details.missing) {
+      msg += ": " + Object.keys(e.details.missing).map(function (r) { return RES_ICON[r] + " " + n(e.details.missing[r]); }).join(" ");
+    }
+    return msg;
+  }
+
+  function act(promise, okMsg) {
+    haptic();
+    return promise.then(function (d) {
+      if (okMsg) toast(okMsg, "ok");
+      haptic("ok");
+      return reload().then(function () { return d; });
+    }).catch(function (e) { toast(errText(e), "err"); haptic("err"); throw e; });
+  }
+
+  function applyState(st) {
+    S.state = st;
+    S.skew = ts(st.server_time) - Date.now();
+    if (st.buildings) S.buildings = st.buildings;
+    if (st.army) S.army = st.army;
+  }
+
+  function reload() {
+    S.lastLoad = Date.now();
+    return api("GET", "/state").then(function (d) {
+      S.buildings = d.buildings; S.army = d.army;
+      var jobs = [];
+      if (S.tab === "den") jobs.push(api("GET", "/hunt").then(function (d) { S.prey = d.prey; }));
+      if (S.tab === "battle" && S.state.player.level >= S.cfg.pack_unlock_level) {
+        jobs.push(api("GET", "/pvp/targets").then(function (d) { S.targets = d; }).catch(function () {}));
+        jobs.push(api("GET", "/battles?limit=15").then(function (d) { S.battles = d.battles; }));
+      }
+      if (S.tab === "quests" || !S.quests) jobs.push(api("GET", "/quests").then(function (d) { S.quests = d; }));
+      if (S.tab === "profile") jobs.push(api("GET", "/profile").then(function (d) { S.profile = d; }));
+      return Promise.all(jobs);
+    }).then(render);
+  }
+
+  // ------------------------------------------------------------------ umumiy UI
+
+  var toastTimer = null;
+  function toast(msg, kind) {
+    var el = $("toast");
+    el.textContent = msg;
+    el.className = "toast " + (kind || "");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.className = "toast hidden"; }, 2800);
+  }
+
+  function openSheet(html) {
+    $("sheet").innerHTML = '<div class="sheet-grip"></div>' + html;
+    $("sheet").classList.remove("hidden");
+    $("sheetBackdrop").classList.remove("hidden");
+  }
+  function closeSheet() {
+    $("sheet").classList.add("hidden");
+    $("sheetBackdrop").classList.add("hidden");
+    S.sheet = null;
+  }
+
+  function render() {
+    if (!S.state) return;
+    renderTop();
+    var fn = { den: renderDen, battle: renderBattle, pack: renderPack, quests: renderQuests, profile: renderProfile }[S.tab];
+    fn($("screen-" + S.tab));
+    renderCoach();
+    var dot = S.quests && S.quests.daily.some(function (q) { return !q.claimed && !q.locked && q.progress >= q.target; });
+    $("questDot").style.display = dot ? "block" : "none";
+    if (S.sheet && S.sheet.refresh) S.sheet.refresh();
+  }
+
+  function renderTop() {
+    var p = S.state.player, r = S.state.resources;
+    $("lvl").textContent = p.level;
+    $("wolfName").textContent = p.wolf.name;
+    var pct = p.xp_next ? (p.xp - p.xp_level) / (p.xp_next - p.xp_level) * 100 : 100;
+    $("xpFill").style.width = Math.max(2, Math.min(100, pct)) + "%";
+    var flags = "";
+    if (p.hunger) flags += '<span class="flag bad">' + t("flag.hunger") + "</span>";
+    if (p.shielded) flags += '<span class="flag">' + t("flag.shield") + "</span>";
+    if (S.state.incoming.length) flags += '<span class="flag bad pulse">' + t("flag.incoming") + "</span>";
+    if (DEMO) flags += '<button class="flag demo" data-action="demo-sheet">⏩ ' + t("demo.badge") + "</button>";
+    $("topFlags").innerHTML = flags;
+    var food = r.caps.food;
+    var cells = [
+      ["meat", n(r.meat) + '<small>/' + n(food) + "</small>", r.meat >= food ? "full" : (r.meat < food * 0.3 ? "low" : "")],
+      ["water", n(r.water), ""], ["stone", n(r.stone), ""], ["wood", n(r.wood), ""],
+      ["hide", n(r.hide), ""], ["bone", n(r.bone), ""], ["moonstone", n(r.moonstone), "gem"]
+    ];
+    $("resbar").innerHTML = cells.map(function (c) {
+      return '<div class="res ' + c[2] + '" title="' + esc(t("res." + c[0])) + '"><i>' + RES_ICON[c[0]] + "</i><span>" + c[1] + "</span></div>";
+    }).join("");
+  }
+
+  function timerHtml(startIso, endIso, id) {
+    var total = Math.max(1, ts(endIso) - ts(startIso));
+    var pct = Math.min(100, (now() - ts(startIso)) / total * 100);
+    return '<div class="timer" data-start="' + startIso + '" data-end="' + endIso + '"><div class="tfill" style="width:' + pct +
+      '%"></div><span>' + dur(left(endIso)) + "</span></div>";
+  }
+
+  // Taymerlar: har soniya yangilanadi, tugaganda holat qayta yuklanadi
+  setInterval(function () {
+    var due = false;
+    document.querySelectorAll(".timer").forEach(function (el) {
+      var s = ts(el.dataset.start), e = ts(el.dataset.end);
+      var l = Math.max(0, Math.ceil((e - now()) / 1000));
+      el.querySelector("span").textContent = l > 0 ? dur(l) : t("common.done");
+      el.querySelector(".tfill").style.width = Math.min(100, (now() - s) / Math.max(1, e - s) * 100) + "%";
+      if (l === 0 && !el.dataset.fired) { el.dataset.fired = "1"; due = true; }
+    });
+    if (due && !S.busy) setTimeout(reload, 600);
+    else if (Date.now() - S.lastLoad > 30000 && document.visibilityState === "visible" && !S.busy) reload();
+  }, 1000);
+
+  // ------------------------------------------------------------------ 🏔 IN
+
+  function renderDen(el) {
+    var st = S.state, p = st.player, r = st.resources;
+    var hunt = st.hunts[0];
+    var html = '<div class="card alpha">' +
+      '<div class="alpha-row"><div class="alpha-pic">🐺</div><div class="alpha-info"><div class="alpha-name">' + esc(p.wolf.name) +
+      '</div><div class="muted small">' + esc(p.wolf.sci) + " · " + t("wolf.class." + p.wolf.class) + (p.wolf.weight ? " · " + p.wolf.weight + " kg" : "") +
+      '</div><div class="stats"><span>💪 ' + p.wolf.power + '</span><span>💨 ' + p.wolf.speed + '</span><span>❤️ ' + p.wolf.hp +
+      '</span><span class="cp">⚡ ' + n(p.cp) + ' CP</span></div></div></div>';
+    if (hunt) {
+      html += '<div class="hunt-live"><span>' + (PREY_ICON[hunt.prey] || "🐾") + " " + t("hunt.on", { prey: t("prey." + hunt.prey) }) +
+        "</span>" + timerHtml(hunt.started_at, hunt.ends_at) + "</div>";
+    } else {
+      html += '<button class="btn big" data-action="hunt-sheet">🐾 ' + t("hunt.go") + "</button>";
+    }
+    html += '<div class="muted small center">' + t("den.meat_rate", { v: Math.abs(r.rates.meat_per_h).toFixed(2) }) + "</div></div>";
+
+    // Navbatlar
+    var queues = st.queues;
+    html += '<h3>' + t("den.queues") + ' <small class="muted">' + t("den.free_speedups", { n: p.free_speedups }) + "</small></h3>";
+    if (!queues.length) html += '<div class="card muted">' + t("den.queue_empty") + "</div>";
+    queues.forEach(function (q) {
+      html += '<div class="card queue"><div class="q-title">' + queueTitle(q) + "</div>" + timerHtml(q.started_at, q.ends_at) +
+        '<div class="q-actions">' +
+        (p.free_speedups > 0 ? '<button class="btn sm gold" data-action="free" data-id="' + q.id + '">⚡ ' + t("queue.free") + "</button>" : "") +
+        '<button class="btn sm" data-action="speedup-sheet" data-id="' + q.id + '">🌕 ' + t("queue.speedup") + "</button>" +
+        '<button class="btn sm ghost" data-action="cancel" data-id="' + q.id + '">✕</button></div></div>';
+    });
+
+    // Ustaxona
+    var ws = r.workshop, wsSum = ws.stone + ws.wood + ws.hide + ws.bone;
+    html += '<h3>🪨 ' + t("bld.workshop") + "</h3>" +
+      '<div class="card workshop"><div class="ws-row">' + ["stone", "wood", "hide", "bone"].map(function (k) {
+        return '<div class="ws-cell"><i>' + RES_ICON[k] + "</i><b>" + n(ws[k]) + '</b><small>' + r.alloc[k] + "%</small></div>";
+      }).join("") + '</div><div class="bar"><div style="width:' + Math.min(100, wsSum / r.caps.workshop * 100) + '%"></div></div>' +
+      '<div class="muted small">' + t("ws.rate", { v: r.rates.workshop_per_h, cap: n(r.caps.workshop) }) + "</div>" +
+      '<div class="row2"><button class="btn" data-action="collect"' + (wsSum < 1 ? " disabled" : "") + ">📥 " + t("ws.collect") +
+      '</button><button class="btn ghost" data-action="alloc-sheet">⚖️ ' + t("ws.alloc") + "</button></div></div>";
+
+    // Binolar
+    html += "<h3>" + t("den.buildings") + '</h3><div class="grid">';
+    (S.buildings || []).forEach(function (b) {
+      var lock = !b.mvp;
+      html += '<div class="bld' + (b.busy ? " busy" : "") + (lock ? " locked" : "") + '" data-action="bld-sheet" data-type="' + b.type + '">' +
+        '<div class="bld-icon">' + BLD_ICON[b.type] + '</div><div class="bld-lvl">' + b.level + "</div>" +
+        '<div class="bld-name">' + t("bld." + b.type) + "</div>" +
+        '<div class="bld-sub">' + (b.busy ? "⏳ " + dur(left(b.busy.ends_at)) : lock ? t("common.soon") : bldShort(b)) + "</div></div>";
+    });
+    html += "</div>";
+    el.innerHTML = html;
+  }
+
+  function queueTitle(q) {
+    if (q.kind === "build") return BLD_ICON[q.building_type] + " " + t("bld." + q.building_type) + " → " + q.target_level;
+    if (q.kind === "train") return ROLE_ICON[q.role] + " " + t("queue.train", { n: q.qty, role: t("role." + q.role), tier: t("tier." + q.tier) });
+    if (q.kind === "promote") return "⬆️ " + t("queue.promote", { n: q.qty, role: t("role." + q.role), tier: t("tier." + q.tier) });
+    return "🏥 " + t("queue.heal", { n: q.qty, role: t("role." + q.role) });
+  }
+
+  function bldShort(b) {
+    var e = b.effect;
+    if (b.type === "den") return "⚡ ×" + e.train_speed;
+    if (b.type === "food_cave") return "🥩 " + n(e.capacity) + " · 🛡" + Math.round(e.protection * 100) + "%";
+    if (b.type === "workshop") return n(e.per_hour) + "/" + t("time.h");
+    if (b.type === "hospital") return "🏥 " + e.heal_cap;
+    if (e.role) return ROLE_ICON[e.role] + " T" + e.max_tier;
+    return "";
+  }
+
+  function bldSheet(type) {
+    var b = (S.buildings || []).filter(function (x) { return x.type === type; })[0];
+    if (!b) return;
+    S.sheet = { refresh: function () { bldSheet(type); } };
+    var html = '<div class="sheet-head"><span class="big-icon">' + BLD_ICON[type] + "</span><div><h2>" + t("bld." + type) +
+      "</h2><div class=\"muted\">" + t("common.level") + " " + b.level + " / " + b.max_level + "</div></div></div>" +
+      '<p class="muted">' + t("bld." + type + ".desc") + "</p>" + effectTable(b);
+    if (b.auto) html += '<div class="note">' + t("bld.den.auto") + "</div>";
+    else if (!b.mvp) html += '<div class="note">' + t("common.soon_long") + "</div>";
+    else if (b.busy) html += timerHtml(new Date(now()).toISOString(), b.busy.ends_at);
+    else if (b.next) {
+      html += '<div class="next"><div>' + t("bld.next", { l: b.next.level }) + " · ⏱ " + dur(b.next.seconds) + "</div><div>" +
+        costHtml(b.next.cost, S.state.resources) + '</div></div><button class="btn big" data-action="upgrade" data-type="' + type + '">⬆️ ' +
+        t("bld.upgrade") + "</button>";
+    } else html += '<div class="note">' + t("bld.max_by_level") + "</div>";
+    if (type === "hospital") html += hospitalHtml();
+    openSheet(html);
+  }
+
+  function effectTable(b) {
+    var keys = Object.keys(b.effect).filter(function (k) { return k !== "role"; });
+    if (!keys.length) return "";
+    return '<table class="fx"><tr><th></th><th>' + t("common.now") + "</th>" + (b.next ? "<th>" + t("common.next") + "</th>" : "") + "</tr>" +
+      keys.map(function (k) {
+        var fmt = function (v) { return k === "protection" ? Math.round(v * 100) + "%" : (k === "max_tier" ? "T" + v : n(v) === "0" && v ? v : (v % 1 ? v : n(v))); };
+        return "<tr><td>" + t("fx." + k) + "</td><td>" + fmt(b.effect[k]) + "</td>" + (b.next ? "<td class=\"up\">" + fmt(b.next.effect[k]) + "</td>" : "") + "</tr>";
+      }).join("") + "</table>";
+  }
+
+  function hospitalHtml() {
+    var a = S.army; if (!a) return "";
+    var rows = "";
+    a.roles.forEach(function (r) { r.tiers.forEach(function (x) {
+      if (x.injured > 0) rows += '<div class="heal-row">' + ROLE_ICON[r.role] + " " + t("role." + r.role) + " " + t("tier." + x.tier) +
+        ": <b>" + x.injured + '</b> <button class="btn sm" data-action="heal" data-role="' + r.role + '" data-tier="' + x.tier +
+        '" data-qty="' + Math.min(x.injured, a.hospital.cap) + '">🏥 ' + Math.min(x.injured, a.hospital.cap) + "</button></div>";
+    }); });
+    return "<h3>" + t("hospital.injured") + "</h3>" + (rows || '<div class="muted">' + t("hospital.none") + "</div>");
+  }
+
+  function huntSheet() {
+    var p = S.state.player;
+    var hunters = 0, hunterRows = [];
+    (S.army ? S.army.roles : []).forEach(function (r) {
+      if (r.role !== "hunter") return;
+      r.tiers.forEach(function (x) { if (x.alive > 0) { hunters += x.alive; hunterRows.push({ tier: x.tier, qty: x.alive }); } });
+    });
+    var html = "<h2>🐾 " + t("hunt.title") + '</h2><p class="muted">' + t("hunt.desc", { n: hunters }) + '</p><div class="prey-list">';
+    (S.prey || []).forEach(function (pr) {
+      var canPack = 1 + hunters >= pr.pack;
+      var dis = !pr.unlocked || !canPack;
+      html += '<button class="prey' + (dis ? " dis" : "") + '" data-action="hunt" data-prey="' + pr.key + '" data-pack="' + pr.pack + '"' + (dis ? " disabled" : "") + ">" +
+        '<span class="pi">' + (PREY_ICON[pr.key] || "🐾") + '</span><span class="pn">' + t("prey." + pr.key) + "<small>" +
+        (pr.unlocked ? pr.kg + " kg · ⏱ " + dur(pr.seconds) + " · +" + pr.xp + " XP" : t("common.level") + " " + pr.level) + "</small></span>" +
+        '<span class="pp">' + (pr.pack > 1 ? "🐺×" + pr.pack : t("hunt.solo")) + "</span></button>";
+    });
+    html += "</div>";
+    S.sheet = { hunterRows: hunterRows };
+    openSheet(html);
+  }
+
+  function doHunt(prey, pack) {
+    // Kerakli toʻda: alfa + (pack-1) ovchi; qolgan ovchilar ham qoʻshiladi (oʻlja bonusi)
+    var rows = (S.sheet && S.sheet.hunterRows) || [];
+    var payload = pack > 1 ? rows.map(function (r) { return { role: "hunter", tier: r.tier, qty: r.qty }; }) : [];
+    closeSheet();
+    return act(api("POST", "/hunt", { prey: prey, payload: payload }), t("hunt.started"));
+  }
+
+  function allocSheet() {
+    var a = Object.assign({}, S.state.resources.alloc);
+    var html = "<h2>⚖️ " + t("ws.alloc") + '</h2><p class="muted">' + t("ws.alloc_desc") + "</p>" +
+      ["stone", "wood", "hide", "bone"].map(function (k) {
+        return '<label class="slider">' + RES_ICON[k] + " " + t("res." + k) + ' <b id="al-' + k + '">' + a[k] + '%</b><input type="range" min="0" max="100" step="5" value="' +
+          a[k] + '" data-alloc="' + k + '"></label>';
+      }).join("") + '<div class="muted small" id="alSum"></div><button class="btn big" data-action="alloc-save">' + t("common.save") + "</button>";
+    openSheet(html);
+    S.sheet = { alloc: a };
+    var sum = function () { var s = a.stone + a.wood + a.hide + a.bone; $("alSum").textContent = t("ws.alloc_sum", { s: s }); return s; };
+    sum();
+    document.querySelectorAll("[data-alloc]").forEach(function (inp) {
+      inp.addEventListener("input", function () { a[inp.dataset.alloc] = +inp.value; $("al-" + inp.dataset.alloc).textContent = inp.value + "%"; sum(); });
+    });
+  }
+
+  function speedupSheet(qid) {
+    var q = S.state.queues.filter(function (x) { return x.id === qid; })[0];
+    if (!q) return;
+    var l = left(q.ends_at);
+    var opts = [3600, 2 * 3600, l].filter(function (v, i, arr) { return v > 0 && v <= l && arr.indexOf(v) === i; });
+    Promise.all(opts.map(function (s) { return api("GET", "/queue/speedup/quote?seconds=" + s); })).then(function (quotes) {
+      var cap = quotes[0] ? quotes[0].cap_seconds - quotes[0].used_seconds : 0;
+      var html = "<h2>🌕 " + t("queue.speedup") + '</h2><p class="muted">' + t("speedup.desc", { left: dur(cap) }) + "</p>" +
+        opts.map(function (s, i) {
+          return '<button class="btn big" data-action="speedup" data-id="' + qid + '" data-sec="' + s + '"' + (s > cap ? " disabled" : "") + ">⏩ " +
+            dur(s) + " — 🌕 " + quotes[i].price + "</button>";
+        }).join("") + '<p class="muted small">' + t("speedup.rule") + "</p>";
+      openSheet(html);
+    }).catch(function (e) { toast(errText(e), "err"); });
+  }
+
+  // ------------------------------------------------------------------ ⚔️ JANG
+
+  function renderBattle(el) {
+    var p = S.state.player;
+    if (p.level < S.cfg.pack_unlock_level) {
+      el.innerHTML = '<div class="card locked-card"><div class="big-icon">🔒</div><h2>' + t("pvp.locked_title") + "</h2><p>" +
+        t("pvp.locked", { l: S.cfg.pack_unlock_level }) + "</p></div>";
+      return;
+    }
+    var html = "";
+    if (S.state.incoming.length) {
+      html += '<div class="card danger">' + S.state.incoming.map(function (m) {
+        return "⚠️ " + t("pvp.incoming", { name: esc(m.from) }) + " " + timerHtml(new Date(now()).toISOString(), m.arrives_at);
+      }).join("") + "</div>";
+    }
+    if (S.state.marches.length) {
+      html += "<h3>" + t("pvp.marches") + "</h3>";
+      S.state.marches.forEach(function (m) {
+        var out = m.state === "outbound";
+        html += '<div class="card march"><div>' + (m.kind === "scout" ? "🔍" : "⚔️") + " " + esc(m.target_name || "") + " · " +
+          t("march." + m.state) + "</div>" + timerHtml(out ? m.departs_at : m.arrives_at, out ? m.arrives_at : m.returns_at) +
+          (m.loot && Object.keys(m.loot).length ? '<div class="small">' + t("pvp.loot") + ": " + costHtml(m.loot) + "</div>" : "") +
+          (out ? '<button class="btn sm ghost" data-action="recall" data-id="' + m.id + '">↩️ ' + t("march.recall") + "</button>" : "") + "</div>";
+      });
+    }
+    var tg_ = S.targets;
+    html += '<h3>' + t("pvp.targets") + ' <button class="btn sm ghost" data-action="refresh-targets">🔄</button></h3>';
+    if (p.shielded && p.level <= 6) html += '<div class="note">' + t("pvp.newbie_note") + "</div>";
+    if (!tg_) html += '<div class="card muted">…</div>';
+    else {
+      tg_.targets.forEach(function (x) {
+        var dis = x.shielded || x.attacks_today >= tg_.pair_limit;
+        html += '<div class="card target ' + x.power_band + '"><div class="t-main"><div class="t-name">' + esc(x.name) +
+          (x.is_bot ? ' <span class="tag">' + t("pvp.wild") + "</span>" : "") + (x.shielded ? " 🛡" : "") + '</div><div class="muted small">' +
+          t("common.level") + " " + x.level + " · " + esc(x.wolf) + " · " + x.distance_km + " km (" + x.march_minutes + " " + t("time.m") + ")</div></div>" +
+          '<div class="band ' + x.power_band + '">' + t("band." + x.power_band) + "</div>" +
+          '<div class="t-actions"><button class="btn sm" data-action="scout-sheet" data-id="' + x.id + '"' + (x.shielded ? " disabled" : "") + ">🔍" +
+          (x.scouted ? " " + t("grade." + x.scouted) : "") + '</button><button class="btn sm red" data-action="attack-sheet" data-id="' + x.id + '"' +
+          (dis ? " disabled" : "") + ">⚔️ " + t("pvp.attack") + "</button></div></div>";
+      });
+    }
+    html += "<h3>" + t("pvp.log") + "</h3>";
+    if (!S.battles || !S.battles.length) html += '<div class="card muted">' + t("pvp.log_empty") + "</div>";
+    (S.battles || []).forEach(function (b) {
+      html += '<div class="card blog ' + b.outcome + '" data-action="battle" data-id="' + b.id + '"><span class="res-' + b.outcome + '">' +
+        t("outcome." + b.outcome) + "</span> " + (b.side === "attacker" ? "⚔️ → " : "🛡 ← ") + esc(b.opponent) +
+        ' <span class="muted small">R ' + b.ratio + "</span>" + (Object.keys(b.loot).length ? '<div class="small">' + costHtml(b.loot) + "</div>" : "") + "</div>";
+    });
+    el.innerHTML = html;
+  }
+
+  function armyPicker(roles, title, action, target) {
+    var rows = [];
+    (S.army ? S.army.roles : []).forEach(function (r) {
+      if (roles.indexOf(r.role) < 0) return;
+      r.tiers.forEach(function (x) { if (x.alive > 0) rows.push({ role: r.role, tier: x.tier, max: x.alive, qty: roles.length === 1 ? x.alive : (r.role === "attacker" ? x.alive : 0) }); });
+    });
+    S.sheet = { rows: rows, target: target };
+    var html = "<h2>" + title + "</h2>" + (target ? '<div class="muted">' + esc(target.name) + " · " + target.distance_km + " km</div>" : "");
+    if (!rows.length) html += '<div class="note">' + t("pick.none") + "</div>";
+    rows.forEach(function (r, i) {
+      html += '<div class="pick"><span>' + ROLE_ICON[r.role] + " " + t("role." + r.role) + " " + t("tier." + r.tier) + ' <small class="muted">/ ' + r.max +
+        '</small></span><div class="stepper"><button data-action="step" data-i="' + i + '" data-d="-1">−</button><b id="pk' + i + '">' + r.qty +
+        '</b><button data-action="step" data-i="' + i + '" data-d="1">+</button><button data-action="step" data-i="' + i + '" data-d="max">⤒</button></div></div>';
+    });
+    if (target) {
+      var sec = target.distance_km / (action === "scout" ? S.cfg.scout_speed : S.cfg.march_speed) * 3600;
+      html += '<div class="muted small">⏱ ' + t("pick.time", { one: dur(sec), both: dur(sec * 2) }) + "</div>";
+      if (action === "attack") html += '<div class="muted small">' + (target.scouted ? t("pick.scouted") : t("pick.trap")) + "</div>";
+    }
+    html += '<button class="btn big ' + (action === "attack" ? "red" : "") + '" data-action="send" data-kind="' + action + '"' + (rows.length ? "" : " disabled") + ">" +
+      (action === "attack" ? "⚔️ " + t("pvp.attack") : "🔍 " + t("pvp.scout")) + "</button>";
+    openSheet(html);
+  }
+
+  function battleSheet(b) {
+    var log = b.log || [];
+    var html = '<h2 class="res-' + b.outcome + '">' + t("outcome." + b.outcome) + "</h2><div class=\"muted\">" + esc(b.attacker) + " ⚔️ " + esc(b.defender) +
+      "</div>" + '<div class="ep"><span>⚔️ ' + n(b.ep_attacker) + "</span><b>R " + b.ratio + "</b><span>🛡 " + n(b.ep_defender) + "</span></div>" +
+      '<div class="rounds" id="rounds">' + log.map(function (r, i) {
+        return '<div class="round" style="animation-delay:' + (i * 0.45) + 's"><span class="rn">' + r.round + '</span><span class="re">' + t("round." + r.event) +
+          '</span><div class="hp"><div class="hpa" style="width:' + r.att + '%"></div></div><div class="hp"><div class="hpd" style="width:' + r.def + '%"></div></div></div>';
+      }).join("") + "</div>" +
+      (b.trap ? '<div class="note">' + t("battle.trap") + "</div>" : "") +
+      "<h3>" + t("battle.losses") + "</h3>" + lossHtml(t("battle.attacker"), b.att_losses) + lossHtml(t("battle.defender"), b.def_losses) +
+      (Object.keys(b.loot || {}).length ? "<h3>" + t("pvp.loot") + "</h3>" + costHtml(b.loot) : "");
+    openSheet(html);
+  }
+
+  function lossHtml(title, l) {
+    var d = (l.dead || []).map(function (g) { return ROLE_ICON[g.role] + g.qty; }).join(" ") || "—";
+    var i = (l.injured || []).map(function (g) { return ROLE_ICON[g.role] + g.qty; }).join(" ") || "—";
+    return '<div class="loss"><b>' + title + "</b> 💀 " + d + " · 🩹 " + i + "</div>";
+  }
+
+  function reportSheet(r) {
+    if (!r) return;
+    var d = r.data || {};
+    var html = "<h2>🔍 " + esc(r.name) + '</h2><div class="grade g-' + r.grade + '">' + t("grade." + r.grade) + "</div>";
+    if (r.grade === "fail") html += "<p>" + t("scout.fail") + "</p>";
+    if (d.army_total != null) html += "<p>🐺 " + t("scout.total", { n: d.army_total }) + "</p>";
+    if (d.by_role) html += "<p>" + Object.keys(d.by_role).map(function (k) { return ROLE_ICON[k] + " " + d.by_role[k]; }).join(" · ") + "</p>";
+    if (d.loot_estimate) html += "<p>" + t("scout.loot") + ": " + costHtml(d.loot_estimate) + "</p>";
+    if (d.cp) html += "<p>⚡ " + n(d.cp) + " CP · 🍖 L" + d.food_cave + " · 🛡 " + Math.round(d.protection * 100) + "%</p>";
+    html += '<div class="muted small">' + t("scout.valid") + " " + (r.valid ? dur(left(r.expires_at)) : t("scout.expired")) + "</div>";
+    openSheet(html);
+  }
+
+  // ------------------------------------------------------------------ 🐺 TOʻDA
+
+  function renderPack(el) {
+    var a = S.army; if (!a) { el.innerHTML = ""; return; }
+    var html = '<div class="card"><div class="row-between"><b>🐺 ' + t("pack.size") + '</b><span>' + a.count + " / " + a.cap + "</span></div>" +
+      '<div class="bar"><div style="width:' + Math.min(100, a.count / Math.max(1, a.cap) * 100) + '%"></div></div>' +
+      '<div class="muted small">' + t("pack.occupancy", { p: Math.round(a.occupancy * 100), k: a.time_coef }) + "</div></div>";
+    a.roles.forEach(function (r) {
+      html += '<div class="card role role-' + r.role + (r.unlocked ? "" : " locked") + '"><div class="row-between"><b>' + ROLE_ICON[r.role] + " " + t("role." + r.role) +
+        "</b><span class=\"muted small\">" + BLD_ICON[r.building] + " L" + r.building_level + " · T" + r.max_tier + "</span></div>" +
+        '<div class="muted small">' + t("role." + r.role + ".desc") + "</div>";
+      if (!r.unlocked) { html += '<div class="note">' + t("role.unlock", { l: r.unlock_level }) + "</div></div>"; return; }
+      html += '<div class="tiers">' + r.tiers.filter(function (x) { return x.unlocked || x.alive || x.injured || x.on_march; }).map(function (x) {
+        return '<div class="tier tf' + x.tier + '"><b>' + t("tier." + x.tier) + "</b><span>🐺 " + x.alive + (x.on_march ? " · 🏃" + x.on_march : "") +
+          (x.injured ? " · 🩹" + x.injured : "") + '</span><small>⚡ ' + x.cp + "</small></div>";
+      }).join("") + "</div>" +
+        '<div class="row2"><button class="btn" data-action="train-sheet" data-role="' + r.role + '">➕ ' + t("pack.train") + "</button>" +
+        (r.max_tier > 1 ? '<button class="btn ghost" data-action="promote-sheet" data-role="' + r.role + '">⬆️ ' + t("pack.promote") + "</button>" : "") + "</div></div>";
+    });
+    html += '<div class="card soon"><b>🏳️ ' + t("clan.title") + "</b><p class=\"muted\">" + t("clan.soon") + "</p></div>";
+    el.innerHTML = html;
+  }
+
+  function trainSheet(role, tier, qty) {
+    var r = S.army.roles.filter(function (x) { return x.role === role; })[0];
+    tier = tier || r.max_tier; qty = qty || 1;
+    var free = Math.max(0, S.army.cap - S.army.count);
+    var c = r.tiers[tier - 1].cost;
+    S.sheet = { role: role, tier: tier, qty: qty, refresh: null };
+    var html = "<h2>" + ROLE_ICON[role] + " " + t("pack.train") + ": " + t("role." + role) + '</h2><div class="tabs">' +
+      r.tiers.filter(function (x) { return x.unlocked; }).map(function (x) {
+        return '<button class="' + (x.tier === tier ? "on" : "") + '" data-action="train-tier" data-role="' + role + '" data-tier="' + x.tier + '">' + t("tier." + x.tier) + "</button>";
+      }).join("") + "</div>" +
+      '<div class="pick"><span>' + t("pick.qty") + ' <small class="muted">' + t("pack.free", { n: free }) + '</small></span><div class="stepper">' +
+      '<button data-action="train-qty" data-d="-1">−</button><b>' + qty + '</b><button data-action="train-qty" data-d="1">+</button><button data-action="train-qty" data-d="max">⤒</button></div></div>' +
+      '<div class="next">' + costHtml({ meat: c.meat * qty, bone: c.bone * qty }, S.state.resources) + "</div>" +
+      '<button class="btn big" data-action="train"' + (free < 1 ? " disabled" : "") + ">➕ " + t("pack.train") + "</button>" +
+      '<p class="muted small">' + t("pack.train_note") + "</p>";
+    S.sheet.free = free;
+    openSheet(html);
+  }
+
+  function promoteSheet(role) {
+    var r = S.army.roles.filter(function (x) { return x.role === role; })[0];
+    var from = 1, to = 2, qty = 1;
+    for (var i = 0; i < r.tiers.length; i++) if (r.tiers[i].alive > 1 && r.tiers[i].tier < r.max_tier) { from = r.tiers[i].tier; to = from + 1; break; }
+    api("GET", "/army/promote/preview?role=" + role + "&from_tier=" + from + "&to_tier=" + to + "&qty=" + qty).then(function (pv) {
+      var maxQty = Math.floor(pv.available / (pv.consumes / qty));
+      S.sheet = { role: role, from: from, to: to };
+      openSheet("<h2>⬆️ " + t("pack.promote") + '</h2><p class="muted">' + t("promote.desc") + "</p>" +
+        "<p>" + t("tier." + from) + " → " + t("tier." + to) + "</p><p>" + t("promote.rate", { need: (pv.consumes / qty).toFixed(2) }) + "</p>" +
+        '<p class="muted">' + t("promote.have", { n: pv.available, m: maxQty }) + "</p>" +
+        '<div class="next">' + costHtml(pv.cost) + " · ⏱ " + dur(pv.seconds) + " / 1</div>" +
+        '<button class="btn big" data-action="promote" data-qty="' + Math.max(1, maxQty) + '"' + (maxQty < 1 ? " disabled" : "") + ">⬆️ " + Math.max(1, maxQty) + "</button>");
+    }).catch(function (e) { toast(errText(e), "err"); });
+  }
+
+  // ------------------------------------------------------------------ 📋 VAZIFALAR
+
+  function renderQuests(el) {
+    var q = S.quests; if (!q) { el.innerHTML = ""; return; }
+    var html = "<h3>" + t("quests.daily") + "</h3>";
+    q.daily.forEach(function (x) {
+      var done = x.progress >= x.target;
+      html += '<div class="card quest' + (x.claimed ? " claimed" : "") + (x.locked ? " locked" : "") + '"><div class="row-between"><b>' + t("quest." + x.key) +
+        "</b><span>" + x.progress + "/" + x.target + '</span></div><div class="bar"><div style="width:' + (x.progress / x.target * 100) + '%"></div></div>' +
+        '<div class="row-between"><span class="small">' + costHtml(x.reward) + "</span>" +
+        (x.claimed ? "<span>✅</span>" : x.locked ? '<span class="muted small">🔒 L4</span>' :
+          '<button class="btn sm' + (done ? " gold" : "") + '" data-action="claim" data-id="' + x.id + '"' + (done ? "" : " disabled") + ">🎁 " + t("quests.claim") + "</button>") +
+        "</div></div>";
+    });
+    html += '<div class="muted small center">' + t("quests.reset", { t: dur(q.daily[0] ? left(q.daily[0].resets_at) : 0) }) + "</div>" +
+      '<div class="card soon"><b>' + t("quests.weekly") + " · " + t("quests.season") + '</b><p class="muted">' + t("common.soon_long") + "</p></div>" +
+      '<div class="card rule">💡 ' + t("quests.rule") + "</div>";
+    el.innerHTML = html;
+  }
+
+  // ------------------------------------------------------------------ 👤 PROFIL
+
+  function renderProfile(el) {
+    var p = S.state.player, pr = S.profile;
+    var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+    var html = '<div class="card profile"><div class="alpha-pic big">🐺</div><h2>' + esc(p.name) + '</h2><div class="muted">' +
+      (user && user.username ? "@" + esc(user.username) : "") + '</div><div class="stats3"><div><b>' + p.level + "</b><small>" + t("common.level") +
+      "</small></div><div><b>" + n(p.cp) + "</b><small>CP</small></div><div><b>" + (pr ? pr.stats.wins + "/" + pr.stats.battles : "…") + "</b><small>" +
+      t("profile.wins") + "</small></div></div>" + '<div class="stats3"><div><b>' + (pr ? n(pr.stats.hunts) : "…") + "</b><small>" + t("profile.hunts") +
+      "</small></div><div><b>" + n(p.xp) + "</b><small>XP</small></div><div><b>" + p.army.count + "</b><small>" + t("pack.size") + "</small></div></div></div>";
+    html += "<h3>" + t("profile.ladder") + '</h3><div class="ladder">';
+    Object.keys(S.cfg.levels).forEach(function (l) {
+      var row = S.cfg.levels[l], cur = +l === p.level, past = +l < p.level;
+      html += '<div class="rung' + (cur ? " cur" : past ? " past" : "") + (+l > S.cfg.max_level ? " v2" : "") + '"><span class="rl">' + l + '</span><span class="rn">' + esc(row.name) +
+        '</span><span class="rx">' + (past ? "✓" : n(row.xp_total) + " XP") + "</span></div>";
+    });
+    html += "</div>" + '<div class="card"><div class="row-between"><span>🌐 ' + t("profile.lang") + "</span><b>Oʻzbekcha</b></div>" +
+      '<div class="muted small">' + t("profile.lang_soon") + "</div></div>" +
+      '<div class="card soon"><b>🛒 ' + t("shop.title") + '</b><p class="muted">' + t("shop.soon") + "</p></div>" +
+      (p.tutorial_step < 20 && p.tutorial_step >= S.cfg.tutorial_skip_step ? '<button class="btn ghost" data-action="skip-tutorial">' + t("tutorial.skip") + "</button>" : "") +
+      '<p class="muted small center">Blue Wolf v' + CLIENT_VERSION + (DEMO ? " · demo" : tg ? "" : " · dev #" + DEV_USER) + "</p>";
+    el.innerHTML = html;
+  }
+
+  // ------------------------------------------------------------------ TANISHTIRUV
+
+  // Har qadam uchun avtomatik harakat (oʻyinchi tugmani bosadi — server shartni tekshiradi)
+  var TUT = {
+    2: function () { return api("POST", "/hunt", { prey: "rodent" }).then(waitHunt); },
+    4: function () { return build("food_cave"); },
+    6: function () { return build("workshop"); },
+    7: function () { return api("POST", "/profile/allocation", S.state.resources.alloc); },
+    8: function () { return build("hunt_path"); },
+    9: function () { return trainNow("hunter"); },
+    10: function () { return build("food_cave"); },
+    12: function () { return huntUntil(3); },
+    13: function () { return build("battle_ground"); },
+    14: function () { return trainNow("attacker"); },
+    17: function () { return build("scout_rock"); },
+    19: function () { return build("defense_wall"); }
+  };
+  var TUT_TAB = { 4: "den", 6: "den", 8: "den", 9: "pack", 10: "den", 11: "pack", 13: "den", 14: "pack", 16: "battle", 17: "den", 18: "battle", 19: "den" };
+
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function waitHunt() {
+    var h = S.state.hunts[0];
+    return h ? sleep(left(h.ends_at) * 1000 + 400).then(function () { return api("GET", "/state"); }) : Promise.resolve();
+  }
+  function finishQueue(kind) {
+    var q = S.state.queues.filter(function (x) { return x.kind === kind; }).slice(-1)[0];
+    if (!q) return Promise.resolve();
+    if (S.state.player.free_speedups > 0) return api("POST", "/queue/speedup", { queue_id: q.id, free: true });
+    toast(t("tutorial.wait", { t: dur(left(q.ends_at)) }));
+    return sleep(left(q.ends_at) * 1000 + 500).then(function () { return api("GET", "/state"); });
+  }
+  function build(type) {
+    var b = (S.buildings || []).filter(function (x) { return x.type === type; })[0];
+    var need = { 4: 2, 6: 2, 8: 2, 10: 3, 13: 2, 17: 2, 19: 2 }[S.state.player.tutorial_step + 1] || 2;
+    if (b && b.level >= need) return Promise.resolve();
+    if (b && b.busy) return finishQueue("build");
+    return api("POST", "/buildings/upgrade", { type: type }).then(function () { return finishQueue("build"); });
+  }
+  function trainNow(role) {
+    return api("POST", "/army/train", { role: role, tier: 1, qty: 1 }).then(function () { return finishQueue("train"); });
+  }
+  function huntUntil(k) {
+    return api("GET", "/profile").then(function (pr) {
+      if (pr.stats.hunts >= k) return;
+      var hunters = [];
+      S.army.roles.forEach(function (r) { if (r.role === "hunter") r.tiers.forEach(function (x) { if (x.alive) hunters.push({ role: "hunter", tier: x.tier, qty: x.alive }); }); });
+      return api("POST", "/hunt", { prey: hunters.length ? "marmot" : "rabbit", payload: hunters }).then(waitHunt).then(function () { return huntUntil(k); });
+    });
+  }
+
+  function autoHunt() {
+    return api("GET", "/hunt").then(function (d) {
+      var hunters = [], n = 0;
+      S.army.roles.forEach(function (r) { if (r.role === "hunter") r.tiers.forEach(function (x) { if (x.alive) { n += x.alive; hunters.push({ role: "hunter", tier: x.tier, qty: x.alive }); } }); });
+      var best = d.prey.filter(function (p) { return p.unlocked && p.pack <= n + 1; }).pop();
+      return api("POST", "/hunt", { prey: best.key, payload: best.pack > 1 ? hunters : [] }).then(waitHunt);
+    });
+  }
+
+  function renderCoach() {
+    var p = S.state.player, el = $("coach");
+    var step = p.tutorial_step + 1;
+    if (step > 20) { el.classList.add("hidden"); el.innerHTML = ""; return; }
+    el.classList.remove("hidden");
+    el.className = "coach" + (step === 11 ? " epic" : "");
+    el.innerHTML = '<div class="coach-wolf">🐺</div><div class="coach-body"><div class="coach-step">' + t("tutorial.step", { n: step }) + "</div><div>" +
+      t("tutorial.step." + step + ".text") + '</div><div class="coach-actions"><button class="btn sm gold" data-action="tut-go"' + (S.busy ? " disabled" : "") + ">" +
+      (S.busy ? "…" : t("tutorial.step." + step + ".action")) + "</button>" +
+      (p.tutorial_step >= S.cfg.tutorial_skip_step ? '<button class="btn sm ghost" data-action="skip-tutorial">' + t("tutorial.skip") + "</button>" : "") + "</div></div>";
+  }
+
+  function tutGo() {
+    if (S.busy) return;
+    var step = S.state.player.tutorial_step + 1;
+    S.busy = true; renderCoach();
+    if (TUT_TAB[step]) switchTab(TUT_TAB[step], true);
+    var run = function () { return TUT[step] ? TUT[step]() : Promise.resolve(); };
+    run().catch(function (e) {
+      // Goʻsht yetmasa — alfa avtomatik ovga chiqadi va qayta urinadi (tanishtiruvda ov 5 soniya)
+      var miss = e.code === "NOT_ENOUGH_RESOURCES" && e.details && e.details.missing;
+      if (miss && Object.keys(miss).length === 1 && miss.meat) {
+        toast(t("tutorial.hunt_hint"));
+        return autoHunt().then(run);
+      }
+      throw e;
+    }).then(function () {
+      return api("POST", "/tutorial/step", { step: step });
+    }).then(function (d) {
+      haptic("ok");
+      if (d.reward && Object.keys(d.reward).length) toast(t("tutorial.reward") + " " + rewardText(d.reward), "ok");
+      S.busy = false;
+      return reload().then(function () {
+        if (d.battle) battleSheet(d.battle);
+        if (d.report) reportSheet(d.report);
+        if (step === 20) openSheet('<div class="center"><div class="big-icon">🏆</div><h2>' + t("tutorial.done_title") + "</h2><p>" + t("tutorial.done") + "</p></div>");
+      });
+    }).catch(function (e) {
+      S.busy = false;
+      toast(errText(e), "err");
+      if (e.code === "NOT_ENOUGH_RESOURCES") toast(errText(e) + " — " + t("tutorial.hunt_hint"), "err");
+      reload();
+    });
+  }
+
+  function rewardText(r) {
+    return Object.keys(r).map(function (k) {
+      if (k === "free_speedups") return "⚡×" + r[k];
+      if (k === "army") return ROLE_ICON[r[k][0]] + "×" + r[k][1];
+      return (RES_ICON[k] || k) + " " + r[k];
+    }).join(" ");
+  }
+
+  // ------------------------------------------------------------------ hodisalar
+
+  function switchTab(tab, silent) {
+    S.tab = tab;
+    document.querySelectorAll(".screen").forEach(function (s) { s.classList.toggle("active", s.id === "screen-" + tab); });
+    document.querySelectorAll(".nav-btn").forEach(function (b) { b.classList.toggle("active", b.dataset.tab === tab); });
+    if (!silent) { render(); reload(); }
+  }
+
+  document.addEventListener("click", function (ev) {
+    var el = ev.target.closest("[data-action]");
+    if (!el || el.disabled) return;
+    var a = el.dataset.action, id = +el.dataset.id || 0, sh = S.sheet || {};
+    switch (a) {
+      case "tab": switchTab(el.dataset.tab); break;
+      case "close-sheet": closeSheet(); break;
+      case "hunt-sheet": huntSheet(); break;
+      case "hunt": doHunt(el.dataset.prey, +el.dataset.pack); break;
+      case "bld-sheet": bldSheet(el.dataset.type); break;
+      case "upgrade": act(api("POST", "/buildings/upgrade", { type: el.dataset.type }), t("bld.started")).then(function () { bldSheet(el.dataset.type); }); break;
+      case "free": act(api("POST", "/queue/speedup", { queue_id: id, free: true }), t("queue.done")); break;
+      case "cancel":
+        // confirm() hamma joyda ishlamaydi (masalan, oʻrnatilgan oynada) — ikki marta bosish
+        if (el.dataset.armed) { act(api("POST", "/queue/cancel", { queue_id: id }), t("queue.cancelled")); break; }
+        el.dataset.armed = "1"; el.textContent = t("queue.cancel_tap");
+        setTimeout(function () { delete el.dataset.armed; el.textContent = "✕"; }, 3000);
+        toast(t("queue.cancel_confirm")); break;
+      case "demo-sheet": demoSheet(); break;
+      case "demo-skip": DEMO.skip(+el.dataset.sec); closeSheet(); toast(t("demo.skipped", { t: dur(+el.dataset.sec) }), "ok"); reload(); break;
+      case "demo-reset":
+        if (!el.dataset.armed) { el.dataset.armed = "1"; el.textContent = t("demo.reset_confirm"); break; }
+        DEMO.reset(); closeSheet(); S.targets = S.battles = S.quests = S.profile = null; reload(); break;
+      case "speedup-sheet": speedupSheet(id); break;
+      case "speedup": closeSheet(); act(api("POST", "/queue/speedup", { queue_id: id, seconds: +el.dataset.sec })); break;
+      case "collect": act(api("POST", "/buildings/collect"), t("ws.collected")); break;
+      case "alloc-sheet": allocSheet(); break;
+      case "alloc-save":
+        if (sh.alloc.stone + sh.alloc.wood + sh.alloc.hide + sh.alloc.bone !== 100) { toast(t("ws.alloc_sum", { s: sh.alloc.stone + sh.alloc.wood + sh.alloc.hide + sh.alloc.bone }), "err"); break; }
+        act(api("POST", "/profile/allocation", sh.alloc), t("common.saved")).then(closeSheet); break;
+      case "heal": act(api("POST", "/hospital/heal", { role: el.dataset.role, tier: +el.dataset.tier, qty: +el.dataset.qty }), t("hospital.started")).then(closeSheet); break;
+      case "train-sheet": trainSheet(el.dataset.role); break;
+      case "train-tier": trainSheet(el.dataset.role, +el.dataset.tier, 1); break;
+      case "train-qty":
+        var q = el.dataset.d === "max" ? sh.free : Math.max(1, Math.min(sh.free || 1, sh.qty + +el.dataset.d));
+        trainSheet(sh.role, sh.tier, q); break;
+      case "train": act(api("POST", "/army/train", { role: sh.role, tier: sh.tier, qty: sh.qty }), t("pack.training")).then(closeSheet); break;
+      case "promote-sheet": promoteSheet(el.dataset.role); break;
+      case "promote": act(api("POST", "/army/promote", { role: sh.role, from_tier: sh.from, to_tier: sh.to, qty: +el.dataset.qty }), t("pack.promoting")).then(closeSheet); break;
+      case "refresh-targets": act(api("POST", "/pvp/targets/refresh").then(function (d) { S.targets = d; })); break;
+      case "attack-sheet": armyPicker(["attacker", "defender", "hunter", "scout"], "⚔️ " + t("pvp.attack"), "attack", targetById(id)); break;
+      case "scout-sheet":
+        api("GET", "/pvp/scout/" + id).then(function (d) {
+          if (d.report && d.report.valid) reportSheet(d.report); else armyPicker(["scout"], "🔍 " + t("pvp.scout"), "scout", targetById(id));
+        }); break;
+      case "step":
+        var r = sh.rows[+el.dataset.i];
+        r.qty = el.dataset.d === "max" ? r.max : Math.max(0, Math.min(r.max, r.qty + +el.dataset.d));
+        $("pk" + el.dataset.i).textContent = r.qty; break;
+      case "send":
+        var payload = sh.rows.filter(function (r) { return r.qty > 0; }).map(function (r) { return { role: r.role, tier: r.tier, qty: r.qty }; });
+        var path = el.dataset.kind === "attack" ? "/pvp/attack" : "/pvp/scout";
+        closeSheet();
+        act(api("POST", path, { target_id: sh.target.id, payload: payload }), t(el.dataset.kind === "attack" ? "pvp.sent" : "pvp.scout_sent")); break;
+      case "recall": act(api("POST", "/march/" + id + "/recall"), t("march.recalled")); break;
+      case "battle": api("GET", "/battles/" + id).then(battleSheet); break;
+      case "claim": act(api("POST", "/quests/" + id + "/claim").then(function (d) { toast(t("quests.got") + " " + rewardText(d.reward), "ok"); })); break;
+      case "tut-go": tutGo(); break;
+      case "skip-tutorial": act(api("POST", "/tutorial/skip")); break;
+    }
+  });
+
+  function demoSheet() {
+    openSheet("<h2>⏩ " + t("demo.title") + '</h2><p class="muted">' + t("demo.desc") + '</p><div class="row2">' +
+      [[60, "+1 " + t("time.m")], [600, "+10 " + t("time.m")], [3600, "+1 " + t("time.h")], [8 * 3600, "+8 " + t("time.h")]].map(function (x) {
+        return '<button class="btn" data-action="demo-skip" data-sec="' + x[0] + '">' + x[1] + "</button>";
+      }).join("") + '</div><p class="muted small">' + t("demo.offset", { t: dur(DEMO.offset()) }) + "</p>" +
+      '<button class="btn big ghost" data-action="demo-reset">↺ ' + t("demo.reset") + "</button>");
+  }
+
+  function targetById(id) { return S.targets ? S.targets.targets.filter(function (x) { return x.id === id; })[0] : null; }
+
+  // ------------------------------------------------------------------ ishga tushirish
+
+  function boot() {
+    if (tg) { tg.ready(); tg.expand(); try { tg.setHeaderColor("#0f1626"); tg.setBackgroundColor("#0f1626"); } catch (e) {} }
+    $("bootMsg").textContent = "…";
+    Promise.all([api("GET", "/locales/uz"), api("GET", "/config")]).then(function (res) {
+      S.L = res[0]; S.cfg = res[1];
+      document.querySelectorAll("[data-t]").forEach(function (e) { e.textContent = t(e.dataset.t); });
+      return api("GET", "/state");
+    }).then(function (st) {
+      S.buildings = st.buildings; S.army = st.army;
+      $("boot").classList.add("hidden");
+      if (st.offline_report && st.offline_report.away_seconds > 1800) {
+        openSheet('<div class="center"><div class="big-icon">🌄</div><h2>' + t("return.title") + "</h2><p>" +
+          t("return.away", { t: dur(st.offline_report.away_seconds) }) + "</p>" +
+          (st.offline_report.attacks.length ? "<p>" + t("return.attacks", { n: st.offline_report.attacks.length }) + "</p>" : "") +
+          '<button class="btn big" data-action="close-sheet">🐺 ' + t("return.go") + "</button></div>");
+      }
+      return reload();
+    }).catch(function (e) {
+      $("bootMsg").textContent = (e.code === "UNAUTHORIZED" ? "Telegram orqali oching" : "Server bilan aloqa yoʻq") + " (" + (e.code || e.message) + ")";
+      if (DEMO) console.error(e);
+    });
+  }
+
+  boot();
+})();
+
+</script>
+</body>
+</html>
