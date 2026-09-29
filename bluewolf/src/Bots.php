@@ -18,7 +18,7 @@ final class Bots
     /** Recommended taqsimot (GDD bo'lim 6): razvedkachi 20% · himoyachi 20% · ovchi 15% · hujumchi qoldiq. */
     public static function composition(int $level): array
     {
-        $cap = F::armyCap($level);
+        $cap = max(1, (int) round(F::armyCap($level) * Config::get('bot_army_share')));
         if ($level < Config::int('pack_unlock_level')) {
             return [['role' => 'hunter', 'tier' => 1, 'qty' => $cap]];
         }

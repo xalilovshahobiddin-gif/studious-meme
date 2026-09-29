@@ -13,14 +13,14 @@ INSERT INTO game_config (config_key, config_value, unit, note) VALUES
   ('cp_w_hp',                 0.5,   'x',      'CP: chidam vazni'),
   ('offline_after_min',       5,     'minute', '(MVP) Shuncha vaqt harakatsizlikdan keyin oflayn stavka'),
   ('return_grace_min',        30,    'minute', 'Qaytish qalqoni (uzoq yoʻqlikdan keyin)'),
-  ('map_size_km',             40,    'km',     '(MVP) Xarita tomoni — masofa shu kvadrat ichida'),
+  ('map_size_km',             20,    'km',     '(MVP) Xarita tomoni — masofa shu kvadrat ichida'),
 
   -- Boshlangʻich resurslar
   ('start_meat',              40,    'kg',     '(MVP) Boshlangʻich goʻsht'),
   ('start_stone',             200,   'unit',   '(MVP) Boshlangʻich tosh'),
   ('start_wood',              150,   'unit',   '(MVP) Boshlangʻich shox-shabba'),
   ('start_hide',              50,    'unit',   '(MVP) Boshlangʻich teri'),
-  ('start_bone',              80,    'unit',   '(MVP) Boshlangʻich suyak'),
+  ('start_bone',              150,    'unit',   '(MVP) Boshlangʻich suyak'),
   ('start_moonstone',         50,    'ms',     '(MVP) Test uchun oy toshi'),
 
   -- Rollar (1-tier bazasi)
@@ -168,6 +168,7 @@ INSERT INTO game_config (config_key, config_value, unit, note) VALUES
   ('share_defender',          0.20,  'ratio',  'Tavsiya: himoyachi ulushi'),
   ('share_hunter',            0.15,  'ratio',  'Tavsiya: ovchi ulushi'),
   ('reserve_days',            3,     'day',    'Zaxira kuni'),
+  ('bot_army_share',          0.6,   'ratio',  '(MVP) NPC toʻda qoʻshini = qoʻshin sigʻimining shu ulushi'),
   ('bot_regen_sec',           3600,  'second', '(MVP) NPC toʻda toʻliq tiklanish vaqti'),
   ('notify_daily_budget',     6,     'count',  'Kunlik bildirishnoma chegarasi'),
   ('notify_tz_offset_h',      5,     'hour',   '(MVP) Tungi sokinlik uchun vaqt mintaqasi (UTC+5)'),
