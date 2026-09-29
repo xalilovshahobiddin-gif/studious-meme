@@ -1,0 +1,30 @@
+<?php
+// AVTOMATIK YARATILGAN: tools/xlsx_to_levels.py — qoʻlda tahrirlamang.
+// Manba: blue_wolf_darajalar.xlsx → Darajalar varagʻi
+return [
+  1 => ['name' => 'Honsyu boʻrisi', 'sci' => 'Canis lupus hodophilax', 'class' => 'Haqiqiy', 'weight' => 15, 'xp_cost' => 0, 'xp_total' => 0, 'power' => 11, 'speed' => 11, 'hp' => 60, 'cp' => 69, 'army' => 1, 'stage' => 0.4],
+  2 => ['name' => 'Efiopiya boʻrisi', 'sci' => 'Canis simensis', 'class' => 'Haqiqiy', 'weight' => 16, 'xp_cost' => 30, 'xp_total' => 30, 'power' => 13, 'speed' => 13, 'hp' => 71, 'cp' => 81, 'army' => 1, 'stage' => 0.4],
+  3 => ['name' => 'Arab boʻrisi', 'sci' => 'Canis lupus arabs', 'class' => 'Haqiqiy', 'weight' => 20, 'xp_cost' => 40, 'xp_total' => 70, 'power' => 16, 'speed' => 15, 'hp' => 84, 'cp' => 97, 'army' => 1, 'stage' => 0.4],
+  4 => ['name' => 'Hind boʻrisi', 'sci' => 'Canis lupus pallipes', 'class' => 'Haqiqiy', 'weight' => 25, 'xp_cost' => 60, 'xp_total' => 130, 'power' => 20, 'speed' => 16, 'hp' => 99, 'cp' => 114, 'army' => 10, 'stage' => 0.4],
+  5 => ['name' => 'Qizil boʻri', 'sci' => 'Canis rufus', 'class' => 'Haqiqiy', 'weight' => 30, 'xp_cost' => 150, 'xp_total' => 280, 'power' => 25, 'speed' => 18, 'hp' => 116, 'cp' => 135, 'army' => 12, 'stage' => 0.7],
+  6 => ['name' => 'Italyan boʻrisi', 'sci' => 'Canis lupus italicus', 'class' => 'Haqiqiy', 'weight' => 32, 'xp_cost' => 200, 'xp_total' => 480, 'power' => 30, 'speed' => 20, 'hp' => 137, 'cp' => 159, 'army' => 14, 'stage' => 0.7],
+  7 => ['name' => 'Meksika boʻrisi', 'sci' => 'Canis lupus baileyi', 'class' => 'Haqiqiy', 'weight' => 33, 'xp_cost' => 280, 'xp_total' => 760, 'power' => 37, 'speed' => 22, 'hp' => 162, 'cp' => 188, 'army' => 17, 'stage' => 0.7],
+  8 => ['name' => 'Sharqiy boʻri', 'sci' => 'Canis lycaon', 'class' => 'Haqiqiy', 'weight' => 35, 'xp_cost' => 390, 'xp_total' => 1150, 'power' => 45, 'speed' => 25, 'hp' => 191, 'cp' => 223, 'army' => 21, 'stage' => 0.7],
+  9 => ['name' => 'Iberiya boʻrisi', 'sci' => 'Canis lupus signatus', 'class' => 'Haqiqiy', 'weight' => 38, 'xp_cost' => 530, 'xp_total' => 1680, 'power' => 55, 'speed' => 27, 'hp' => 226, 'cp' => 264, 'army' => 25, 'stage' => 0.7],
+  10 => ['name' => 'Dasht boʻrisi', 'sci' => 'Canis lupus campestris', 'class' => 'Haqiqiy', 'weight' => 40, 'xp_cost' => 740, 'xp_total' => 2420, 'power' => 66, 'speed' => 33, 'hp' => 266, 'cp' => 315, 'army' => 30, 'stage' => 0.7],
+  11 => ['name' => 'Himolay boʻrisi', 'sci' => 'Canis lupus chanco', 'class' => 'Haqiqiy', 'weight' => 42, 'xp_cost' => 1450, 'xp_total' => 3870, 'power' => 81, 'speed' => 35, 'hp' => 314, 'cp' => 372, 'army' => 36, 'stage' => 1],
+  12 => ['name' => 'Ezo boʻrisi', 'sci' => 'Canis lupus hattai', 'class' => 'Haqiqiy', 'weight' => 44, 'xp_cost' => 2000, 'xp_total' => 5870, 'power' => 98, 'speed' => 39, 'hp' => 371, 'cp' => 440, 'army' => 43, 'stage' => 1],
+  13 => ['name' => 'Tibet boʻrisi', 'sci' => 'Canis lupus filchneri', 'class' => 'Haqiqiy', 'weight' => 45, 'xp_cost' => 2770, 'xp_total' => 8640, 'power' => 119, 'speed' => 43, 'hp' => 437, 'cp' => 521, 'army' => 52, 'stage' => 1],
+  14 => ['name' => 'Arktika boʻrisi', 'sci' => 'Canis lupus arctos', 'class' => 'Haqiqiy', 'weight' => 46, 'xp_cost' => 3820, 'xp_total' => 12460, 'power' => 144, 'speed' => 48, 'hp' => 516, 'cp' => 618, 'army' => 62, 'stage' => 1],
+  15 => ['name' => 'Buyuk tekislik boʻrisi', 'sci' => 'Canis lupus nubilus', 'class' => 'Haqiqiy', 'weight' => 48, 'xp_cost' => 5270, 'xp_total' => 17730, 'power' => 176, 'speed' => 55, 'hp' => 609, 'cp' => 739, 'army' => 74, 'stage' => 1],
+  16 => ['name' => 'Yevroosiyo kulrang boʻrisi', 'sci' => 'Canis lupus lupus', 'class' => 'Haqiqiy', 'weight' => 55, 'xp_cost' => 9080, 'xp_total' => 26810, 'power' => 214, 'speed' => 62, 'hp' => 718, 'cp' => 880, 'army' => 89, 'stage' => 1.25],
+  17 => ['name' => 'Tundra boʻrisi', 'sci' => 'Canis lupus albus', 'class' => 'Haqiqiy', 'weight' => 57, 'xp_cost' => 12540, 'xp_total' => 39350, 'power' => 262, 'speed' => 69, 'hp' => 848, 'cp' => 1052, 'army' => 107, 'stage' => 1.25],
+  18 => ['name' => 'Alyaska ichki boʻrisi', 'sci' => 'Canis lupus pambasileus', 'class' => 'Haqiqiy', 'weight' => 60, 'xp_cost' => 17300, 'xp_total' => 56650, 'power' => 319, 'speed' => 77, 'hp' => 1000, 'cp' => 1254, 'army' => 128, 'stage' => 1.25],
+  19 => ['name' => 'Makkenzi vodiysi boʻrisi', 'sci' => 'Canis lupus occidentalis', 'class' => 'Haqiqiy', 'weight' => 75, 'xp_cost' => 23880, 'xp_total' => 80530, 'power' => 399, 'speed' => 86, 'hp' => 1180, 'cp' => 1517, 'army' => 154, 'stage' => 1.25],
+  20 => ['name' => 'Beringiya boʻrisi', 'sci' => 'Canis lupus (Beringian)', 'class' => 'Qadimgi', 'weight' => 65, 'xp_cost' => 32950, 'xp_total' => 113480, 'power' => 673, 'speed' => 129, 'hp' => 1880, 'cp' => 2480, 'army' => 185, 'stage' => 1.25],
+  21 => ['name' => 'Dahshatli boʻri', 'sci' => 'Aenocyon dirus', 'class' => 'Qadimgi', 'weight' => 70, 'xp_cost' => 45470, 'xp_total' => 158950, 'power' => 869, 'speed' => 140, 'hp' => 2219, 'cp' => 3058, 'army' => 222, 'stage' => 1.25],
+  22 => ['name' => 'Amarok', 'sci' => 'Inuit afsonasi', 'class' => 'Mifologik', 'weight' => 0, 'xp_cost' => 62750, 'xp_total' => 221700, 'power' => 1491, 'speed' => 234, 'hp' => 3491, 'cp' => 5079, 'army' => 266, 'stage' => 1.25],
+  23 => ['name' => 'Geri va Freki', 'sci' => 'Skandinaviya afsonasi', 'class' => 'Mifologik', 'weight' => 0, 'xp_cost' => 86590, 'xp_total' => 308290, 'power' => 1908, 'speed' => 291, 'hp' => 4119, 'cp' => 6312, 'army' => 319, 'stage' => 1.25],
+  24 => ['name' => 'Fenrir', 'sci' => 'Skandinaviya afsonasi', 'class' => 'Mifologik', 'weight' => 0, 'xp_cost' => 119490, 'xp_total' => 427780, 'power' => 2576, 'speed' => 284, 'hp' => 4861, 'cp' => 8009, 'army' => 383, 'stage' => 1.25],
+  25 => ['name' => 'Koʻk Boʻri', 'sci' => 'Koʻkboʻri / Boʻrte Chino', 'class' => 'Mifologik', 'weight' => 0, 'xp_cost' => 164900, 'xp_total' => 592680, 'power' => 3434, 'speed' => 355, 'hp' => 5736, 'cp' => 10269, 'army' => 460, 'stage' => 1.25],
+];

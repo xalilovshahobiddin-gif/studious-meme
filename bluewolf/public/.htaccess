@@ -1,0 +1,12 @@
+# Apache (ISPmanager): /api/v1/* → api/index.php
+RewriteEngine On
+RewriteRule ^api/v1(/.*)?$ api/index.php [QSA,L]
+
+<FilesMatch "\.(php)$">
+  Require all granted
+</FilesMatch>
+
+# Mini App keshlanmasin (yangilanish darhol yetib borsin)
+<FilesMatch "\.(html)$">
+  Header set Cache-Control "no-cache"
+</FilesMatch>
