@@ -1,0 +1,27 @@
+{
+  "name": "Zachkana — qishloq sayti",
+  "short_name": "Zachkana",
+  "description": "Zachkana qishlogʻining raqamli xotirasi: shajara, tarix, xronologiya, faxriylar va qishloqdoshlar suhbati.",
+  "lang": "uz",
+  "dir": "ltr",
+  "id": "./",
+  "start_url": "./#/",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#faf5ec",
+  "theme_color": "#2a5ea8",
+  "categories": ["social", "lifestyle", "education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Shajara", "short_name": "Shajara", "url": "./#/shajara", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Qishloq suhbati", "short_name": "Suhbat", "url": "./#/chat/umumiy", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Faxriylar", "short_name": "Faxriylar", "url": "./#/faxriylar", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
