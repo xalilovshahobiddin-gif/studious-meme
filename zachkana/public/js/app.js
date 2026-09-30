@@ -280,7 +280,7 @@
           </div>` : ''}
           <div class="z-card">
             <div class="z-card__body z-stack" style="--z-gap:12px">
-              <div class="z-spread"><strong>Shajarani birga toʻldiramiz</strong><span class="z-badge z-badge--success">${D.clans.length} urugʻ</span></div>
+              <div class="z-spread"><strong>Shajarani birga toʻldiramiz</strong><span class="z-badge z-badge--success">${D.clans.length} avlod</span></div>
               <p class="z-small" style="margin:0">Shajarada ${D.clans.reduce((n, c) => n + c.count, 0)} kishi bor. Oʻzingizni toping va qarindoshlaringizni qoʻshing.</p>
               <a class="z-btn z-btn--soft z-btn--sm" href="#/shajara">${I('plus')}Qarindosh qoʻshish</a>
             </div>
@@ -354,7 +354,7 @@
   function relationText(p) {
     if (p.spouseOf) { const s = people.get(p.spouseOf); return `${s.name}ning ${p.g === 'f' ? 'rafiqasi' : 'turmush oʻrtogʻi'}`; }
     if (p.parent) { const f = people.get(p.parent); return `${f.name}ning ${p.g === 'f' ? 'qizi' : 'oʻgʻli'}`; }
-    return 'Urugʻ asoschisi';
+    return 'Avlod boshi';
   }
 
   /* ---------- Qarindoshlik: "Siz"dan tanlangan odamgacha yoʻl va nomi ----------
@@ -442,6 +442,7 @@
     const clanPeople = [...people.values()].filter(p => p.clan === s.clan);
     const gens = clanPeople.length ? Math.max(...clanPeople.map(p => p.gen)) : 0;
     const root = D.trees[s.clan];
+    const tribes = [...new Set(D.clans.map(c => c.tribe).filter(Boolean))].sort((a, b) => a.localeCompare(b));
     return {
       title: 'Shajara',
       html: `
@@ -449,28 +450,31 @@
         <div>
           <span class="z-overline">Qishloq shajarasi</span>
           <h1 class="z-h2">Shajara</h1>
-          <p class="z-muted">Urugʻingizni tanlang, qarindoshlaringizni toping va qishloq shajarasini birga toʻldiring.</p>
+          <p class="z-muted">Qarindoshingizni ism boʻyicha qidiring — qaysi avlodligini bilish shart emas. Topilmasa, oʻzingiz qoʻshing.</p>
         </div>
-        ${D.clans.length ? `<button class="z-btn z-btn--primary" data-action="add-person">${I('plus')}Qarindosh qoʻshish</button>` : ''}
+        <button class="z-btn z-btn--primary" data-action="add-person">${I('plus')}Qarindosh qoʻshish</button>
       </div>
       ${shajaraTabs('village')}
-      ${!D.clans.length ? `<div class="z-card"><div class="z-empty">${I('landmark')}<h2 class="z-h4">Qishloq shajarasi hali boshlanmagan</h2><p>Administrator urugʻlarni qoʻshgach, bu yerda qishloq shajarasi paydo boʻladi. Hozircha <a href="#/shajara/oila">oilaviy shajarangizni</a> tuzishingiz mumkin.</p></div></div>` : `
+      ${!D.clans.length ? `<div class="z-card"><div class="z-empty">${I('landmark')}<h2 class="z-h4">Qishloq shajarasi hali boshlanmagan</h2><p>Birinchi boʻlib bilgan eng katta bobongizdan boshlang — moderator tasdiqlagach shajara paydo boʻladi. <a href="#/shajara/oila">Oilaviy shajarangizni</a> ham tuzishingiz mumkin.</p><button class="z-btn z-btn--primary" data-action="add-person">${I('plus')}Qarindosh qoʻshish</button></div></div>` : `
 
       <div class="toolbar">
-        <label class="z-search toolbar__search">${I('search')}<span class="z-sr-only">Ism boʻyicha qidirish</span><input class="z-input" type="search" id="treeSearch" placeholder="Ism boʻyicha qidirish…" value="${esc(s.q)}"></label>
+        <label class="z-search toolbar__search">${I('search')}<span class="z-sr-only">Butun shajaradan ism boʻyicha qidirish</span><input class="z-input" type="search" id="treeSearch" placeholder="Butun shajaradan qidirish…" value="${esc(s.q)}" autocomplete="off"></label>
         <div class="z-segment" role="tablist" aria-label="Koʻrinish">
           <button role="tab" aria-selected="${s.mode === 'tree'}" data-mode="tree">${I('shajara')}Daraxt</button>
           <button role="tab" aria-selected="${s.mode === 'list'}" data-mode="list">${I('timeline')}Roʻyxat</button>
         </div>
       </div>
 
-      <div class="z-chips" role="group" aria-label="Urugʻlar">
-        ${D.clans.map(c => `<button class="z-chip" aria-pressed="${c.id === s.clan}" data-clan="${c.id}">${esc(c.name)} <span class="z-count">${c.count}</span></button>`).join('')}
+      <div id="globalHits" class="global-hits" hidden></div>
+
+      ${tribes.length ? `<div class="tribe-filter z-small" role="group" aria-label="Urugʻ boʻyicha saralash"><span class="z-muted">Urugʻi:</span>${['', ...tribes].map(t => `<button class="z-chip z-chip--sm" aria-pressed="${(s.tribe || '') === t}" data-tribe="${esc(t)}">${t ? esc(t) : 'Hammasi'}</button>`).join('')}</div>` : ''}
+      <div class="z-chips" role="group" aria-label="Avlodlar">
+        ${D.clans.filter(c => !s.tribe || c.tribe === s.tribe).map(c => `<button class="z-chip" aria-pressed="${c.id === s.clan}" data-clan="${c.id}">${esc(c.name)}${c.tribe && !s.tribe ? ` <span class="chip-tribe">${esc(c.tribe)}</span>` : ''} <span class="z-count">${c.count}</span></button>`).join('')}
       </div>
 
       <div class="clan-summary z-small"><span>${clanPeople.length} kishi koʻrsatilgan · ${gens} avlod${api.live ? '' : ' · <span class="z-muted">namuna maʼlumot</span>'}</span>${root && canVillagePdf() ? `<button class="z-btn z-btn--sm" data-action="pdf-village">${I('download')}PDF yuklash</button>` : ''}</div>
 
-      ${!root ? `<div class="z-card"><div class="z-empty">${I('shajara')}<h2 class="z-h4">Bu urugʻ hali toʻldirilmagan</h2><p>Birinchi boʻlib maʼlumot qoʻshing — moderator tasdiqlagach shajarada chiqadi.</p><button class="z-btn z-btn--primary" data-action="add-person">${I('plus')}Qarindosh qoʻshish</button></div></div>` : s.mode === 'tree' ? `
+      ${!root ? `<div class="z-card"><div class="z-empty">${I('shajara')}<h2 class="z-h4">Bu avlod hali toʻldirilmagan</h2><p>Birinchi boʻlib maʼlumot qoʻshing — moderator tasdiqlagach shajarada chiqadi.</p><button class="z-btn z-btn--primary" data-action="add-person">${I('plus')}Qarindosh qoʻshish</button></div></div>` : s.mode === 'tree' ? `
       <div class="tree-wrap">
         <div class="tree-viewport z-ornament" id="treeVp" aria-label="Shajara daraxti. Surish uchun torting, kattalashtirish uchun tugmalardan foydalaning.">
           <div class="tree-canvas" id="treeCanvas"><ul class="z-tree">${treeNode(D.trees[s.clan])}</ul></div>
@@ -501,12 +505,59 @@
   function mountShajara() {
     const s = shajaraState;
     $$('[data-clan]').forEach(b => b.onclick = () => { s.clan = b.dataset.clan; s.q = ''; location.hash === '#/shajara' ? render() : (location.hash = '#/shajara'); });
+    $$('[data-tribe]').forEach(b => b.onclick = () => {
+      s.tribe = b.dataset.tribe || '';
+      const visible = D.clans.filter(c => !s.tribe || c.tribe === s.tribe);
+      if (visible.length && !visible.some(c => c.id === s.clan)) { s.clan = visible[0].id; loadClanTree(s.clan).then(render, render); } else render();
+    });
+    const search = $('#treeSearch');
+    if (search) {
+      let timer = null;
+      search.oninput = () => {
+        s.q = search.value.trim().toLowerCase(); applySearch();
+        clearTimeout(timer); timer = setTimeout(() => showGlobalHits(s.q), 250);
+      };
+      if (s.q) showGlobalHits(s.q);
+    }
+    const hitsBox = $('#globalHits');
+    if (hitsBox) hitsBox.onclick = async e => {
+      const b = e.target.closest('[data-hit]');
+      if (!b) return;
+      const [clan, id] = b.dataset.hit.split('|');
+      s.q = ''; s.clan = clan;
+      try { await loadClanTree(clan); } catch (err) { toast(errText(err), 'info'); return; }
+      location.hash === '#/shajara' ? render() : (location.hash = '#/shajara');
+      setTimeout(() => { personSheet(id); const el = $(`#view [data-person="${CSS.escape(id)}"]`); if (el && panzoom && s.mode === 'tree') panzoom.focus(el); }, 120);
+    };
     if (!D.trees[s.clan]) return;
     $$('[data-mode]').forEach(b => b.onclick = () => { s.mode = b.dataset.mode; render(); });
-    const search = $('#treeSearch');
-    search.oninput = () => { s.q = search.value.trim().toLowerCase(); applySearch(); };
     if (s.mode === 'tree') mountTree();
     applySearch();
+  }
+
+  // Butun qishloq shajarasidan qidirish (server) yoki demo rejimda yuklangan daraxtlardan
+  const normName = t => String(t || '').toLowerCase().replace(/[ʻʼ'‘’`]/g, '');
+  async function searchPeople(q) {
+    if (normName(q).length < 2) return [];
+    if (api.live) return (await api.request('GET', 'people/search?q=' + encodeURIComponent(q))).people;
+    const nq = normName(q);
+    return [...people.values()].filter(p => normName(p.name).includes(nq)).slice(0, 20).map(p => {
+      const c = D.clans.find(x => x.id === p.clan);
+      return { id: p.id, name: p.name, g: p.g, b: p.b, d: p.d, clan: p.clan, clanName: c?.name, tribe: c?.tribe, rel: relationText(p), isSpouse: !!p.spouseOf };
+    });
+  }
+  const hitRow = (h, attr) => `<button type="button" class="hit" ${attr}>${avatar(h.name, 'sm')}<span class="hit__main"><strong>${esc(h.name)}</strong><span class="z-caption">${[years(h), h.rel].filter(Boolean).map(esc).join(' · ')}</span></span><span class="z-badge">${esc(h.clanName || '')}</span></button>`;
+  let hitsSeq = 0;
+  async function showGlobalHits(q) {
+    const box = $('#globalHits');
+    if (!box) return;
+    const seq = ++hitsSeq;
+    let hits = [];
+    try { hits = await searchPeople(q); } catch { /* internet yoʻq — faqat shu daraxtda qidiriladi */ }
+    if (seq !== hitsSeq || !$('#globalHits')) return;
+    const others = hits.filter(h => h.clan !== shajaraState.clan);
+    box.hidden = !others.length;
+    box.innerHTML = others.length ? `<div class="z-caption global-hits__title">Boshqa avlodlarda topildi</div>${others.map(h => hitRow(h, `data-hit="${esc(h.clan)}|${esc(h.id)}"`)).join('')}` : '';
   }
   function applySearch() {
     const q = shajaraState.q;
@@ -648,7 +699,7 @@
       const clan = D.clans.find(c => c.id === shajaraState.clan), root = D.trees[shajaraState.clan];
       if (!root) return;
       forest = [villageForest(root)];
-      meta = { title: `${clan?.name || ''} urugʻi shajarasi`, filename: `zachkana-shajara-${shajaraState.clan}-${fileDate()}.pdf` };
+      meta = { title: `Shajara: ${clan?.name || ''}${clan?.tribe ? ` (${clan.tribe})` : ''}`, filename: `zachkana-shajara-${shajaraState.clan}-${fileDate()}.pdf` };
     } else {
       forest = famRoots().map(r => familyForest(r));
       const me = family.list.find(m => m.me);
@@ -864,7 +915,8 @@
       ${p.bio ? `<p>${esc(p.bio)}</p>` : ''}
       ${kids.length ? `<h3 class="sheet-sub">Farzandlari</h3><div class="z-row" style="--z-gap:8px">${kids.map(k => `<button class="z-chip" data-person="${k.id}">${personAvatar(k, 'xs')}${esc(k.name)}</button>`).join('')}</div>` : ''}
       <div class="sheet-actions">
-        <button class="z-btn z-btn--primary" data-action="suggest-edit" data-id="${p.id}">${I('edit')}Tuzatish taklif qilish</button>
+        <button class="z-btn z-btn--primary" data-action="add-relative" data-id="${p.id}">${I('plus')}Farzand yoki turmush oʻrtogʻini qoʻshish</button>
+        <button class="z-btn" data-action="suggest-edit" data-id="${p.id}">${I('edit')}Tuzatish taklif qilish</button>
         <button class="z-btn" data-action="share" data-share="${esc(p.name)}">${I('share')}Ulashish</button>
       </div>`);
   }
@@ -879,32 +931,83 @@
           <input type="hidden" name="gender" value="${g}">
           <div class="z-segment" role="radiogroup"><button type="button" role="radio" aria-selected="${g === 'm'}" data-seg="m">Erkak</button><button type="button" role="radio" aria-selected="${g === 'f'}" data-seg="f">Ayol</button></div></div>`;
 
+  // Odam qaysi avlodga tegishli ekanini bilishi shart emas: shajarada bor qarindoshini topadi
+  // (farzandi yoki turmush oʻrtogʻi sifatida qoʻshadi) yoki yangi avlod boshlaydi.
+  const TRIBES = ['Qovchin', 'Barlos', 'Xoʻja', 'Sayyid', 'Qoʻngʻirot', 'Mangʻit', 'Qipchoq', 'Nayman', 'Saroy', 'Kenagas', 'Yuz', 'Ming', 'Qarluq', 'Laqay', 'Turk', 'Qatagʻon', 'Durmon', 'Uyshun', 'Joʻyut', 'Moʻgʻul', 'Arab', 'Tojik'];
   function addPersonSheet(pre = {}) {
     if (needLogin('Qarindosh qoʻshish uchun saytga kiring')) return;
-    if (!D.clans.length) { toast('Qishloq shajarasida hali urugʻ yoʻq', 'info'); return; }
-    const parentOptions = clan => [...people.values()].filter(p => !p.spouseOf && p.clan === clan).map(p => `<option value="${p.id}">${esc(p.name)} (${years(p)})</option>`).join('') || '<option value="">— Urugʻ asoschisi —</option>';
+    const tribeList = [...new Set([...D.clans.map(c => c.tribe).filter(Boolean), ...TRIBES])];
     openSheet(`
       <h2 class="z-h3" id="sheetTitle">${pre.name ? 'Qishloq shajarasiga taklif' : 'Qarindosh qoʻshish'}</h2>
-      <p class="z-muted">Maʼlumot moderator tasdiqlagach qishloq shajarasiga qoʻshiladi.</p>
+      <p class="z-muted">Qaysi avlod yoki urugʻdan ekanini bilish shart emas. Maʼlumot moderator tasdiqlagach shajaraga qoʻshiladi.</p>
       <form class="z-stack form" data-form="person">
-        <label class="z-field"><span class="z-label">Urugʻ</span><select class="z-select" name="clan" id="sugClan">${D.clans.map(c => `<option value="${esc(c.id)}" ${c.id === shajaraState.clan ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></label>
+        <input type="hidden" name="relation" value="child">
+        <input type="hidden" name="parent_id" value="">
+        <section class="rel-step" id="relPick">
+          <label class="z-field"><span class="z-label">1. Kimning qarindoshi?</span>
+            <span class="z-search">${I('search')}<input class="z-input" type="search" id="relSearch" placeholder="Otasi, onasi yoki turmush oʻrtogʻining ismi" autocomplete="off"></span>
+            <span class="z-hint">Masalan, farzandni qoʻshsangiz — otasi yoki onasining ismini yozing.</span></label>
+          <div class="rel-hits" id="relHits" role="listbox" aria-label="Topilganlar"></div>
+          <button type="button" class="z-btn z-btn--ghost z-btn--sm rel-root-btn" data-rel-root>${I('plus')}Shajarada topmadim — yangi avlod boshlayman</button>
+        </section>
+        <section class="rel-step rel-chosen" id="relChosen" hidden></section>
+        <section class="rel-step" id="relRoot" hidden>
+          <div class="z-alert">${I('info')}<span>Eng katta bilgan bobongiz (yoki buvingiz) dan boshlang — keyin farzandlarini birma-bir qoʻshasiz. Keyinroq boshqa avlodga ulanib ketsa, administrator birlashtiradi.</span></div>
+          <label class="z-field"><span class="z-label">Avlod nomi (ixtiyoriy)</span><input class="z-input" name="lineage" maxlength="120" placeholder="Masalan: Karimberdi ota avlodi"></label>
+          <label class="z-field"><span class="z-label">Urugʻi (bilsangiz)</span><input class="z-input" name="tribe" maxlength="60" list="tribeList" placeholder="Qovchin, barlos, xoʻja…"><datalist id="tribeList">${tribeList.map(t => `<option value="${esc(t)}">`).join('')}</datalist><span class="z-hint">Bilmasangiz boʻsh qoldiring</span></label>
+          <button type="button" class="z-btn z-btn--ghost z-btn--sm" data-rel-back>${I('back')}Qarindoshni qidirishga qaytish</button>
+        </section>
+        <div class="z-field"><span class="z-label" id="personStepTitle">2. Qoʻshiladigan odam</span></div>
         <label class="z-field"><span class="z-label">Ism-sharifi</span><input class="z-input" name="name" required maxlength="120" placeholder="Masalan: Karimberdi Mirzaboyev" value="${esc(pre.name || '')}"></label>
         ${genderInput(pre.g || 'm')}
         ${yearInputs(pre)}
-        <label class="z-field"><span class="z-label">Kimning farzandi?</span><select class="z-select" name="parent_id" id="sugParent">${parentOptions(shajaraState.clan)}</select></label>
         <label class="z-field"><span class="z-label">Kasbi</span><input class="z-input" name="job" maxlength="120" placeholder="Masalan: oʻqituvchi" value="${esc(pre.job || '')}"></label>
         <label class="z-field"><span class="z-label">Qoʻshimcha maʼlumot</span><textarea class="z-textarea" name="bio" maxlength="2000" placeholder="Yashagan joyi, xotiralar…">${esc(pre.bio || '')}</textarea></label>
         <p class="z-hint form-error" role="alert" hidden></p>
         <button class="z-btn z-btn--primary z-btn--lg z-btn--block" type="submit">${I('check')}Yuborish</button>
       </form>`);
-    const clanSel = $('#sugClan');
-    clanSel.onchange = async () => {
-      const sel = $('#sugParent');
-      sel.innerHTML = '<option>Yuklanmoqda…</option>';
-      try { await loadClanTree(clanSel.value); sel.innerHTML = parentOptions(clanSel.value); }
-      catch (e) { sel.innerHTML = '<option value="">— Urugʻ asoschisi —</option>'; toast(errText(e), 'info'); }
+
+    const form = $('#sheet form'), relInput = form.relation, parentInput = form.parent_id;
+    const pick = $('#relPick'), chosen = $('#relChosen'), rootBox = $('#relRoot'), hitsBox = $('#relHits'), q = $('#relSearch');
+    let hits = [], timer = null, seq = 0;
+    const show = mode => { pick.hidden = mode !== 'pick'; chosen.hidden = mode !== 'chosen'; rootBox.hidden = mode !== 'root'; };
+    const choose = h => {
+      parentInput.value = h.id;
+      relInput.value = 'child';
+      chosen.innerHTML = `
+        <span class="z-label">1. Kimning qarindoshi?</span>
+        <div class="rel-card">${avatar(h.name, 'sm')}<span class="hit__main"><strong>${esc(h.name)}</strong><span class="z-caption">${[years(h), h.rel, h.clanName].filter(Boolean).map(esc).join(' · ')}</span></span>
+          <button type="button" class="z-btn z-btn--ghost z-btn--sm" data-rel-change>Oʻzgartirish</button></div>
+        <span class="z-label">Qoʻshiladigan odam unga kim boʻladi?</span>
+        <div class="z-segment rel-seg" role="radiogroup">
+          <button type="button" role="radio" aria-selected="true" data-relation="child">Farzandi</button>
+          ${h.isSpouse ? '' : `<button type="button" role="radio" aria-selected="false" data-relation="spouse">${h.g === 'f' ? 'Eri' : 'Xotini'}</button>`}
+        </div>
+        ${h.isSpouse ? '<span class="z-hint">Farzand shajarada ota-onasining avlodiga qoʻshiladi.</span>' : ''}`;
+      show('chosen');
+      form.name.focus();
     };
-    if (!D.trees[clanSel.value]) clanSel.onchange();
+    const run = async () => {
+      const my = ++seq, text = q.value.trim();
+      if (normName(text).length < 2) { hitsBox.innerHTML = ''; return; }
+      hitsBox.innerHTML = '<div class="z-caption">Qidirilmoqda…</div>';
+      try { hits = await searchPeople(text); } catch (err) { hits = []; if (my === seq) hitsBox.innerHTML = `<div class="z-caption">${esc(errText(err))}</div>`; return; }
+      if (my !== seq) return;
+      hitsBox.innerHTML = hits.length
+        ? hits.map((h, i) => hitRow(h, `data-pick="${i}" role="option"`)).join('')
+        : '<div class="z-caption">Hech kim topilmadi. Boshqacha yozib koʻring yoki yangi avlod boshlang.</div>';
+    };
+    q.oninput = () => { clearTimeout(timer); timer = setTimeout(run, 250); };
+    hitsBox.onclick = e => { const b = e.target.closest('[data-pick]'); if (b) choose(hits[+b.dataset.pick]); };
+    chosen.onclick = e => {
+      const seg = e.target.closest('[data-relation]');
+      if (seg) { relInput.value = seg.dataset.relation; $$('[data-relation]', chosen).forEach(x => x.setAttribute('aria-selected', String(x === seg))); }
+      if (e.target.closest('[data-rel-change]')) { parentInput.value = ''; show('pick'); q.focus(); }
+    };
+    pick.querySelector('[data-rel-root]').onclick = () => { parentInput.value = ''; relInput.value = 'root'; show('root'); };
+    rootBox.querySelector('[data-rel-back]').onclick = () => { relInput.value = 'child'; show('pick'); q.focus(); };
+    // Odam varagʻidan ochilgan boʻlsa ("Farzand qoʻshish") — qarindosh oldindan tanlangan
+    if (pre.of) choose(pre.of); else setTimeout(() => q.focus(), 350);
   }
 
   function editPersonSheet(id) {
@@ -1715,6 +1818,10 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
     else if (act === 'back') location.hash = a.dataset.href || '#/';
     else if (act === 'install') promptInstall();
     else if (act === 'add-person') addPersonSheet();
+    else if (act === 'add-relative') {
+      const p = people.get(a.dataset.id), c = D.clans.find(x => x.id === p?.clan);
+      if (p) { closeSheet(); setTimeout(() => addPersonSheet({ of: { id: p.id, name: p.name, g: p.g, b: p.b, d: p.d, rel: relationText(p), clanName: c?.name, isSpouse: !!p.spouseOf } }), 340); }
+    }
     else if (act === 'notifications') openNotifications();
     else if (act === 'notif-read-all') { markRead(); $$('.notif.is-unread').forEach(el => { el.classList.remove('is-unread'); el.querySelector('.z-dot')?.remove(); }); $('.notif-head')?.remove(); }
     else if (act === 'suggest-edit') editPersonSheet(a.dataset.id);
@@ -1758,6 +1865,11 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
     const errBox = f.querySelector('.form-error');
     const fail = msg => { if (errBox) { errBox.textContent = msg; errBox.hidden = false; } else toast(msg, 'info'); };
     if (errBox) errBox.hidden = true;
+    if (kind === 'person' && f.relation?.value !== 'root' && !f.parent_id?.value) {
+      fail('Avval kimning qarindoshi ekanini tanlang yoki “yangi avlod boshlayman” ni bosing.');
+      f.querySelector('#relSearch')?.focus();
+      return;
+    }
 
     // Oilaviy shajara (demo rejimda ham ishlaydi — qurilmada saqlanadi)
     if (kind === 'family') {

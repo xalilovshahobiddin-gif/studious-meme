@@ -473,3 +473,24 @@ body[data-route="chat"].is-immersive .chat-layout, body[data-route="chat"].is-im
 /* Katta shriftda roʻyxat matnlari kesilmasin — qatorga koʻchadi */
 :root[data-font] .z-list-item__title, :root[data-font] .z-list-item__sub { white-space: normal; overflow-wrap: anywhere; }
 .font-size-row .z-list-item__main { min-width: 7em; }
+
+/* ---------- Qishloq shajarasi: qidiruv, urugʻ, qarindosh orqali qoʻshish ---------- */
+.global-hits { margin: 10px 0 4px; padding: 8px; border: 1px solid var(--z-border); border-radius: var(--z-radius-lg); background: var(--z-surface); display: grid; gap: 2px; }
+.global-hits__title { padding: 4px 8px; }
+.hit {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-width: 0; padding: 8px; border: 0; border-radius: 12px;
+  background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.hit:hover, .hit:focus-visible { background: var(--z-bg-sunken); }
+.hit__main { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.hit__main strong { overflow-wrap: anywhere; }
+.hit .z-badge { flex: none; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rel-step { display: grid; gap: 10px; }
+.rel-hits { display: grid; gap: 2px; max-height: 300px; overflow-y: auto; overscroll-behavior: contain; }
+.rel-hits:empty { display: none; }
+.rel-root-btn { justify-self: start; }
+.rel-card { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 10px 12px; border: 2px solid var(--z-primary); border-radius: 14px; background: var(--z-primary-soft); }
+.rel-seg { justify-self: start; }
+.tribe-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 2px; }
+.z-chip--sm { min-height: 30px; padding: 0 12px; font-size: var(--z-text-xs); }
+.chip-tribe { font-size: var(--z-text-xs); font-weight: 600; opacity: .7; }

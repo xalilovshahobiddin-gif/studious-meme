@@ -23,9 +23,9 @@ window.ZK_DATA = {
   todayInHistory: { year: 1957, title: 'Qishloqqa birinchi elektr chiroq yondi', text: 'Namuna matn: shu kuni markaziy guzarda birinchi lampochka yoqilgan va butun qishloq bayram qilgan.' },
 
   clans: [
-    { id: 'mirzaboy', name: 'Mirzaboylar', count: 612 },
-    { id: 'qoraxon', name: 'Qoraxonlar', count: 438 },
-    { id: 'eshon', name: 'Eshonlar', count: 296 }
+    { id: 'mirzaboy', name: 'Mirzaboylar', tribe: 'Qovchin', count: 612 },
+    { id: 'qoraxon', name: 'Qoraxonlar', tribe: 'Barlos', count: 438 },
+    { id: 'eshon', name: 'Eshonlar', tribe: 'Xoʻja', count: 296 }
   ],
 
   /* Shajara: ichma-ich tuzilma. spouse — turmush oʻrtogʻi. */

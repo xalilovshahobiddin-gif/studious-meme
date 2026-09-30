@@ -47,17 +47,17 @@ class PersonResource extends Resource
         return $schema->components([
             TextInput::make('name')->label('Ism-sharifi')->required()->maxLength(120),
             Select::make('gender')->label('Jinsi')->options(Person::GENDERS)->default('m')->required(),
-            Select::make('clan_id')->label('Urugʻ')->relationship('clan', 'name')->required()->live()->preload(),
-            Select::make('parent_id')->label('Ota yoki onasi (urugʻda)')
+            Select::make('clan_id')->label('Avlod')->relationship('clan', 'name')->required()->live()->preload(),
+            Select::make('parent_id')->label('Ota yoki onasi (shu avlodda)')
                 ->relationship('parent', 'name', fn (Builder $query, Get $get) => $query->where('clan_id', $get('clan_id'))->whereNull('spouse_id'))
                 ->getOptionLabelFromRecordUsing(fn (Person $p) => "{$p->name} ({$p->yearsLabel()})")
                 ->searchable()->preload()
-                ->helperText('Urugʻ asoschisi uchun boʻsh qoldiring'),
+                ->helperText('Avlod boshi (bobokalon) uchun boʻsh qoldiring'),
             Select::make('spouse_id')->label('Kimning turmush oʻrtogʻi')
                 ->relationship('spouseOf', 'name', fn (Builder $query, Get $get) => $query->where('clan_id', $get('clan_id'))->whereNull('spouse_id'))
                 ->getOptionLabelFromRecordUsing(fn (Person $p) => "{$p->name} ({$p->yearsLabel()})")
                 ->searchable()->preload()
-                ->helperText('Faqat urugʻga kelin/kuyov boʻlib kirganlar uchun'),
+                ->helperText('Faqat avlodga kelin/kuyov boʻlib kirganlar uchun'),
             TextInput::make('birth_year')->label('Tugʻilgan yili')->numeric()->minValue(1500)->maxValue((int) date('Y')),
             TextInput::make('death_year')->label('Vafot etgan yili')->numeric()->minValue(1500)->maxValue((int) date('Y')),
             TextInput::make('job')->label('Kasbi')->maxLength(120),
@@ -74,7 +74,7 @@ class PersonResource extends Resource
             ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('name')->label('Ism')->searchable()->sortable(),
-                TextColumn::make('clan.name')->label('Urugʻ')->badge(),
+                TextColumn::make('clan.name')->label('Avlod')->badge(),
                 TextColumn::make('parent.name')->label('Otasi/onasi')->placeholder('—'),
                 TextColumn::make('spouseOf.name')->label('Turmush oʻrtogʻi')->placeholder('—'),
                 TextColumn::make('birth_year')->label('Tugʻilgan')->sortable(),
@@ -82,7 +82,7 @@ class PersonResource extends Resource
                 TextColumn::make('job')->label('Kasbi')->toggleable(),
             ])
             ->filters([
-                SelectFilter::make('clan_id')->label('Urugʻ')->relationship('clan', 'name'),
+                SelectFilter::make('clan_id')->label('Avlod')->relationship('clan', 'name'),
                 SelectFilter::make('gender')->label('Jinsi')->options(Person::GENDERS),
             ])
             ->recordActions([EditAction::make(), DeleteAction::make()])

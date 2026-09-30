@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class PersonSuggestion extends Model
 {
-    protected $fillable = ['user_id', 'type', 'clan_id', 'person_id', 'parent_id', 'payload', 'comment', 'status', 'reviewed_by', 'reviewed_at'];
+    protected $fillable = ['user_id', 'type', 'clan_id', 'person_id', 'parent_id', 'payload', 'comment', 'status', 'reviewed_by', 'reviewed_at', 'relation', 'lineage', 'tribe'];
 
     public const STATUSES = ['pending' => 'Kutilmoqda', 'approved' => 'Tasdiqlangan', 'rejected' => 'Rad etilgan'];
 
@@ -51,14 +51,27 @@ class PersonSuggestion extends Model
         return DB::transaction(function () use ($reviewer) {
             $data = Arr::only($this->payload, self::FIELDS);
 
+            $parent = $this->parent;
             if ($this->type === 'edit' && $this->person) {
                 $person = tap($this->person)->update($data);
+            } elseif ($parent && $this->relation === 'spouse') {
+                $person = Person::create($data + ['clan_id' => $parent->clan_id, 'spouse_id' => $parent->id]);
+            } elseif ($parent) {
+                // Turmush oʻrtogʻining farzandi — shajarada qon qarindoshga (juftiga) bogʻlanadi
+                $person = Person::create($data + ['clan_id' => $parent->clan_id, 'parent_id' => $parent->spouse_id ?? $parent->id]);
+            } elseif ($this->clan_id && $this->relation !== 'root') {
+                $person = Person::create($data + ['clan_id' => $this->clan_id]); // eski takliflar: avlod boshi
             } else {
-                $parent = $this->parent;
-                $person = Person::create($data + [
-                    'clan_id' => $parent?->clan_id ?? $this->clan_id,
-                    'parent_id' => $parent?->id,
+                // Yangi avlod: shu odam bobokalon boʻladi
+                $name = trim((string) $this->lineage) ?: $data['name'].' avlodi';
+                $clan = Clan::create([
+                    'name' => mb_substr($name, 0, 120),
+                    'slug' => Clan::uniqueSlug($name),
+                    'tribe' => $this->tribe,
+                    'position' => (int) Clan::max('position') + 1,
                 ]);
+                $person = Person::create($data + ['clan_id' => $clan->id]);
+                $this->clan_id = $clan->id;
             }
 
             $this->update(['status' => 'approved', 'reviewed_by' => $reviewer->id, 'reviewed_at' => now()]);
