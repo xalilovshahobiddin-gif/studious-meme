@@ -26,6 +26,9 @@ echo "→ Kutubxonalar oʻrnatilmoqda (composer install --no-dev)"
 find "$APP/vendor" -mindepth 3 -maxdepth 3 -type d \( -name .git -o -name tests -o -name test_files -o -name docs -o -name .github \) -prune -exec rm -rf {} +
 # Source map fayllar va oʻzbek/rus/ingliz tilidan boshqa tarjimalar (arxiv hajmi uchun)
 find "$APP/vendor" -type f -name '*.map' -delete
+# Kutubxonalar reklamasi uchun rasmlar va Laravel ishlab chiquvchilarining yordamchi dasturi (7 MB)
+find "$APP/vendor" -mindepth 3 -maxdepth 3 -type d -name art -prune -exec rm -rf {} +
+rm -rf "$APP/vendor/laravel/framework/bin"
 find "$APP/vendor" -mindepth 3 -maxdepth 3 -type f \( -iname 'README*' -o -iname 'CHANGELOG*' -o -iname 'UPGRADE*' -o -iname 'CONTRIBUTING*' \) -delete
 find "$APP/vendor/filament" -path '*/resources/lang/*' -mindepth 4 -maxdepth 5 -type d \
   ! -name lang ! -name uz ! -name en ! -name ru -prune -exec rm -rf {} +
