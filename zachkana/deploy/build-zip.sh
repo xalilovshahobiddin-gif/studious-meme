@@ -24,6 +24,11 @@ echo "→ Kutubxonalar oʻrnatilmoqda (composer install --no-dev)"
 (cd "$APP" && composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress --quiet)
 # Paketlarning testlari, hujjatlari va git tarixi saytga kerak emas
 find "$APP/vendor" -mindepth 3 -maxdepth 3 -type d \( -name .git -o -name tests -o -name test_files -o -name docs -o -name .github \) -prune -exec rm -rf {} +
+# Source map fayllar va oʻzbek/rus/ingliz tilidan boshqa tarjimalar (arxiv hajmi uchun)
+find "$APP/vendor" -type f -name '*.map' -delete
+find "$APP/vendor/filament" -path '*/resources/lang/*' -mindepth 4 -maxdepth 5 -type d \
+  ! -name lang ! -name uz ! -name en ! -name ru -prune -exec rm -rf {} +
+find "$APP/vendor/nesbot/carbon/src/Carbon/Lang" -type f ! -name 'uz*' ! -name 'en*' ! -name 'ru*' -delete
 
 # Yozilishi kerak boʻlgan papkalar
 chmod -R u+rwX,g+rwX "$APP/storage" "$APP/bootstrap/cache"
@@ -50,5 +55,5 @@ TXT
 
 echo "→ Arxivlanmoqda: $OUT"
 rm -f "$OUT"
-(cd "$TMP" && zip -qr -X "$OUT" "zachkana" "OʻRNATISH.txt")
+(cd "$TMP" && zip -9 -qr -X "$OUT" "zachkana" "OʻRNATISH.txt")
 du -h "$OUT" | cut -f1 | xargs echo "Tayyor:"
