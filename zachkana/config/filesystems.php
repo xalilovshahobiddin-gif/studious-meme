@@ -40,7 +40,8 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
+            // Symlink (storage:link) taqiqlangan hostingda oʻrnatuvchi public/storage ni toʻgʻridan-toʻgʻri beradi
+            'root' => env('PUBLIC_STORAGE_PATH') ?: storage_path('app/public'),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',
             'throw' => false,

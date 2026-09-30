@@ -26,8 +26,10 @@ AddType application/manifest+json .webmanifest
     RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
 
     # Redirect Trailing Slashes If Not A Folder...
+    # (THE_REQUEST — brauzer soʻragan asl manzil; ildizdagi .htaccess public/ ga
+    # yoʻnaltirganda ham "/public/..." ga notoʻgʻri yoʻnaltirilmaydi)
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteCond %{THE_REQUEST} \s([^\s?]+)/[\s?]
     RewriteRule ^ %1 [L,R=301]
 
     # Send Requests To Front Controller...

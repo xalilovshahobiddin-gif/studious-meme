@@ -1,0 +1,18 @@
+# Hosting document root'ini public/ papkaga qaratib boʻlmasa (masalan, hamma fayllar
+# public_html ichida), barcha soʻrovlar public/ ga yoʻnaltiriladi. Shunda .env, kod
+# va boshqa fayllar tashqaridan ochilmaydi.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # public/ ichidagi papkaga oxirida "/" siz murojaat (masalan /ui) → /ui/
+    RewriteCond %{REQUEST_FILENAME}::$1 ^(.*?)(.*)::\2$
+    RewriteCond %1public/$1 -d
+    RewriteRule ^(.*[^/])$ %{REQUEST_URI}/ [L,R=301]
+
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# mod_rewrite yoʻq boʻlsa — hech narsa koʻrsatilmasin
+<IfModule !mod_rewrite.c>
+    Require all denied
+</IfModule>

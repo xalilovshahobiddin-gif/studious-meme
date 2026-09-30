@@ -1276,7 +1276,11 @@
       // Server bormi? Boʻlmasa (404, HTML javob yoki javob kelmasa) — demo rejim
       applyBootstrap(await api.get('bootstrap', { timeout: 6000 }));
       api.live = true;
-    } catch { api.live = false; }
+    } catch (e) {
+      // Sayt serverga yuklangan, lekin hali oʻrnatilmagan
+      if (e.status === 503 && e.data?.install) { location.href = e.data.install; return; }
+      api.live = false;
+    }
     document.documentElement.dataset.mode = api.live ? 'live' : 'demo';
     netStatus();
     onRoute();

@@ -38,16 +38,28 @@ Faqat administrator (namuna maʼlumotsiz): `php artisan migrate && php artisan d
 
 ## Hostingga joylash
 
-**Oddiy (shared) hosting, cPanel:**
-1. Fayllarni yuklang, domen **document root**ini `public/` papkaga qarating.
-2. `.env` yarating: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://zachkana.uz`, MySQL maʼlumotlari.
-3. Terminal (yoki hostingning “PHP buyruq”) orqali: `composer install --no-dev -o`, `php artisan key:generate`, `php artisan migrate --force`, `php artisan storage:link`, `php artisan filament:assets`, `php artisan optimize`.
-4. Administrator: `php artisan zachkana:admin <telefon>`.
+### Tayyor arxiv + brauzerdagi oʻrnatuvchi (oddiy hosting, SSH shart emas)
+
+1. Arxivni yigʻing: `bash deploy/build-zip.sh` → `zachkana-YYYY.MM.DD.zip` (kutubxonalar ichida, ~35 MB).
+   Arxiv ichida `OʻRNATISH.txt` yoʻriqnomasi bor.
+2. Hosting panelida boʻsh MySQL baza va foydalanuvchi yarating.
+3. `zachkana/` ichidagi hamma fayllarni (yashirin `.htaccess` bilan) saytingiz papkasiga yuklang.
+   Domen document root'ini `public/` ga qaratish mumkin boʻlsa — shunday qiling; boʻlmasa ham ishlaydi:
+   ildizdagi `.htaccess` hamma soʻrovni `public/` ga yoʻnaltiradi, `.env` va kod tashqaridan ochilmaydi.
+4. Brauzerda `https://domen/install.php` ni oching: talablar tekshiriladi, baza va administrator maʼlumotlari
+   kiritiladi → `.env` yoziladi, jadvallar yaratiladi, administrator qoʻshiladi. Oʻrnatuvchi `.env` boʻlmaguncha
+   saytni oʻziga yoʻnaltiradi, tugagach `storage/installed` yaratib, oʻzini oʻchiradi.
 5. HTTPS (Let’s Encrypt) yoqing — PWA faqat HTTPS’da oʻrnatiladi.
 
-`public/.htaccess` Apache uchun tayyor. VPS/Nginx uchun namuna: [deploy/nginx.conf](deploy/nginx.conf).
+Symlink taqiqlangan hostingda oʻrnatuvchi yuklangan fayllarni toʻgʻridan-toʻgʻri `public/storage` ga saqlaydi (`PUBLIC_STORAGE_PATH`).
+Sinovdan oʻtgan: Apache 2.4 + PHP 8.3 + MariaDB 10.11 (fayllar document root ichida), PHP 8.4 + MariaDB.
 
-Talablar: PHP 8.3+, MySQL 8 / MariaDB 10.6+, `pdo_mysql`, `mbstring`, `intl`, `gd` yoki `imagick`.
+### SSH boʻlsa (VPS)
+
+`composer install --no-dev -o`, `.env` sozlang, `php artisan key:generate`, `php artisan migrate --force`,
+`php artisan storage:link`, `php artisan zachkana:admin <telefon>`. Nginx namunasi: [deploy/nginx.conf](deploy/nginx.conf).
+
+Talablar: PHP 8.3+, MySQL 8 / MariaDB 10.6+, kengaytmalar: `pdo_mysql`, `mbstring`, `intl`, `fileinfo`, `openssl`, `dom`.
 
 ## API
 
