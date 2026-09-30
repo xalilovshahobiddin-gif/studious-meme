@@ -10,6 +10,7 @@ use App\Models\Setting;
 use App\Models\TimelineEvent;
 use App\Models\User;
 use App\Models\Veteran;
+use App\Support\AuthSettings;
 use App\Support\Front;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -39,6 +40,10 @@ class BootstrapController extends Controller
                 ->map(fn (Clan $c) => ['id' => $c->slug, 'name' => $c->name, 'count' => $c->people_count]),
             'channels' => ChatController::channelList($request->user()),
             'user' => AuthController::present($request->user()),
+            'auth' => AuthSettings::forFrontend(),
+            // Google/Telegram orqali kirishdan keyingi xabar (bir martalik)
+            'notice' => $request->session()->get('auth_notice'),
+            'error' => $request->session()->get('auth_error'),
             'members' => User::count(),
         ]);
     }

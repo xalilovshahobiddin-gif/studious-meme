@@ -351,3 +351,12 @@ body[data-route="chat"].is-immersive .chat-layout, body[data-route="chat"].is-im
 @media (min-width: 1024px) { body[data-route="chat"] .appbar-back { display: none !important; } }
 .form-error { color: var(--z-danger); font-size: var(--z-text-sm); font-weight: 600; margin: 0; }
 .auth-card__top .z-avatar { box-shadow: 0 0 0 4px rgba(255,255,255,.25); }
+
+/* Google / Telegram orqali kirish */
+.social-login { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+.social-btn { gap: 10px; }
+.social-logo { width: 20px; height: 20px; flex: none; }
+.tg-login { display: flex; justify-content: center; min-height: 44px; align-items: center; }
+.or-sep { display: flex; align-items: center; gap: 12px; color: var(--z-text-3); font-size: var(--z-text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.or-sep::before, .or-sep::after { content: ""; flex: 1; height: 1px; background: var(--z-border); }
+.menu-icon .social-logo { width: 18px; height: 18px; }

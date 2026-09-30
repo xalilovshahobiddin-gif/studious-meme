@@ -13,8 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'phone', 'email', 'password', 'role'])]
-#[Hidden(['password', 'remember_token'])]
+#[Fillable(['name', 'username', 'phone', 'email', 'password', 'role', 'google_id', 'telegram_id', 'avatar'])]
+#[Hidden(['password', 'remember_token', 'google_id', 'telegram_id'])]
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
@@ -55,6 +55,20 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(Message::class);
     }
+
+    /** Qaysi usullar bilan kira oladi (admin panel va profil uchun) */
+    public function loginMethods(): array
+    {
+        return array_keys(array_filter([
+            'password' => $this->username && $this->password,
+            'google' => (bool) $this->google_id,
+            'telegram' => (bool) $this->telegram_id,
+            'phone' => $this->phone && $this->password,
+        ]));
+    }
+
+    /** Login: lotin harflari, raqamlar, "_" va "." — 3–32 belgi */
+    public const USERNAME_RULE = 'regex:/^[a-z0-9_.]{3,32}$/';
 
     /** +998 90 123 45 67 → 998901234567 */
     public static function normalizePhone(string $phone): string

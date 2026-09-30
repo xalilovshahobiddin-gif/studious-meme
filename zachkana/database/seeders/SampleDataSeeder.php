@@ -128,7 +128,7 @@ class SampleDataSeeder extends Seeder
     private function sampleUser(string $name): User
     {
         return User::firstOrCreate(
-            ['phone' => '998000'.str_pad((string) (abs(crc32($name)) % 1000000), 6, '0', STR_PAD_LEFT)],
+            ['username' => 'namuna'.str_pad((string) (abs(crc32($name)) % 1000000), 6, '0', STR_PAD_LEFT)],
             ['name' => $name, 'password' => Str::random(40), 'role' => 'user'],
         );
     }

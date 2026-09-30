@@ -9,6 +9,7 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -46,16 +47,21 @@ class UserResource extends Resource
     {
         return $schema->components([
             TextInput::make('name')->label('Ismi')->required()->maxLength(80),
-            TextInput::make('phone')->label('Telefon')->tel()->required()->unique(ignoreRecord: true)
-                ->dehydrateStateUsing(fn ($state) => User::normalizePhone($state))
-                ->helperText('998901234567 koʻrinishida'),
+            TextInput::make('username')->label('Login')->unique(ignoreRecord: true)
+                ->regex('/^[a-z0-9_.]{3,32}$/')
+                ->dehydrateStateUsing(fn ($state) => filled($state) ? mb_strtolower(trim($state)) : null)
+                ->helperText('Lotin harflari, raqamlar, "_" va "." (3–32 belgi)'),
+            TextInput::make('phone')->label('Telefon')->tel()->unique(ignoreRecord: true)
+                ->dehydrateStateUsing(fn ($state) => filled($state) ? User::normalizePhone($state) : null)
+                ->helperText('Ixtiyoriy. 998901234567 koʻrinishida'),
+            TextInput::make('email')->label('Email')->email()->unique(ignoreRecord: true),
             Select::make('role')->label('Rol')->options(User::ROLES)->required()->default('user'),
             TextInput::make('password')->label('Parol')->password()->revealable()
-                ->required(fn (string $operation) => $operation === 'create')
+                ->required(fn (string $operation, Get $get) => $operation === 'create' && filled($get('username')))
                 ->dehydrated(fn ($state) => filled($state))
                 ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                 ->minLength(6)
-                ->helperText('Tahrirlashda boʻsh qoldirsangiz, parol oʻzgarmaydi'),
+                ->helperText('Tahrirlashda boʻsh qoldirsangiz, parol oʻzgarmaydi. Google/Telegram orqali kiradiganlarga shart emas'),
         ]);
     }
 
@@ -65,7 +71,10 @@ class UserResource extends Resource
             ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('name')->label('Ismi')->searchable(),
-                TextColumn::make('phone')->label('Telefon')->searchable(),
+                TextColumn::make('username')->label('Login')->searchable()->placeholder('—'),
+                TextColumn::make('phone')->label('Telefon')->searchable()->placeholder('—')->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('methods')->label('Kirish usullari')->badge()
+                    ->state(fn (User $u) => array_map(fn ($m) => ['password' => 'Parol', 'google' => 'Google', 'telegram' => 'Telegram', 'phone' => 'Telefon'][$m], $u->loginMethods())),
                 TextColumn::make('role')->label('Rol')->badge()
                     ->formatStateUsing(fn ($state) => User::ROLES[$state] ?? $state)
                     ->color(fn ($state) => match ($state) {

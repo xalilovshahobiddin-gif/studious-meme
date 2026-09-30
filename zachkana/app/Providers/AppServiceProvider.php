@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Support\SchemaUpdater;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +20,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Yangi versiya yuklangach bazani avtomatik yangilash (SSH boʻlmagan hosting uchun)
+        if (! $this->app->runningInConsole()) {
+            SchemaUpdater::ensure();
+        }
     }
 }

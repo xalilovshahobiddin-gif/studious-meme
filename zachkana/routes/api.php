@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\BootstrapController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\ShajaraController;
+use App\Http\Controllers\SocialAuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,10 +25,14 @@ Route::middleware('web')->group(function () {
     Route::middleware('throttle:10,1')->group(function () {
         Route::post('register', [AuthController::class, 'register']);
         Route::post('login', [AuthController::class, 'login']);
+        // Telefon orqali — vaqtincha oʻchirilgan (sozlamadan yoqiladi)
+        Route::post('phone/register', [AuthController::class, 'phoneRegister']);
+        Route::post('phone/login', [AuthController::class, 'phoneLogin']);
     });
 
     Route::middleware('auth')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
+        Route::post('link/telegram', [SocialAuthController::class, 'linkIntent']);
 
         Route::middleware('throttle:20,1')->group(function () {
             Route::post('people/suggestions', [ShajaraController::class, 'suggest']);

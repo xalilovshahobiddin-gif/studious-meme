@@ -3,6 +3,7 @@
 namespace App\Filament\Pages\Auth;
 
 use App\Models\User;
+use App\Support\AuthSettings;
 use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
@@ -10,42 +11,46 @@ use Filament\Schemas\Schema;
 use Illuminate\Validation\ValidationException;
 use SensitiveParameter;
 
-/** Admin panelga ham saytdagidek telefon raqam va parol bilan kiriladi. */
+/**
+ * Admin panelga login va parol bilan kiriladi. Telefon orqali kirish sozlamadan
+ * yoqilgan boʻlsa, telefon raqamni ham kiritish mumkin.
+ * Google/Telegram orqali kirgan xodim saytdan kirib, toʻgʻridan-toʻgʻri /admin ga oʻtadi.
+ */
 class Login extends BaseLogin
 {
     public function form(Schema $schema): Schema
     {
         return $schema->components([
-            $this->getPhoneFormComponent(),
+            $this->getLoginFormComponent(),
             $this->getPasswordFormComponent(),
             $this->getRememberFormComponent(),
         ]);
     }
 
-    protected function getPhoneFormComponent(): Component
+    protected function getLoginFormComponent(): Component
     {
-        return TextInput::make('phone')
-            ->label('Telefon raqam')
-            ->tel()
-            ->placeholder('90 123 45 67')
-            ->prefix('+998')
+        return TextInput::make('login')
+            ->label(AuthSettings::phoneEnabled() ? 'Login yoki telefon raqam' : 'Login')
             ->required()
-            ->autocomplete('tel-national')
+            ->autocomplete('username')
             ->autofocus();
     }
 
     protected function getCredentialsFromFormData(#[SensitiveParameter] array $data): array
     {
-        return [
-            'phone' => User::normalizePhone($data['phone']),
-            'password' => $data['password'],
-        ];
+        $login = trim($data['login']);
+
+        if (AuthSettings::phoneEnabled() && preg_match('/^\+?[\d\s()-]{9,}$/', $login) && ! User::where('username', $login)->exists()) {
+            return ['phone' => User::normalizePhone($login), 'password' => $data['password']];
+        }
+
+        return ['username' => mb_strtolower($login), 'password' => $data['password']];
     }
 
     protected function throwFailureValidationException(): never
     {
         throw ValidationException::withMessages([
-            'data.phone' => 'Telefon raqam yoki parol notoʻgʻri.',
+            'data.login' => 'Login yoki parol notoʻgʻri.',
         ]);
     }
 }

@@ -7,6 +7,8 @@
   const D = window.ZK_DATA;
   D.user = null;
   D.vetDetail = {};
+  // Kirish usullari (server boʻlsa /api/bootstrap dan keladi; demo uchun hammasi koʻrsatiladi)
+  D.auth = { password: true, phone: false, google: true, telegram: 'zachkana_bot' };
   const I = (n, c) => window.ZIcons.svg(n, c);
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -54,7 +56,9 @@
   // Tekshiruv xatosidan birinchi xabarni olish
   const errText = e => e?.data?.errors ? Object.values(e.data.errors)[0][0] : (e?.status === 429 ? 'Juda koʻp urinish. Birozdan keyin qayta urinib koʻring.' : e?.data?.message || (navigator.onLine ? 'Xatolik yuz berdi' : 'Internet yoʻq'));
 
+  const bootNotice = {};
   function applyBootstrap(b) {
+    bootNotice.notice = b.notice; bootNotice.error = b.error;
     D.village = b.village;
     D.news = b.news;
     D.todayInHistory = b.todayInHistory;
@@ -62,6 +66,7 @@
     D.channels = b.channels;
     D.user = b.user;
     D.members = b.members;
+    D.auth = b.auth || D.auth;
     D.trees = {};
     D.messages = {};
     D.history = D.timeline = D.veterans = null;
@@ -903,7 +908,7 @@
     <a class="z-card z-card--interactive profile-card" href="#/profil">
       <div class="z-card__body z-row" style="flex-wrap:nowrap">
         ${avatar(D.user?.name || 'Mehmon', 'lg')}
-        <div style="flex:1"><strong>${esc(D.user?.name || 'Mehmon')}</strong><div class="z-small">${D.user ? '+' + esc(D.user.phone) : 'Kirish yoki roʻyxatdan oʻtish'}</div></div>
+        <div style="flex:1"><strong>${esc(D.user?.name || 'Mehmon')}</strong><div class="z-small">${D.user ? esc(userHandle(D.user)) : 'Kirish yoki roʻyxatdan oʻtish'}</div></div>
         ${I('chevron-right', 'z-muted')}
       </div>
     </a>
@@ -927,33 +932,104 @@
   });
 
   /* --- Profil / Kirish --- */
-  let authMode = 'login';
+  let authMode = 'login';     // login | register | phone
+  let phoneReg = false;       // telefon boʻlimida: kirish yoki roʻyxatdan oʻtish
   const ROLE_NAMES = { user: 'Qishloqdosh', moderator: 'Moderator', admin: 'Administrator' };
+  const userHandle = u => u.username ? '@' + u.username : u.email || (u.phone ? '+' + u.phone : '');
+  const GOOGLE_G = '<svg class="social-logo" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
+  const TG_LOGO = '<svg class="social-logo" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#29A9EB"/><path fill="#fff" d="m5.4 11.8 11.6-4.5c.5-.2 1 .1.8.9l-2 9.3c-.1.7-.5.8-1.1.5l-3-2.2-1.5 1.4c-.2.2-.3.3-.6.3l.2-3.1 5.6-5c.2-.2 0-.3-.4-.1l-6.9 4.3-3-.9c-.6-.2-.7-.6.3-.9z"/></svg>';
+
+  // Google tugmasi va Telegram vidjeti (link — kirgan foydalanuvchi akkaunt ulaydi)
+  function socialButtons(link = false) {
+    const a = D.auth, u = D.user;
+    const google = a.google && !(u?.methods || []).includes('google');
+    const tg = a.telegram && !(u?.methods || []).includes('telegram');
+    if (!google && !tg) return '';
+    return `<div class="social-login">
+      ${google ? (api.live
+        ? `<a class="z-btn z-btn--block social-btn" href="auth/google/redirect">${GOOGLE_G}${link ? 'Google akkauntini ulash' : 'Google orqali kirish'}</a>`
+        : `<button type="button" class="z-btn z-btn--block social-btn" data-action="demo-social">${GOOGLE_G}Google orqali kirish</button>`) : ''}
+      ${tg ? (api.live
+        ? `<div class="tg-login" id="tgLogin" data-bot="${esc(a.telegram)}"><span class="z-caption">Telegram yuklanmoqda…</span></div>`
+        : `<button type="button" class="z-btn z-btn--block social-btn" data-action="demo-social">${TG_LOGO}Telegram orqali kirish</button>`) : ''}
+    </div>`;
+  }
+  function mountTelegram() {
+    const box = $('#tgLogin');
+    if (!box) return;
+    // Kirgan foydalanuvchi — serverga "ulamoqchiman" deb bildiramiz (himoya uchun)
+    if (D.user) api.post('link/telegram').catch(() => { /* */ });
+    const sc = document.createElement('script');
+    sc.async = true;
+    sc.src = 'https://telegram.org/js/telegram-widget.js?22';
+    sc.dataset.telegramLogin = box.dataset.bot;
+    sc.dataset.size = 'large';
+    sc.dataset.radius = '22';
+    sc.dataset.userpic = 'false';
+    sc.dataset.authUrl = new URL('auth/telegram/callback', location.href.split('#')[0]).href;
+    sc.onload = () => box.querySelector('.z-caption')?.remove();
+    sc.onerror = () => { box.innerHTML = '<span class="z-caption">Telegram vidjeti yuklanmadi</span>'; };
+    box.append(sc);
+  }
+
   views.profil = () => {
-    const u = D.user;
+    const u = D.user, a = D.auth;
     if (u) {
+      const m = u.methods || [];
+      const method = (key, label, icon) => `<li class="z-list-item"><span class="menu-icon">${icon}</span><span class="z-list-item__main"><span class="z-list-item__title">${label}</span></span>${m.includes(key) ? `<span class="z-badge z-badge--success">${I('check')}Ulangan</span>` : '<span class="z-badge">Ulanmagan</span>'}</li>`;
       return {
         title: 'Profil',
         html: `
         <div class="auth">
           <div class="z-card auth-card">
-            <div class="auth-card__top z-ornament">${avatar(u.name, 'xl')}</div>
+            <div class="auth-card__top z-ornament">${u.avatar ? `<span class="z-avatar z-avatar--xl"><img src="${esc(u.avatar)}" alt="" referrerpolicy="no-referrer"></span>` : avatar(u.name, 'xl')}</div>
             <div class="z-card__body z-stack" style="text-align:center">
-              <div><h1 class="z-h3">${esc(u.name)}</h1><p class="z-muted" style="margin:4px 0 0">+${esc(u.phone)}</p></div>
+              <div><h1 class="z-h3">${esc(u.name)}</h1><p class="z-muted" style="margin:4px 0 0">${esc(userHandle(u))}</p></div>
               <div><span class="z-badge ${u.staff ? 'z-badge--accent' : 'z-badge--primary'}">${ROLE_NAMES[u.role] || u.role}</span></div>
               ${u.staff ? `<a class="z-btn z-btn--primary z-btn--block" href="admin">${I('sliders')}Admin panel</a>` : ''}
               <a class="z-btn z-btn--block" href="#/shajara">${I('shajara')}Shajarada oʻzimni topish</a>
               <button class="z-btn z-btn--ghost z-btn--block" data-action="logout">${I('logout')}Chiqish</button>
             </div>
           </div>
-          <div class="auth-perks">
-            <h2 class="z-h4">Siz nima qila olasiz:</h2>
-            ${perks()}
+          <div class="auth-perks z-stack">
+            <div>
+              <h2 class="z-h4">Kirish usullari</h2>
+              <div class="z-card" style="margin-top:12px"><ul class="z-list z-list--divided">
+                ${method('password', 'Login va parol', I('user'))}
+                ${a.google || m.includes('google') ? method('google', 'Google', GOOGLE_G) : ''}
+                ${a.telegram || m.includes('telegram') ? method('telegram', 'Telegram', TG_LOGO) : ''}
+                ${m.includes('phone') ? method('phone', 'Telefon raqam', I('phone')) : ''}
+              </ul></div>
+            </div>
+            ${socialButtons(true)}
           </div>
-        </div>`
+        </div>`,
+        mount: mountTelegram
       };
     }
-    const reg = authMode === 'register';
+    const tabs = [...(a.password ? [['login', 'Kirish'], ['register', 'Roʻyxatdan oʻtish']] : []), ...(a.phone ? [['phone', 'Telefon']] : [])];
+    const mode = tabs.some(([k]) => k === authMode) ? authMode : (tabs[0]?.[0] || 'none');
+    const reg = mode === 'register';
+    const passwordForm = `
+      <form class="z-stack" data-form="${reg ? 'register' : 'login'}" novalidate>
+        ${reg ? `<label class="z-field"><span class="z-label">Ism-sharifingiz</span><input class="z-input" name="name" autocomplete="name" required minlength="2" maxlength="80" placeholder="Masalan: Sardor Rustamov"></label>` : ''}
+        <label class="z-field"><span class="z-label">Login</span><input class="z-input" name="${reg ? 'username' : 'login'}" autocomplete="username" autocapitalize="off" spellcheck="false" required maxlength="32" placeholder="${reg ? 'masalan: sardor_r' : ''}">${reg ? '<span class="z-hint">Lotin harflari, raqamlar, "_" va "." (3–32 belgi)</span>' : ''}</label>
+        <label class="z-field"><span class="z-label">Parol</span><input class="z-input" name="password" type="password" autocomplete="${reg ? 'new-password' : 'current-password'}" required minlength="${reg ? 6 : 1}" placeholder="${reg ? 'Kamida 6 belgi' : ''}"></label>
+        <p class="z-hint form-error" role="alert" hidden></p>
+        <button class="z-btn z-btn--primary z-btn--lg z-btn--block" type="submit">${reg ? 'Roʻyxatdan oʻtish' : 'Kirish'}</button>
+      </form>`;
+    const phoneForm = `
+      <form class="z-stack" data-form="${phoneReg ? 'phone-register' : 'phone-login'}" novalidate>
+        ${phoneReg ? `<label class="z-field"><span class="z-label">Ism-sharifingiz</span><input class="z-input" name="name" autocomplete="name" required minlength="2" maxlength="80"></label>` : ''}
+        <label class="z-field"><span class="z-label">Telefon raqam</span>
+          <div class="phone-input"><span>+998</span><input class="z-input" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="90 123 45 67" required></div>
+        </label>
+        <label class="z-field"><span class="z-label">Parol</span><input class="z-input" name="password" type="password" autocomplete="${phoneReg ? 'new-password' : 'current-password'}" required></label>
+        <p class="z-hint form-error" role="alert" hidden></p>
+        <button class="z-btn z-btn--primary z-btn--lg z-btn--block" type="submit">${phoneReg ? 'Roʻyxatdan oʻtish' : 'Kirish'}</button>
+        <button type="button" class="z-btn z-btn--ghost z-btn--sm" data-action="phone-toggle">${phoneReg ? 'Akkauntim bor — kirish' : 'Telefon bilan roʻyxatdan oʻtish'}</button>
+      </form>`;
+    const social = socialButtons();
     return {
       title: 'Profil',
       html: `
@@ -961,22 +1037,13 @@
         <div class="z-card auth-card">
           <div class="auth-card__top z-ornament"><img src="assets/logo-mark.svg" alt="" width="64" height="64"></div>
           <div class="z-card__body z-stack">
-            <div style="text-align:center"><h1 class="z-h3">Qishloqdoshlar davrasiga kiring</h1><p class="z-muted">${reg ? 'Ismingiz, telefon raqamingiz va parol kiriting.' : 'Telefon raqam va parolingizni kiriting.'}</p></div>
+            <div style="text-align:center"><h1 class="z-h3">Qishloqdoshlar davrasiga kiring</h1><p class="z-muted">${reg ? 'Ismingiz, login va parol oʻylab toping.' : 'Qulay usulni tanlang.'}</p></div>
             ${api.live ? '' : `<div class="z-alert">${I('info')}<div><strong>Demo rejim</strong>Server ulanmagan — kirish ishlamaydi.</div></div>`}
-            <div class="z-segment" role="tablist" style="align-self:center">
-              <button role="tab" aria-selected="${!reg}" data-auth="login">Kirish</button>
-              <button role="tab" aria-selected="${reg}" data-auth="register">Roʻyxatdan oʻtish</button>
-            </div>
-            <form class="z-stack" data-form="${reg ? 'register' : 'login'}" novalidate>
-              ${reg ? `<label class="z-field"><span class="z-label">Ism-sharifingiz</span><input class="z-input" name="name" autocomplete="name" required minlength="2" maxlength="80" placeholder="Masalan: Sardor Rustamov"></label>` : ''}
-              <label class="z-field"><span class="z-label">Telefon raqam</span>
-                <div class="phone-input"><span>+998</span><input class="z-input" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="90 123 45 67" required></div>
-              </label>
-              <label class="z-field"><span class="z-label">Parol</span><input class="z-input" name="password" type="password" autocomplete="${reg ? 'new-password' : 'current-password'}" required minlength="${reg ? 6 : 1}" placeholder="${reg ? 'Kamida 6 belgi' : ''}"></label>
-              <p class="z-hint form-error" role="alert" hidden></p>
-              <button class="z-btn z-btn--primary z-btn--lg z-btn--block" type="submit">${reg ? 'Roʻyxatdan oʻtish' : 'Kirish'}</button>
-            </form>
-            <p class="z-caption" style="text-align:center">SMS orqali tasdiqlash tez orada qoʻshiladi.</p>
+            ${social}
+            ${social && mode !== 'none' ? '<div class="or-sep"><span>yoki</span></div>' : ''}
+            ${tabs.length > 1 && mode !== 'none' ? `<div class="z-segment" role="tablist" style="align-self:center">${tabs.map(([k, l]) => `<button role="tab" aria-selected="${k === mode}" data-auth="${k}">${l}</button>`).join('')}</div>` : ''}
+            ${mode === 'phone' ? phoneForm : mode === 'none' ? '' : passwordForm}
+            ${!a.password && !a.phone && !social ? `<div class="z-alert z-alert--accent">${I('info')}<div>Hozircha saytga kirish yopiq. Keyinroq urinib koʻring.</div></div>` : ''}
           </div>
         </div>
         <div class="auth-perks">
@@ -984,7 +1051,10 @@
           ${perks()}
         </div>
       </div>`,
-      mount() { $$('[data-auth]').forEach(b => b.onclick = () => { authMode = b.dataset.auth; render(); }); }
+      mount() {
+        $$('[data-auth]').forEach(b => b.onclick = () => { authMode = b.dataset.auth; render(); });
+        mountTelegram();
+      }
     };
   };
   const perks = () => `<ul class="z-stack" style="--z-gap:12px;list-style:none;padding:0">
@@ -1107,6 +1177,8 @@
     else if (act === 'notifications') openSheet(`<h2 class="z-h3" id="sheetTitle">Bildirishnomalar</h2><ul class="z-list">${D.news.map(n => `<li class="z-list-item" style="align-items:flex-start"><span class="menu-icon">${I(n.tone === 'accent' ? 'megaphone' : n.tone === 'success' ? 'heart' : 'bell')}</span><span class="z-list-item__main"><span class="z-caption">${n.type} · ${n.date}</span><strong style="display:block">${esc(n.title)}</strong><span class="z-small">${esc(n.text)}</span></span></li>`).join('')}</ul>`);
     else if (act === 'suggest-edit') editPersonSheet(a.dataset.id);
     else if (act === 'logout') logout();
+    else if (act === 'phone-toggle') { phoneReg = !phoneReg; render(); }
+    else if (act === 'demo-social') toast('Demo rejim: server ulangach ishlaydi', 'info');
     else if (act === 'retry') render();
     else if (act === 'login-return') { try { sessionStorage.setItem('zk-return', location.hash); } catch { /* */ } }
     else if (act === 'share') share(a.dataset.share);
@@ -1130,7 +1202,7 @@
 
     // Demo rejim: server yoʻq — avvalgidek qurilmada saqlanadi
     if (!api.live) {
-      if (kind === 'login' || kind === 'register') { fail('Demo rejimda kirish ishlamaydi — server ulanmagan.'); return; }
+      if (/^(phone-)?(login|register)$/.test(kind)) { fail('Demo rejimda kirish ishlamaydi — server ulanmagan.'); return; }
       if (kind === 'memory-add') {
         const id = f.dataset.id, text = f.querySelector('textarea').value.trim();
         if (!text) return;
@@ -1149,8 +1221,8 @@
 
     btn && (btn.disabled = true);
     try {
-      if (kind === 'login' || kind === 'register') {
-        const r = await api.post(kind, formData(f));
+      if (/^(phone-)?(login|register)$/.test(kind)) {
+        const r = await api.post(kind.replace('phone-', 'phone/'), formData(f));
         D.user = r.user;
         await refreshBootstrap();
         toast(`Xush kelibsiz, ${r.user.name.split(' ')[0]}!`, 'check');
@@ -1283,6 +1355,9 @@
     }
     document.documentElement.dataset.mode = api.live ? 'live' : 'demo';
     netStatus();
-    onRoute();
+    await onRoute();
+    // Google/Telegram orqali kirishdan keyingi xabar
+    if (api.live && bootNotice.error) toast(bootNotice.error, 'info');
+    else if (api.live && bootNotice.notice) toast(bootNotice.notice, 'check');
   })();
 })();

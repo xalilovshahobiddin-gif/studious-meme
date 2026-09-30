@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+    // Kirish usullari. Qiymatlarni admin paneldagi "Kirish sozlamalari" sahifasidan ham
+    // kiritish mumkin — u yerdagisi ustun turadi (App\Support\AuthSettings).
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+    ],
+
+    'telegram' => [
+        'bot_username' => env('TELEGRAM_BOT_USERNAME'),
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+    ],
+
 ];

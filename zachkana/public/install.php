@@ -11,6 +11,7 @@
 
 declare(strict_types=1);
 use App\Models\User;
+use App\Support\SchemaUpdater;
 use Illuminate\Contracts\Console\Kernel;
 
 const ZK_MIN_PHP = '8.3.0';
@@ -46,13 +47,6 @@ function setEnv(string $env, string $key, string $value): string
     return $count ? $env : rtrim($env)."\n".$line."\n";
 }
 
-function normalizePhone(string $phone): string
-{
-    $d = preg_replace('/\D+/', '', $phone);
-
-    return strlen($d) === 9 ? '998'.$d : $d;
-}
-
 // ---- Talablar ----------------------------------------------------------
 $checks = [
     ['PHP '.ZK_MIN_PHP.' yoki yangiroq (hozir: '.PHP_VERSION.')', version_compare(PHP_VERSION, ZK_MIN_PHP, '>='), true],
@@ -75,14 +69,14 @@ $log = [];
 $done = false;
 $old = $_POST + [
     'app_url' => baseUrl(), 'db_host' => 'localhost', 'db_port' => '3306', 'db_name' => '', 'db_user' => '', 'db_pass' => '',
-    'admin_name' => '', 'admin_phone' => '', 'admin_password' => '', 'sample' => $_SERVER['REQUEST_METHOD'] === 'POST' ? '' : '1',
+    'admin_name' => '', 'admin_login' => 'admin', 'admin_password' => '', 'sample' => $_SERVER['REQUEST_METHOD'] === 'POST' ? '' : '1',
 ];
 
 if (is_file($lock)) {
     $installedAt = trim((string) file_get_contents($lock));
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && $requirementsOk) {
     $url = rtrim(trim($old['app_url']), '/');
-    $phone = normalizePhone($old['admin_phone']);
+    $login = mb_strtolower(trim($old['admin_login']));
 
     if (! filter_var($url, FILTER_VALIDATE_URL)) {
         $errors[] = 'Sayt manzili notoʻgʻri (masalan: https://zachkana.uz).';
@@ -93,8 +87,8 @@ if (is_file($lock)) {
     if (mb_strlen(trim($old['admin_name'])) < 2) {
         $errors[] = 'Administrator ismini kiriting.';
     }
-    if (! preg_match('/^998\d{9}$/', $phone)) {
-        $errors[] = 'Telefon raqam notoʻgʻri (masalan: 90 123 45 67).';
+    if (! preg_match('/^[a-z0-9_.]{3,32}$/', $login)) {
+        $errors[] = 'Login faqat lotin harflari, raqamlar, "_" va "." dan iborat boʻlsin (3–32 belgi).';
     }
     if (strlen($old['admin_password']) < 8) {
         $errors[] = 'Administrator paroli kamida 8 belgidan iborat boʻlsin.';
@@ -145,6 +139,7 @@ if (is_file($lock)) {
                 throw new RuntimeException('Migratsiya xatosi: '.$kernel->output());
             }
             $log[] = 'Jadvallar yaratildi.';
+            SchemaUpdater::markDone();
 
             if (! empty($old['sample'])) {
                 $kernel->call('db:seed', ['--class' => 'Database\\Seeders\\SampleDataSeeder', '--force' => true]);
@@ -152,10 +147,10 @@ if (is_file($lock)) {
             }
 
             User::updateOrCreate(
-                ['phone' => $phone],
+                ['username' => $login],
                 ['name' => trim($old['admin_name']), 'password' => $old['admin_password'], 'role' => 'admin'],
             );
-            $log[] = 'Administrator yaratildi: +'.$phone;
+            $log[] = 'Administrator yaratildi, login: '.$login;
 
             // Yuklangan fayllar uchun public/storage
             $link = __DIR__.'/storage';
@@ -227,7 +222,7 @@ if (is_file($lock)) {
   </div>
 <?php } elseif ($done) { ?>
   <div class="panel">
-    <div class="z-alert z-alert--success"><svg class="z-icon" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7"/></svg><div><strong>Tayyor! Sayt oʻrnatildi.</strong>Admin panelga telefon raqamingiz va parolingiz bilan kiring.</div></div>
+    <div class="z-alert z-alert--success"><svg class="z-icon" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7"/></svg><div><strong>Tayyor! Sayt oʻrnatildi.</strong>Admin panelga login va parolingiz bilan kiring.</div></div>
     <ul class="log" style="margin-top:16px"><?php foreach ($log as $l) { ?><li><?= h($l) ?></li><?php } ?></ul>
     <?php if (empty($selfDeleted)) { ?><div class="z-alert z-alert--danger" style="margin-top:16px"><svg class="z-icon" viewBox="0 0 24 24"><path d="M12 8v5M12 16h.01"/><circle cx="12" cy="12" r="9"/></svg><div><strong>Muhim</strong>Hostingdan <code>public/install.php</code> faylini oʻchirib tashlang (u qayta ishlamaydi, lekin oʻchirgan maʼqul).</div></div><?php } ?>
     <p style="margin:16px 0 0" class="z-row"><a class="z-btn z-btn--primary" href="admin">Admin panelga kirish</a><a class="z-btn" href="./">Saytni ochish</a></p>
@@ -267,7 +262,7 @@ if (is_file($lock)) {
       <div class="grid2">
         <label class="z-field" style="grid-column:1/-1"><span class="z-label">Sayt manzili</span><input class="z-input" name="app_url" value="<?= h($old['app_url']) ?>" required><span class="z-hint">Masalan: https://zachkana.uz</span></label>
         <label class="z-field"><span class="z-label">Ismingiz</span><input class="z-input" name="admin_name" value="<?= h($old['admin_name']) ?>" required></label>
-        <label class="z-field"><span class="z-label">Telefon raqam</span><input class="z-input" name="admin_phone" type="tel" placeholder="90 123 45 67" value="<?= h($old['admin_phone']) ?>" required><span class="z-hint">Admin panelga shu raqam bilan kirasiz</span></label>
+        <label class="z-field"><span class="z-label">Login</span><input class="z-input" name="admin_login" autocapitalize="off" value="<?= h($old['admin_login']) ?>" required><span class="z-hint">Admin panelga shu login bilan kirasiz</span></label>
         <label class="z-field" style="grid-column:1/-1"><span class="z-label">Parol</span><input class="z-input" type="password" name="admin_password" minlength="8" required autocomplete="new-password"><span class="z-hint">Kamida 8 belgi</span></label>
         <label class="check" style="grid-column:1/-1"><input type="checkbox" name="sample" value="1" <?= ! empty($old['sample']) ? 'checked' : '' ?>><span><strong>Namuna maʼlumotlarni yuklash</strong><br><span class="z-muted">Shajara, tarix, faxriylar va chat uchun toʻqilgan misollar. Saytni koʻrib chiqish uchun qulay, keyin admin paneldan oʻchiriladi.</span></span></label>
       </div>
