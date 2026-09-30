@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zachkana UI — dizayn tizimi</title>
+<meta name="description" content="Zachkana UI — zachkana.uz qishloq sayti uchun dizayn tizimi: ranglar, tipografiya, ikonalar va komponentlar.">
+<meta name="theme-color" content="#faf5ec">
+<link rel="icon" href="../icons/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="zachkana-ui.css">
+<script>try { var t = localStorage.getItem('zk-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<style>
+  .ds { display: grid; min-height: 100vh; }
+  .ds-nav { display: none; }
+  .ds-main { padding: 20px 16px 80px; max-width: 1080px; width: 100%; margin: 0 auto; }
+  @media (min-width: 1024px) {
+    .ds { grid-template-columns: 250px 1fr; }
+    .ds-nav { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 24px 16px; border-right: 1px solid var(--z-border); background: var(--z-surface); }
+    .ds-main { padding: 40px 48px 120px; }
+    .ds-top { display: none !important; }
+  }
+  .ds-top { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: color-mix(in srgb, var(--z-bg) 90%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--z-border); }
+  .ds-hero { padding: 40px 24px; border-radius: var(--z-radius-xl); background: linear-gradient(135deg, var(--z-lojuvard-600), var(--z-lojuvard-900)); color: #fff; --z-ornament: rgba(255,255,255,.08); margin-bottom: 48px; overflow: hidden; }
+  .ds-hero .z-h1 { color: #fff; margin: 12px 0; }
+  .ds-hero p { color: rgba(255,255,255,.8); max-width: 60ch; margin: 0; font-size: var(--z-text-lg); }
+  .ds-hero .z-overline { color: var(--z-orik-300); }
+  @media (min-width: 720px) { .ds-hero { padding: 56px 48px; } }
+  .ds-sec { margin: 0 0 72px; scroll-margin-top: 72px; }
+  .ds-sec > .z-h2 { margin: 6px 0 8px; }
+  .ds-sec > p.z-muted { margin: 0 0 28px; max-width: 70ch; }
+  .ds-sub { font-size: var(--z-text-sm); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--z-text-3); margin: 32px 0 12px; }
+  .ds-panel { background: var(--z-surface); border: 1px solid var(--z-border); border-radius: var(--z-radius-lg); padding: 24px; }
+  .ds-panel + .ds-panel { margin-top: 16px; }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+  .sw { border-radius: var(--z-radius-md); overflow: hidden; border: 1px solid var(--z-border); background: var(--z-surface); }
+  .sw i { display: block; height: 72px; }
+  .sw div { padding: 10px 12px; font-size: 12px; }
+  .sw strong { display: block; font-size: 13px; }
+  .sw code { color: var(--z-text-3); font-family: var(--z-font-mono); font-size: 11px; }
+  .ramp { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border-radius: var(--z-radius-md); overflow: hidden; height: 56px; margin-bottom: 8px; }
+  .ramp i { display: grid; place-items: end start; padding: 6px; font-size: 10px; font-style: normal; font-family: var(--z-font-mono); }
+  .ramp-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 20px; }
+  .type-row { display: grid; grid-template-columns: 110px 1fr; gap: 16px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--z-border); }
+  .type-row:last-child { border: 0; }
+  .type-row code { font-family: var(--z-font-mono); font-size: 11px; color: var(--z-text-3); }
+  .icons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+  .icon-cell { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 6px; border-radius: var(--z-radius-md); background: var(--z-surface); border: 1px solid var(--z-border); font-size: 11px; color: var(--z-text-2); font-family: var(--z-font-mono); }
+  .icon-cell .z-icon { width: 24px; height: 24px; color: var(--z-text); }
+  .spec { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+  .space-bar { height: 16px; background: var(--z-accent); border-radius: 3px; }
+  .radius-box { height: 72px; background: var(--z-primary-soft); border: 2px solid var(--z-primary); }
+  .shadow-box { height: 80px; background: var(--z-surface-raised); border-radius: var(--z-radius-md); }
+  .demo-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .code { font-family: var(--z-font-mono); font-size: 12px; background: var(--z-bg-sunken); color: var(--z-text-2); padding: 12px 14px; border-radius: var(--z-radius-sm); overflow-x: auto; white-space: pre; margin-top: 16px; }
+  .layout-demo { display: grid; gap: 24px; grid-template-columns: 1fr; }
+  @media (min-width: 800px) { .layout-demo { grid-template-columns: 220px 1fr; align-items: end; } }
+  .device { border: 2px solid var(--z-border-strong); border-radius: 28px; padding: 10px; background: var(--z-bg-sunken); }
+  .device-screen { border-radius: 20px; overflow: hidden; background: var(--z-bg); display: flex; flex-direction: column; height: 380px; }
+  .dv-bar { height: 34px; display: flex; align-items: center; gap: 6px; padding: 0 12px; font-size: 11px; font-weight: 800; border-bottom: 1px solid var(--z-border); }
+  .dv-body { flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .dv-block { border-radius: 10px; background: var(--z-surface); border: 1px solid var(--z-border); }
+  .dv-tabs { height: 46px; display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--z-border); background: var(--z-surface); }
+  .dv-tabs span { display: grid; place-items: center; color: var(--z-text-3); }
+  .dv-tabs span:first-child { color: var(--z-primary-text); }
+  .dv-tabs .z-icon { width: 18px; height: 18px; }
+  .desktop { border: 2px solid var(--z-border-strong); border-radius: 14px; overflow: hidden; background: var(--z-bg); display: grid; grid-template-columns: 150px 1fr; height: 300px; }
+  .dk-side { background: var(--z-surface); border-right: 1px solid var(--z-border); padding: 12px 10px; display: flex; flex-direction: column; gap: 6px; }
+  .dk-side span { height: 20px; border-radius: 6px; background: var(--z-bg-sunken); }
+  .dk-side span.on { background: var(--z-primary-soft); }
+  .dk-main { padding: 14px; display: grid; gap: 10px; grid-template-columns: 2fr 1fr; grid-template-rows: 90px 1fr; }
+  .dk-main .dv-block:first-child { grid-column: 1 / -1; background: var(--z-accent-soft); }
+  .principles { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+  .principles .z-card__body > .z-icon { width: 28px; height: 28px; color: var(--z-accent-text); margin-bottom: 10px; }
+  .principles h3 { margin: 0 0 6px; font-size: var(--z-text-lg); }
+  .principles p { margin: 0; }
+  .tree-demo { overflow-x: auto; padding: 8px 0 4px; }
+  .chat-demo { display: flex; flex-direction: column; gap: 6px; background: var(--z-bg); padding: 16px; border-radius: var(--z-radius-md); }
+</style>
+</head>
+<body>
+<div class="ds">
+  <aside class="ds-nav">
+    <a class="z-logo" href="../">
+      <img class="z-logo__mark" src="../assets/logo-mark.svg" alt="">
+      <span class="z-logo__text">Zachkana UI<small>Dizayn tizimi · v1.0</small></span>
+    </a>
+    <nav class="z-nav" id="dsNav"></nav>
+    <div style="margin-top:auto" class="z-stack">
+      <button class="z-btn z-btn--soft z-btn--block" data-theme-toggle></button>
+      <a class="z-btn z-btn--ghost z-btn--block" href="../">← Saytga qaytish</a>
+    </div>
+  </aside>
+
+  <main>
+    <div class="ds-top">
+      <a class="z-logo" href="../"><img class="z-logo__mark" src="../assets/logo-mark.svg" alt="" style="width:30px;height:30px"><span class="z-logo__text" style="font-size:1.05rem">Zachkana UI</span></a>
+      <button class="z-btn z-btn--ghost z-btn--sm" data-theme-toggle></button>
+    </div>
+    <div class="ds-main">
+      <header class="ds-hero z-ornament">
+        <span class="z-overline">Dizayn tizimi · v1.0</span>
+        <h1 class="z-h1">Zachkana UI</h1>
+        <p>zachkana.uz uchun yaratilgan oʻz dizayn tizimi. Oʻzbek anʼanaviy ranglari — lojuvard, firuza, oʻrik va anor — girih naqshi hamda iliq loy ohanglari asosida. Telefon (wap) va kompyuter (web) uchun avtomatik moslashadi, yorugʻ va qorongʻi mavzuni qoʻllaydi.</p>
+      </header>
+
+      <!-- Tamoyillar -->
+      <section class="ds-sec" id="tamoyillar">
+        <span class="z-overline">01</span>
+        <h2 class="z-h2">Tamoyillar</h2>
+        <p class="z-muted">Sayt qishloqning barcha avlodlari uchun: nevaralardan tortib bobolargacha. Har bir qaror shu savolga javob beradi: “buvim buni tushunadimi?”</p>
+        <div class="principles">
+          <div class="z-card"><div class="z-card__body"><svg class="z-icon"><use href="#zi-heart"/></svg><h3>Iliq va samimiy</h3><p class="z-small">Loy, paxta va oʻrik ohanglari. Sovuq “korporativ” emas — xonadon kabi iliq.</p></div></div>
+          <div class="z-card"><div class="z-card__body"><svg class="z-icon"><use href="#zi-users"/></svg><h3>Hamma uchun oson</h3><p class="z-small">Kamida 16px matn, 44px bosiladigan maydon, yuqori kontrast, oddiy soʻzlar.</p></div></div>
+          <div class="z-card"><div class="z-card__body"><svg class="z-icon"><use href="#zi-naqsh"/></svg><h3>Oʻzligimiz</h3><p class="z-small">Girih naqshi, lojuvard koshinlar ranglari va Lora shriftidagi sarlavhalar.</p></div></div>
+          <div class="z-card"><div class="z-card__body"><svg class="z-icon"><use href="#zi-offline"/></svg><h3>Internetsiz ham</h3><p class="z-small">PWA: bosh ekranga oʻrnatiladi, sekin yoki yoʻq internetda ham ochiladi.</p></div></div>
+        </div>
+      </section>
+
+      <!-- Logotip -->
+      <section class="ds-sec" id="logotip">
+        <span class="z-overline">02</span>
+        <h2 class="z-h2">Logotip</h2>
+        <p class="z-muted">Sakkiz qirrali yulduz (girih) ichidagi daraxt — ham qishloq bogʻlari, ham shajara ramzi. Doira — jamoa birligi.</p>
+        <div class="demo-grid">
+          <div class="ds-panel" style="display:grid;place-items:center;gap:16px;min-height:200px">
+            <img src="../assets/logo-mark.svg" alt="Zachkana belgisi" width="96" height="96">
+            <span class="z-caption">Belgi · assets/logo-mark.svg</span>
+          </div>
+          <div class="ds-panel" style="display:grid;place-items:center;gap:16px;min-height:200px">
+            <span class="z-logo"><img class="z-logo__mark" src="../assets/logo-mark.svg" alt=""><span class="z-logo__text">Zachkana<small>Qishloq sayti</small></span></span>
+            <span class="z-caption">Toʻliq logotip · .z-logo</span>
+          </div>
+          <div class="ds-panel" style="display:grid;place-items:center;gap:16px;min-height:200px">
+            <img src="../icons/icon-192.png" alt="Ilova ikonkasi" width="96" height="96" style="border-radius:22px;box-shadow:var(--z-shadow-2)">
+            <span class="z-caption">PWA ikonkasi · 192 / 512 / maskable</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ranglar -->
+      <section class="ds-sec" id="ranglar">
+        <span class="z-overline">03</span>
+        <h2 class="z-h2">Ranglar</h2>
+        <p class="z-muted">Palitra Samarqand va Buxoro koshinlaridan, oʻzbek bogʻi va xonadonidan olingan. Komponentlarda faqat semantik tokenlar (<code>--z-primary</code>, <code>--z-surface</code> …) ishlatiladi — shuning uchun qorongʻi mavzu avtomatik ishlaydi.</p>
+        <div id="ramps"></div>
+        <div class="ds-sub">Semantik tokenlar (joriy mavzu)</div>
+        <div class="swatches" id="semantic"></div>
+      </section>
+
+      <!-- Tipografiya -->
+      <section class="ds-sec" id="tipografiya">
+        <span class="z-overline">04</span>
+        <h2 class="z-h2">Tipografiya</h2>
+        <p class="z-muted"><strong>Lora</strong> — sarlavhalar uchun: kitobiy, tarixiy ruh. <strong>Manrope</strong> — interfeys va matn uchun: aniq, zamonaviy, oʻzbek lotin harflarini (oʻ, gʻ, ʼ) yaxshi koʻrsatadi. Oʻlchamlar ekranga qarab silliq oʻzgaradi (<code>clamp</code>).</p>
+        <div class="ds-panel">
+          <div class="type-row"><code>z-h1 · 36–56</code><div class="z-h1">Qishloqning oʻtmishi</div></div>
+          <div class="type-row"><code>z-h2 · 30–40</code><div class="z-h2">Shajara va urugʻlar</div></div>
+          <div class="type-row"><code>z-h3 · 24–30</code><div class="z-h3">Faxriylarimiz</div></div>
+          <div class="type-row"><code>z-h4 · 22</code><div class="z-h4">Eʼlonlar va yangiliklar</div></div>
+          <div class="type-row"><code>z-lead · 18</code><p class="z-lead">Shajarangizni toping va qishloqdoshlar bilan suhbatlashing.</p></div>
+          <div class="type-row"><code>z-body · 16</code><p class="z-body" style="margin:0">Bogʻ koʻchasidagi ariq shanba kuni hashar yoʻli bilan tozalanadi. Hammani kutamiz.</p></div>
+          <div class="type-row"><code>z-small · 14</code><p class="z-small" style="margin:0">4 avlod toʻldirilgan. Buvangiz tomonidagi qarindoshlarni qoʻshing.</p></div>
+          <div class="type-row"><code>z-caption · 12</code><span class="z-caption">28-sentabr · 2 daqiqa oldin</span></div>
+          <div class="type-row"><code>z-overline · 12</code><span class="z-overline">Bugun tarixda</span></div>
+        </div>
+      </section>
+
+      <!-- Oʻlchamlar -->
+      <section class="ds-sec" id="olchamlar">
+        <span class="z-overline">05</span>
+        <h2 class="z-h2">Oraliq, radius, soya</h2>
+        <p class="z-muted">4px asosli shkala. Yumaloq burchaklar — yumshoq va doʻstona. Soyalar loy ohangida, qora emas.</p>
+        <div class="ds-sub">Oraliqlar · --z-space-*</div>
+        <div class="ds-panel z-stack" style="--z-gap:10px" id="spaces"></div>
+        <div class="ds-sub">Radiuslar · --z-radius-*</div>
+        <div class="spec">
+          <div><div class="radius-box" style="border-radius:var(--z-radius-xs)"></div><p class="z-caption">xs · 6px</p></div>
+          <div><div class="radius-box" style="border-radius:var(--z-radius-sm)"></div><p class="z-caption">sm · 10px — maydonlar</p></div>
+          <div><div class="radius-box" style="border-radius:var(--z-radius-md)"></div><p class="z-caption">md · 14px</p></div>
+          <div><div class="radius-box" style="border-radius:var(--z-radius-lg)"></div><p class="z-caption">lg · 20px — kartalar</p></div>
+          <div><div class="radius-box" style="border-radius:var(--z-radius-xl)"></div><p class="z-caption">xl · 28px — varaqlar</p></div>
+          <div><div class="radius-box" style="border-radius:var(--z-radius-pill)"></div><p class="z-caption">pill — tugmalar</p></div>
+        </div>
+        <div class="ds-sub">Soyalar · --z-shadow-*</div>
+        <div class="spec">
+          <div><div class="shadow-box" style="box-shadow:var(--z-shadow-1)"></div><p class="z-caption">1 — kartalar</p></div>
+          <div><div class="shadow-box" style="box-shadow:var(--z-shadow-2)"></div><p class="z-caption">2 — hover, suzuvchi</p></div>
+          <div><div class="shadow-box" style="box-shadow:var(--z-shadow-3)"></div><p class="z-caption">3 — varaq, toast</p></div>
+        </div>
+      </section>
+
+      <!-- Naqsh -->
+      <section class="ds-sec" id="naqsh">
+        <span class="z-overline">06</span>
+        <h2 class="z-h2">Naqsh</h2>
+        <p class="z-muted">Girih — sakkiz qirrali yulduz naqshi. Mask sifatida chiziladi, rangi <code>--z-ornament</code> tokeni orqali mavzuga moslashadi. Faqat fon sifatida, juda nozik ishlatiladi.</p>
+        <div class="demo-grid">
+          <div class="ds-panel z-ornament" style="min-height:160px;display:grid;place-items:center"><code class="z-caption">.z-ornament</code></div>
+          <div class="ds-panel z-ornament" style="min-height:160px;display:grid;place-items:center;background:var(--z-primary);--z-ornament:rgba(255,255,255,.12);color:#fff"><code style="font-size:12px">--z-ornament: rgba(255,255,255,.12)</code></div>
+        </div>
+        <div class="z-divider-naqsh"><svg class="z-icon"><use href="#zi-naqsh"/></svg></div>
+        <p class="z-caption" style="text-align:center">.z-divider-naqsh — boʻlimlar orasidagi naqshli ajratgich</p>
+      </section>
+
+      <!-- Ikonalar -->
+      <section class="ds-sec" id="ikonalar">
+        <span class="z-overline">07</span>
+        <h2 class="z-h2">Ikonalar</h2>
+        <p class="z-muted">24×24 setka, 1.8px chiziq, yumaloq uchlar. Barchasi <code>currentColor</code> — matn rangini oladi. <code>ZIcons.svg('shajara')</code> orqali chaqiriladi.</p>
+        <div class="icons-grid" id="icons"></div>
+      </section>
+
+      <!-- Komponentlar -->
+      <section class="ds-sec" id="komponentlar">
+        <span class="z-overline">08</span>
+        <h2 class="z-h2">Komponentlar</h2>
+        <p class="z-muted">Barcha komponentlar <code>z-</code> prefiksi bilan. Bosiladigan elementlar kamida 44px, fokus halqasi aniq koʻrinadi.</p>
+
+        <div class="ds-sub">Tugmalar · .z-btn</div>
+        <div class="ds-panel z-stack">
+          <div class="z-row">
+            <button class="z-btn z-btn--primary"><svg class="z-icon"><use href="#zi-shajara"/></svg>Asosiy</button>
+            <button class="z-btn z-btn--accent">Urgʻu</button>
+            <button class="z-btn">Oddiy</button>
+            <button class="z-btn z-btn--soft">Yumshoq</button>
+            <button class="z-btn z-btn--ghost">Shaffof</button>
+            <button class="z-btn z-btn--danger">Oʻchirish</button>
+            <button class="z-btn z-btn--primary" disabled>Oʻchiq</button>
+          </div>
+          <div class="z-row">
+            <button class="z-btn z-btn--primary z-btn--sm">Kichik</button>
+            <button class="z-btn z-btn--primary">Oʻrta</button>
+            <button class="z-btn z-btn--primary z-btn--lg">Katta</button>
+            <button class="z-btn z-btn--icon" aria-label="Qidirish"><svg class="z-icon"><use href="#zi-search"/></svg></button>
+            <button class="z-btn z-btn--primary z-btn--icon" aria-label="Yuborish"><svg class="z-icon"><use href="#zi-send"/></svg></button>
+          </div>
+          <div class="code">&lt;button class="z-btn z-btn--primary"&gt;Shajarani ochish&lt;/button&gt;</div>
+        </div>
+
+        <div class="ds-sub">Maydonlar · .z-field .z-input .z-search</div>
+        <div class="ds-panel demo-grid">
+          <label class="z-field"><span class="z-label">Ism-sharifi</span><input class="z-input" placeholder="Masalan: Karimberdi"><span class="z-hint">Pasportdagidek yozing</span></label>
+          <label class="z-field z-field--error"><span class="z-label">Tugʻilgan yili</span><input class="z-input" value="19"><span class="z-hint">4 xonali yil kiriting</span></label>
+          <label class="z-field"><span class="z-label">Urugʻ</span><select class="z-select"><option>Mirzaboylar</option><option>Qoraxonlar</option></select></label>
+          <label class="z-search"><svg class="z-icon"><use href="#zi-search"/></svg><input class="z-input" placeholder="Qidirish…"></label>
+          <label class="z-field" style="grid-column:1/-1"><span class="z-label">Xotira</span><textarea class="z-textarea" placeholder="Yozing…"></textarea></label>
+        </div>
+
+        <div class="ds-sub">Chip, nishon, medal, kalit</div>
+        <div class="ds-panel z-stack">
+          <div class="z-chips"><button class="z-chip is-active">Barchasi <span class="z-count">8</span></button><button class="z-chip">Urush qatnashchilari</button><button class="z-chip">Ustozlar</button><button class="z-chip">Shifokorlar</button></div>
+          <div class="z-row">
+            <span class="z-badge">Oddiy</span><span class="z-badge z-badge--primary">Yangilik</span><span class="z-badge z-badge--accent">Eʼlon</span><span class="z-badge z-badge--success">Hayot</span><span class="z-badge z-badge--danger">Muhim</span><span class="z-badge z-badge--info">Maʼlumot</span>
+            <span class="z-counter">5</span><span class="z-dot"></span>
+          </div>
+          <div class="z-row"><span class="z-medal"><i><svg class="z-icon"><use href="#zi-star"/></svg></i>Mehnat shuhrati</span><span class="z-medal"><i><svg class="z-icon"><use href="#zi-star"/></svg></i>Gʻalaba medali</span></div>
+          <div class="z-row"><span class="z-switch"><input type="checkbox" checked aria-label="Yoqilgan"><span></span></span><span class="z-switch"><input type="checkbox" aria-label="Oʻchirilgan"><span></span></span>
+            <div class="z-segment" role="tablist"><button aria-selected="true">Daraxt</button><button aria-selected="false">Roʻyxat</button></div>
+          </div>
+          <div class="z-progress" style="max-width:320px"><span style="width:68%"></span></div>
+        </div>
+
+        <div class="ds-sub">Avatarlar · .z-avatar</div>
+        <div class="ds-panel z-row" style="--z-gap:16px" id="avatars"></div>
+
+        <div class="ds-sub">Kartalar va ogohlantirishlar</div>
+        <div class="demo-grid">
+          <div class="z-card"><div class="z-card__body"><div class="z-spread"><span class="z-badge z-badge--accent">Eʼlon</span><span class="z-caption">28-sentabr</span></div><h3 style="margin:10px 0 4px;font-size:16px">Hasharga taklif</h3><p class="z-small" style="margin:0">Shanba kuni ertalab soat 8:00 da guzarda yigʻilamiz.</p></div></div>
+          <div class="z-card z-card--accent z-ornament" style="--z-ornament:rgba(255,255,255,.07)"><div class="z-card__body"><span class="z-overline" style="color:var(--z-orik-300)">Bugun tarixda</span><div style="font-family:var(--z-font-display);font-size:40px;font-weight:700;color:var(--z-orik-300);line-height:1.1">1957</div><p style="margin:4px 0 0;opacity:.85">Qishloqqa birinchi elektr chiroq</p></div></div>
+          <div class="z-card z-card--flat"><div class="z-card__body z-stack" style="--z-gap:8px"><div class="z-stat"><span class="z-stat__value">1 346</span><span class="z-stat__label">Shajarada</span></div></div></div>
+        </div>
+        <div class="z-stack" style="margin-top:16px;--z-gap:10px">
+          <div class="z-alert"><svg class="z-icon"><use href="#zi-info"/></svg><div><strong>Maʼlumot</strong>Maʼlumot moderator tasdiqlagach qoʻshiladi.</div></div>
+          <div class="z-alert z-alert--accent"><svg class="z-icon"><use href="#zi-megaphone"/></svg><div><strong>Eʼlon</strong>Bu kanalda faqat moderatorlar yozadi.</div></div>
+          <div class="z-alert z-alert--success"><svg class="z-icon"><use href="#zi-check"/></svg><div><strong>Muvaffaqiyatli</strong>Xotirangiz qoʻshildi. Rahmat!</div></div>
+          <div class="z-alert z-alert--danger"><svg class="z-icon"><use href="#zi-offline"/></svg><div><strong>Oflayn</strong>Xabar internet qaytganda yuboriladi.</div></div>
+        </div>
+
+        <div class="ds-sub">Roʻyxat · .z-list</div>
+        <div class="z-card" style="max-width:480px"><ul class="z-list z-list--divided" id="listDemo"></ul></div>
+
+        <div class="ds-sub">Shajara · .z-person .z-couple .z-tree</div>
+        <div class="ds-panel tree-demo">
+          <ul class="z-tree" id="treeDemo"></ul>
+        </div>
+
+        <div class="ds-sub">Xronologiya · .z-timeline</div>
+        <div class="ds-panel">
+          <ol class="z-timeline">
+            <li class="z-timeline-era"><span>XX asr</span></li>
+            <li class="z-timeline-item z-timeline-item--major"><span class="z-timeline-item__marker"><svg class="z-icon"><use href="#zi-book"/></svg></span><div class="z-timeline-item__year">1924</div><div class="z-timeline-item__title">Birinchi maktab</div><p class="z-timeline-item__text">Muhim voqea — katta belgi (--major).</p></li>
+            <li class="z-timeline-item"><span class="z-timeline-item__marker"><svg class="z-icon"><use href="#zi-sun"/></svg></span><div class="z-timeline-item__year">1957</div><div class="z-timeline-item__title">Elektr chiroq</div><p class="z-timeline-item__text">Oddiy voqea.</p></li>
+          </ol>
+        </div>
+
+        <div class="ds-sub">Suhbat · .z-msg .z-bubble .z-composer</div>
+        <div class="chat-demo" id="chatDemo"></div>
+
+        <div class="ds-sub">Boʻsh holat va skelet</div>
+        <div class="demo-grid">
+          <div class="ds-panel z-empty"><svg class="z-icon"><use href="#zi-search"/></svg><p style="margin:0">Hech narsa topilmadi</p></div>
+          <div class="ds-panel z-stack" style="--z-gap:10px"><div class="z-row"><div class="z-skeleton" style="width:44px;height:44px;border-radius:50%"></div><div class="z-stack" style="flex:1;--z-gap:6px"><div class="z-skeleton" style="height:12px;width:60%"></div><div class="z-skeleton" style="height:10px;width:40%"></div></div></div><div class="z-skeleton" style="height:80px"></div></div>
+        </div>
+      </section>
+
+      <!-- Joylashuv -->
+      <section class="ds-sec" id="joylashuv">
+        <span class="z-overline">09</span>
+        <h2 class="z-h2">Joylashuv: wap va web</h2>
+        <p class="z-muted">Bitta sayt, ikki koʻrinish — qurilmaga qarab avtomatik. <strong>1024px dan kichik</strong> (telefon, planshet): yuqori panel + pastki tab panel (<code>.z-tabbar</code>), bosh barmoq bilan qulay. <strong>1024px va katta</strong> (kompyuter): chap yon panel (<code>.z-sidebar</code>), keng kontent, chat ikki ustunda. iPhone “chekka” (safe-area) hisobga olinadi.</p>
+        <div class="layout-demo">
+          <div class="device"><div class="device-screen">
+            <div class="dv-bar"><img src="../assets/logo-mark.svg" alt="" width="18" height="18">Zachkana</div>
+            <div class="dv-body"><div class="dv-block" style="height:110px;background:var(--z-accent-soft)"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="dv-block" style="height:54px"></div><div class="dv-block" style="height:54px"></div></div><div class="dv-block" style="flex:1"></div></div>
+            <div class="dv-tabs" id="dvTabs"></div>
+          </div><p class="z-caption" style="text-align:center">Telefon · &lt; 1024px</p></div>
+          <div><div class="desktop">
+            <div class="dk-side"><img src="../assets/logo-mark.svg" alt="" width="22" height="22" style="margin-bottom:8px"><span class="on"></span><span></span><span></span><span></span><span></span></div>
+            <div class="dk-main"><div class="dv-block"></div><div class="dv-block"></div><div class="dv-block"></div></div>
+          </div><p class="z-caption" style="text-align:center">Kompyuter · ≥ 1024px</p></div>
+        </div>
+        <div class="ds-sub">Nuqtalar (breakpoints)</div>
+        <div class="ds-panel">
+          <div class="type-row"><code>&lt; 720px</code><span>Telefon: bitta ustun, varaqlar pastdan chiqadi</span></div>
+          <div class="type-row"><code>≥ 720px</code><span>Planshet: 2–4 ustunli setkalar, varaqlar markazda modal boʻladi</span></div>
+          <div class="type-row"><code>≥ 1024px</code><span>Kompyuter: yon panel, tab panel yashiriladi</span></div>
+          <div class="type-row"><code>≥ 1200px</code><span>Keng ekran: kontent 1120px bilan cheklanadi</span></div>
+        </div>
+      </section>
+
+      <!-- Tokenlar -->
+      <section class="ds-sec" id="foydalanish">
+        <span class="z-overline">10</span>
+        <h2 class="z-h2">Foydalanish</h2>
+        <p class="z-muted">Tizim ikki fayldan iborat — hech qanday kutubxona yoki build talab qilinmaydi.</p>
+        <div class="code">&lt;link rel="stylesheet" href="ui/zachkana-ui.css"&gt;
+&lt;script src="ui/zachkana-icons.js"&gt;&lt;/script&gt;
+
+&lt;!-- Qorongʻi mavzu: avtomatik (tizim) yoki majburiy --&gt;
+&lt;html data-theme="dark"&gt;
+
+&lt;!-- Komponent --&gt;
+&lt;a class="z-btn z-btn--primary" href="#/shajara"&gt;
+  &lt;svg class="z-icon"&gt;&lt;use href="#zi-shajara"/&gt;&lt;/svg&gt;Shajarani ochish
+&lt;/a&gt;</div>
+      </section>
+
+      <div class="z-divider-naqsh"><svg class="z-icon"><use href="#zi-naqsh"/></svg></div>
+      <p class="z-caption" style="text-align:center">Zachkana UI v1.0 · zachkana.uz</p>
+    </div>
+  </main>
+</div>
+
+<script src="zachkana-icons.js"></script>
+<script>
+(() => {
+  const I = n => ZIcons.svg(n);
+  const $ = s => document.querySelector(s);
+  const sections = [['tamoyillar','Tamoyillar','heart'],['logotip','Logotip','naqsh'],['ranglar','Ranglar','image'],['tipografiya','Tipografiya','book'],['olchamlar','Oraliq va radius','fit'],['naqsh','Naqsh','naqsh'],['ikonalar','Ikonalar','star'],['komponentlar','Komponentlar','grid'],['joylashuv','Wap va web','home'],['foydalanish','Foydalanish','edit']];
+  $('#dsNav').innerHTML = sections.map(([id, t, ic]) => `<a href="#${id}">${I(ic)}<span>${t}</span></a>`).join('');
+
+  const ramps = [
+    ['Lojuvard', 'asosiy — tugmalar, havolalar', ['50','100','200','400','500','600','700','800','900'], 'lojuvard'],
+    ['Oʻrik', 'urgʻu — muhim sanalar, faxriylar', ['100','300','500','700'], 'orik'],
+    ['Firuza', 'maʼlumot', ['100','500','700'], 'firuza'],
+    ['Anor', 'xato, ayollar belgisi', ['100','500','700'], 'anor'],
+    ['Bogʻ', 'muvaffaqiyat, onlayn', ['100','500','700'], 'bog'],
+    ['Loy', 'neytral — fon va matn', ['50','100','200','300','400','500','600','700','800','900'], 'loy']
+  ];
+  const cs = getComputedStyle(document.documentElement);
+  $('#ramps').innerHTML = ramps.map(([name, use, steps, key]) => `
+    <div class="ramp">${steps.map(s => { const v = cs.getPropertyValue(`--z-${key}-${s}`).trim(); const dark = ['600','700','800','900'].includes(s) || (s === '500' && key !== 'orik'); return `<i style="background:${v};color:${dark ? '#fff' : '#241e17'}">${s}</i>`; }).join('')}</div>
+    <div class="ramp-label"><strong>${name}</strong><span class="z-muted">${use}</span></div>`).join('');
+
+  const sem = [['--z-bg','Fon'],['--z-surface','Sirt'],['--z-surface-raised','Koʻtarilgan sirt'],['--z-border','Chegara'],['--z-text','Matn'],['--z-text-2','Ikkinchi matn'],['--z-primary','Asosiy'],['--z-primary-soft','Asosiy (yumshoq)'],['--z-accent','Urgʻu'],['--z-accent-soft','Urgʻu (yumshoq)'],['--z-success','Muvaffaqiyat'],['--z-danger','Xato']];
+  const renderSem = () => { const c = getComputedStyle(document.documentElement); $('#semantic').innerHTML = sem.map(([v, n]) => `<div class="sw"><i style="background:var(${v})"></i><div><strong>${n}</strong><code>${v}</code><br><code>${c.getPropertyValue(v).trim()}</code></div></div>`).join(''); };
+  renderSem();
+
+  $('#spaces').innerHTML = [1,2,3,4,5,6,8,10,12,16].map(n => `<div class="z-row" style="flex-wrap:nowrap"><code class="z-caption" style="width:110px">--z-space-${n}</code><div class="space-bar" style="width:var(--z-space-${n})"></div><span class="z-caption">${n*4}px</span></div>`).join('');
+  $('#icons').innerHTML = ZIcons.names.map(n => `<div class="icon-cell">${I(n)}<span>${n}</span></div>`).join('');
+
+  const initials = n => n.split(' ').slice(0,2).map(w => w[0]).join('');
+  $('#avatars').innerHTML = [['Hoshimjon Mirzaboyev','xs',1],['Malika T','sm',2],['Zarina N','',3],['Anor B','',4],['Bogʻ O','lg',5],['Latofat U','xl',6]].map(([n, s, h]) => `<span class="z-avatar ${s ? 'z-avatar--' + s : ''}" data-hue="${h}">${initials(n)}</span>`).join('') +
+    `<span class="z-avatar z-avatar--lg z-avatar--faxriy" data-hue="2">TM</span><span class="z-avatar" data-hue="1">JE<span class="z-avatar-status"></span></span><span class="z-avatar-group"><span class="z-avatar z-avatar--sm" data-hue="1">A</span><span class="z-avatar z-avatar--sm" data-hue="3">B</span><span class="z-avatar z-avatar--sm" data-hue="4">D</span></span>`;
+
+  $('#listDemo').innerHTML = [['hash','Umumiy suhbat','Jasur: Bugun bozor bormi?','3'],['megaphone','Eʼlonlar','Hashar shanba kuni',''],['heart','Toʻy va marakalar','5-oktabr kuni toʻy','']].map(([ic, t, s, c]) => `<li><a class="z-list-item" href="#komponentlar"><span class="z-avatar z-avatar--sm" data-hue="2">${I(ic)}</span><span class="z-list-item__main"><span class="z-list-item__title" style="display:block">${t}</span><span class="z-list-item__sub" style="display:block">${s}</span></span>${c ? `<span class="z-counter">${c}</span>` : ''}</a></li>`).join('');
+
+  const person = (n, g, y, extra = '') => `<span class="z-person z-person--${g} ${extra}"><span class="z-avatar z-avatar--sm" data-hue="${g === 'm' ? 1 : 4}">${n[0]}</span><span><span class="z-person__name">${n}</span><br><span class="z-person__meta">${y}</span></span></span>`;
+  $('#treeDemo').innerHTML = `<li><div class="z-tree-node"><div class="z-couple">${person('Rustam','m','1950–2019','z-person--deceased')}${person('Gulnora','f','1954-y.t.')}</div></div><ul><li><div class="z-tree-node">${person('Sardor','m','1979-y.t.','z-person--me')}</div></li><li><div class="z-tree-node">${person('Dilnoza','f','1983-y.t.')}</div></li></ul></li>`;
+
+  $('#chatDemo').innerHTML = `<div class="z-day-sep"><span>Bugun</span></div>
+    <div class="z-msg"><span class="z-avatar z-avatar--sm" data-hue="3">JE</span><div class="z-bubble"><div class="z-bubble__author">Jasur Ergashev</div>Assalomu alaykum! Bugun guzarda bozor bormi?<div class="z-bubble__time">08:12</div></div></div>
+    <div class="z-msg z-msg--me"><div class="z-bubble">Ha, soat 9 dan boshlanadi 🙂<div class="z-bubble__time">08:15 ✓✓</div></div></div>
+    <form class="z-composer" onsubmit="return false"><button type="button" class="z-btn z-btn--ghost z-btn--icon z-btn--sm" aria-label="Biriktirish">${I('clip')}</button><textarea rows="1" placeholder="Xabar yozing…" aria-label="Xabar"></textarea><button class="z-btn z-btn--primary z-btn--icon z-btn--sm" aria-label="Yuborish">${I('send')}</button></form>`;
+
+  $('#dvTabs').innerHTML = ['home','shajara','medal','chat','grid'].map(i => `<span>${I(i)}</span>`).join('');
+
+  const mq = matchMedia('(prefers-color-scheme: dark)');
+  const eff = () => document.documentElement.dataset.theme || (mq.matches ? 'dark' : 'light');
+  const syncBtns = () => document.querySelectorAll('[data-theme-toggle]').forEach(b => b.innerHTML = eff() === 'dark' ? `${I('sun')}Yorugʻ mavzu` : `${I('moon')}Qorongʻi mavzu`);
+  document.querySelectorAll('[data-theme-toggle]').forEach(b => b.onclick = () => {
+    const t = eff() === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = t;
+    try { localStorage.setItem('zk-theme', t); } catch (e) {}
+    syncBtns(); renderSem();
+  });
+  syncBtns();
+})();
+</script>
+</body>
+</html>
