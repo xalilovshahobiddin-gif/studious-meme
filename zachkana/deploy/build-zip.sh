@@ -18,7 +18,7 @@ rsync -a "$SRC/" "$APP/" \
   --exclude 'public/css/filament/' --exclude 'public/js/filament/' --exclude 'public/fonts/filament/' \
   --exclude 'storage/installed' --exclude 'storage/framework/schema.*' --exclude 'storage/logs/*.log' \
   --exclude 'storage/framework/cache/data/*/' --exclude 'storage/framework/sessions/*' \
-  --exclude 'storage/framework/views/*.php' --exclude 'storage/app/public/*/' --exclude 'storage/app/private/*/'
+  --exclude 'storage/framework/views/*.php' --exclude 'storage/app/public/*/' --exclude 'storage/app/private/*/' --exclude 'storage/app/backups'
 
 echo "→ Kutubxonalar oʻrnatilmoqda (composer install --no-dev)"
 (cd "$APP" && composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress --quiet)

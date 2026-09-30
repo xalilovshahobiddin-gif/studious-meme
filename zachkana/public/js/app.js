@@ -468,7 +468,7 @@
         ${D.clans.map(c => `<button class="z-chip" aria-pressed="${c.id === s.clan}" data-clan="${c.id}">${esc(c.name)} <span class="z-count">${c.count}</span></button>`).join('')}
       </div>
 
-      <div class="clan-summary z-small">${clanPeople.length} kishi koʻrsatilgan · ${gens} avlod${api.live ? '' : ' · <span class="z-muted">namuna maʼlumot</span>'}</div>
+      <div class="clan-summary z-small"><span>${clanPeople.length} kishi koʻrsatilgan · ${gens} avlod${api.live ? '' : ' · <span class="z-muted">namuna maʼlumot</span>'}</span>${root && canVillagePdf() ? `<button class="z-btn z-btn--sm" data-action="pdf-village">${I('download')}PDF yuklash</button>` : ''}</div>
 
       ${!root ? `<div class="z-card"><div class="z-empty">${I('shajara')}<h2 class="z-h4">Bu urugʻ hali toʻldirilmagan</h2><p>Birinchi boʻlib maʼlumot qoʻshing — moderator tasdiqlagach shajarada chiqadi.</p><button class="z-btn z-btn--primary" data-action="add-person">${I('plus')}Qarindosh qoʻshish</button></div></div>` : s.mode === 'tree' ? `
       <div class="tree-wrap">
@@ -589,7 +589,7 @@
           <h1 class="z-h2">Shajara</h1>
           <p class="z-muted">Oʻz oilangiz daraxtini tuzing. U faqat sizga koʻrinadi — xohlagan aʼzoni qishloq shajarasiga taklif qilishingiz mumkin.</p>
         </div>
-        ${family.list.length ? `<button class="z-btn" data-action="fam-root">${I('plus')}Yangi shox</button>` : ''}
+        ${family.list.length ? `<div class="z-row" style="--z-gap:8px"><button class="z-btn" data-action="fam-root">${I('plus')}Yangi shox</button><button class="z-btn" data-action="pdf-family">${I('download')}PDF yuklash</button></div>` : ''}
       </div>
       ${shajaraTabs('family')}`;
     if (api.live && !D.user) {
@@ -623,6 +623,52 @@
           <button class="z-btn z-btn--icon z-btn--sm" data-zoom="fit" aria-label="Butun daraxt">${I('fit')}</button>
           ${hasMe ? `<button class="z-btn z-btn--sm z-btn--accent" data-zoom="me">${I('user')}Men</button>` : ''}
         </div>`;
+  /* ---------- Shajarani PDF qilib yuklash ---------- */
+  // Qishloq shajarasi — faqat administrator; oilaviy shajara — har kim oʻziniki
+  const canVillagePdf = () => !api.live || D.user?.role === 'admin';
+  let pdfLib = null;
+  const loadPdfLib = () => pdfLib || (pdfLib = new Promise((res, rej) => {
+    const sc = document.createElement('script');
+    sc.src = 'js/tree-pdf.js';
+    sc.onload = () => res(window.ZachkanaTreePdf);
+    sc.onerror = () => { pdfLib = null; rej(new Error('PDF moduli yuklanmadi (internet?)')); };
+    document.head.appendChild(sc);
+  }));
+  const pdfPerson = p => ({ name: p.name, g: p.g, b: p.b, d: p.d, photo: p.photo, me: !!p.me });
+  const villageForest = n => ({ people: [n, n.spouse].filter(Boolean).map(pdfPerson), children: (n.children || []).map(villageForest) });
+  const familyForest = (m, depth = 0) => ({ people: [m, ...famSpouses(m.id)].map(pdfPerson), children: depth < 40 ? famKids(m.id).map(k => familyForest(k, depth + 1)) : [] });
+  const todayStr = () => new Date().toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const fileDate = () => new Date().toISOString().slice(0, 10);
+  async function downloadTreePdf(kind, btn) {
+    let forest, meta;
+    const count = f => f.reduce((s, n) => s + n.people.length + count(n.children), 0);
+    const depth = n => 1 + Math.max(0, ...n.children.map(depth));
+    if (kind === 'village') {
+      if (!canVillagePdf()) { toast('Qishloq shajarasini faqat administrator yuklab oladi', 'info'); return; }
+      const clan = D.clans.find(c => c.id === shajaraState.clan), root = D.trees[shajaraState.clan];
+      if (!root) return;
+      forest = [villageForest(root)];
+      meta = { title: `${clan?.name || ''} urugʻi shajarasi`, filename: `zachkana-shajara-${shajaraState.clan}-${fileDate()}.pdf` };
+    } else {
+      forest = famRoots().map(r => familyForest(r));
+      const me = family.list.find(m => m.me);
+      meta = { title: me ? `Oilaviy shajara: ${me.name}` : 'Oilaviy shajara', filename: `oilaviy-shajara-${fileDate()}.pdf` };
+    }
+    const n = count(forest);
+    Object.assign(meta, {
+      subtitle: `${n} kishi · ${Math.max(...forest.map(depth))} avlod · ${todayStr()}`,
+      footer: `zachkana.uz · ${todayStr()}`,
+      hasMe: JSON.stringify(forest).includes('"me":true'),
+    });
+    if (btn) btn.disabled = true;
+    try {
+      const lib = await loadPdfLib();
+      const r = await lib.exportTreePdf(forest, meta, t => { if (btn) btn.lastChild.textContent = t; });
+      toast(`PDF tayyor: ${r.pages} varaq`, 'check');
+    } catch (err) { toast(err.message || 'PDF yaratilmadi', 'info'); }
+    finally { if (btn) { btn.disabled = false; btn.lastChild.textContent = 'PDF yuklash'; } }
+  }
+
   function mountTree() {
     panzoom = setupPanZoom($('#treeVp'), $('#treeCanvas'));
     requestAnimationFrame(() => panzoom.initial());
@@ -1678,6 +1724,7 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
     else if (act === 'fam-add') famForm({ relation: a.dataset.rel, of: a.dataset.of });
     else if (act === 'fam-edit') famForm({ id: a.dataset.id });
     else if (act === 'fam-to-village') { const m = family.get(a.dataset.id); closeSheet(); setTimeout(() => addPersonSheet(m), 340); }
+    else if (act === 'pdf-village' || act === 'pdf-family') downloadTreePdf(act === 'pdf-village' ? 'village' : 'family', a);
     else if (act === 'fam-photo-remove') {
       const id = a.dataset.id;
       family.setPhoto(id, null).then(() => { render(); famSheet(id); }).catch(err => toast(errText(err), 'info'));

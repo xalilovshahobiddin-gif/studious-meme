@@ -200,7 +200,7 @@ body.is-immersive .z-toast-region { bottom: calc(96px + var(--z-safe-bottom)); }
 .chat-promo .z-card__body { flex-wrap: wrap; }
 
 /* ---------- Shajara ---------- */
-.clan-summary { margin: var(--z-space-3) 0; }
+.clan-summary { margin: var(--z-space-3) 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .tree-wrap { position: relative; }
 .tree-viewport {
   position: relative; overflow: hidden;
