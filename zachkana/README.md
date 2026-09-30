@@ -1,63 +1,76 @@
-# zachkana.uz — qishloq sayti
+# zachkana.uz
 
-Zachkana qishlogʻining raqamli xotirasi: **shajara**, **qishloq tarixi**, **xronologiya**, **faxriylar** va qishloqdoshlar uchun **suhbat (chat)**.
-Sayt PWA sifatida qurilgan va oʻzining **Zachkana UI** dizayn tizimiga ega.
+Zachkana qishlogʻining raqamli xotirasi: **shajara**, **qishloq tarixi**, **xronologiya**, **faxriylar** va qishloqdoshlar **suhbati**.
 
-> Hozirgi ism, sana va voqealar — dizayn uchun **namuna maʼlumotlar** (`js/data.js`). Haqiqiy maʼlumotlar bilan almashtiriladi.
+- **Backend:** Laravel 13 + MySQL, admin panel — Filament 5 (`/admin`)
+- **Frontend:** PWA, `public/` papkasida (build shart emas), dizayn tizimi — **Zachkana UI** (`public/ui/`)
+- Telefon (wap) va kompyuter (web) uchun avtomatik moslashadi, oflayn ishlaydi
 
-## Tuzilishi
+Frontend haqida batafsil: [README.frontend.md](README.frontend.md)
 
-```
-zachkana/
-├── index.html            ilova qobigʻi (SPA, hash-router)
-├── manifest.webmanifest  PWA manifest (ikonkalar, shortcut'lar)
-├── sw.js                 service worker — oflayn rejim
-├── ui/
-│   ├── zachkana-ui.css   Zachkana UI: tokenlar + komponentlar (z-*)
-│   ├── zachkana-icons.js 50+ oʻz ikonalari (SVG sprite)
-│   └── index.html        dizayn tizimi hujjati / koʻrgazmasi
-├── css/app.css           sahifa joylashuvi (wap / web)
-├── js/app.js             sahifalar, shajara daraxti, chat, PWA
-├── js/data.js            namuna maʼlumotlar
-├── assets/               logotip (SVG)
-└── icons/                PWA ikonkalari (192, 512, maskable, apple)
-```
+## Nima ishlaydi (1-bosqich)
 
-## Sahifalar
-
-| Manzil | Tavsif |
+| Qism | Tavsif |
 | --- | --- |
-| `#/` | Bosh sahifa: qishloq manzarasi, raqamlar, eʼlonlar, “Bugun tarixda”, faxriylar |
-| `#/shajara` | Oila daraxti: urugʻlar, surish/kattalashtirish (sichqoncha, barmoq, pinch), qidiruv, roʻyxat koʻrinishi, shaxs kartasi, qarindosh qoʻshish |
-| `#/tarix` | Qishloq tarixi: boblar, mundarija, iqtiboslar, material yuborish |
-| `#/xronologiya` | Davrlar boʻyicha vaqt chizigʻi |
-| `#/faxriylar`, `#/faxriylar/:id` | Faxriylar roʻyxati (toifalar, qidiruv) va shaxsiy sahifa, xotiralar |
-| `#/chat`, `#/chat/:kanal` | Kanallar va suhbat (demo: xabarlar qurilmada saqlanadi) |
-| `#/menyu`, `#/profil` | Telefon menyusi, sozlamalar, kirish (SMS) |
+| Kirish | Telefon raqam + parol (sessiya, CSRF himoyasi). **SMS tasdiqlash — keyingi bosqichda** (`users.phone_verified_at` tayyor) |
+| Shajara | Urugʻlar va odamlar bazada; daraxt bitta soʻrovda quriladi. Foydalanuvchi qoʻshish/tuzatish **taklif** qiladi, moderator admin panelda tasdiqlaydi |
+| Suhbat | Kanallar, xabarlar. Yangi xabarlar har 4 soniyada olinadi — oddiy (shared) hostingda ham ishlaydi. “Eʼlonlar” kanaliga faqat moderatorlar yozadi |
+| Tarix, xronologiya, faxriylar, eʼlonlar | Admin paneldan tahrirlanadi. Faxriylar haqidagi xotiralar moderatsiyadan keyin chiqadi |
+| Materiallar | Qishloqdoshlar surat/hujjat (JPG, PNG, WEBP, PDF, 10 MB gacha) yuboradi |
+| Admin panel | Rollar: `user`, `moderator`, `admin`. Moderatorlar tarkibni va takliflarni boshqaradi, foydalanuvchilarni faqat admin boshqaradi |
 
-## Wap va web — avtomatik
+Server topilmasa (masalan GitHub Pages’da), sayt avtomatik **demo rejimda** namuna maʼlumotlar bilan ochiladi (`public/js/data.js`).
 
-- **< 1024px** (telefon, planshet): yuqori panel + pastki tab panel, varaqlar pastdan chiqadi.
-- **≥ 1024px** (kompyuter): chap yon panel, keng setkalar, chat ikki ustunda.
-- Yorugʻ / qorongʻi mavzu (tizimga qarab yoki qoʻlda), iPhone safe-area.
-
-## PWA
-
-- Bosh ekranga oʻrnatish (Android — tugma orqali, iOS — koʻrsatma).
-- Oflayn: ilova qobigʻi va koʻrilgan sahifalar keshlanadi; oflayn yozilgan xabar navbatga qoʻyiladi.
-- Service worker faqat HTTPS yoki `localhost`da ishlaydi.
-
-## Ishga tushirish
-
-Build shart emas — oddiy statik server yetarli:
+## Oʻrnatish (lokal)
 
 ```bash
-cd zachkana
-npx http-server -p 8080 .
-# http://localhost:8080 — sayt
-# http://localhost:8080/ui/ — Zachkana UI dizayn tizimi
+composer install
+cp .env.example .env
+php artisan key:generate
+# .env da MySQL maʼlumotlarini kiriting (yoki sinov uchun DB_CONNECTION=sqlite)
+php artisan migrate --seed          # jadvallar + namuna maʼlumotlar
+php artisan storage:link            # yuklangan fayllar uchun
+php artisan zachkana:admin 901234567 --name="Ism Familiya"   # administrator
+php artisan serve                   # http://localhost:8000  ·  admin: /admin
 ```
 
-## Keyingi qadamlar (backend)
+Faqat administrator (namuna maʼlumotsiz): `php artisan migrate && php artisan db:seed --class=AdminSeeder` (`.env` dagi `ADMIN_PHONE`, `ADMIN_PASSWORD`).
 
-Hozircha frontend dizayn va prototip. Haqiqiy sayt uchun: foydalanuvchilar va SMS-kirish, shajara uchun maʼlumotlar bazasi va moderatsiya, real vaqtli chat (WebSocket), fayl/surat yuklash, push-bildirishnomalar.
+## Hostingga joylash
+
+**Oddiy (shared) hosting, cPanel:**
+1. Fayllarni yuklang, domen **document root**ini `public/` papkaga qarating.
+2. `.env` yarating: `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://zachkana.uz`, MySQL maʼlumotlari.
+3. Terminal (yoki hostingning “PHP buyruq”) orqali: `composer install --no-dev -o`, `php artisan key:generate`, `php artisan migrate --force`, `php artisan storage:link`, `php artisan filament:assets`, `php artisan optimize`.
+4. Administrator: `php artisan zachkana:admin <telefon>`.
+5. HTTPS (Let’s Encrypt) yoqing — PWA faqat HTTPS’da oʻrnatiladi.
+
+`public/.htaccess` Apache uchun tayyor. VPS/Nginx uchun namuna: [deploy/nginx.conf](deploy/nginx.conf).
+
+Talablar: PHP 8.3+, MySQL 8 / MariaDB 10.6+, `pdo_mysql`, `mbstring`, `intl`, `gd` yoki `imagick`.
+
+## API
+
+Barcha manzillar `/api/` bilan boshlanadi, javoblar JSON. Oʻzgartiruvchi soʻrovlar `X-XSRF-TOKEN` sarlavhasini talab qiladi (cookie’dan).
+
+| Usul | Manzil | Kirish |
+| --- | --- | --- |
+| GET | `bootstrap` — qishloq, eʼlonlar, urugʻlar, kanallar, joriy foydalanuvchi | — |
+| GET | `clans/{slug}/tree` | — |
+| GET | `history`, `timeline`, `veterans`, `veterans/{id}` | — |
+| POST | `register`, `login`, `logout`; GET `me` | — |
+| POST | `people/suggestions` | ✔ |
+| POST | `veterans/{id}/memories`, `submissions` | ✔ |
+| GET/POST | `channels/{slug}/messages` (`?after=<id>` — faqat yangilari) | ✔ |
+
+## Testlar
+
+```bash
+php artisan test
+```
+
+## Keyingi bosqichlar
+
+- SMS orqali kirish (Eskiz.uz / Play Mobile) — `AuthController` ga kod yuborish va tekshirish
+- Real vaqtli chat uchun WebSocket (Laravel Reverb) — VPS’da; hozirgi soʻrash (polling) shared hostingda ishlaydi
+- Push-bildirishnomalar, suratlar galereyasi, shajarani PDF’ga chiqarish

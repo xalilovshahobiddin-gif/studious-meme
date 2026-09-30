@@ -349,3 +349,5 @@ body[data-route="chat"].is-immersive .chat-layout, body[data-route="chat"].is-im
 .auth-perks .z-h4 { margin-bottom: 16px; }
 .sidebar-user .z-list-item__sub, .z-list-item__main > .z-list-item__title, .z-list-item__main > .z-list-item__sub { display: block; }
 @media (min-width: 1024px) { body[data-route="chat"] .appbar-back { display: none !important; } }
+.form-error { color: var(--z-danger); font-size: var(--z-text-sm); font-weight: 600; margin: 0; }
+.auth-card__top .z-avatar { box-shadow: 0 0 0 4px rgba(255,255,255,.25); }

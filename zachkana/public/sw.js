@@ -2,7 +2,7 @@
    - Ilova qobigʻi (shell) oldindan keshlanadi
    - Sahifalar: avval tarmoq, boʻlmasa kesh
    - Statik fayllar va shriftlar: kesh + fonda yangilash */
-const VERSION = 'zk-v1';
+const VERSION = 'zk-v2';
 const SHELL = [
   './',
   './index.html',
@@ -34,13 +34,19 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
+  const scope = new URL(self.registration.scope);
+
+  // Server qismlari keshlanmaydi: API (ilova oʻzi keshlaydi), admin panel, yuklangan fayllar
+  if (url.origin === self.location.origin && /^\/(api|admin|livewire|filament|storage|up)(\/|$)/.test(url.pathname.slice(scope.pathname.length - 1))) return;
 
   // Sahifa navigatsiyasi: avval tarmoq
+  // Faqat bosh sahifa (SPA) index.html sifatida keshlanadi
   if (req.mode === 'navigate') {
+    const isShell = url.pathname === scope.pathname || url.pathname === scope.pathname + 'index.html';
     e.respondWith(
       fetch(req)
-        .then(res => { const copy = res.clone(); caches.open(VERSION).then(c => c.put('./index.html', copy)); return res; })
-        .catch(() => caches.match('./index.html'))
+        .then(res => { if (isShell && res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put('./index.html', copy)); } return res; })
+        .catch(() => caches.match(isShell ? './index.html' : req).then(r => r || caches.match('./index.html')))
     );
     return;
   }
