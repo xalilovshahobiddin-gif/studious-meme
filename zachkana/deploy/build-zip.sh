@@ -16,7 +16,7 @@ rsync -a "$SRC/" "$APP/" \
   --exclude 'tests/' --exclude 'phpunit.xml' --exclude '.phpunit.*' --exclude 'deploy/build-zip.sh' \
   --exclude 'database/*.sqlite*' --exclude 'bootstrap/cache/*.php' --exclude 'public/storage' \
   --exclude 'public/css/filament/' --exclude 'public/js/filament/' --exclude 'public/fonts/filament/' \
-  --exclude 'storage/installed' --exclude 'storage/logs/*.log' \
+  --exclude 'storage/installed' --exclude 'storage/framework/schema.*' --exclude 'storage/logs/*.log' \
   --exclude 'storage/framework/cache/data/*/' --exclude 'storage/framework/sessions/*' \
   --exclude 'storage/framework/views/*.php' --exclude 'storage/app/public/*/' --exclude 'storage/app/private/*/'
 

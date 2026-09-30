@@ -29,3 +29,5 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /storage/installed
+/storage/framework/schema.lock
+/storage/framework/schema-version
