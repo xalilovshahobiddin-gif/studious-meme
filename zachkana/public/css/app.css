@@ -295,7 +295,9 @@ body.is-immersive .z-toast-region { bottom: calc(96px + var(--z-safe-bottom)); }
 .memories { margin-top: var(--z-space-10); }
 
 /* ---------- Suhbat ---------- */
-.chat-layout { display: grid; }
+.chat-layout { display: grid; grid-template-columns: minmax(0, 1fr); }
+/* Uzun matn (oxirgi xabar) ustunni kengaytirib, sahifani ekrandan chiqarib yubormasin */
+.chat-list, .chat-pane, .channel .z-list-item__main { min-width: 0; }
 .chat-layout[data-mode="list"] .chat-pane { display: none; }
 .chat-layout[data-mode="pane"] .chat-list { display: none; }
 .chat-list__head { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
@@ -316,7 +318,7 @@ body[data-route="chat"].is-immersive .chat-layout, body[data-route="chat"].is-im
 @media (min-width: 1024px) {
   body[data-route="chat"] .view { max-width: none; padding: 0; }
   body[data-route="chat"] .site-foot { display: none; }
-  .chat-layout, .chat-layout[data-mode] { grid-template-columns: 340px 1fr; height: calc(100dvh - var(--z-appbar-h)); }
+  .chat-layout, .chat-layout[data-mode] { grid-template-columns: 340px minmax(0, 1fr); height: calc(100dvh - var(--z-appbar-h)); }
   .chat-layout .chat-list, .chat-layout .chat-pane { display: flex !important; }
   .chat-list { flex-direction: column; padding: var(--z-space-5) var(--z-space-4); border-right: 1px solid var(--z-border); overflow-y: auto; background: var(--z-surface); }
   .chat-list .chat-note { margin-top: auto; }

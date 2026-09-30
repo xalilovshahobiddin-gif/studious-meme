@@ -39,7 +39,8 @@ class AdminPanelProvider extends PanelProvider
                 'danger' => Color::hex('#b8323a'),
                 'success' => Color::hex('#3d7a4a'),
             ])
-            ->font('Manrope')
+            // Noto Sans — oʻzbekcha ʻ va ʼ belgilari toʻgʻri chiqadi (Manrope’da ular yoʻq)
+            ->font('Noto Sans')
             ->navigationGroups(['Shajara', 'Qishloq', 'Jamoa', 'Tizim'])
             ->sidebarCollapsibleOnDesktop()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
