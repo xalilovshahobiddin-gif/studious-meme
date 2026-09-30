@@ -7,6 +7,7 @@ use App\Models\FamilyMember;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -74,6 +75,21 @@ class FamilyController extends Controller
         return response()->json(['member' => $member->toFront()], 201);
     }
 
+    /** Surat yuklash (brauzer oldindan kichraytirib yuboradi) yoki oʻchirish (photo yuborilmasa). */
+    public function photo(Request $request, FamilyMember $member): JsonResponse
+    {
+        abort_unless($member->user_id === $request->user()->id, 404);
+        $request->validate(['photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096']]);
+
+        $old = $member->photo;
+        $member->update(['photo' => $request->file('photo')?->store('family/'.$member->user_id, 'public')]);
+        if ($old) {
+            Storage::disk('public')->delete($old);
+        }
+
+        return response()->json(['member' => $member->toFront()]);
+    }
+
     public function update(Request $request, FamilyMember $member): JsonResponse
     {
         abort_unless($member->user_id === $request->user()->id, 404);
@@ -87,7 +103,9 @@ class FamilyController extends Controller
     {
         abort_unless($member->user_id === $request->user()->id, 404);
         // Turmush oʻrtoqlari ham oʻchadi (cascade), farzandlari esa alohida shox boʻlib qoladi
+        $photos = $member->spouses()->pluck('photo')->push($member->photo)->filter()->all();
         $member->delete();
+        Storage::disk('public')->delete($photos);
 
         return response()->json(['ok' => true]);
     }

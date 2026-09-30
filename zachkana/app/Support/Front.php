@@ -32,6 +32,7 @@ class Front
             'job' => $p->job,
             'bio' => $p->bio,
             'me' => $meId && $p->user_id === $meId ? true : null,
+            'photo' => $p->photo ? asset('storage/'.$p->photo) : null,
         ], fn ($v) => $v !== null && $v !== '');
     }
 
@@ -118,6 +119,7 @@ class Front
                 'a' => $m->replyTo?->user?->name ?? 'Nomaʼlum',
                 'text' => $m->replyTo?->trashed() ? 'Xabar oʻchirilgan' : mb_strimwidth((string) $m->replyTo?->body, 0, 90, '…'),
             ] : null,
+            'reactions' => $m->reactionSummary($meId),
         ];
     }
 }

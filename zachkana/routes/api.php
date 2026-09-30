@@ -47,6 +47,7 @@ Route::middleware('web')->group(function () {
             Route::post('family', [FamilyController::class, 'store']);
             Route::patch('family/{member}', [FamilyController::class, 'update']);
             Route::delete('family/{member}', [FamilyController::class, 'destroy']);
+            Route::post('family/{member}/photo', [FamilyController::class, 'photo']);
         });
 
         Route::middleware('throttle:20,1')->group(function () {
@@ -58,5 +59,6 @@ Route::middleware('web')->group(function () {
         Route::get('channels/{channel:slug}/messages', [ChatController::class, 'messages']);
         Route::post('channels/{channel:slug}/messages', [ChatController::class, 'store'])->middleware('throttle:30,1');
         Route::delete('channels/{channel:slug}/messages/{message}', [ChatController::class, 'destroy']);
+        Route::post('channels/{channel:slug}/messages/{message}/react', [ChatController::class, 'react'])->middleware('throttle:60,1');
     });
 });

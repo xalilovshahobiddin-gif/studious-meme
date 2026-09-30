@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Channel;
 use App\Models\Message;
+use App\Models\MessageReaction;
 use App\Models\User;
 use App\Models\UserNotification;
 use App\Support\Front;
@@ -39,14 +40,20 @@ class ChatController extends Controller
     public function messages(Request $request, Channel $channel): JsonResponse
     {
         $after = (int) $request->query('after', 0);
-        $q = $channel->messages()->with(['user:id,name', 'replyTo.user:id,name']);
+        $me = $request->user()->id;
+        $q = $channel->messages()->with(['user:id,name', 'replyTo.user:id,name', 'reactions']);
 
         $messages = $after > 0
             ? $q->where('id', '>', $after)->orderBy('id')->limit(100)->get()
             : $q->latest('id')->limit(50)->get()->reverse()->values();
 
         return response()->json([
-            'messages' => $messages->map(fn (Message $m) => Front::message($m, $request->user()->id)),
+            'messages' => $messages->map(fn (Message $m) => Front::message($m, $me)),
+            // Eski xabarlarga yaqinda bosilgan reaksiyalar: {id: [...]}
+            'reactions' => $after > 0
+                ? $channel->messages()->with('reactions')->where('id', '<=', $after)->where('reacted_at', '>=', now()->subMinutes(10))
+                    ->get()->mapWithKeys(fn (Message $m) => [$m->id => $m->reactionSummary($me)])
+                : (object) [],
             // Yaqinda oʻchirilganlar — boshqa foydalanuvchilar ekranidan ham olib tashlash uchun
             'deleted' => $after > 0
                 ? $channel->messages()->onlyTrashed()->where('deleted_at', '>=', now()->subMinutes(10))->pluck('id')
@@ -83,6 +90,20 @@ class ChatController extends Controller
         }
 
         return response()->json(['message' => Front::message($message, $request->user()->id)], 201);
+    }
+
+    /** Reaksiya qoʻyish yoki olib tashlash (qayta bosilsa olib tashlanadi). */
+    public function react(Request $request, Channel $channel, Message $message): JsonResponse
+    {
+        abort_unless($message->channel_id === $channel->id, 404);
+        $emoji = $request->validate(['emoji' => ['required', 'string', 'in:'.implode(',', MessageReaction::EMOJI)]])['emoji'];
+        $me = $request->user()->id;
+
+        $existing = $message->reactions()->where('user_id', $me)->where('emoji', $emoji)->first();
+        $existing ? $existing->delete() : $message->reactions()->create(['user_id' => $me, 'emoji' => $emoji]);
+        $message->forceFill(['reacted_at' => now()])->saveQuietly();
+
+        return response()->json(['id' => $message->id, 'reactions' => $message->reactionSummary($me)]);
     }
 
     /** Xabarni oʻchirish — faqat moderator va administrator. */

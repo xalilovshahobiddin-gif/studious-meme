@@ -10,7 +10,7 @@ class Person extends Model
 {
     protected $table = 'people';
 
-    protected $fillable = ['clan_id', 'parent_id', 'spouse_id', 'user_id', 'name', 'gender', 'birth_year', 'death_year', 'job', 'bio', 'position'];
+    protected $fillable = ['clan_id', 'parent_id', 'spouse_id', 'user_id', 'name', 'gender', 'birth_year', 'death_year', 'job', 'bio', 'position', 'photo'];
 
     public const GENDERS = ['m' => 'Erkak', 'f' => 'Ayol'];
 

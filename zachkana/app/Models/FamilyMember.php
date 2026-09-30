@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /** Oilaviy shajara aʼzosi. parent_id — ota/ona, spouse_id — kimning turmush oʻrtogʻi. */
 class FamilyMember extends Model
 {
-    protected $fillable = ['user_id', 'parent_id', 'spouse_id', 'name', 'gender', 'birth_year', 'death_year', 'job', 'bio', 'is_me', 'position'];
+    protected $fillable = ['user_id', 'parent_id', 'spouse_id', 'name', 'gender', 'birth_year', 'death_year', 'job', 'bio', 'is_me', 'position', 'photo'];
 
     protected function casts(): array
     {
@@ -44,6 +44,7 @@ class FamilyMember extends Model
             'job' => $this->job,
             'bio' => $this->bio,
             'me' => $this->is_me,
+            'photo' => $this->photo ? asset('storage/'.$this->photo) : null,
         ];
     }
 }

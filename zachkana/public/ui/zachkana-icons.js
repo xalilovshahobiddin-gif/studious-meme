@@ -52,6 +52,8 @@
     hash: '<path d="M5 9h14M5 15h14M10 4 8 20M16 4l-2 16"/>',
     megaphone: '<path d="M3 10v4l3 .5v-5z"/><path d="M6 9.5 18 4v16L6 14.5M8 15l1.5 5h3l-1.2-4.3"/>',
     clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    text: '<path d="M4 19 9 5l5 14M5.8 14h6.4M15 19l3-8 3 8M15.8 17h4.4"/>',
+    pause: '<circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/>',
     home2: '<path d="M4 20V10l8-6 8 6v10z"/><path d="M9 20v-5h6v5"/>',
     link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>'
   };

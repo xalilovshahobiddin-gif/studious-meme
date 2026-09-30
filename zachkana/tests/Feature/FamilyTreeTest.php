@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\FamilyMember;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class FamilyTreeTest extends TestCase
@@ -66,5 +68,36 @@ class FamilyTreeTest extends TestCase
         $this->patchJson("/api/family/{$member->id}", ['name' => 'X', 'gender' => 'm'])->assertNotFound();
         $this->deleteJson("/api/family/{$member->id}")->assertNotFound();
         $this->postJson('/api/family', ['relation' => 'child', 'of' => $member->id, 'name' => 'X', 'gender' => 'm'])->assertNotFound();
+    }
+
+    public function test_photo_upload_replace_and_cleanup(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        $id = $this->add(['name' => 'Dilnoza', 'relation' => 'root', 'is_me' => true, 'gender' => 'f']);
+        $spouse = $this->add(['name' => 'Jamshid', 'relation' => 'spouse', 'of' => $id]);
+
+        $url = $this->post("/api/family/$id/photo", ['photo' => UploadedFile::fake()->image('a.jpg', 400, 400)], ['Accept' => 'application/json'])
+            ->assertOk()->json('member.photo');
+        $first = FamilyMember::find($id)->photo;
+        $this->assertStringContainsString($first, $url);
+        Storage::disk('public')->assertExists($first);
+
+        // Almashtirilganda eskisi oʻchadi
+        $this->post("/api/family/$id/photo", ['photo' => UploadedFile::fake()->image('b.jpg')], ['Accept' => 'application/json'])->assertOk();
+        Storage::disk('public')->assertMissing($first);
+
+        // Surat boʻlmagan fayl rad etiladi, begona aʼzo — 404
+        $this->post("/api/family/$id/photo", ['photo' => UploadedFile::fake()->create('x.pdf', 10, 'application/pdf')], ['Accept' => 'application/json'])->assertUnprocessable();
+        $this->actingAs(User::factory()->create())->post("/api/family/$id/photo", [], ['Accept' => 'application/json'])->assertNotFound();
+
+        // Aʼzo oʻchirilganda (turmush oʻrtogʻi bilan) suratlar ham oʻchadi
+        $this->actingAs($user)->post("/api/family/$spouse/photo", ['photo' => UploadedFile::fake()->image('c.jpg')], ['Accept' => 'application/json']);
+        $files = FamilyMember::whereIn('id', [$id, $spouse])->pluck('photo')->all();
+        $this->deleteJson("/api/family/$id")->assertOk();
+        foreach ($files as $f) {
+            Storage::disk('public')->assertMissing($f);
+        }
     }
 }

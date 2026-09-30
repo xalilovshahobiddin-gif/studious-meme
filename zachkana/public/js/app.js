@@ -120,6 +120,9 @@
   const initials = name => name.replace(/[^\p{L}\s]/gu, '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
   const hue = s => { let h = 0; for (const ch of s) h = (h * 31 + ch.codePointAt(0)) >>> 0; return (h % 6) + 1; };
   const avatar = (name, size = '', extra = '') => `<span class="z-avatar ${size ? 'z-avatar--' + size : ''} ${extra}" data-hue="${hue(name)}" aria-hidden="true">${esc(initials(name))}</span>`;
+  const personAvatar = (p, size = '', extra = '') => p.photo
+    ? `<span class="z-avatar ${size ? 'z-avatar--' + size : ''} z-avatar--photo ${extra}"><img src="${esc(p.photo)}" alt="" loading="lazy"></span>`
+    : avatar(p.name, size, extra);
   const vetAvatar = (v, size) => v.photo
     ? `<span class="z-avatar z-avatar--${size} z-avatar--faxriy"><img src="${esc(v.photo)}" alt="" loading="lazy"></span>`
     : avatar(v.name, size, 'z-avatar--faxriy');
@@ -150,6 +153,20 @@
     renderChrome();
   }
   mq.addEventListener?.('change', () => renderChrome());
+
+  /* ---------- Matn oʻlchami va harakat (keksa foydalanuvchilar uchun) ---------- */
+  const FONT_SIZES = [['md', 'Oddiy'], ['lg', 'Katta'], ['xl', 'Juda katta']];
+  const fontSize = () => document.documentElement.dataset.font || 'md';
+  function setFontSize(f) {
+    if (f === 'md') delete document.documentElement.dataset.font; else document.documentElement.dataset.font = f;
+    try { localStorage.setItem('zk-font', f); } catch { /* */ }
+  }
+  const mqMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const reducedMotion = () => document.documentElement.dataset.motion ? document.documentElement.dataset.motion === 'reduce' : mqMotion.matches;
+  function setReducedMotion(on) {
+    document.documentElement.dataset.motion = on ? 'reduce' : 'full';
+    try { localStorage.setItem('zk-motion', on ? 'reduce' : 'full'); } catch { /* */ }
+  }
 
   /* ---------- Bildirishnoma (toast) ---------- */
   function toast(msg, icon = 'check') {
@@ -326,7 +343,7 @@
   function personBtn(p) {
     const cls = ['z-person', p.g === 'f' ? 'z-person--f' : 'z-person--m', p.d ? 'z-person--deceased' : '', p.me ? 'z-person--me' : ''].join(' ');
     return `<button class="${cls}" data-person="${p.id}" data-name="${esc(p.name.toLowerCase())}">
-      ${avatar(p.name, 'sm')}
+      ${personAvatar(p, 'sm')}
       <span><span class="z-person__name">${esc(p.name)}${p.me ? ' <span class="z-badge z-badge--accent">Siz</span>' : ''}</span><br><span class="z-person__meta">${years(p)}${p.job ? ' · ' + esc(p.job) : ''}</span></span>
     </button>`;
   }
@@ -338,6 +355,66 @@
     if (p.spouseOf) { const s = people.get(p.spouseOf); return `${s.name}ning ${p.g === 'f' ? 'rafiqasi' : 'turmush oʻrtogʻi'}`; }
     if (p.parent) { const f = people.get(p.parent); return `${f.name}ning ${p.g === 'f' ? 'qizi' : 'oʻgʻli'}`; }
     return 'Urugʻ asoschisi';
+  }
+
+  /* ---------- Qarindoshlik: "Siz"dan tanlangan odamgacha yoʻl va nomi ----------
+     get(id) → {id, name, g, b, parent, spouseOf}. Qishloq va oilaviy daraxt uchun umumiy. */
+  const KIN = {
+    ota: 'Otangiz', ona: 'Onangiz', bobo: 'Bobongiz', buvi: 'Buvingiz', kbobo: 'Katta bobongiz', kbuvi: 'Katta buvingiz',
+    ogil: 'Oʻgʻlingiz', qiz: 'Qizingiz', nevara: 'Nevarangiz', evara: 'Evarangiz', chevara: 'Chevarangiz',
+    aka: 'Akangiz', uka: 'Ukangiz', akauka: 'Aka-ukangiz', opa: 'Opangiz', singil: 'Singlingiz', opasingil: 'Opa-singlingiz',
+    amaki: 'Amakingiz', toga: 'Togʻangiz', amma: 'Ammangiz', xola: 'Xolangiz', jiyan: 'Jiyaningiz',
+    amakivachcha: 'Amakivachchangiz', ammavachcha: 'Ammavachchangiz', togavachcha: 'Togʻavachchangiz', xolavachcha: 'Xolavachchangiz',
+  };
+  function kinship(get, meId, tId) {
+    const me = get(meId), t = get(tId);
+    if (!me || !t) return null;
+    if (me === t) return { term: 'Siz', path: [me] };
+    const blood = x => (x.spouseOf && get(x.spouseOf)) || x;
+    const bm = blood(me), bt = blood(t);
+    const chain = x => { const out = []; for (let i = 0; x && i < 60; i++) { out.push(x); x = x.parent ? get(x.parent) : null; } return out; };
+    const a = chain(bm), b = chain(bt);
+    const i = a.findIndex(x => b.includes(x));
+    if (i < 0) return null; // boshqa shox
+    const j = b.indexOf(a[i]);
+    const path = [...(me !== bm ? [me] : []), ...a.slice(0, i + 1), ...b.slice(0, j).reverse(), ...(t !== bt ? [t] : [])];
+    if (bm === bt) return { term: t.g === 'f' ? 'Rafiqangiz' : 'Turmush oʻrtogʻingiz', path };
+
+    const up = i, down = j, f = t.g === 'f';
+    const myParent = a[1], theirTop = b[j - 1]; // mening ota/onam va ularning tarafidagi eng yuqori odam
+    const older = t.b && me.b ? t.b < me.b : null;
+    let key = null;
+    if (up === 0) key = [null, bt.g === 'f' ? 'qiz' : 'ogil', 'nevara', 'evara', 'chevara'][down];
+    else if (down === 0) key = { 1: f ? 'ona' : 'ota', 2: f ? 'buvi' : 'bobo', 3: f ? 'kbuvi' : 'kbobo' }[up];
+    else if (up === 1 && down === 1) key = bt.g === 'f' ? (older === null ? 'opasingil' : older ? 'opa' : 'singil') : (older === null ? 'akauka' : older ? 'aka' : 'uka');
+    else if (up === 2 && down === 1) key = myParent.g === 'f' ? (bt.g === 'f' ? 'xola' : 'toga') : (bt.g === 'f' ? 'amma' : 'amaki');
+    else if (up === 1 && down === 2) key = 'jiyan';
+    else if (up === 2 && down === 2) key = (myParent.g === 'f' ? (theirTop.g === 'f' ? 'xola' : 'toga') : (theirTop.g === 'f' ? 'amma' : 'amaki')) + 'vachcha';
+    let term = key ? KIN[key] : `Qarindoshingiz (${up + down}-daraja)`;
+
+    // Tanlangan odam — qon qarindoshning turmush oʻrtogʻi
+    if (t !== bt && down > 0) {
+      if (up === 0) term = down === 1 ? (f ? 'Keliningiz' : 'Kuyovingiz') : (f ? 'Nevara keliningiz' : 'Nevara kuyovingiz');
+      else if (up === 1 && down === 1) term = f ? 'Yangangiz' : 'Pochchangiz';
+      else term += 'ning turmush oʻrtogʻi';
+    }
+    // "Siz" — turmush oʻrtogʻi tarafidan (farzand va nevaralar umumiy)
+    if (me !== bm && up > 0) {
+      if (down === 0 && up === 1) term = f ? 'Qaynonangiz' : 'Qaynotangiz';
+      else if (up === 1 && down === 1 && t === bt) term = f ? (older ? 'Qaynopangiz' : 'Qaynsinglingiz') : (older ? 'Qaynagangiz' : 'Qayningiz');
+      else term = 'Turmush oʻrtogʻingiz tarafidan qarindosh';
+    }
+    return { term, path };
+  }
+  const kinHtml = (k, attr) => k && k.path.length > 1 ? `
+      <div class="kin">
+        <div class="kin__term">${I('users')}<span><span class="z-caption">Sizga kim boʻladi</span><strong>${esc(k.term)}</strong></span></div>
+        <ol class="kin__path" aria-label="Qarindoshlik yoʻli">${k.path.map((x, n) => `<li><button class="kin__step ${n === 0 ? 'is-me' : ''}" ${attr}="${esc(x.id)}">${n === 0 ? 'Siz' : esc(x.name.split(' ')[0])}</button></li>`).join('')}</ol>
+      </div>` : '';
+  // Daraxtda yoʻlni yoritish
+  function markPath(k, attr) {
+    $$('#view .is-path').forEach(el => el.classList.remove('is-path'));
+    (k?.path.length > 1 ? k.path : []).forEach(x => $(`#view [${attr}="${CSS.escape(String(x.id))}"]`)?.classList.add('is-path'));
   }
 
   let shajaraState = { clan: 'mirzaboy', mode: 'tree', q: '' };
@@ -405,14 +482,14 @@
           ${clanPeople.some(p => p.me) ? `<button class="z-btn z-btn--sm z-btn--accent" data-zoom="me">${I('user')}Men</button>` : ''}
         </div>
         <div class="tree-legend z-caption">
-          <span><i class="lg lg-m"></i>Erkak</span><span><i class="lg lg-f"></i>Ayol</span><span><i class="lg lg-d"></i>Marhum</span><span><i class="lg lg-me"></i>Siz</span>
+          <span><i class="lg lg-m"></i>Erkak</span><span><i class="lg lg-f"></i>Ayol</span><span><i class="lg lg-d"></i>Marhum</span><span><i class="lg lg-me"></i>Siz</span><span><i class="lg lg-path"></i>Qarindoshlik yoʻli</span>
         </div>
       </div>` : `
       <div class="gen-list">
         ${Array.from({ length: gens }, (_, i) => i + 1).map(g => {
           const list = clanPeople.filter(p => p.gen === g);
           return `<section class="z-card gen-card"><div class="gen-card__head"><span class="gen-card__num">${roman(g)}</span><strong>${g}-avlod</strong><span class="z-caption">${list.length} kishi</span></div>
-            <ul class="z-list">${list.map(p => `<li><button class="z-list-item" data-person="${p.id}" data-name="${esc(p.name.toLowerCase())}">${avatar(p.name)}<span class="z-list-item__main"><span class="z-list-item__title">${esc(p.name)} ${p.me ? '<span class="z-badge z-badge--accent">Siz</span>' : ''}</span><span class="z-list-item__sub">${years(p)} · ${esc(relationText(p))}</span></span>${I('chevron-right', 'z-muted')}</button></li>`).join('')}</ul></section>`;
+            <ul class="z-list">${list.map(p => `<li><button class="z-list-item" data-person="${p.id}" data-name="${esc(p.name.toLowerCase())}">${personAvatar(p)}<span class="z-list-item__main"><span class="z-list-item__title">${esc(p.name)} ${p.me ? '<span class="z-badge z-badge--accent">Siz</span>' : ''}</span><span class="z-list-item__sub">${years(p)} · ${esc(relationText(p))}</span></span>${I('chevron-right', 'z-muted')}</button></li>`).join('')}</ul></section>`;
         }).join('')}
       </div>`}
       `}`,
@@ -469,6 +546,17 @@
       if (fields.me) this.list.forEach(x => { x.me = false; });
       Object.assign(this.get(id), fields); this.save();
     },
+    // blob = null — suratni olib tashlash
+    async setPhoto(id, blob) {
+      if (api.live) {
+        const fd = new FormData();
+        if (blob) fd.append('photo', blob, 'photo.jpg');
+        await api.request('POST', `family/${id}/photo`, fd, { timeout: 30000 });
+        return this.load();
+      }
+      this.get(id).photo = blob ? await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(blob); }) : null;
+      this.save();
+    },
     async remove(id) {
       if (api.live) { await api.del('family/' + id); return this.load(); }
       this.list = this.list.filter(m => m.id !== id && m.spouseOf !== id);
@@ -480,7 +568,7 @@
   const famSpouses = id => family.list.filter(m => m.spouseOf === id);
   const famRoots = () => family.list.filter(m => !m.parent && !m.spouseOf);
   const famBtn = m => `<button class="z-person ${m.g === 'f' ? 'z-person--f' : 'z-person--m'} ${m.d ? 'z-person--deceased' : ''} ${m.me ? 'z-person--me' : ''}" data-fam="${esc(m.id)}">
-      ${avatar(m.name, 'sm')}
+      ${personAvatar(m, 'sm')}
       <span><span class="z-person__name">${esc(m.name)}${m.me ? ' <span class="z-badge z-badge--accent">Siz</span>' : ''}</span><br><span class="z-person__meta">${years(m)}${m.job ? ' · ' + esc(m.job) : ''}</span></span>
     </button>`;
   const famNode = (m, depth = 0) => {
@@ -522,7 +610,7 @@
         </div>
         ${treeControls(family.list.some(m => m.me))}
         <div class="tree-legend z-caption">
-          <span><i class="lg lg-m"></i>Erkak</span><span><i class="lg lg-f"></i>Ayol</span><span><i class="lg lg-d"></i>Marhum</span><span><i class="lg lg-me"></i>Siz</span>
+          <span><i class="lg lg-m"></i>Erkak</span><span><i class="lg lg-f"></i>Ayol</span><span><i class="lg lg-d"></i>Marhum</span><span><i class="lg lg-me"></i>Siz</span><span><i class="lg lg-path"></i>Qarindoshlik yoʻli</span>
         </div>
       </div>`,
       mount: mountTree
@@ -553,21 +641,29 @@
     if (!m) return;
     const canParent = !m.parent && !m.spouseOf;
     const kids = famKids(m.spouseOf || m.id);
+    const meM = family.list.find(x => x.me);
+    const kin = meM ? kinship(x => family.get(x), meM.id, m.id) : null;
+    markPath(kin, 'data-fam');
     openSheet(`
       <div class="person-head">
-        ${avatar(m.name, 'xl', m.d ? 'is-deceased' : '')}
+        <div class="photo-edit">
+          ${personAvatar(m, 'xl', m.d ? 'is-deceased' : '')}
+          <label class="photo-edit__btn z-btn z-btn--icon z-btn--sm" aria-label="Surat qoʻyish" title="Surat qoʻyish">${I('image')}<input type="file" accept="image/*" data-fam-photo="${esc(m.id)}" hidden></label>
+        </div>
         <div>
           <h2 class="z-h3" id="sheetTitle">${esc(m.name)}</h2>
           <div class="z-muted">${[years(m), famRelation(m)].filter(Boolean).map(esc).join(' · ')}</div>
+          ${m.photo ? `<button class="linkish z-caption" data-action="fam-photo-remove" data-id="${esc(m.id)}">Suratni olib tashlash</button>` : ''}
           <div class="z-row" style="margin-top:8px;--z-gap:6px">
             ${m.me ? '<span class="z-badge z-badge--accent">Siz</span>' : ''}
             ${m.d ? '<span class="z-badge">Marhum</span>' : '<span class="z-badge z-badge--success">Hayot</span>'}
           </div>
         </div>
       </div>
+      ${kinHtml(kin, 'data-fam')}
       ${m.job ? `<dl class="facts"><div><dt>Kasbi</dt><dd>${esc(m.job)}</dd></div></dl>` : ''}
       ${m.bio ? `<p>${esc(m.bio)}</p>` : ''}
-      ${kids.length ? `<h3 class="sheet-sub">Farzandlari</h3><div class="z-row" style="--z-gap:8px">${kids.map(k => `<button class="z-chip" data-fam="${esc(k.id)}">${avatar(k.name, 'xs')}${esc(k.name)}</button>`).join('')}</div>` : ''}
+      ${kids.length ? `<h3 class="sheet-sub">Farzandlari</h3><div class="z-row" style="--z-gap:8px">${kids.map(k => `<button class="z-chip" data-fam="${esc(k.id)}">${personAvatar(k, 'xs')}${esc(k.name)}</button>`).join('')}</div>` : ''}
       <h3 class="sheet-sub">Qoʻshish</h3>
       <div class="fam-actions">
         <button class="z-btn" data-action="fam-add" data-rel="child" data-of="${esc(m.id)}">${I('plus')}Farzand</button>
@@ -694,9 +790,12 @@
     const spouse = p.spouse ? people.get(p.spouse.id) : (p.spouseOf ? people.get(p.spouseOf) : null);
     const kids = (p.children || (p.spouseOf ? people.get(p.spouseOf).children : null) || []);
     const clan = D.clans.find(c => c.id === p.clan);
+    const meP = [...people.values()].find(x => x.me && x.clan === p.clan);
+    const kin = meP ? kinship(x => people.get(String(x)), meP.id, p.id) : null;
+    markPath(kin, 'data-person');
     openSheet(`
       <div class="person-head">
-        ${avatar(p.name, 'xl', p.d ? 'is-deceased' : '')}
+        ${personAvatar(p, 'xl', p.d ? 'is-deceased' : '')}
         <div>
           <h2 class="z-h3" id="sheetTitle">${esc(p.name)}</h2>
           <div class="z-muted">${years(p)} · ${esc(relationText(p))}</div>
@@ -708,6 +807,7 @@
           </div>
         </div>
       </div>
+      ${kinHtml(kin, 'data-person')}
       <dl class="facts">
         ${p.b ? `<div><dt>Tugʻilgan yili</dt><dd>${p.b}</dd></div>` : ''}
         ${p.d ? `<div><dt>Vafot etgan</dt><dd>${p.d}</dd></div>` : ''}
@@ -716,7 +816,7 @@
         ${father ? `<div><dt>${father.g === 'f' ? 'Onasi' : 'Otasi'}</dt><dd><button class="linkish" data-person="${father.id}">${esc(father.name)}</button></dd></div>` : ''}
       </dl>
       ${p.bio ? `<p>${esc(p.bio)}</p>` : ''}
-      ${kids.length ? `<h3 class="sheet-sub">Farzandlari</h3><div class="z-row" style="--z-gap:8px">${kids.map(k => `<button class="z-chip" data-person="${k.id}">${avatar(k.name, 'xs')}${esc(k.name)}</button>`).join('')}</div>` : ''}
+      ${kids.length ? `<h3 class="sheet-sub">Farzandlari</h3><div class="z-row" style="--z-gap:8px">${kids.map(k => `<button class="z-chip" data-person="${k.id}">${personAvatar(k, 'xs')}${esc(k.name)}</button>`).join('')}</div>` : ''}
       <div class="sheet-actions">
         <button class="z-btn z-btn--primary" data-action="suggest-edit" data-id="${p.id}">${I('edit')}Tuzatish taklif qilish</button>
         <button class="z-btn" data-action="share" data-share="${esc(p.name)}">${I('share')}Ulashish</button>
@@ -814,7 +914,7 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
     </div>
     ${footer()}`,
     mount() {
-      $$('[data-scroll]').forEach(b => b.onclick = () => document.getElementById(b.dataset.scroll)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+      $$('[data-scroll]').forEach(b => b.onclick = () => document.getElementById(b.dataset.scroll)?.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' }));
     }
   });
 
@@ -945,8 +1045,12 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
   }
 
   /* --- Suhbat (chat) --- */
+  const REACTIONS = ['👍', '❤️', '🤲', '👏', '😊'];
+  // Demo rejimida reaksiyalar brauzerda saqlanadi
+  const demoReacts = id => store.get('zk-react-' + id, {});
   const chatMsgs = id => api.live ? (D.messages[id] || [])
-    : [...(D.messages[id] || []).map((m, i) => ({ id: 'd' + i, ...m })), ...store.get('zk-chat-' + id, []).map((m, i) => ({ id: 'l' + i, ...m }))];
+    : [...(D.messages[id] || []).map((m, i) => ({ id: 'd' + i, ...m })), ...store.get('zk-chat-' + id, []).map((m, i) => ({ id: 'l' + i, ...m }))]
+      .map(m => ({ ...m, reactions: (demoReacts(id)[m.id] || []).map(e => ({ e, n: 1, me: true })) }));
   const lastMsg = c => api.live ? c.last : chatMsgs(c.id).slice(-1)[0];
 
   // Yangi xabarlarni davriy soʻrash (oddiy hostingda ham ishlaydi)
@@ -964,7 +1068,13 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
           const fresh = r.messages.filter(m => !list.some(x => x.id === m.id));
           const gone = new Set(r.deleted || []);
           const removed = list.some(m => gone.has(m.id));
-          if ((fresh.length || removed) && parseHash().name === 'chat') {
+          // Eski xabarlarga boshqalar bosgan reaksiyalar
+          let reacted = false;
+          for (const [mid, rs] of Object.entries(r.reactions || {})) {
+            const m = list.find(x => String(x.id) === mid);
+            if (m && JSON.stringify(m.reactions || []) !== JSON.stringify(rs)) { m.reactions = rs; reacted = true; }
+          }
+          if ((fresh.length || removed || reacted) && parseHash().name === 'chat') {
             D.messages[id] = list.filter(m => !gone.has(m.id)).concat(fresh);
             onNew();
           }
@@ -1063,6 +1173,8 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
           const msgEl = e.target.closest('.z-msg');
           if (!msgEl) return;
           const m = chatMsgs(ch.id).find(x => String(x.id) === msgEl.dataset.msg);
+          const reactBtn = e.target.closest('[data-react]');
+          if (reactBtn) { msgEl.classList.remove('is-selected'); toggleReaction(m, reactBtn.dataset.react); return; }
           if (!actBtn) {
             // Bir vaqtda bitta xabarning tugmalari ochiq turadi
             const was = msgEl.classList.contains('is-selected');
@@ -1082,6 +1194,22 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
               redraw(); toast('Xabar oʻchirildi', 'check');
             } catch (err) { toast(errText(err), 'info'); }
           }
+        };
+        // Reaksiya: qayta bosilsa olib tashlanadi
+        const toggleReaction = async (m, emoji) => {
+          if (!m) return;
+          if (!api.live) {
+            const map = demoReacts(ch.id), cur = map[m.id] || [];
+            map[m.id] = cur.includes(emoji) ? cur.filter(x => x !== emoji) : [...cur, emoji];
+            store.set('zk-react-' + ch.id, map); redraw();
+            return;
+          }
+          if (needLogin('Reaksiya bildirish uchun saytga kiring')) return;
+          try {
+            const r = await api.post(`channels/${ch.id}/messages/${m.id}/react`, { emoji });
+            const target = (D.messages[ch.id] || []).find(x => x.id === r.id);
+            if (target) { target.reactions = r.reactions; redraw(); }
+          } catch (err) { toast(errText(err), 'info'); }
         };
         if (bar) bar.onclick = e => { if (e.target.closest('[data-action="reply-cancel"]')) setReply(null); };
         const form = $('#composer');
@@ -1144,7 +1272,9 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
             ${esc(m.text)}
             <div class="z-bubble__time">${m.t}${m.me ? ' ✓' : ''}</div>
           </div>
+          ${m.reactions?.length ? `<div class="msg-reacts">${m.reactions.map(r => `<button type="button" class="react-chip ${r.me ? 'is-mine' : ''}" data-react="${r.e}" aria-pressed="${r.me}" aria-label="${r.e} ${r.n} ta">${r.e}<span>${r.n}</span></button>`).join('')}</div>` : ''}
           <div class="msg-actions">
+            <span class="react-pick" role="group" aria-label="Reaksiya">${REACTIONS.map(e => `<button type="button" class="react-pick__btn" data-react="${e}" aria-label="${e}">${e}</button>`).join('')}</span>
             <button type="button" class="z-btn z-btn--sm msg-act" data-msg-act="reply">${I('back')}Javob berish</button>
             ${canDelete ? `<button type="button" class="z-btn z-btn--sm msg-act msg-act--danger" data-msg-act="delete">${I('close')}Oʻchirish</button>` : ''}
           </div>
@@ -1268,13 +1398,23 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
       <div class="z-nav-label">Sozlamalar</div>
       <div class="z-card"><ul class="z-list z-list--divided">
         <li><label class="z-list-item"><span class="menu-icon">${I('moon')}</span><span class="z-list-item__main"><span class="z-list-item__title">Qorongʻi mavzu</span></span><span class="z-switch"><input type="checkbox" id="themeSwitch" ${effectiveTheme() === 'dark' ? 'checked' : ''}><span></span></span></label></li>
+        <li><div class="z-list-item font-size-row"><span class="menu-icon">${I('text')}</span><span class="z-list-item__main"><span class="z-list-item__title" id="fontSizeLabel">Matn oʻlchami</span></span>
+          <div class="z-segment" role="radiogroup" aria-labelledby="fontSizeLabel">${FONT_SIZES.map(([k, l], i) => `<button type="button" role="radio" aria-selected="${fontSize() === k}" data-fontsize="${k}" aria-label="${l}" title="${l}"><span class="font-size-a" style="font-size:${14 + i * 3}px">A</span></button>`).join('')}</div></div></li>
+        <li><label class="z-list-item"><span class="menu-icon">${I('pause')}</span><span class="z-list-item__main"><span class="z-list-item__title">Harakatni kamaytirish</span><span class="z-list-item__sub">Animatsiya va silliq oʻtishlarsiz</span></span><span class="z-switch"><input type="checkbox" id="motionSwitch" ${reducedMotion() ? 'checked' : ''}><span></span></span></label></li>
         <li><button class="z-list-item" data-action="install"><span class="menu-icon">${I('download')}</span><span class="z-list-item__main"><span class="z-list-item__title">Ilovani oʻrnatish</span><span class="z-list-item__sub">Bosh ekranga qoʻshish, oflayn ishlaydi</span></span></button></li>
         <li><a class="z-list-item" href="ui/"><span class="menu-icon">${I('naqsh')}</span><span class="z-list-item__main"><span class="z-list-item__title">Zachkana UI</span><span class="z-list-item__sub">Sayt dizayn tizimi</span></span>${I('chevron-right', 'z-muted')}</a></li>
         <li><button class="z-list-item" data-action="about"><span class="menu-icon">${I('info')}</span><span class="z-list-item__main"><span class="z-list-item__title">Sayt haqida</span></span></button></li>
       </ul></div>
     </div>
     ${footer()}`,
-    mount() { $('#themeSwitch').onchange = e => setTheme(e.target.checked ? 'dark' : 'light'); }
+    mount() {
+      $('#themeSwitch').onchange = e => setTheme(e.target.checked ? 'dark' : 'light');
+      $('#motionSwitch').onchange = e => setReducedMotion(e.target.checked);
+      $$('[data-fontsize]').forEach(b => b.onclick = () => {
+        setFontSize(b.dataset.fontsize);
+        $$('[data-fontsize]').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+      });
+    }
   });
 
   /* --- Profil / Kirish --- */
@@ -1433,7 +1573,7 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
     // Tab panel
     const tabActive = TABS.includes(active) ? active : 'menyu';
     $('#tabbar').innerHTML = [...TABS.map(id => NAV.find(n => n.id === id)), { id: 'menyu', href: '#/menyu', label: 'Menyu', icon: 'grid' }]
-      .map(n => `<a href="${n.href}" ${n.id === tabActive ? 'aria-current="page"' : ''}><span class="z-tabbar__icon">${I(n.icon)}</span>${n.short || n.label}${n.id === 'chat' && unread ? `<span class="z-counter">${unread}</span>` : ''}</a>`).join('');
+      .map(n => `<a href="${n.href}" ${n.id === tabActive ? 'aria-current="page"' : ''}><span class="z-tabbar__icon">${I(n.icon)}</span><span class="z-tabbar__label">${n.short || n.label}</span>${n.id === 'chat' && unread ? `<span class="z-counter">${unread}</span>` : ''}</a>`).join('');
     // Yuqori panel
     if (meta.title !== undefined) {
       $('#appbarTitle').textContent = meta.title;
@@ -1538,6 +1678,10 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
     else if (act === 'fam-add') famForm({ relation: a.dataset.rel, of: a.dataset.of });
     else if (act === 'fam-edit') famForm({ id: a.dataset.id });
     else if (act === 'fam-to-village') { const m = family.get(a.dataset.id); closeSheet(); setTimeout(() => addPersonSheet(m), 340); }
+    else if (act === 'fam-photo-remove') {
+      const id = a.dataset.id;
+      family.setPhoto(id, null).then(() => { render(); famSheet(id); }).catch(err => toast(errText(err), 'info'));
+    }
     else if (act === 'fam-delete') {
       const m = family.get(a.dataset.id);
       const extra = famSpouses(m.id).length ? ' Turmush oʻrtogʻi ham oʻchiriladi.' : '';
@@ -1662,6 +1806,33 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
     if (hidden) hidden.value = seg.dataset.seg;
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+
+  // Suratni yuborishdan oldin kichraytirish (tez yuklanadi, hostingda joy tejaydi)
+  function resizeImage(file, max = 480) {
+    return new Promise((resolve, reject) => {
+      const img = new Image(), url = URL.createObjectURL(file);
+      img.onload = () => {
+        const k = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        c.toBlob(b => b ? resolve(b) : reject(new Error('Surat oʻqilmadi')), 'image/jpeg', 0.85);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Bu fayl surat emas')); };
+      img.src = url;
+    });
+  }
+  document.addEventListener('change', async e => {
+    const input = e.target.closest('[data-fam-photo]');
+    if (!input?.files?.[0]) return;
+    const id = input.dataset.famPhoto;
+    try {
+      toast('Surat yuklanmoqda…', 'image');
+      await family.setPhoto(id, await resizeImage(input.files[0]));
+      render(); famSheet(id); toast('Surat qoʻyildi', 'check');
+    } catch (err) { toast(err.data ? errText(err) : err.message, 'info'); }
+  });
   $('#scrim').addEventListener('click', closeSheet);
 
   function memorySheet(kind, id) {
