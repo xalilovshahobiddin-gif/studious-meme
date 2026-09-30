@@ -69,7 +69,7 @@ $log = [];
 $done = false;
 $old = $_POST + [
     'app_url' => baseUrl(), 'db_host' => 'localhost', 'db_port' => '3306', 'db_name' => '', 'db_user' => '', 'db_pass' => '',
-    'admin_name' => '', 'admin_login' => 'admin', 'admin_password' => '', 'sample' => $_SERVER['REQUEST_METHOD'] === 'POST' ? '' : '1',
+    'admin_name' => '', 'admin_login' => 'admin', 'admin_password' => '',
 ];
 
 if (is_file($lock)) {
@@ -141,10 +141,9 @@ if (is_file($lock)) {
             $log[] = 'Jadvallar yaratildi.';
             SchemaUpdater::markDone();
 
-            if (! empty($old['sample'])) {
-                $kernel->call('db:seed', ['--class' => 'Database\\Seeders\\SampleDataSeeder', '--force' => true]);
-                $log[] = 'Namuna maʼlumotlar yuklandi (keyin admin paneldan oʻchirishingiz mumkin).';
-            }
+            // Namuna maʼlumotlar yuklanmaydi — faqat zarur boshlangʻich maʼlumotlar (chat kanallari)
+            $kernel->call('db:seed', ['--class' => 'Database\\Seeders\\EssentialsSeeder', '--force' => true]);
+            $log[] = 'Chat kanallari yaratildi.';
 
             User::updateOrCreate(
                 ['username' => $login],
@@ -264,7 +263,6 @@ if (is_file($lock)) {
         <label class="z-field"><span class="z-label">Ismingiz</span><input class="z-input" name="admin_name" value="<?= h($old['admin_name']) ?>" required></label>
         <label class="z-field"><span class="z-label">Login</span><input class="z-input" name="admin_login" autocapitalize="off" value="<?= h($old['admin_login']) ?>" required><span class="z-hint">Admin panelga shu login bilan kirasiz</span></label>
         <label class="z-field" style="grid-column:1/-1"><span class="z-label">Parol</span><input class="z-input" type="password" name="admin_password" minlength="8" required autocomplete="new-password"><span class="z-hint">Kamida 8 belgi</span></label>
-        <label class="check" style="grid-column:1/-1"><input type="checkbox" name="sample" value="1" <?= ! empty($old['sample']) ? 'checked' : '' ?>><span><strong>Namuna maʼlumotlarni yuklash</strong><br><span class="z-muted">Shajara, tarix, faxriylar va chat uchun toʻqilgan misollar. Saytni koʻrib chiqish uchun qulay, keyin admin paneldan oʻchiriladi.</span></span></label>
       </div>
     </div>
 

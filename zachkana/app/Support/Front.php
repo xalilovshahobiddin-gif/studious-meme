@@ -72,6 +72,7 @@ class Front
             'type' => Announcement::TYPES[$a->type] ?? $a->type,
             'tone' => Announcement::TONES[$a->type] ?? 'primary',
             'date' => self::date($a->published_at ?? $a->created_at),
+            'at' => ($a->published_at ?? $a->created_at)->toIso8601String(),
             'title' => $a->title,
             'text' => $a->body,
         ];
@@ -112,6 +113,11 @@ class Front
             'day' => $m->created_at->toDateString(),
             'text' => $m->body,
             'me' => $meId !== null && $m->user_id === $meId,
+            'reply' => $m->reply_to_id ? [
+                'id' => $m->reply_to_id,
+                'a' => $m->replyTo?->user?->name ?? 'Nomaʼlum',
+                'text' => $m->replyTo?->trashed() ? 'Xabar oʻchirilgan' : mb_strimwidth((string) $m->replyTo?->body, 0, 90, '…'),
+            ] : null,
         ];
     }
 }

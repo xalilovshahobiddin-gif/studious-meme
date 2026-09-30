@@ -362,3 +362,64 @@ body[data-route="chat"].is-immersive .chat-layout, body[data-route="chat"].is-im
 .or-sep { display: flex; align-items: center; gap: 12px; color: var(--z-text-3); font-size: var(--z-text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
 .or-sep::before, .or-sep::after { content: ""; flex: 1; height: 1px; background: var(--z-border); }
 .menu-icon .social-logo { width: 18px; height: 18px; }
+
+/* Qoʻngʻiroqcha va bildirishnomalar */
+.bell__count { position: absolute; top: 4px; right: 2px; height: 18px; min-width: 18px; font-size: 10px; box-shadow: 0 0 0 2px var(--z-bg); }
+.notif-head { margin: 0 0 6px; }
+.notif-list .z-list-item { align-items: flex-start; padding: 12px 8px; }
+.notif .z-list-item__main { display: flex; flex-direction: column; gap: 2px; }
+.notif__title { font-weight: 700; line-height: 1.35; white-space: normal; }
+.notif__text { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.notif.is-unread { background: var(--z-primary-soft); }
+.notif .z-dot { margin-top: 8px; flex: none; }
+.notif > .z-icon { margin-top: 8px; }
+.news-card { display: block; }
+.announcement__body { font-size: var(--z-text-md); }
+
+/* Chat: javob berish va oʻchirish */
+.z-msg__body { display: flex; flex-direction: column; min-width: 0; }
+.z-msg--me .z-msg__body { align-items: flex-end; }
+.z-bubble { cursor: pointer; }
+.z-bubble__reply {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1px; width: 100%;
+  margin: 2px 0 6px; padding: 6px 10px; border: 0; border-left: 3px solid var(--z-accent);
+  border-radius: 8px; background: var(--z-bg-sunken); color: inherit; text-align: left; font-size: var(--z-text-sm);
+}
+.z-bubble__reply strong { font-size: var(--z-text-xs); color: var(--z-accent-text); }
+.z-bubble__reply span { opacity: .85; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.z-msg--me .z-bubble__reply { background: rgba(255, 255, 255, .16); border-left-color: rgba(255, 255, 255, .7); }
+.z-msg--me .z-bubble__reply strong { color: inherit; }
+.msg-actions { display: none; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.z-msg.is-selected .msg-actions { display: flex; }
+.z-msg.is-selected .z-bubble { box-shadow: 0 0 0 2px var(--z-primary); }
+.msg-act .z-icon { width: 14px; height: 14px; }
+.msg-act--danger { --_fg: var(--z-danger); }
+@media (hover: hover) { .z-msg:hover .msg-actions { display: flex; } }
+.z-msg.is-flash .z-bubble { animation: msg-flash 2s var(--z-ease); }
+@keyframes msg-flash { 0%, 60% { box-shadow: 0 0 0 3px var(--z-accent); } 100% { box-shadow: var(--z-shadow-1); } }
+.reply-bar {
+  display: flex; align-items: center; gap: 10px; margin: 0 0 8px; padding: 8px 8px 8px 12px;
+  background: var(--z-surface-raised); border: 1px solid var(--z-border); border-left: 3px solid var(--z-accent);
+  border-radius: var(--z-radius-md); box-shadow: var(--z-shadow-1);
+}
+.reply-bar > .z-icon { color: var(--z-accent-text); }
+.reply-bar__main { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: var(--z-text-sm); }
+.reply-bar__main span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--z-text-2); }
+.reply-bar[hidden] { display: none; }
+
+/* Shajara: qishloq / oilaviy boʻlimlari */
+.shajara-tabs { display: flex; width: 100%; margin: 0 0 var(--z-space-4); }
+.shajara-tabs a {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 40px; padding: 0 var(--z-space-3); border-radius: var(--z-radius-pill);
+  color: var(--z-text-2); font-weight: 700; font-size: var(--z-text-sm); text-decoration: none; white-space: nowrap;
+}
+.shajara-tabs a[aria-selected="true"] { background: var(--z-surface-raised); color: var(--z-text); box-shadow: var(--z-shadow-1); }
+.shajara-tabs .z-icon { width: 18px; height: 18px; }
+@media (min-width: 720px) { .shajara-tabs { width: auto; display: inline-flex; } .shajara-tabs a { flex: none; padding: 0 var(--z-space-5); } }
+.fam-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.fam-actions .z-btn { flex: 1 1 140px; }
+.fam-delete { --_fg: var(--z-danger); }
+.check-row { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: var(--z-text-sm); }
+.check-row input { width: 20px; height: 20px; accent-color: var(--z-primary); }
+.fam-start .z-empty { padding-top: var(--z-space-10); padding-bottom: var(--z-space-10); }

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\MemoryResource\Pages\ManageMemories;
 use App\Models\Memory;
+use App\Models\UserNotification;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -82,7 +83,11 @@ class MemoryResource extends Resource
             ->recordActions([
                 Action::make('approve')->label('Tasdiqlash')->icon(Heroicon::OutlinedCheck)->color('success')
                     ->visible(fn (Memory $m) => $m->status !== 'approved')
-                    ->action(fn (Memory $m) => $m->update(['status' => 'approved'])),
+                    ->action(function (Memory $m) {
+                        $m->update(['status' => 'approved']);
+                        UserNotification::send($m->user_id, 'memory', 'Xotirangiz eʼlon qilindi',
+                            "{$m->veteran->name} sahifasida xotirangiz chiqdi.", '#/faxriylar/'.$m->veteran_id);
+                    }),
                 EditAction::make(),
                 DeleteAction::make(),
             ]);
