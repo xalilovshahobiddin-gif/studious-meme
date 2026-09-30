@@ -164,8 +164,9 @@ body.is-immersive .z-toast-region { bottom: calc(96px + var(--z-safe-bottom)); }
 .stat-card:nth-child(4) .stat-card__icon { background: var(--z-danger-soft); color: var(--z-danger); }
 .stat-card .z-stat__value { font-size: var(--z-text-2xl); }
 
-.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--z-space-3); }
-@media (min-width: 900px) { .tiles { grid-template-columns: repeat(6, 1fr); } }
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--z-space-3); }
+:root[data-font="xl"] .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 900px) { .tiles, :root[data-font="xl"] .tiles { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
 .tile {
   display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;
   padding: var(--z-space-4) var(--z-space-2);
@@ -180,8 +181,8 @@ body.is-immersive .z-toast-region { bottom: calc(96px + var(--z-safe-bottom)); }
 .tile--2 .tile__icon, .tile--5 .tile__icon { background: var(--z-accent-soft); color: var(--z-accent-text); }
 .tile--3 .tile__icon, .tile--6 .tile__icon { background: var(--z-info-soft); color: var(--z-info); }
 .tile--4 .tile__icon { background: var(--z-danger-soft); color: var(--z-danger); }
-.tile__title { font-weight: 800; font-size: var(--z-text-sm); }
-.tile__sub { font-size: 11px; color: var(--z-text-3); }
+.tile__title { font-weight: 800; font-size: var(--z-text-sm); overflow-wrap: anywhere; }
+.tile__sub { font-size: calc(11px * var(--z-fs)); color: var(--z-text-3); }
 
 .home-cols { display: grid; gap: var(--z-space-8); }
 @media (min-width: 900px) { .home-cols { grid-template-columns: 1.5fr 1fr; align-items: start; } }
@@ -362,3 +363,113 @@ body[data-route="chat"].is-immersive .chat-layout, body[data-route="chat"].is-im
 .or-sep { display: flex; align-items: center; gap: 12px; color: var(--z-text-3); font-size: var(--z-text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
 .or-sep::before, .or-sep::after { content: ""; flex: 1; height: 1px; background: var(--z-border); }
 .menu-icon .social-logo { width: 18px; height: 18px; }
+
+/* Qoʻngʻiroqcha va bildirishnomalar */
+.bell__count { position: absolute; top: 4px; right: 2px; height: 18px; min-width: 18px; font-size: 10px; box-shadow: 0 0 0 2px var(--z-bg); }
+.notif-head { margin: 0 0 6px; }
+.notif-list .z-list-item { align-items: flex-start; padding: 12px 8px; }
+.notif .z-list-item__main { display: flex; flex-direction: column; gap: 2px; }
+.notif__title { font-weight: 700; line-height: 1.35; white-space: normal; }
+.notif__text { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.notif.is-unread { background: var(--z-primary-soft); }
+.notif .z-dot { margin-top: 8px; flex: none; }
+.notif > .z-icon { margin-top: 8px; }
+.news-card { display: block; }
+.announcement__body { font-size: var(--z-text-md); }
+
+/* Chat: javob berish va oʻchirish */
+.z-msg__body { display: flex; flex-direction: column; min-width: 0; }
+.z-msg--me .z-msg__body { align-items: flex-end; }
+.z-bubble { cursor: pointer; }
+.z-bubble__reply {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1px; width: 100%;
+  margin: 2px 0 6px; padding: 6px 10px; border: 0; border-left: 3px solid var(--z-accent);
+  border-radius: 8px; background: var(--z-bg-sunken); color: inherit; text-align: left; font-size: var(--z-text-sm);
+}
+.z-bubble__reply strong { font-size: var(--z-text-xs); color: var(--z-accent-text); }
+.z-bubble__reply span { opacity: .85; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.z-msg--me .z-bubble__reply { background: rgba(255, 255, 255, .16); border-left-color: rgba(255, 255, 255, .7); }
+.z-msg--me .z-bubble__reply strong { color: inherit; }
+.msg-actions { display: none; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.z-msg.is-selected .msg-actions { display: flex; }
+.z-msg.is-selected .z-bubble { box-shadow: 0 0 0 2px var(--z-primary); }
+.msg-act .z-icon { width: 14px; height: 14px; }
+.msg-act--danger { --_fg: var(--z-danger); }
+@media (hover: hover) { .z-msg:hover .msg-actions { display: flex; } }
+.z-msg.is-flash .z-bubble { animation: msg-flash 2s var(--z-ease); }
+@keyframes msg-flash { 0%, 60% { box-shadow: 0 0 0 3px var(--z-accent); } 100% { box-shadow: var(--z-shadow-1); } }
+.reply-bar {
+  display: flex; align-items: center; gap: 10px; margin: 0 0 8px; padding: 8px 8px 8px 12px;
+  background: var(--z-surface-raised); border: 1px solid var(--z-border); border-left: 3px solid var(--z-accent);
+  border-radius: var(--z-radius-md); box-shadow: var(--z-shadow-1);
+}
+.reply-bar > .z-icon { color: var(--z-accent-text); }
+.reply-bar__main { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: var(--z-text-sm); }
+.reply-bar__main span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--z-text-2); }
+.reply-bar[hidden] { display: none; }
+
+/* Shajara: qishloq / oilaviy boʻlimlari */
+.shajara-tabs { display: flex; width: 100%; margin: 0 0 var(--z-space-4); }
+.shajara-tabs a {
+  flex: 1 1 0; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 40px; padding: 4px var(--z-space-3); border-radius: var(--z-radius-pill);
+  color: var(--z-text-2); font-weight: 700; font-size: var(--z-text-sm); text-decoration: none; text-align: center; line-height: 1.15;
+}
+.shajara-tabs .z-icon { flex: none; }
+:root[data-font="xl"] .shajara-tabs .z-icon { display: none; }
+.shajara-tabs a[aria-selected="true"] { background: var(--z-surface-raised); color: var(--z-text); box-shadow: var(--z-shadow-1); }
+.shajara-tabs .z-icon { width: 18px; height: 18px; }
+@media (min-width: 720px) { .shajara-tabs { width: auto; display: inline-flex; } .shajara-tabs a { flex: none; padding: 0 var(--z-space-5); } }
+.fam-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.fam-actions .z-btn { flex: 1 1 140px; }
+.fam-delete { --_fg: var(--z-danger); }
+.check-row { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: var(--z-text-sm); }
+.check-row input { width: 20px; height: 20px; accent-color: var(--z-primary); }
+.fam-start .z-empty { padding-top: var(--z-space-10); padding-bottom: var(--z-space-10); }
+
+/* ---------- Chat: reaksiyalar ---------- */
+.msg-reacts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.z-msg--me .msg-reacts, .z-msg--me .msg-actions { justify-content: flex-end; }
+.react-chip {
+  display: inline-flex; align-items: center; gap: 4px; min-height: 28px; padding: 0 9px;
+  border: 1px solid var(--z-border); border-radius: 999px; background: var(--z-surface);
+  color: var(--z-text-2); font: inherit; font-size: var(--z-text-sm); line-height: 1; cursor: pointer;
+  transition: background var(--z-dur-1) var(--z-ease), border-color var(--z-dur-1) var(--z-ease);
+}
+.react-chip span { font-size: var(--z-text-xs); font-weight: 700; font-variant-numeric: tabular-nums; }
+.react-chip.is-mine { border-color: var(--z-primary); background: var(--z-accent-soft); color: var(--z-accent-text); }
+.react-pick { display: inline-flex; gap: 2px; padding: 2px; border-radius: 999px; background: var(--z-surface); border: 1px solid var(--z-border); box-shadow: var(--z-shadow-1); }
+.react-pick__btn {
+  width: 34px; height: 34px; border: 0; border-radius: 50%; background: transparent; font-size: 18px; line-height: 1;
+  cursor: pointer; transition: transform var(--z-dur-1) var(--z-ease), background var(--z-dur-1);
+}
+.react-pick__btn:hover, .react-pick__btn:focus-visible { background: var(--z-bg-sunken); transform: scale(1.15); }
+
+/* ---------- Menyu: matn oʻlchami ---------- */
+.font-size-row { flex-wrap: wrap; row-gap: 8px; }
+.font-size-row .z-segment button { min-width: 44px; justify-content: center; padding: 0 12px; }
+.font-size-a { font-family: var(--z-font-display); font-weight: 700; line-height: 1; }
+
+/* ---------- Shajara: surat va qarindoshlik yoʻli ---------- */
+.z-person--deceased .z-avatar--photo img { filter: grayscale(.7); }
+.z-person--deceased { border-left-color: var(--z-text-3); border-right-color: var(--z-text-3); border-bottom-color: var(--z-text-3); border-bottom-style: dashed; }
+.lg-path { box-shadow: 0 0 0 2px var(--z-success); border-color: transparent; }
+.z-person.is-path { box-shadow: 0 0 0 3px var(--z-success), var(--z-shadow-2); }
+.z-person--me.is-path { box-shadow: 0 0 0 3px var(--z-accent), 0 0 0 6px var(--z-success); }
+.photo-edit { position: relative; flex: none; }
+.photo-edit__btn { position: absolute; right: -6px; bottom: -6px; --_bg: var(--z-surface-raised); box-shadow: var(--z-shadow-2); cursor: pointer; }
+.kin { margin: 4px 0 14px; padding: 12px 14px; border-radius: var(--z-radius-lg, 14px); background: var(--z-success-soft); }
+.kin__term { display: flex; align-items: center; gap: 10px; color: var(--z-success); }
+.kin__term > span { display: flex; flex-direction: column; }
+.kin__term strong { font-size: var(--z-text-lg); color: var(--z-text); }
+.kin__path { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.kin__path li { display: flex; align-items: center; gap: 4px; }
+.kin__path li + li::before { content: "→"; color: var(--z-text-3); font-size: var(--z-text-sm); }
+.kin__step { border: 1px solid var(--z-border); background: var(--z-surface); color: var(--z-text); border-radius: 999px; padding: 3px 10px; font: inherit; font-size: var(--z-text-sm); font-weight: 600; cursor: pointer; }
+.kin__step.is-me { border-color: var(--z-accent); background: var(--z-accent-soft); color: var(--z-accent-text); }
+:root[data-theme="dark"] .kin { background: rgba(90, 160, 110, .14); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .kin { background: rgba(90, 160, 110, .14); } }
+.z-list-item.is-path { background: var(--z-success-soft); box-shadow: inset 3px 0 0 var(--z-success); }
+/* Katta shriftda roʻyxat matnlari kesilmasin — qatorga koʻchadi */
+:root[data-font] .z-list-item__title, :root[data-font] .z-list-item__sub { white-space: normal; overflow-wrap: anywhere; }
+.font-size-row .z-list-item__main { min-width: 7em; }

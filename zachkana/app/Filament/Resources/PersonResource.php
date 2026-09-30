@@ -9,6 +9,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -60,6 +61,7 @@ class PersonResource extends Resource
             TextInput::make('birth_year')->label('Tugʻilgan yili')->numeric()->minValue(1500)->maxValue((int) date('Y')),
             TextInput::make('death_year')->label('Vafot etgan yili')->numeric()->minValue(1500)->maxValue((int) date('Y')),
             TextInput::make('job')->label('Kasbi')->maxLength(120),
+            FileUpload::make('photo')->label('Surat')->image()->disk('public')->directory('people')->imageEditor()->maxSize(4096),
             Select::make('user_id')->label('Saytdagi akkaunti')->relationship('user', 'name')->searchable(),
             Textarea::make('bio')->label('Qisqacha hayoti')->rows(4)->columnSpanFull(),
             TextInput::make('position')->label('Farzandlar orasidagi tartib')->numeric()->default(0),

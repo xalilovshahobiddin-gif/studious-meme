@@ -62,6 +62,9 @@ class PersonSuggestion extends Model
             }
 
             $this->update(['status' => 'approved', 'reviewed_by' => $reviewer->id, 'reviewed_at' => now()]);
+            UserNotification::send($this->user_id, 'suggestion', 'Taklifingiz tasdiqlandi',
+                "“{$person->name}” shajaraga ".($this->type === 'edit' ? 'tuzatildi.' : 'qoʻshildi.'),
+                '#/shajara/'.($person->clan?->slug ?? ''));
 
             return $person;
         });
@@ -70,5 +73,7 @@ class PersonSuggestion extends Model
     public function reject(User $reviewer): void
     {
         $this->update(['status' => 'rejected', 'reviewed_by' => $reviewer->id, 'reviewed_at' => now()]);
+        UserNotification::send($this->user_id, 'suggestion', 'Taklifingiz qabul qilinmadi',
+            '“'.($this->payload['name'] ?? $this->person?->name ?? '').'” boʻyicha taklif moderator tomonidan rad etildi.', '#/shajara');
     }
 }

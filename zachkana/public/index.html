@@ -25,8 +25,13 @@
 <link rel="stylesheet" href="ui/zachkana-ui.css">
 <link rel="stylesheet" href="css/app.css">
 <script>
-  /* Mavzuni sahifa chizilishidan oldin qoʻllash (miltillamasligi uchun) */
-  try { var t = localStorage.getItem('zk-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+  /* Mavzu, matn oʻlchami va harakatni sahifa chizilishidan oldin qoʻllash (miltillamasligi uchun) */
+  try {
+    var d = document.documentElement, t = localStorage.getItem('zk-theme'), f = localStorage.getItem('zk-font'), m = localStorage.getItem('zk-motion');
+    if (t === 'light' || t === 'dark') d.dataset.theme = t;
+    if (f === 'lg' || f === 'xl') d.dataset.font = f;
+    if (m === 'reduce' || m === 'full') d.dataset.motion = m;
+  } catch (e) {}
 </script>
 </head>
 <body>

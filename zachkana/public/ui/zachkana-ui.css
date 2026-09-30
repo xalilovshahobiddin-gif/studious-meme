@@ -91,14 +91,18 @@
   --z-font-ui: "Manrope", "Noto Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --z-font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
-  --z-text-xs:   .75rem;    /* 12 */
-  --z-text-sm:   .875rem;   /* 14 */
-  --z-text-md:   1rem;      /* 16 */
-  --z-text-lg:   1.125rem;  /* 18 */
-  --z-text-xl:   1.375rem;  /* 22 */
-  --z-text-2xl:  clamp(1.5rem, 1.2rem + 1.2vw, 1.875rem);
-  --z-text-3xl:  clamp(1.875rem, 1.4rem + 2vw, 2.5rem);
-  --z-text-4xl:  clamp(2.25rem, 1.5rem + 3.2vw, 3.5rem);
+  /* Matn oʻlchami: --z-fs foydalanuvchi sozlamasi (1 / 1.15 / 1.3).
+     Sarlavhalar yarim miqdorda kattalashadi — telefonda ekrandan chiqmasligi uchun. */
+  --z-fs: 1;
+  --z-fs-h: calc(1 + (var(--z-fs) - 1) / 2);
+  --z-text-xs:   calc(.75rem * var(--z-fs));    /* 12 */
+  --z-text-sm:   calc(.875rem * var(--z-fs));   /* 14 */
+  --z-text-md:   calc(1rem * var(--z-fs));      /* 16 */
+  --z-text-lg:   calc(1.125rem * var(--z-fs));  /* 18 */
+  --z-text-xl:   calc(1.375rem * var(--z-fs-h)); /* 22 */
+  --z-text-2xl:  calc(clamp(1.5rem, 1.2rem + 1.2vw, 1.875rem) * var(--z-fs-h));
+  --z-text-3xl:  calc(clamp(1.875rem, 1.4rem + 2vw, 2.5rem) * var(--z-fs-h));
+  --z-text-4xl:  calc(clamp(2.25rem, 1.5rem + 3.2vw, 3.5rem) * var(--z-fs-h));
 
   --z-leading-tight: 1.2;
   --z-leading-normal: 1.55;
@@ -282,9 +286,15 @@ a { color: var(--z-primary-text); text-decoration-thickness: 1px; text-underline
 [hidden] { display: none !important; }
 .z-sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
+/* Katta shrift: <html data-font="lg|xl"> (Menyu → Matn oʻlchami) */
+:root[data-font="lg"] { --z-fs: 1.15; }
+:root[data-font="xl"] { --z-fs: 1.3; }
+
+/* Harakatni kamaytirish: tizim sozlamasi yoki <html data-motion="reduce"> */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  :root:not([data-motion="full"]) *, :root:not([data-motion="full"]) *::before, :root:not([data-motion="full"]) *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+:root[data-motion="reduce"] *, :root[data-motion="reduce"] *::before, :root[data-motion="reduce"] *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 
 /* 4. NAQSH (ORNAMENT) ------------------------------------------------------
    "Girih" — sakkiz qirrali yulduz naqshi. Mask sifatida ishlatiladi,
@@ -418,7 +428,7 @@ a { color: var(--z-primary-text); text-decoration-thickness: 1px; text-underline
   display: inline-flex; align-items: center; gap: 4px;
   height: 22px; padding: 0 8px;
   border-radius: var(--z-radius-pill);
-  font-size: 11px; font-weight: 800; letter-spacing: .03em;
+  font-size: calc(11px * var(--z-fs)); font-weight: 800; letter-spacing: .03em;
   background: var(--z-bg-sunken); color: var(--z-text-2);
   white-space: nowrap;
 }
@@ -610,7 +620,7 @@ a { color: var(--z-primary-text); text-decoration-thickness: 1px; text-underline
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
   height: calc(var(--z-tabbar-h) + var(--z-safe-bottom));
   padding-bottom: var(--z-safe-bottom);
-  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
   background: color-mix(in srgb, var(--z-surface) 92%, transparent);
   backdrop-filter: saturate(1.4) blur(16px);
   -webkit-backdrop-filter: saturate(1.4) blur(16px);
@@ -619,9 +629,11 @@ a { color: var(--z-primary-text); text-decoration-thickness: 1px; text-underline
 .z-tabbar a, .z-tabbar button {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
   color: var(--z-text-3); text-decoration: none;
-  font-size: 11px; font-weight: 700; letter-spacing: .01em;
+  font-size: calc(11px * var(--z-fs-h)); font-weight: 700; letter-spacing: .01em;
   background: none; border: 0; position: relative;
+  min-width: 0; white-space: nowrap;
 }
+.z-tabbar__label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; }
 .z-tabbar .z-tabbar__icon {
   width: 56px; height: 30px; border-radius: var(--z-radius-pill);
   display: grid; place-items: center;
@@ -654,7 +666,7 @@ a { color: var(--z-primary-text); text-decoration-thickness: 1px; text-underline
 .z-nav a:hover { background: var(--z-bg-sunken); color: var(--z-text); }
 .z-nav a[aria-current="page"] { background: var(--z-primary-soft); color: var(--z-primary-text); font-weight: 800; }
 .z-nav a .z-counter { margin-left: auto; }
-.z-nav-label { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--z-text-3); padding: var(--z-space-5) var(--z-space-3) var(--z-space-2); }
+.z-nav-label { font-size: calc(11px * var(--z-fs)); font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--z-text-3); padding: var(--z-space-5) var(--z-space-3) var(--z-space-2); }
 
 /* Logotip — z-logo */
 .z-logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--z-text); }
@@ -769,7 +781,7 @@ button.z-person:hover { border-color: var(--z-primary); box-shadow: var(--z-shad
 }
 .z-msg--me .z-bubble { background: var(--z-primary); color: var(--z-on-primary); border-color: transparent; border-radius: 18px 18px 6px 18px; }
 .z-bubble__author { font-size: var(--z-text-xs); font-weight: 800; color: var(--z-accent-text); margin-bottom: 2px; }
-.z-bubble__time { font-size: 11px; opacity: .6; text-align: right; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.z-bubble__time { font-size: calc(11px * var(--z-fs)); opacity: .6; text-align: right; margin-top: 2px; font-variant-numeric: tabular-nums; }
 .z-msg--grouped .z-avatar { visibility: hidden; }
 .z-day-sep { text-align: center; margin: var(--z-space-4) 0; }
 .z-day-sep span { font-size: var(--z-text-xs); font-weight: 700; padding: 4px 12px; border-radius: var(--z-radius-pill); background: var(--z-bg-sunken); color: var(--z-text-2); }

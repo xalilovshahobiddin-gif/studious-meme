@@ -26,6 +26,7 @@ class User extends Authenticatable implements FilamentUser
     {
         return [
             'phone_verified_at' => 'datetime',
+            'notifications_seen_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

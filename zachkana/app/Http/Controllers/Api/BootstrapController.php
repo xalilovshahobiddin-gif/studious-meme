@@ -41,6 +41,7 @@ class BootstrapController extends Controller
             'channels' => ChatController::channelList($request->user()),
             'user' => AuthController::present($request->user()),
             'auth' => AuthSettings::forFrontend(),
+            'unread' => NotificationController::unreadCount($request->user()),
             // Google/Telegram orqali kirishdan keyingi xabar (bir martalik)
             'notice' => $request->session()->get('auth_notice'),
             'error' => $request->session()->get('auth_error'),
