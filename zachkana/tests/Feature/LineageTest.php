@@ -47,6 +47,9 @@ class LineageTest extends TestCase
         // Oddiy apostrof bilan yozilsa ham topiladi
         $this->getJson("/api/people/search?q=sho'xrat")->assertJsonCount(1, 'people');
         $this->getJson('/api/people/search?q=a')->assertJsonCount(0, 'people');
+        // Kirillda kiritilgan ism lotincha qidiruvda ham topiladi (q2 — boshqa alifbodagi shakli)
+        Person::create(['clan_id' => $this->clan->id, 'name' => 'Ёқубжон Каримов', 'gender' => 'm']);
+        $this->getJson('/api/people/search?q=yoqub&q2='.urlencode('ёқуб'))->assertJsonPath('people.0.name', 'Ёқубжон Каримов');
         $this->getJson('/api/bootstrap')->assertJsonPath('clans.0.tribe', 'Qovchin');
     }
 

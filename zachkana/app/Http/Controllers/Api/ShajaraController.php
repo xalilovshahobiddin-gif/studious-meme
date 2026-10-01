@@ -37,10 +37,18 @@ class ShajaraController extends Controller
         }
         // Apostrof turlari (ʻ ' ‘ ’ ʼ) farq qilmasin: ular LIKE'da "istalgan bitta belgi" boʻladi
         // (% va _ olib tashlanadi — SQLite va MySQL'da LIKE ekranlash turlicha)
-        $like = '%'.preg_replace("/[ʻʼ'‘’`]/u", '_', str_replace(['%', '_', '\\'], '', $q)).'%';
+        $like = fn (string $t) => '%'.preg_replace("/[ʻʼ'‘’`]/u", '_', str_replace(['%', '_', '\\'], '', $t)).'%';
+        // q2 — xuddi shu soʻz boshqa alifboda (sayt kirillda boʻlsa kirillda yozilgan ismlar ham topiladi)
+        $q2 = trim((string) $request->query('q2'));
 
         $people = Person::with(['clan:id,slug,name,tribe', 'parent:id,name,gender', 'spouseOf:id,name'])
-            ->where('name', 'like', $like)
+            ->where(function ($w) use ($like, $q, $q2) {
+                // SQLite'da LIKE faqat lotin harflarida katta-kichikni farqlamaydi — kirill uchun bosh harfli shakli ham
+                $variants = array_unique(array_filter([$q, $q2, mb_convert_case($q2, MB_CASE_TITLE), mb_convert_case($q, MB_CASE_TITLE)]));
+                foreach ($variants as $v) {
+                    $w->orWhere('name', 'like', $like($v));
+                }
+            })
             ->orderByRaw('birth_year is null')->orderBy('birth_year')
             ->limit(20)->get();
 
