@@ -751,9 +751,11 @@
   // Qishloq shajarasi — faqat administrator; oilaviy shajara — har kim oʻziniki
   const canVillagePdf = () => !api.live || D.user?.role === 'admin';
   let pdfLib = null;
+  // Sahifadagi fayllar versiyasi (index.html dagi ?v=) — keyin yuklanadigan fayllar ham shu versiyada
+  const ASSET_V = document.querySelector('meta[name="zk-version"]')?.content || '';
   const loadPdfLib = () => pdfLib || (pdfLib = new Promise((res, rej) => {
     const sc = document.createElement('script');
-    sc.src = 'js/tree-pdf.js';
+    sc.src = 'js/tree-pdf.js' + (ASSET_V ? '?v=' + ASSET_V : '');
     sc.onload = () => res(window.ZachkanaTreePdf);
     sc.onerror = () => { pdfLib = null; rej(new Error('PDF moduli yuklanmadi (internet?)')); };
     document.head.appendChild(sc);
@@ -1627,7 +1629,7 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
         <li><label class="z-list-item"><span class="menu-icon">${I('pause')}</span><span class="z-list-item__main"><span class="z-list-item__title">Harakatni kamaytirish</span><span class="z-list-item__sub">Animatsiya va silliq oʻtishlarsiz</span></span><span class="z-switch"><input type="checkbox" id="motionSwitch" ${reducedMotion() ? 'checked' : ''}><span></span></span></label></li>
         <li><button class="z-list-item" data-action="install"><span class="menu-icon">${I('download')}</span><span class="z-list-item__main"><span class="z-list-item__title">Ilovani oʻrnatish</span><span class="z-list-item__sub">Bosh ekranga qoʻshish, oflayn ishlaydi</span></span></button></li>
         <li><a class="z-list-item" href="ui/"><span class="menu-icon">${I('naqsh')}</span><span class="z-list-item__main"><span class="z-list-item__title">Zachkana UI</span><span class="z-list-item__sub">Sayt dizayn tizimi</span></span>${I('chevron-right', 'z-muted')}</a></li>
-        <li><button class="z-list-item" data-action="about"><span class="menu-icon">${I('info')}</span><span class="z-list-item__main"><span class="z-list-item__title">Sayt haqida</span></span></button></li>
+        <li><button class="z-list-item" data-action="about"><span class="menu-icon">${I('info')}</span><span class="z-list-item__main"><span class="z-list-item__title">Sayt haqida</span><span class="z-list-item__sub" data-no-translit>Versiya: ${esc(ASSET_V.replace(/^zk-/, ''))}</span></span></button></li>
       </ul></div>
     </div>
     ${footer()}`,
@@ -2134,7 +2136,11 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
   }
 
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
-    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { /* SW ishlamasa ham sayt ishlaydi */ }));
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(() => { /* SW ishlamasa ham sayt ishlaydi */ }));
+    // Yangi versiya oʻrnatilgach sahifa bir marta oʻzi yangilanadi — foydalanuvchi eski versiyada qolib ketmaydi
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController && !reloaded) { reloaded = true; location.reload(); } });
   }
 
   /* ---------- Ishga tushirish ---------- */

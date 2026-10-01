@@ -20,6 +20,14 @@ rsync -a "$SRC/" "$APP/" \
   --exclude 'storage/framework/cache/data/*/' --exclude 'storage/framework/sessions/*' \
   --exclude 'storage/framework/views/*.php' --exclude 'storage/app/public/*/' --exclude 'storage/app/private/*/' --exclude 'storage/app/backups'
 
+# Har bir arxivda fayllar versiyasi yangilanadi (index.html dagi ?v= va service worker keshi):
+# brauzer, service worker va hosting (nginx) eski JS/CSS ni keshdan bermasligi uchun
+BASE_V="$(grep -o "const VERSION = 'zk-v[0-9]*'" "$APP/public/sw.js" | grep -o 'zk-v[0-9]*')"
+HASH="$(cat "$APP"/public/index.html "$APP"/public/js/*.js "$APP"/public/css/app.css "$APP"/public/ui/*.css "$APP"/public/ui/*.js | sha1sum | cut -c1-7)"
+STAMP="$BASE_V-$(date +%m%d)-$HASH"
+sed -i "s/$BASE_V/$STAMP/g" "$APP/public/index.html" "$APP/public/sw.js"
+echo "→ Fayllar versiyasi: $STAMP"
+
 echo "→ Kutubxonalar oʻrnatilmoqda (composer install --no-dev)"
 (cd "$APP" && composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress --quiet)
 # Paketlarning testlari, hujjatlari va git tarixi saytga kerak emas
