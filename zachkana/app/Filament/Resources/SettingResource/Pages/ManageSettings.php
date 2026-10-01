@@ -24,12 +24,12 @@ class ManageSettings extends ManageRecords
                 ->visible(fn () => auth()->user()?->isAdmin())
                 ->requiresConfirmation()
                 ->modalHeading('Namuna maʼlumotlarni oʻchirish')
-                ->modalDescription('Oʻrnatishda yuklangan toʻqilgan maʼlumotlar (Mirzaboylar urugʻi, namuna tarix, faxriylar, eʼlonlar va chatdagi namuna xabarlar) oʻchiriladi. Siz qoʻshgan yoki oʻzgartirgan maʼlumotlarga tegilmaydi.')
+                ->modalDescription('Oʻrnatishda yuklangan toʻqilgan maʼlumotlar (Mirzaboylar avlodi, namuna tarix, faxriylar, eʼlonlar va chatdagi namuna xabarlar) oʻchiriladi. Siz qoʻshgan yoki oʻzgartirgan maʼlumotlarga tegilmaydi.')
                 ->modalSubmitActionLabel('Ha, oʻchirish')
                 ->action(function () {
                     $n = SampleDataCleaner::run();
                     Notification::make()->success()->title('Namuna maʼlumotlar oʻchirildi')
-                        ->body("Shajara: {$n['people']} kishi, {$n['clans']} urugʻ · tarix: {$n['history']} · xronologiya: {$n['timeline']} · faxriylar: {$n['veterans']} · eʼlonlar: {$n['announcements']} · chat foydalanuvchilari: {$n['users']}")
+                        ->body("Shajara: {$n['people']} kishi, {$n['clans']} avlod · tarix: {$n['history']} · xronologiya: {$n['timeline']} · faxriylar: {$n['veterans']} · eʼlonlar: {$n['announcements']} · chat foydalanuvchilari: {$n['users']}")
                         ->send();
                 }),
             CreateAction::make(),

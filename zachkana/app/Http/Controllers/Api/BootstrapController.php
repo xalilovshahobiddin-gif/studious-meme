@@ -37,7 +37,7 @@ class BootstrapController extends Controller
             'news' => Announcement::published()->latest('published_at')->limit(5)->get()->map(Front::announcement(...)),
             'todayInHistory' => $today ? ['year' => $today->year_label, 'title' => $today->title, 'text' => $today->body] : null,
             'clans' => Clan::withCount('people')->orderBy('position')->get()
-                ->map(fn (Clan $c) => ['id' => $c->slug, 'name' => $c->name, 'count' => $c->people_count]),
+                ->map(fn (Clan $c) => ['id' => $c->slug, 'name' => $c->name, 'tribe' => $c->tribe, 'count' => $c->people_count]),
             'channels' => ChatController::channelList($request->user()),
             'user' => AuthController::present($request->user()),
             'auth' => AuthSettings::forFrontend(),

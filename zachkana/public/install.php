@@ -56,6 +56,7 @@ foreach (['pdo_mysql' => 'MySQL (pdo_mysql)', 'mbstring' => 'mbstring', 'openssl
     $checks[] = ['PHP kengaytmasi: '.$label, extension_loaded($ext), true];
 }
 $checks[] = ['PHP kengaytmasi: gd (rasmlarni tahrirlash, ixtiyoriy)', extension_loaded('gd') || extension_loaded('imagick'), false];
+$checks[] = ['PHP kengaytmasi: zip (zaxira nusxalar uchun, ixtiyoriy)', extension_loaded('zip'), false];
 foreach (['storage', 'storage/app/public', 'storage/framework/cache', 'storage/framework/sessions', 'storage/framework/views', 'storage/logs', 'bootstrap/cache', '.'] as $dir) {
     $path = $root.'/'.$dir;
     $checks[] = ['Yozish ruxsati: '.($dir === '.' ? 'loyiha papkasi (.env uchun)' : $dir.'/'), is_dir($path) && is_writable($path), true];

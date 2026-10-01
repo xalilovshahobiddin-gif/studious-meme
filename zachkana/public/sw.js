@@ -2,7 +2,7 @@
    - Ilova qobigʻi (shell) oldindan keshlanadi
    - Sahifalar: avval tarmoq, boʻlmasa kesh
    - Statik fayllar va shriftlar: kesh + fonda yangilash */
-const VERSION = 'zk-v5';
+const VERSION = 'zk-v8';
 const SHELL = [
   './',
   './index.html',
@@ -12,6 +12,7 @@ const SHELL = [
   './css/app.css',
   './js/data.js',
   './js/app.js',
+  './js/tree-pdf.js',
   './assets/logo-mark.svg',
   './icons/favicon.svg',
   './icons/icon-192.png',

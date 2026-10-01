@@ -18,6 +18,7 @@ Route::middleware('web')->group(function () {
     Route::get('bootstrap', BootstrapController::class);
 
     Route::get('clans/{clan:slug}/tree', [ShajaraController::class, 'tree']);
+    Route::get('people/search', [ShajaraController::class, 'search'])->middleware('throttle:60,1');
     Route::get('history', [ContentController::class, 'history']);
     Route::get('timeline', [ContentController::class, 'timeline']);
     Route::get('veterans', [ContentController::class, 'veterans']);

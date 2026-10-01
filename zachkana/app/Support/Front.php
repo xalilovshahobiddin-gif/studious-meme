@@ -37,7 +37,7 @@ class Front
     }
 
     /**
-     * Urugʻ daraxti: barcha aʼzolar bitta soʻrovda olinadi va xotirada ichma-ich tuziladi.
+     * Avlod daraxti: barcha aʼzolar bitta soʻrovda olinadi va xotirada ichma-ich tuziladi.
      *
      * @param  Collection<int, Person>  $people
      */

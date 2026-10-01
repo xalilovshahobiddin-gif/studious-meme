@@ -29,13 +29,13 @@ class Person extends Model
         return $this->hasMany(Person::class, 'parent_id')->orderBy('position')->orderBy('birth_year')->orderBy('id');
     }
 
-    /** Urugʻga kelin/kuyov boʻlib kirganlar */
+    /** Avlodga kelin/kuyov boʻlib kirganlar */
     public function spouses(): HasMany
     {
         return $this->hasMany(Person::class, 'spouse_id');
     }
 
-    /** Bu odam kelin/kuyov boʻlsa — urugʻdagi turmush oʻrtogʻi */
+    /** Bu odam kelin/kuyov boʻlsa — avloddagi turmush oʻrtogʻi */
     public function spouseOf(): BelongsTo
     {
         return $this->belongsTo(Person::class, 'spouse_id');

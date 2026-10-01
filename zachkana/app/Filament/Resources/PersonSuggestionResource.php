@@ -64,7 +64,15 @@ class PersonSuggestionResource extends Resource
                     ->state(fn (PersonSuggestion $r) => collect($r->payload)->except('name')
                         ->map(fn ($v, $k) => ['gender' => 'Jinsi', 'birth_year' => 'Tugʻilgan', 'death_year' => 'Vafot', 'job' => 'Kasbi', 'bio' => 'Izoh'][$k].': '.$v)
                         ->implode(' · ')),
-                TextColumn::make('parent.name')->label('Kimning farzandi')->placeholder('—'),
+                TextColumn::make('where')->label('Shajaradagi oʻrni')->wrap()
+                    ->state(fn (PersonSuggestion $r) => match (true) {
+                        $r->type === 'edit' => null,
+                        $r->parent && $r->relation === 'spouse' => $r->parent->name.'ning turmush oʻrtogʻi',
+                        (bool) $r->parent => $r->parent->name.'ning farzandi',
+                        $r->relation === 'root' => 'Yangi avlod boshi: '.($r->lineage ?: ($r->payload['name'] ?? '').' avlodi').($r->tribe ? " ({$r->tribe})" : ''),
+                        default => $r->clan ? $r->clan->name.' avlodi boshi' : null,
+                    })
+                    ->placeholder('—'),
                 TextColumn::make('person.name')->label('Tuzatiladigan')->placeholder('—'),
                 TextColumn::make('comment')->label('Izoh')->limit(80)->wrap()->placeholder('—'),
                 TextColumn::make('user.name')->label('Yuborgan'),
