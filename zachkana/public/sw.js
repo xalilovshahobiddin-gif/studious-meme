@@ -2,18 +2,14 @@
    - Ilova qobigʻi (shell) oldindan keshlanadi
    - Sahifalar: avval tarmoq, boʻlmasa kesh
    - Statik fayllar va shriftlar: kesh + fonda yangilash */
-const VERSION = 'zk-v9';
+const VERSION = 'zk-v10'; // deploy/build-zip.sh har bir arxivda oxiriga fayllar xeshini qoʻshadi
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './ui/zachkana-ui.css',
-  './ui/zachkana-icons.js',
-  './css/app.css',
-  './js/data.js',
-  './js/translit.js',
-  './js/app.js',
-  './js/tree-pdf.js',
+  // index.html dagi kabi ?v= bilan (aks holda eski fayl keshdan olinadi)
+  ...['./ui/zachkana-ui.css', './ui/zachkana-icons.js', './css/app.css', './js/data.js', './js/translit.js', './js/app.js', './js/tree-pdf.js']
+    .map(f => `${f}?v=${VERSION}`),
   './assets/logo-mark.svg',
   './icons/favicon.svg',
   './icons/icon-192.png',
@@ -21,7 +17,8 @@ const SHELL = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  // cache: 'reload' — hosting (nginx) brauzerga eski faylni keshdan bermasin, har doim serverdan olinsin
+  e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {

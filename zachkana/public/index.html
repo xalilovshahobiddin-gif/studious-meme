@@ -22,8 +22,10 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
 <!-- Manrope’da oʻzbekcha ʻ va ʼ belgilari yoʻq — faqat shu ikki belgi Noto Sans’dan olinadi -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&text=%CA%BB%CA%BC&display=swap">
-<link rel="stylesheet" href="ui/zachkana-ui.css">
-<link rel="stylesheet" href="css/app.css">
+<!-- ?v= — har bir versiyada yangilanadi (deploy/build-zip.sh), brauzer va hosting eski faylni bermasligi uchun -->
+<meta name="zk-version" content="zk-v10">
+<link rel="stylesheet" href="ui/zachkana-ui.css?v=zk-v10">
+<link rel="stylesheet" href="css/app.css?v=zk-v10">
 <script>
   /* Mavzu, matn oʻlchami va harakatni sahifa chizilishidan oldin qoʻllash (miltillamasligi uchun) */
   try {
@@ -76,9 +78,9 @@
 <section class="z-sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden></section>
 <div class="z-toast-region" id="toasts" aria-live="polite"></div>
 
-<script src="ui/zachkana-icons.js"></script>
-<script src="js/data.js"></script>
-<script src="js/translit.js"></script>
-<script src="js/app.js"></script>
+<script src="ui/zachkana-icons.js?v=zk-v10"></script>
+<script src="js/data.js?v=zk-v10"></script>
+<script src="js/translit.js?v=zk-v10"></script>
+<script src="js/app.js?v=zk-v10"></script>
 </body>
 </html>
