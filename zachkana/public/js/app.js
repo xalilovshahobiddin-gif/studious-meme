@@ -530,7 +530,8 @@
       setTimeout(() => { personSheet(id); const el = $(`#view [data-person="${CSS.escape(id)}"]`); if (el && panzoom && s.mode === 'tree') panzoom.focus(el); }, 120);
     };
     if (!D.trees[s.clan]) return;
-    $$('[data-mode]').forEach(b => b.onclick = () => { s.mode = b.dataset.mode; render(); });
+    // #view ichida: <html data-mode="live"> ham shu selektorga tushib, har bir bosishda rejimni buzardi
+    $$('#view [data-mode]').forEach(b => b.onclick = () => { s.mode = b.dataset.mode; render(); });
     if (s.mode === 'tree') mountTree();
     applySearch();
   }
