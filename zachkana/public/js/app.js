@@ -154,6 +154,76 @@
   }
   mq.addEventListener?.('change', () => renderChrome());
 
+  /* ---------- Alifbo: lotin / kirill ----------
+     Matnlar bazada qanday yozilgan boʻlsa shunday qoladi; ekranga chiqqan har bir matn
+     (menyu, maqola, chat, ismlar) tanlangan alifboga oʻgiriladi. Yangi qoʻshilgan matnlarni
+     (chat xabarlari, oynalar) MutationObserver kuzatib turadi. */
+  const TR = window.ZkTranslit;
+  let script = (() => {
+    try { const v = localStorage.getItem('zk-script'); if (v === 'cyr' || v === 'lat') return v; } catch { /* */ }
+    return (navigator.languages || [navigator.language]).some(l => /^(ru|uz-cyrl)/i.test(l || '')) ? 'cyr' : 'lat';
+  })();
+  const T = t => script === 'cyr' ? TR.toCyr(t) : TR.toLat(t);
+  const scriptLabel = () => script === 'cyr' ? 'Lotin' : 'Кирилл';
+  const NO_TR = 'script,style,textarea,code,pre,[data-no-translit]';
+  const TR_ATTRS = ['placeholder', 'title', 'aria-label', 'alt'];
+  const textMem = new WeakMap(), attrMem = new WeakMap();
+  function trText(node) {
+    const p = node.parentElement;
+    if (!p || p.closest(NO_TR)) return;
+    const m = textMem.get(node);
+    const orig = m && node.data === m.out ? m.orig : node.data;
+    const out = T(orig);
+    textMem.set(node, { orig, out });
+    if (out !== node.data) node.data = out;
+  }
+  // Yozish maydonining ichidagi matn emas, faqat placeholder/title oʻgiriladi
+  function trAttrs(el) {
+    if (!TR_ATTRS.some(a => el.hasAttribute(a)) || el.closest('[data-no-translit],script,style')) return;
+    const mem = attrMem.get(el) || {};
+    for (const a of TR_ATTRS) {
+      if (!el.hasAttribute(a)) continue;
+      const cur = el.getAttribute(a), m = mem[a];
+      const orig = m && cur === m.out ? m.orig : cur;
+      mem[a] = { orig, out: T(orig) };
+      if (mem[a].out !== cur) el.setAttribute(a, mem[a].out);
+    }
+    attrMem.set(el, mem);
+  }
+  function applyScript(root) {
+    if (root.nodeType === 3) return trText(root);
+    if (root.nodeType !== 1) return;
+    trAttrs(root);
+    if (root.closest(NO_TR)) return;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {
+      acceptNode: n => {
+        if (n.nodeType !== 1 || !n.matches(NO_TR)) return NodeFilter.FILTER_ACCEPT;
+        if (n.tagName === 'TEXTAREA') trAttrs(n);
+        return NodeFilter.FILTER_REJECT;
+      }
+    });
+    for (let n = w.nextNode(); n; n = w.nextNode()) n.nodeType === 3 ? trText(n) : trAttrs(n);
+  }
+  new MutationObserver(list => {
+    for (const r of list) {
+      if (r.type === 'characterData') trText(r.target);
+      else if (r.type === 'attributes') trAttrs(r.target);
+      else r.addedNodes.forEach(applyScript);
+    }
+  }).observe(document.documentElement, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: TR_ATTRS });
+  function setScript(v) {
+    script = v;
+    try { localStorage.setItem('zk-script', v); } catch { /* */ }
+    document.documentElement.lang = v === 'cyr' ? 'uz-Cyrl' : 'uz';
+    document.documentElement.dataset.script = v;
+    applyScript(document.documentElement);
+    $$('[data-action="script"]').forEach(b => { b.textContent = scriptLabel(); b.lang = v === 'cyr' ? 'uz' : 'uz-Cyrl'; });
+  }
+  // Tasdiqlash oynalari ham tanlangan alifboda
+  const nativeConfirm = window.confirm.bind(window);
+  window.confirm = m => nativeConfirm(T(String(m)));
+  const scriptToggle = () => `<button class="script-toggle" data-action="script" data-no-translit lang="${script === 'cyr' ? 'uz' : 'uz-Cyrl'}" aria-label="${script === 'cyr' ? 'Lotin alifbosiga oʻtish' : 'Кирилл алифбосига ўтиш'}">${scriptLabel()}</button>`;
+
   /* ---------- Matn oʻlchami va harakat (keksa foydalanuvchilar uchun) ---------- */
   const FONT_SIZES = [['md', 'Oddiy'], ['lg', 'Katta'], ['xl', 'Juda katta']];
   const fontSize = () => document.documentElement.dataset.font || 'md';
@@ -161,6 +231,7 @@
     if (f === 'md') delete document.documentElement.dataset.font; else document.documentElement.dataset.font = f;
     try { localStorage.setItem('zk-font', f); } catch { /* */ }
   }
+  setScript(script);
   const mqMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const reducedMotion = () => document.documentElement.dataset.motion ? document.documentElement.dataset.motion === 'reduce' : mqMotion.matches;
   function setReducedMotion(on) {
@@ -492,7 +563,7 @@
       <div class="gen-list">
         ${Array.from({ length: gens }, (_, i) => i + 1).map(g => {
           const list = clanPeople.filter(p => p.gen === g);
-          return `<section class="z-card gen-card"><div class="gen-card__head"><span class="gen-card__num">${roman(g)}</span><strong>${g}-avlod</strong><span class="z-caption">${list.length} kishi</span></div>
+          return `<section class="z-card gen-card"><div class="gen-card__head"><span class="gen-card__num" data-no-translit>${roman(g)}</span><strong>${g}-avlod</strong><span class="z-caption">${list.length} kishi</span></div>
             <ul class="z-list">${list.map(p => `<li><button class="z-list-item" data-person="${p.id}" data-name="${esc(p.name.toLowerCase())}">${personAvatar(p)}<span class="z-list-item__main"><span class="z-list-item__title">${esc(p.name)} ${p.me ? '<span class="z-badge z-badge--accent">Siz</span>' : ''}</span><span class="z-list-item__sub">${years(p)} · ${esc(relationText(p))}</span></span>${I('chevron-right', 'z-muted')}</button></li>`).join('')}</ul></section>`;
         }).join('')}
       </div>`}
@@ -514,10 +585,10 @@
     if (search) {
       let timer = null;
       search.oninput = () => {
-        s.q = search.value.trim().toLowerCase(); applySearch();
-        clearTimeout(timer); timer = setTimeout(() => showGlobalHits(s.q), 250);
+        s.q = normName(search.value.trim()); applySearch();
+        clearTimeout(timer); timer = setTimeout(() => showGlobalHits(search.value.trim()), 250);
       };
-      if (s.q) showGlobalHits(s.q);
+      if (search.value.trim()) showGlobalHits(search.value.trim());
     }
     const hitsBox = $('#globalHits');
     if (hitsBox) hitsBox.onclick = async e => {
@@ -537,10 +608,11 @@
   }
 
   // Butun qishloq shajarasidan qidirish (server) yoki demo rejimda yuklangan daraxtlardan
-  const normName = t => String(t || '').toLowerCase().replace(/[ʻʼ'‘’`]/g, '');
+  // Kirillda yozilgan ism ham lotindagi bilan solishtiriladi (va aksincha)
+  const normName = t => TR.toLat(String(t || '')).toLowerCase().replace(/[ʻʼ'‘’`]/g, '');
   async function searchPeople(q) {
     if (normName(q).length < 2) return [];
-    if (api.live) return (await api.request('GET', 'people/search?q=' + encodeURIComponent(q))).people;
+    if (api.live) return (await api.request('GET', `people/search?q=${encodeURIComponent(TR.toLat(q))}&q2=${encodeURIComponent(TR.toCyr(q))}`)).people;
     const nq = normName(q);
     return [...people.values()].filter(p => normName(p.name).includes(nq)).slice(0, 20).map(p => {
       const c = D.clans.find(x => x.id === p.clan);
@@ -565,7 +637,7 @@
     const nodes = $$('[data-person]', $('#view'));
     let first = null;
     nodes.forEach(n => {
-      const hit = q && n.dataset.name.includes(q);
+      const hit = q && normName(n.dataset.name).includes(q);
       n.classList.toggle('is-match', !!hit);
       if (shajaraState.mode === 'list') n.closest('li').hidden = !!q && !hit;
       if (hit && !first) first = n;
@@ -711,6 +783,7 @@
       subtitle: `${n} kishi · ${Math.max(...forest.map(depth))} avlod · ${todayStr()}`,
       footer: `zachkana.uz · ${todayStr()}`,
       hasMe: JSON.stringify(forest).includes('"me":true'),
+      t: T,
     });
     if (btn) btn.disabled = true;
     try {
@@ -1548,6 +1621,7 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
       <div class="z-nav-label">Sozlamalar</div>
       <div class="z-card"><ul class="z-list z-list--divided">
         <li><label class="z-list-item"><span class="menu-icon">${I('moon')}</span><span class="z-list-item__main"><span class="z-list-item__title">Qorongʻi mavzu</span></span><span class="z-switch"><input type="checkbox" id="themeSwitch" ${effectiveTheme() === 'dark' ? 'checked' : ''}><span></span></span></label></li>
+        <li><div class="z-list-item"><span class="menu-icon">${I('text')}</span><span class="z-list-item__main"><span class="z-list-item__title">Alifbo</span><span class="z-list-item__sub" data-no-translit>Lotin · Кирилл</span></span>${scriptToggle()}</div></li>
         <li><div class="z-list-item font-size-row"><span class="menu-icon">${I('text')}</span><span class="z-list-item__main"><span class="z-list-item__title" id="fontSizeLabel">Matn oʻlchami</span></span>
           <div class="z-segment" role="radiogroup" aria-labelledby="fontSizeLabel">${FONT_SIZES.map(([k, l], i) => `<button type="button" role="radio" aria-selected="${fontSize() === k}" data-fontsize="${k}" aria-label="${l}" title="${l}"><span class="font-size-a" style="font-size:${14 + i * 3}px">A</span></button>`).join('')}</div></div></li>
         <li><label class="z-list-item"><span class="menu-icon">${I('pause')}</span><span class="z-list-item__main"><span class="z-list-item__title">Harakatni kamaytirish</span><span class="z-list-item__sub">Animatsiya va silliq oʻtishlarsiz</span></span><span class="z-switch"><input type="checkbox" id="motionSwitch" ${reducedMotion() ? 'checked' : ''}><span></span></span></label></li>
@@ -1734,6 +1808,7 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
       document.body.classList.toggle('has-back', !!meta.back);
     }
     $('#appbarActions').innerHTML = `
+      ${scriptToggle()}
       <button class="z-btn z-btn--ghost z-btn--icon" data-action="theme" aria-label="Mavzuni almashtirish">${I(effectiveTheme() === 'dark' ? 'sun' : 'moon')}</button>
       <button class="z-btn z-btn--ghost z-btn--icon bell" data-action="notifications" aria-label="Bildirishnomalar${unreadCount() ? ` (${unreadCount()} ta yangi)` : ''}">${I('bell')}${unreadCount() ? `<span class="z-counter bell__count">${unreadCount() > 9 ? '9+' : unreadCount()}</span>` : ''}</button>`;
     syncInstall();
@@ -1818,6 +1893,7 @@ ${D.history.length ? `      <aside class="toc" aria-label="Mundarija">
     else if (act === 'theme') setTheme(effectiveTheme() === 'dark' ? 'light' : 'dark');
     else if (act === 'back') location.hash = a.dataset.href || '#/';
     else if (act === 'install') promptInstall();
+    else if (act === 'script') setScript(script === 'cyr' ? 'lat' : 'cyr');
     else if (act === 'add-person') addPersonSheet();
     else if (act === 'add-relative') {
       const p = people.get(a.dataset.id), c = D.clans.find(x => x.id === p?.clan);

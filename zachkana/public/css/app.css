@@ -494,3 +494,13 @@ body[data-route="chat"].is-immersive .chat-layout, body[data-route="chat"].is-im
 .tribe-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 2px; }
 .z-chip--sm { min-height: 30px; padding: 0 12px; font-size: var(--z-text-xs); }
 .chip-tribe { font-size: var(--z-text-xs); font-weight: 600; opacity: .7; }
+
+/* ---------- Alifbo almashtirgich (Кирилл / Lotin) ---------- */
+.script-toggle {
+  min-height: 36px; padding: 0 12px; border: 1.5px solid var(--z-border-strong, var(--z-border)); border-radius: 999px;
+  background: var(--z-surface); color: var(--z-text); font: inherit; font-weight: 800; font-size: var(--z-text-sm);
+  line-height: 1; white-space: nowrap; cursor: pointer; flex: none;
+  transition: border-color var(--z-dur-1) var(--z-ease), background var(--z-dur-1) var(--z-ease);
+}
+.script-toggle:hover, .script-toggle:focus-visible { border-color: var(--z-primary); background: var(--z-primary-soft); }
+.appbar-actions { align-items: center; gap: 4px; }

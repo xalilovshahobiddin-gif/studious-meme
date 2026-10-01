@@ -18,6 +18,7 @@
   const FONT = '"Manrope", "Noto Sans", system-ui, sans-serif';
   const SERIF = '"Lora", "Noto Serif", Georgia, serif';
 
+  let T = t => t; // tanlangan alifbo (lotin/kirill) — exportTreePdf da beriladi
   const initials = n => n.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
   const hue = n => { let h = 0; for (const ch of n) h = (h * 31 + ch.codePointAt(0)) >>> 0; return HUES[h % HUES.length]; };
   const years = p => p.d ? `${p.b ?? '?'} – ${p.d}` : p.b ? `${p.b}-y.t.` : '';
@@ -113,7 +114,7 @@
       const [bg, fg] = hue(p.name);
       ctx.fillStyle = bg; ctx.fill();
       ctx.fillStyle = fg; ctx.font = `800 15px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(initials(p.name), cx, cy + 1);
+      ctx.fillText(initials(T(p.name)), cx, cy + 1);
     }
     ctx.restore();
 
@@ -121,8 +122,8 @@
     const tx = x + 62, maxW = BOX_W - 70;
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
     ctx.font = `800 14px ${FONT}`; ctx.fillStyle = C.text;
-    const lines = wrap2(ctx, p.name + (p.me ? ' (Siz)' : ''), maxW);
-    const yr = years(p);
+    const lines = wrap2(ctx, T(p.name), maxW); // "Siz" — toʻq sariq ramka va belgilar qatorida
+    const yr = T(years(p));
     let ty = y + (lines.length > 1 ? 27 : 33) - (yr ? 0 : -8);
     lines.forEach(l => { ctx.fillText(l, tx, ty); ty += 17; });
     if (yr) { ctx.font = `600 11.5px ${FONT}`; ctx.fillStyle = C.muted; ctx.fillText(fitText(ctx, yr, maxW), tx, ty + 1); }
@@ -144,11 +145,11 @@
     ctx.save();
     ctx.lineWidth = 1.5;
     ctx.fillStyle = C.accent; ctx.font = `800 13px ${FONT}`; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('ZACHKANA · SHAJARA', PAD, PAD + 14);
+    ctx.fillText(T('ZACHKANA · SHAJARA'), PAD, PAD + 14);
     ctx.fillStyle = C.text; ctx.font = `700 30px ${SERIF}`;
-    ctx.fillText(fitText(ctx, meta.title, L.W - PAD * 2), PAD, PAD + 52);
+    ctx.fillText(fitText(ctx, T(meta.title), L.W - PAD * 2), PAD, PAD + 52);
     ctx.fillStyle = C.muted; ctx.font = `600 14px ${FONT}`;
-    ctx.fillText(meta.subtitle, PAD, PAD + 78);
+    ctx.fillText(T(meta.subtitle), PAD, PAD + 78);
     // Belgilar
     let x = PAD;
     const y = PAD + 100;
@@ -159,8 +160,8 @@
       ...(meta.hasMe ? [['Siz', () => { ctx.lineWidth = 2.5; ctx.strokeStyle = C.me; ctx.strokeRect(x, y - 12, 18, 12); ctx.lineWidth = 1.5; }]] : [])
     ]) {
       draw();
-      ctx.fillStyle = C.muted; ctx.font = `600 12px ${FONT}`; ctx.fillText(label, x + 24, y);
-      x += 24 + ctx.measureText(label).width + 22;
+      ctx.fillStyle = C.muted; ctx.font = `600 12px ${FONT}`; ctx.fillText(T(label), x + 24, y);
+      x += 24 + ctx.measureText(T(label)).width + 22;
     }
     ctx.restore();
   }
@@ -172,7 +173,7 @@
     L.forest.forEach(t => { drawLines(ctx, t); drawCouples(ctx, t); });
     L.boxes.forEach(b => drawBox(ctx, b, imgs));
     ctx.fillStyle = C.muted; ctx.font = `600 12px ${FONT}`; ctx.textAlign = 'right';
-    ctx.fillText(meta.footer, L.W - PAD, L.H - PAD / 2);
+    ctx.fillText(T(meta.footer), L.W - PAD, L.H - PAD / 2);
     ctx.textAlign = 'left';
   }
 
@@ -259,6 +260,7 @@
    * onProgress(text) — "3/12 varaq" kabi
    */
   async function exportTreePdf(forest, meta, onProgress = () => {}) {
+    T = meta.t || (t => t);
     await document.fonts?.ready;
     const L = layout(forest);
     const imgs = await loadImages(forest);
@@ -292,7 +294,7 @@
       for (let i = 0; i < tiles.length; i++) {
         const t = tiles[i];
         onProgress(`${i + 2}/${tiles.length + 1} varaq…`);
-        const label = `${i + 2}-varaq · qator ${t.r + 1}, ustun ${t.c + 1}`;
+        const label = T(`${i + 2}-varaq · qator ${t.r + 1}, ustun ${t.c + 1}`);
         const r = await renderJpeg(L, meta, imgs, t.x0, t.y0, TILE_W, TILE_H, 2, label);
         pages.push({ ...r, w: TILE_W * PT, h: TILE_H * PT });
         await new Promise(res => setTimeout(res, 0)); // sahifa qotib qolmasin
@@ -300,7 +302,7 @@
     }
 
     onProgress('PDF tayyorlanmoqda…');
-    const blob = buildPdf(pages, meta.title);
+    const blob = buildPdf(pages, T(meta.title));
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = meta.filename; a.rel = 'noopener';

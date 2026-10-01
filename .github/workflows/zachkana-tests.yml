@@ -33,3 +33,5 @@ jobs:
         run: vendor/bin/pint --test
       - name: Tests
         run: php artisan test
+      - name: JavaScript tests (lotin ↔ kirill)
+        run: node tests/js/translit.test.js
