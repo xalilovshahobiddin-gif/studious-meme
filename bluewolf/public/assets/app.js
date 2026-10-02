@@ -36,15 +36,24 @@
       '<path d="M15.5 3.8a8.6 8.6 0 0 0-3.6 15.9" stroke="#fff3c4" stroke-width="1.1" fill="none" opacity=".7"/>'
   };
   function resIcon(k, cls) { return '<svg class="ri ' + (cls || "") + '" viewBox="0 0 24 24" aria-hidden="true">' + RES_SVG[k] + "</svg>"; }
-  // Ixcham son: 12 400 → 12.4K, 1 250 000 → 1.25M
+  // Ixcham son: 1 000 dan boshlab — 1K, 1.2K, 12.5K, 125K, 1.2M, 3.4B (yaxlitlash pastga: bor narsadan koʻp koʻrsatmaydi)
   function short(x) {
     x = x || 0;
-    if (x > 0 && x < 10 && x % 1) return String(Math.round(x * 10) / 10); // 0.5 kg kabi kichik qiymatlar
-    x = Math.floor(x);
-    if (x < 10000) return n(x);
-    if (x < 1e6) return (x / 1000).toFixed(x < 1e5 ? 1 : 0).replace(/\.0$/, "") + "K";
-    return (x / 1e6).toFixed(2).replace(/\.?0+$/, "") + "M";
+    var sign = x < 0 ? "-" : "";
+    x = Math.abs(x);
+    if (x > 0 && x < 10 && x % 1) return sign + String(Math.round(x * 10) / 10); // 0.5 kg kabi kichik qiymatlar
+    if (x < 1000) return sign + Math.floor(x);
+    var units = [[1e12, "T"], [1e9, "B"], [1e6, "M"], [1e3, "K"]];
+    for (var i = 0; i < units.length; i++) {
+      if (x >= units[i][0]) {
+        var v = x / units[i][0];
+        v = v < 100 ? Math.floor(v * 10) / 10 : Math.floor(v);
+        return sign + v + units[i][1];
+      }
+    }
+    return sign + Math.floor(x);
   }
+
   var PREY_ICON = { rodent: "🐁", bird: "🐦", rabbit: "🐇", marmot: "🦫", gazelle: "🦌", boar: "🐗", deer: "🦌",
     reindeer: "🦌", argali: "🐏", horse: "🐎", moose: "🫎", bison: "🦬", mammoth_calf: "🦣", mammoth: "🦣", spirit: "👻" };
 
@@ -81,7 +90,7 @@
   function costHtml(cost, have) {
     return Object.keys(cost || {}).map(function (k) {
       var lack = have && (have[k] || 0) < cost[k];
-      return '<span class="cost' + (lack ? " lack" : "") + '">' + resIcon(k) + n(cost[k]) + "</span>";
+      return '<span class="cost' + (lack ? " lack" : "") + '">' + resIcon(k) + short(cost[k]) + "</span>";
     }).join(" ");
   }
   function uuid() {
@@ -126,7 +135,7 @@
     var k = "error." + (e.code || "NETWORK");
     var msg = S.L[k] ? t(k, e.details || {}) : (e.message || e.code);
     if (e.code === "NOT_ENOUGH_RESOURCES" && e.details && e.details.missing) {
-      msg += ": " + Object.keys(e.details.missing).map(function (r) { return RES_ICON[r] + " " + n(e.details.missing[r]); }).join(" ");
+      msg += ": " + Object.keys(e.details.missing).map(function (r) { return RES_ICON[r] + " " + short(e.details.missing[r]); }).join(" ");
     }
     return msg;
   }
@@ -219,7 +228,7 @@
   // Resurslar paneli: goʻsht (ombor chizigʻi bilan) · tosh · shox-shabba · suyak · oy toshi
   function renderResbar(r) {
     var bar = $("resbar"), food = r.caps.food, fill = Math.min(100, r.meat / Math.max(1, food) * 100);
-    var meatState = r.meat >= food ? "full" : (r.meat < food * 0.3 ? "low" : "");
+    var meatState = r.meat >= food * 0.99 ? "full" : (r.meat < food * 0.3 ? "low" : ""); // kasr qoldigʻi uchun 99%
     if (!bar.firstChild) {
       bar.innerHTML = RES_KEYS.map(function (k) {
         return '<button class="res res-' + k + '" data-action="res-info" data-res="' + k + '" aria-label="' + esc(t("res." + k)) + '">' +
@@ -247,7 +256,7 @@
   function resInfo(k) {
     var r = S.state.resources;
     if (k === "meat") {
-      toast(r.meat >= r.caps.food ? t("res.meat.full") :
+      toast(r.meat >= r.caps.food * 0.99 ? t("res.meat.full") :
         t("res.meat.info", { v: n(r.meat), cap: n(r.caps.food), rate: Math.abs(r.rates.meat_per_h).toFixed(2) }));
       return;
     }
@@ -296,7 +305,7 @@
       '<div class="alpha-row"><div class="alpha-pic">' + wolfImg(p.level, "", p.wolf.name) + '</div><div class="alpha-info"><div class="alpha-name">' + esc(p.wolf.name) +
       '</div><div class="muted small">' + esc(p.wolf.sci) + " · " + t("wolf.class." + p.wolf.class) + (p.wolf.weight ? " · " + p.wolf.weight + " kg" : "") +
       '</div><div class="stats"><span>💪 ' + p.wolf.power + '</span><span>💨 ' + p.wolf.speed + '</span><span>❤️ ' + p.wolf.hp +
-      '</span><span class="cp">⚡ ' + n(p.cp) + ' CP</span></div></div></div>';
+      '</span><span class="cp">⚡ ' + short(p.cp) + ' CP</span></div></div></div>';
     if (hunt) {
       html += '<div class="hunt-live"><span>' + (PREY_ICON[hunt.prey] || "🐾") + " " + t("hunt.on", { prey: t("prey." + hunt.prey) }) +
         "</span>" + timerHtml(hunt.started_at, hunt.ends_at) + "</div>";
@@ -321,9 +330,9 @@
     var ws = r.workshop, wsSum = ws.stone + ws.wood + ws.bone;
     html += '<h3>🪨 ' + t("bld.workshop") + "</h3>" +
       '<div class="card workshop"><div class="ws-row">' + ["stone", "wood", "bone"].map(function (k) {
-        return '<div class="ws-cell">' + resIcon(k, "lg") + "<b>" + n(ws[k]) + '</b><small>' + t("res." + k) + '</small><span class="ws-pct">' + r.alloc[k] + "%</span></div>";
+        return '<div class="ws-cell">' + resIcon(k, "lg") + "<b>" + short(ws[k]) + '</b><small>' + t("res." + k) + '</small><span class="ws-pct">' + r.alloc[k] + "%</span></div>";
       }).join("") + '</div><div class="bar"><div style="width:' + Math.min(100, wsSum / r.caps.workshop * 100) + '%"></div></div>' +
-      '<div class="muted small">' + t("ws.rate", { v: r.rates.workshop_per_h, cap: n(r.caps.workshop) }) + "</div>" +
+      '<div class="muted small">' + t("ws.rate", { v: short(r.rates.workshop_per_h), cap: short(r.caps.workshop) }) + "</div>" +
       '<div class="row2"><button class="btn" data-action="collect"' + (wsSum < 1 ? " disabled" : "") + ">📥 " + t("ws.collect") +
       '</button><button class="btn ghost" data-action="alloc-sheet">⚖️ ' + t("ws.alloc") + "</button></div></div>";
 
@@ -350,8 +359,8 @@
   function bldShort(b) {
     var e = b.effect;
     if (b.type === "den") return "⚡ ×" + e.train_speed;
-    if (b.type === "food_cave") return "🥩 " + n(e.capacity) + " · 🛡" + Math.round(e.protection * 100) + "%";
-    if (b.type === "workshop") return n(e.per_hour) + "/" + t("time.h");
+    if (b.type === "food_cave") return "🥩 " + short(e.capacity) + " · 🛡" + Math.round(e.protection * 100) + "%";
+    if (b.type === "workshop") return short(e.per_hour) + "/" + t("time.h");
     if (b.type === "hospital") return "🏥 " + e.heal_cap;
     if (e.role) return ROLE_ICON[e.role] + " T" + e.max_tier;
     return "";
@@ -381,7 +390,7 @@
     if (!keys.length) return "";
     return '<table class="fx"><tr><th></th><th>' + t("common.now") + "</th>" + (b.next ? "<th>" + t("common.next") + "</th>" : "") + "</tr>" +
       keys.map(function (k) {
-        var fmt = function (v) { return k === "protection" ? Math.round(v * 100) + "%" : (k === "max_tier" ? "T" + v : n(v) === "0" && v ? v : (v % 1 ? v : n(v))); };
+        var fmt = function (v) { return k === "protection" ? Math.round(v * 100) + "%" : (k === "max_tier" ? "T" + v : short(v)); };
         return "<tr><td>" + t("fx." + k) + "</td><td>" + fmt(b.effect[k]) + "</td>" + (b.next ? "<td class=\"up\">" + fmt(b.next.effect[k]) + "</td>" : "") + "</tr>";
       }).join("") + "</table>";
   }
@@ -536,7 +545,7 @@
   function battleSheet(b) {
     var log = b.log || [];
     var html = '<h2 class="res-' + b.outcome + '">' + t("outcome." + b.outcome) + "</h2><div class=\"muted\">" + esc(b.attacker) + " ⚔️ " + esc(b.defender) +
-      "</div>" + '<div class="ep"><span>⚔️ ' + n(b.ep_attacker) + "</span><b>R " + b.ratio + "</b><span>🛡 " + n(b.ep_defender) + "</span></div>" +
+      "</div>" + '<div class="ep"><span>⚔️ ' + short(b.ep_attacker) + "</span><b>R " + b.ratio + "</b><span>🛡 " + short(b.ep_defender) + "</span></div>" +
       '<div class="rounds" id="rounds">' + log.map(function (r, i) {
         return '<div class="round" style="animation-delay:' + (i * 0.45) + 's"><span class="rn">' + r.round + '</span><span class="re">' + t("round." + r.event) +
           '</span><div class="hp"><div class="hpa" style="width:' + r.att + '%"></div></div><div class="hp"><div class="hpd" style="width:' + r.def + '%"></div></div></div>';
@@ -561,7 +570,7 @@
     if (d.army_total != null) html += "<p>🐺 " + t("scout.total", { n: d.army_total }) + "</p>";
     if (d.by_role) html += "<p>" + Object.keys(d.by_role).map(function (k) { return ROLE_ICON[k] + " " + d.by_role[k]; }).join(" · ") + "</p>";
     if (d.loot_estimate) html += "<p>" + t("scout.loot") + ": " + costHtml(d.loot_estimate) + "</p>";
-    if (d.cp) html += "<p>⚡ " + n(d.cp) + " CP · 🍖 L" + d.food_cave + " · 🛡 " + Math.round(d.protection * 100) + "%</p>";
+    if (d.cp) html += "<p>⚡ " + short(d.cp) + " CP · 🍖 L" + d.food_cave + " · 🛡 " + Math.round(d.protection * 100) + "%</p>";
     html += '<div class="muted small">' + t("scout.valid") + " " + (r.valid ? dur(left(r.expires_at)) : t("scout.expired")) + "</div>";
     openSheet(html);
   }
@@ -650,14 +659,14 @@
     var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
     var html = '<div class="card profile"><div class="alpha-pic big">' + wolfImg(p.level, "", p.wolf.name) + '</div><h2>' + esc(p.name) + '</h2><div class="muted">' +
       (user && user.username ? "@" + esc(user.username) : "") + '</div><div class="stats3"><div><b>' + p.level + "</b><small>" + t("common.level") +
-      "</small></div><div><b>" + n(p.cp) + "</b><small>CP</small></div><div><b>" + (pr ? pr.stats.wins + "/" + pr.stats.battles : "…") + "</b><small>" +
-      t("profile.wins") + "</small></div></div>" + '<div class="stats3"><div><b>' + (pr ? n(pr.stats.hunts) : "…") + "</b><small>" + t("profile.hunts") +
-      "</small></div><div><b>" + n(p.xp) + "</b><small>XP</small></div><div><b>" + p.army.count + "</b><small>" + t("pack.size") + "</small></div></div></div>";
+      "</small></div><div><b>" + short(p.cp) + "</b><small>CP</small></div><div><b>" + (pr ? pr.stats.wins + "/" + pr.stats.battles : "…") + "</b><small>" +
+      t("profile.wins") + "</small></div></div>" + '<div class="stats3"><div><b>' + (pr ? short(pr.stats.hunts) : "…") + "</b><small>" + t("profile.hunts") +
+      "</small></div><div><b>" + short(p.xp) + "</b><small>XP</small></div><div><b>" + p.army.count + "</b><small>" + t("pack.size") + "</small></div></div></div>";
     html += "<h3>" + t("profile.ladder") + '</h3><div class="ladder">';
     Object.keys(S.cfg.levels).forEach(function (l) {
       var row = S.cfg.levels[l], cur = +l === p.level, past = +l < p.level;
       html += '<div class="rung' + (cur ? " cur" : past ? " past" : "") + (+l > S.cfg.max_level ? " v2" : "") + '"><span class="rl">' + l + "</span>" + wolfImg(+l, "rung-img" + (+l > p.level ? " dim" : ""), row.name) + '<span class="rn">' + esc(row.name) +
-        '</span><span class="rx">' + (past ? "✓" : n(row.xp_total) + " XP") + "</span></div>";
+        '</span><span class="rx">' + (past ? "✓" : short(row.xp_total) + " XP") + "</span></div>";
     });
     html += "</div>" + '<div class="card"><div class="row-between"><span>🌐 ' + t("profile.lang") + "</span><b>Oʻzbekcha</b></div>" +
       '<div class="muted small">' + t("profile.lang_soon") + "</div></div>" +
@@ -775,7 +784,7 @@
     return Object.keys(r).map(function (k) {
       if (k === "free_speedups") return "⚡×" + r[k];
       if (k === "army") return ROLE_ICON[r[k][0]] + "×" + r[k][1];
-      return (RES_ICON[k] || k) + " " + r[k];
+      return (RES_ICON[k] || k) + " " + short(r[k]);
     }).join(" ");
   }
 
