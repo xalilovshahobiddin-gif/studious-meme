@@ -274,6 +274,8 @@ final class Api
             'roles' => F::ROLES, 'tiers' => F::TIERS, 'role_building' => F::ROLE_BUILDING, 'beats' => F::BEATS,
             'march_speed' => Config::get('march_speed'), 'scout_speed' => Config::get('scout_speed'),
             'pack_unlock_level' => Config::int('pack_unlock_level'),
+            'shield_newbie_level' => Config::int('shield_newbie_level'),
+            'hunger' => ['cp_penalty' => Config::get('hunger_cp_penalty'), 'prod_penalty' => Config::get('hunger_prod_penalty')],
             'speedup' => ['base_price' => Config::get('speedup_base_price'), 'growth' => Config::get('speedup_price_growth'),
                 'daily_cap_seconds' => F::speedupDailyCap()],
             'locale_version' => (int) Db::val('SELECT COUNT(*) FROM locales'),

@@ -46,7 +46,8 @@ p { margin: 8px 0; }
 .xpbar { height: 5px; width: 150px; background: rgba(255,255,255,.1); border-radius: 4px; margin-top: 4px; overflow: hidden; }
 .xpfill { height: 100%; background: linear-gradient(90deg, var(--blue2), var(--gold)); border-radius: 4px; transition: width .6s; }
 .top-flags { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
-.flag { font-size: 11px; padding: 3px 7px; border-radius: 10px; background: rgba(90,179,255,.16); }
+.flag { font-size: 11px; padding: 5px 9px; border-radius: 10px; background: rgba(90,179,255,.16); color: var(--text); cursor: pointer; }
+.flag:active { transform: scale(.95); }
 .flag.bad { background: rgba(255,90,106,.2); }
 .flag.demo { background: rgba(245,192,74,.2); color: var(--gold); font-weight: 700; }
 .pulse { animation: pulse 1.2s infinite; }

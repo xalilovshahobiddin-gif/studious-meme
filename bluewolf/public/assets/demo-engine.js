@@ -1120,7 +1120,8 @@
     Object.keys(D.levels).forEach(function (l) { var r = D.levels[l]; levels[l] = { name: r.name, xp_total: r.xp_total, cp: r.cp, army: r.army }; });
     return { max_level: CI("max_level"), levels: levels, prey: D.prey, tutorial_skip_step: CI("tutorial_skip_step"), roles: ROLES, tiers: TIERS,
       role_building: ROLE_BUILDING, beats: BEATS, march_speed: C("march_speed"), scout_speed: C("scout_speed"),
-      pack_unlock_level: CI("pack_unlock_level"), speedup: { daily_cap_seconds: F.speedupDailyCap() } };
+      pack_unlock_level: CI("pack_unlock_level"), shield_newbie_level: CI("shield_newbie_level"),
+      hunger: { cp_penalty: C("hunger_cp_penalty"), prod_penalty: C("hunger_prod_penalty") }, speedup: { daily_cap_seconds: F.speedupDailyCap() } };
   }
 
   /** Soʻrov: xuddi fetch javobi kabi { ok, data, state } yoki { ok:false, error }. */

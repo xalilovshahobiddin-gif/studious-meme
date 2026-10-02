@@ -21,6 +21,16 @@ return [
   'res.moonstone.info' => 'Oy toshi: {v} · tezlashtirish uchun',
 
   'flag.hunger' => '🍂 Ochlik', 'flag.shield' => '🛡 Qalqon', 'flag.incoming' => '⚠️ Hujum!',
+  'shield.newbie_title' => 'Yangi oʻyinchi qalqoni',
+  'shield.newbie' => 'Hozircha real oʻyinchilar sizga hujum qila olmaydi. Qalqon {l}-darajada oʻchadi.',
+  'shield.newbie_note' => 'Bu vaqtda yovvoyi toʻdalarga hujum qilib mashq qilishingiz mumkin — bu qalqonni oʻchirmaydi.',
+  'shield.timed_title' => 'Qalqon faol',
+  'shield.timed' => 'Iningizga hujum qilib boʻlmaydi: yana {t}.',
+  'shield.timed_note' => 'Qalqon jangda koʻp yoʻqotgandan keyin beriladi. Oʻzingiz hujum qilsangiz, u darhol oʻchadi.',
+  'hunger.title' => 'Toʻda och',
+  'hunger.text' => 'Goʻsht tugadi: jangda kuch −{cp}%, ustaxona −{prod}%. 7 kundan keyin boʻrilar keta boshlaydi. Goʻsht kelishi bilan jarimalar darhol oʻchadi.',
+  'incoming.title' => 'Hujum kelyapti',
+  'incoming.note' => 'Inda qolgan boʻrilar himoyalanadi. Yurishdagi boʻrilar himoyaga qatnashmaydi.',
   'wolf.class.Haqiqiy' => 'haqiqiy boʻri', 'wolf.class.Qadimgi' => 'qadimgi boʻri', 'wolf.class.Mifologik' => 'afsonaviy boʻri',
 
   // In

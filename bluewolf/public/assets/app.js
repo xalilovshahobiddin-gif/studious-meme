@@ -221,9 +221,10 @@
     var pct = p.xp_next ? (p.xp - p.xp_level) / (p.xp_next - p.xp_level) * 100 : 100;
     $("xpFill").style.width = Math.max(2, Math.min(100, pct)) + "%";
     var flags = "";
-    if (p.hunger) flags += '<span class="flag bad">' + t("flag.hunger") + "</span>";
-    if (p.shielded) flags += '<span class="flag">' + t("flag.shield") + "</span>";
-    if (S.state.incoming.length) flags += '<span class="flag bad pulse">' + t("flag.incoming") + "</span>";
+    // Holat belgilari — bosilsa izoh oynasi ochiladi
+    if (p.hunger) flags += '<button class="flag bad" data-action="flag-info" data-flag="hunger">' + t("flag.hunger") + "</button>";
+    if (p.shielded) flags += '<button class="flag" data-action="flag-info" data-flag="shield">' + t("flag.shield") + "</button>";
+    if (S.state.incoming.length) flags += '<button class="flag bad pulse" data-action="flag-info" data-flag="incoming">' + t("flag.incoming") + "</button>";
     if (DEMO) flags += '<button class="flag demo" data-action="demo-sheet">⏩ ' + t("demo.badge") + "</button>";
     $("topFlags").innerHTML = flags;
     renderResbar(r);
@@ -919,9 +920,10 @@
     if (!el || el.disabled) return;
     var a = el.dataset.action, id = +el.dataset.id || 0, sh = S.sheet || {};
     switch (a) {
-      case "tab": switchTab(el.dataset.tab); break;
+      case "tab": closeSheet(); switchTab(el.dataset.tab); break;
       case "close-sheet": closeSheet(); break;
       case "res-info": resInfo(el.dataset.res); break;
+      case "flag-info": flagInfo(el.dataset.flag); break;
       case "close-levelup": $("levelup").className = "levelup hidden"; break;
       case "hunt-sheet": huntSheet(); break;
       case "hunt": doHunt(el.dataset.prey, +el.dataset.pack); break;
@@ -984,6 +986,25 @@
         return '<button class="btn" data-action="demo-skip" data-sec="' + x[0] + '">' + x[1] + "</button>";
       }).join("") + '</div><p class="muted small">' + t("demo.offset", { t: dur(DEMO.offset()) }) + "</p>" +
       '<button class="btn big ghost" data-action="demo-reset">↺ ' + t("demo.reset") + "</button>");
+  }
+
+  function flagInfo(kind) {
+    var p = S.state.player, html;
+    if (kind === "shield") {
+      var newbie = p.level <= S.cfg.shield_newbie_level;
+      html = '<div class="center"><div class="big-icon">🛡</div><h2>' + t(newbie ? "shield.newbie_title" : "shield.timed_title") + "</h2>" +
+        "<p>" + (newbie ? t("shield.newbie", { l: S.cfg.shield_newbie_level + 1 }) : t("shield.timed", { t: dur(left(p.shield_until)) })) + "</p>" +
+        '<p class="muted small">' + t(newbie ? "shield.newbie_note" : "shield.timed_note") + "</p></div>";
+    } else if (kind === "hunger") {
+      html = '<div class="center"><div class="big-icon">🍂</div><h2>' + t("hunger.title") + "</h2><p>" +
+        t("hunger.text", { cp: Math.round(S.cfg.hunger.cp_penalty * 100), prod: Math.round(S.cfg.hunger.prod_penalty * 100) }) + "</p>" +
+        '<button class="btn big" data-action="hunt-sheet">🐾 ' + t("hunt.go") + "</button></div>";
+    } else {
+      html = '<div class="center"><div class="big-icon">⚠️</div><h2>' + t("incoming.title") + "</h2>" +
+        S.state.incoming.map(function (m) { return "<p>" + t("pvp.incoming", { name: esc(m.from) }) + " — " + dur(left(m.arrives_at)) + "</p>"; }).join("") +
+        '<p class="muted small">' + t("incoming.note") + '</p><button class="btn big red" data-action="tab" data-tab="battle">⚔️ ' + t("nav.battle") + "</button></div>";
+    }
+    openSheet(html);
   }
 
   function targetById(id) { return S.targets ? S.targets.targets.filter(function (x) { return x.id === id; })[0] : null; }
