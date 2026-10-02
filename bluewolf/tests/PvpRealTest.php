@@ -17,7 +17,7 @@ foreach ([$a, $b] as $id) {
 }
 Db::exec("INSERT INTO army (player_id, role, tier, alive) VALUES (?, 'attacker', 1, 17)", [$a]);
 Db::exec("INSERT INTO army (player_id, role, tier, alive) VALUES (?, 'hunter', 1, 5)", [$b]);
-Db::exec('UPDATE player_resources SET meat = 120, stone = 1000, wood = 1000, hide = 500, bone = 500 WHERE player_id = ?', [$b]);
+Db::exec('UPDATE player_resources SET meat = 120, stone = 1000, wood = 1000, bone = 500 WHERE player_id = ?', [$b]);
 $pB = Db::one('SELECT * FROM players WHERE id = ?', [$b]);
 ok(!Game::isShielded($pB, $T), '7-daraja qalqonsiz');
 

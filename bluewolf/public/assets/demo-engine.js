@@ -8,15 +8,15 @@
   "use strict";
 
   var D = window.BW_DEMO_DATA;
-  var STORE = "bw_demo_v1";
+  var STORE = "bw_demo_v2"; // v2: teri, oʻt va suv olib tashlandi
   var ROLES = ["scout", "attacker", "defender", "hunter"];
   var TIERS = 6;
   var BUILDINGS = ["den", "food_cave", "workshop", "scout_rock", "battle_ground", "defense_wall", "hunt_path", "hospital", "market"];
   var ROLE_BUILDING = { scout: "scout_rock", attacker: "battle_ground", defender: "defense_wall", hunter: "hunt_path" };
   var BEATS = { defender: "attacker", attacker: "scout", scout: "defender" };
-  var WS = ["stone", "wood", "hide", "bone"];
-  var RES = ["meat", "water", "herb", "stone", "wood", "hide", "bone"];
-  var LOOT_RES = ["meat", "stone", "wood", "hide", "bone"];
+  var WS = ["stone", "wood", "bone"];
+  var RES = ["meat", "stone", "wood", "bone"];
+  var LOOT_RES = ["meat", "stone", "wood", "bone"];
   var V2_BUILDINGS = ["market"];
   var HTTP = { UNAUTHORIZED: 401, NOT_FOUND: 404, QUEUE_BUSY: 409, PAIR_LIMIT: 429, SPEEDUP_CAP: 429, COOLDOWN: 429, NOT_IN_MVP: 501 };
   var TUTORIAL_NAME = "Mashq boʻrisi";
@@ -70,7 +70,6 @@
     },
     foodCap: function (l) { return C("store_base") * Math.pow(C("store_growth"), l - 1); },
     protection: function (l) { return Math.min(C("protect_max"), C("protect_base") + C("protect_growth") * (l - 1)); },
-    waterRate: function (l) { return C("water_base") * Math.pow(C("water_growth"), l - 1); },
     workshopRate: function (l) { return C("prod_base") * Math.pow(C("prod_growth"), l - 1); },
     workshopCap: function (l) { return F.workshopRate(l) * C("workshop_store_hours"); },
     workshopSlots: function (l) { return CI("workshop_slot_base") + Math.floor(l / 3); },
@@ -224,8 +223,9 @@
   function randomSpot() { var s = CI("map_size_km"); return [randInt(0, s), randInt(0, s)]; }
 
   function initEconomy(pid, now, res, bl) {
-    var r = { meat: 0, water: 0, herb: 0, stone: 0, wood: 0, hide: 0, bone: 0, moonstone: 0,
-      alloc_stone: 40, alloc_wood: 30, alloc_hide: 15, alloc_bone: 15, ws_stone: 0, ws_wood: 0, ws_hide: 0, ws_bone: 0, last_tick: now };
+    // Standart taqsimot — sql/004_simplify_resources.sql dagi DEFAULT bilan bir xil
+    var r = { meat: 0, stone: 0, wood: 0, bone: 0, moonstone: 0,
+      alloc_stone: 57, alloc_wood: 26, alloc_bone: 17, ws_stone: 0, ws_wood: 0, ws_bone: 0, last_tick: now };
     Object.keys(res).forEach(function (k) { r[k] = res[k]; });
     db.res[pid] = r;
     db.bld[pid] = {};
@@ -244,7 +244,7 @@
   function createMe(now) {
     var pid = nextId();
     newPlayer(pid, "Siz", 1, now, false);
-    initEconomy(pid, now, { meat: C("start_meat"), stone: C("start_stone"), wood: C("start_wood"), hide: C("start_hide"),
+    initEconomy(pid, now, { meat: C("start_meat"), stone: C("start_stone"), wood: C("start_wood"),
       bone: C("start_bone"), moonstone: CI("start_moonstone") });
     db.me = pid;
     return pid;
@@ -341,8 +341,6 @@
     r.meat = Math.max(0, r.meat - cons * dt);
     var prodK = (offline ? C("offline_prod_rate") : 1) * (hungry ? 1 - C("hunger_prod_penalty") : 1);
     var storeK = offline ? C("offline_store_mult") : 1;
-    var waterCap = F.foodCap(b.food_cave) * storeK;
-    if (r.water < waterCap) r.water = Math.min(waterCap, r.water + F.waterRate(b.food_cave) / 3600 * dt * prodK);
     var add = F.workshopRate(b.workshop) / 3600 * dt * prodK, auto = c.p.auto_collect === 1;
     if (!auto) {
       var have = 0; WS.forEach(function (k) { have += r["ws_" + k]; });
@@ -459,7 +457,7 @@
     if (role) return { max_tier: F.maxTier(role, pl, l), soldier_cap: Math.floor(F.roleCap(l)), train_speed: round2(F.trainSpeed(l)), role: role };
     switch (type) {
       case "den": return { train_speed: round2(F.denCoef(l)) };
-      case "food_cave": return { capacity: Math.floor(F.foodCap(l)), protection: round2(F.protection(l)), water_per_h: Math.round(F.waterRate(l) * 10) / 10 };
+      case "food_cave": return { capacity: Math.floor(F.foodCap(l)), protection: round2(F.protection(l)) };
       case "workshop": return { per_hour: Math.round(F.workshopRate(l) * 10) / 10, capacity: Math.floor(F.workshopCap(l)), slots: F.workshopSlots(l) };
       case "hospital": return { heal_cap: F.healCap(l), heal_minutes: Math.round(F.healTime(l) / 6) / 10 };
     }
@@ -662,8 +660,8 @@
       .filter(function (x) { return x[1] > 0; }).map(function (x) { return { role: x[0], tier: tier, qty: x[1] }; });
   }
   function stock(level) {
-    var ws = F.workshopRate(Math.max(1, level - 1)) * 8 / 4;
-    return { meat: round2(F.meatNeed(level) * F.armyCap(level) * C("reserve_days") + 5), stone: ws, wood: ws, hide: ws, bone: ws };
+    var ws = F.workshopRate(Math.max(1, level - 1)) * 8 / WS.length;
+    return { meat: round2(F.meatNeed(level) * F.armyCap(level) * C("reserve_days") + 5), stone: ws, wood: ws, bone: ws };
   }
   function createBot(level, name, now, tutorial) {
     var pid = nextId();
@@ -1032,9 +1030,9 @@
     res.moonstone = r.moonstone;
     WS.forEach(function (k) { ws[k] = Math.floor(r["ws_" + k]); });
     res.workshop = ws;
-    res.alloc = { stone: r.alloc_stone, wood: r.alloc_wood, hide: r.alloc_hide, bone: r.alloc_bone };
+    res.alloc = { stone: r.alloc_stone, wood: r.alloc_wood, bone: r.alloc_bone };
     res.caps = { food: Math.floor(F.foodCap(b.food_cave)), workshop: Math.floor(F.workshopCap(b.workshop)) };
-    res.rates = { meat_per_h: -round2(F.meatNeed(lvl) * Math.max(1, soldiers(c)) / 24), water_per_h: Math.round(F.waterRate(b.food_cave) * 10) / 10,
+    res.rates = { meat_per_h: -round2(F.meatNeed(lvl) * Math.max(1, soldiers(c)) / 24),
       workshop_per_h: Math.round(F.workshopRate(b.workshop) * 10) / 10 };
     var st = {
       player: { id: p.id, name: p.display_name, level: lvl, xp: p.xp, xp_level: F.xpTotal(lvl),

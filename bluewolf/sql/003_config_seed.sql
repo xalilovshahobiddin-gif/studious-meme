@@ -19,7 +19,6 @@ INSERT INTO game_config (config_key, config_value, unit, note) VALUES
   ('start_meat',              40,    'kg',     '(MVP) Boshlangʻich goʻsht'),
   ('start_stone',             200,   'unit',   '(MVP) Boshlangʻich tosh'),
   ('start_wood',              150,   'unit',   '(MVP) Boshlangʻich shox-shabba'),
-  ('start_hide',              50,    'unit',   '(MVP) Boshlangʻich teri'),
   ('start_bone',              150,    'unit',   '(MVP) Boshlangʻich suyak'),
   ('start_moonstone',         50,    'ms',     '(MVP) Test uchun oy toshi'),
 
@@ -85,10 +84,6 @@ INSERT INTO game_config (config_key, config_value, unit, note) VALUES
   ('protect_base',            0.30,  'ratio',  'Gʻor himoyasi 1-daraja'),
   ('protect_growth',          0.02,  'ratio',  'Himoya oʻsishi / daraja'),
   ('protect_max',             0.85,  'ratio',  'Himoya maksimumi'),
-  ('water_base',              5,     'unit/h', 'Bazaviy passiv suv'),
-  ('water_growth',            1.2,   'x',      'Passiv suv oʻsishi'),
-  ('water_need_base',         0.4,   'unit',   'Askar boshiga kunlik suv'),
-  ('water_need_growth',       0.04,  'unit/lvl','Suv ehtiyoji oʻsishi'),
 
   -- Ustaxona
   ('workshop_store_hours',    10,    'hour',   'Ustaxona sigʻimi = soatlik × shu'),

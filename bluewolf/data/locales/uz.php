@@ -12,8 +12,13 @@ return [
   'time.h' => 'soat', 'time.m' => 'daq', 'time.s' => 'son',
 
   // Resurslar
-  'res.meat' => 'Goʻsht', 'res.water' => 'Suv', 'res.herb' => 'Shifobaxsh oʻt', 'res.stone' => 'Tosh',
-  'res.wood' => 'Shox-shabba', 'res.hide' => 'Teri', 'res.bone' => 'Suyak', 'res.moonstone' => 'Oy toshi',
+  'res.meat' => 'Goʻsht', 'res.stone' => 'Tosh', 'res.wood' => 'Shox-shabba', 'res.bone' => 'Suyak', 'res.moonstone' => 'Oy toshi',
+  'res.meat.info' => 'Goʻsht: {v} / {cap} kg · toʻda soatiga {rate} kg yeydi. Ov qilib toʻldiring.',
+  'res.meat.full' => 'Oziq gʻori toʻla — yangi oʻlja sigʻmaydi. Gʻorni kuchaytiring yoki goʻshtni sarflang.',
+  'res.stone.info' => 'Tosh: {v} · ustaxonada soatiga +{rate}',
+  'res.wood.info' => 'Shox-shabba: {v} · ustaxonada soatiga +{rate}',
+  'res.bone.info' => 'Suyak: {v} · ustaxonada soatiga +{rate}',
+  'res.moonstone.info' => 'Oy toshi: {v} · tezlashtirish uchun',
 
   'flag.hunger' => '🍂 Ochlik', 'flag.shield' => '🛡 Qalqon', 'flag.incoming' => '⚠️ Hujum!',
   'wolf.class.Haqiqiy' => 'haqiqiy boʻri', 'wolf.class.Qadimgi' => 'qadimgi boʻri', 'wolf.class.Mifologik' => 'afsonaviy boʻri',
@@ -30,7 +35,7 @@ return [
   'speedup.desc' => 'Bugun yana {left} tezlashtirish mumkin (kunlik 25% chegara).',
   'speedup.rule' => 'Tezlashtirish faqat vaqt tejaydi — kuch sotilmaydi. Har keyingi soat qimmatroq.',
   'ws.rate' => 'Soatiga {v} birlik · sigʻim {cap}', 'ws.collect' => 'Yigʻish', 'ws.collected' => 'Omborga oʻtkazildi',
-  'ws.alloc' => 'Taqsimot', 'ws.alloc_desc' => 'Ustaxona soatlik ishlab chiqarishini 4 resurs orasida taqsimlang.',
+  'ws.alloc' => 'Taqsimot', 'ws.alloc_desc' => 'Ustaxona soatlik ishlab chiqarishini 3 resurs orasida taqsimlang. Binolarga eng koʻp tosh kerak boʻladi.',
   'ws.alloc_sum' => 'Yigʻindi: {s}% (100% boʻlishi kerak)',
 
   // Binolar
@@ -38,8 +43,8 @@ return [
   'bld.battle_ground' => 'Jang maydoni', 'bld.defense_wall' => 'Himoya devori', 'bld.hunt_path' => 'Ov soʻqmogʻi',
   'bld.hospital' => 'Shifo gʻori', 'bld.market' => 'Bozor',
   'bld.den.desc' => 'Toʻdaning asosiy makoni. Darajasi sizning darajangiz bilan birga oʻsadi va mashqni tezlashtiradi.',
-  'bld.food_cave.desc' => 'Goʻsht, suv va oʻtni saqlaydi. Kattaroq gʻor — koʻproq zaxira va reydda kuchliroq himoya.',
-  'bld.workshop.desc' => 'Tosh, shox-shabba, teri va suyak ishlab chiqaradi.',
+  'bld.food_cave.desc' => 'Goʻshtni saqlaydi. Kattaroq gʻor — koʻproq zaxira va reydda kuchliroq himoya.',
+  'bld.workshop.desc' => 'Tosh, shox-shabba va suyak ishlab chiqaradi.',
   'bld.scout_rock.desc' => 'Razvedkachilar tieri va mashqi.', 'bld.battle_ground.desc' => 'Hujumchilar tieri va mashqi.',
   'bld.defense_wall.desc' => 'Himoyachilar tieri va mashqi.', 'bld.hunt_path.desc' => 'Ovchilar tieri va mashqi.',
   'bld.hospital.desc' => 'Jarohatlangan boʻrilarni davolaydi. Boʻrilar oʻlmaydi — jarohatlanadi.',
@@ -47,7 +52,7 @@ return [
   'bld.den.auto' => 'In alohida qurilmaydi — daraja koʻtarilganda avtomatik oʻsadi.',
   'bld.next' => '{l}-darajaga', 'bld.upgrade' => 'Kuchaytirish', 'bld.started' => 'Qurilish boshlandi',
   'bld.max_by_level' => 'Bino oʻyinchi darajasidan oshmaydi. Darajangizni koʻtaring!',
-  'fx.capacity' => 'Sigʻim', 'fx.protection' => 'Himoya', 'fx.water_per_h' => 'Suv / soat', 'fx.per_hour' => 'Ishlab chiqarish / soat',
+  'fx.capacity' => 'Sigʻim', 'fx.protection' => 'Himoya', 'fx.per_hour' => 'Ishlab chiqarish / soat',
   'fx.slots' => 'Yigʻuvchi slot', 'fx.max_tier' => 'Maks tier', 'fx.soldier_cap' => 'Askar sigʻimi', 'fx.train_speed' => 'Mashq tezligi',
   'fx.heal_cap' => 'Bir vaqtda davolash', 'fx.heal_minutes' => 'Davolash (daq)',
   'hospital.injured' => 'Jarohatlanganlar', 'hospital.none' => 'Jarohatlangan boʻri yoʻq.', 'hospital.started' => 'Davolash boshlandi',
@@ -120,7 +125,7 @@ return [
   'tutorial.step.4.text' => 'Goʻsht buziladi. Uni saqlash uchun Oziq gʻori kerak.', 'tutorial.step.4.action' => '🍖 Oziq gʻorini qurish',
   'tutorial.step.5.text' => 'Ovlagan goʻshtingni gʻorga sol.', 'tutorial.step.5.action' => 'Saqlash',
   'tutorial.step.6.text' => 'Qurilish uchun tosh kerak. Ustaxona qoyasini qur.', 'tutorial.step.6.action' => '🪨 Ustaxona qurish',
-  'tutorial.step.7.text' => 'Ustaxona sen uchun tosh, shox-shabba, teri va suyak yigʻadi. Taqsimotni tanla.', 'tutorial.step.7.action' => '⚖️ Tasdiqlash',
+  'tutorial.step.7.text' => 'Ustaxona sen uchun tosh, shox-shabba va suyak yigʻadi. Taqsimotni tanla.', 'tutorial.step.7.action' => '⚖️ Tasdiqlash',
   'tutorial.step.8.text' => 'Ov qilish uchun mashq kerak. Ov soʻqmogʻini qur.', 'tutorial.step.8.action' => '🐾 Ov soʻqmogʻi',
   'tutorial.step.9.text' => 'Birinchi ovchingni tayyorla.', 'tutorial.step.9.action' => '🥩 Ovchi tayyorlash',
   'tutorial.step.10.text' => 'Binolarni kuchaytirsang, koʻproq sigʻadi.', 'tutorial.step.10.action' => '⬆️ Oziq gʻori L3',

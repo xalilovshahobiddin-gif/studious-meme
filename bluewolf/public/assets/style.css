@@ -50,15 +50,32 @@ p { margin: 8px 0; }
 .pulse { animation: pulse 1.2s infinite; }
 @keyframes pulse { 50% { opacity: .45; } }
 
-/* Resurs paneli */
-.resbar { display: flex; gap: 6px; overflow-x: auto; padding: 2px 12px 8px; scrollbar-width: none; }
-.resbar::-webkit-scrollbar { display: none; }
-.res { flex: 0 0 auto; display: flex; align-items: center; gap: 4px; background: var(--card); border: 1px solid var(--line);
-  border-radius: 12px; padding: 4px 9px; font-weight: 600; font-size: 13px; }
-.res small { color: var(--muted); font-weight: 500; }
-.res.full { border-color: rgba(69,212,131,.6); }
-.res.low { border-color: rgba(255,90,106,.6); }
-.res.gem { background: rgba(245,192,74,.12); }
+/* Resurs paneli: bitta karta, 5 katak — goʻsht ombor chizigʻi bilan, oy toshi oltin */
+.resbar { display: grid; grid-template-columns: 1.45fr 1fr 1fr 1fr 1fr; margin: 2px 12px 10px; padding: 4px;
+  background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03)); border: 1px solid var(--line);
+  border-radius: 16px; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+.res { position: relative; display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 0;
+  padding: 7px 4px 9px; border-radius: 12px; font-weight: 700; font-size: 13.5px; font-variant-numeric: tabular-nums; color: var(--text); }
+.res + .res::before { content: ""; position: absolute; left: 0; top: 22%; bottom: 22%; width: 1px; background: var(--line); }
+.res:active { background: rgba(255,255,255,.06); }
+.res:focus-visible { outline: 2px solid var(--blue2); outline-offset: -2px; }
+.res .ri { width: 20px; height: 20px; flex: 0 0 auto; }
+.rv { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.res-moonstone { color: var(--gold); }
+.res-moonstone::after { content: ""; position: absolute; inset: 3px; border-radius: 10px; background: radial-gradient(circle at 30% 50%, rgba(245,192,74,.16), transparent 70%); pointer-events: none; }
+.rcap { position: absolute; left: 10px; right: 10px; bottom: 3px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.1); overflow: hidden; }
+.rfill { display: block; height: 100%; border-radius: 2px; background: linear-gradient(90deg, #e8584f, #ff9a6b); transition: width .6s; }
+.res-meat.low .rfill { background: var(--red); animation: pulse 1.2s infinite; }
+.res-meat.low .rv { color: #ff8a93; }
+.res-meat.full .rfill { background: var(--green); }
+.res.up .rv { animation: resUp .7s; }
+.res.down .rv { animation: resDown .7s; }
+@keyframes resUp { 30% { color: var(--green); transform: translateY(-2px); } }
+@keyframes resDown { 30% { color: #ff8a93; } }
+.ri { display: inline-block; width: 16px; height: 16px; vertical-align: -3px; }
+.ri.lg { width: 26px; height: 26px; }
+.cost .ri { margin-right: 3px; }
+.slider .ri { margin-right: 2px; }
 
 /* Ekranlar */
 #screens { flex: 1; padding: 0 12px calc(170px + var(--safe-b)); }
@@ -120,9 +137,11 @@ p { margin: 8px 0; }
 .queue .q-title { font-weight: 600; }
 .q-actions { display: flex; gap: 6px; justify-content: flex-end; }
 
-.ws-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; text-align: center; }
-.ws-cell { background: rgba(255,255,255,.04); border-radius: 10px; padding: 6px 2px; display: flex; flex-direction: column; }
-.ws-cell i { font-style: normal; }
+.ws-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+.ws-cell { background: rgba(255,255,255,.04); border-radius: 12px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; gap: 2px; font-variant-numeric: tabular-nums; }
+.ws-cell b { font-size: 16px; }
+.ws-cell small { color: var(--muted); }
+.ws-pct { font-size: 11px; font-weight: 700; color: var(--blue2); background: rgba(90,179,255,.12); border-radius: 8px; padding: 1px 7px; }
 .ws-cell small { color: var(--muted); }
 
 /* Binolar */

@@ -6,7 +6,7 @@ namespace BlueWolf;
 /** PvP: raqiblar roʻyxati, hujum, razvedka, yurishlar (GDD bo'lim 7–9, API bo'lim 6). */
 final class Pvp
 {
-    public const LOOT_RES = ['meat', 'stone', 'wood', 'hide', 'bone'];
+    public const LOOT_RES = ['meat', 'stone', 'wood', 'bone'];
 
     // ================================================================ raqiblar
 

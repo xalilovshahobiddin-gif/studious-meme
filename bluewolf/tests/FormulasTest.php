@@ -18,7 +18,6 @@ near(F::buildingTime('workshop', 25) / 3600, 42.4, 0.05, 'Ustaxona L25 vaqti (so
 near(F::buildingTime('battle_ground', 25) / 3600, 45.9, 0.05, 'Jang maydoni L25 vaqti (soat)');
 ok((int) floor(F::foodCap(25)) === 4728, 'Oziq gʻori sigʻimi L25', F::foodCap(25));
 near(F::protection(25), 0.78, 1e-9, 'Himoya L25');
-near(F::waterRate(25), 397, 0.5, 'Passiv suv L25');
 ok((int) round(F::workshopRate(25)) === 2364, 'Ustaxona L25 / soat', F::workshopRate(25));
 ok(F::workshopSlots(25) === 10, 'Yigʻuvchi slot L25');
 ok(F::healCap(25) === 11 || F::healCap(25) === 12, 'Shifo sigʻimi L25', F::healCap(25));

@@ -93,9 +93,9 @@ must(step(5), 'qadam 5');
 $r = api('POST', '/buildings/upgrade', ['type' => 'workshop']);
 freeFinish($r, 'build');
 must(step(6), 'qadam 6 (Ustaxona L2)');
-ok(api('POST', '/profile/allocation', ['stone' => 50, 'wood' => 50, 'hide' => 0, 'bone' => 1])['error']['code'] === 'BAD_REQUEST',
+ok(api('POST', '/profile/allocation', ['stone' => 50, 'wood' => 50, 'bone' => 1])['error']['code'] === 'BAD_REQUEST',
     'Taqsimot yigʻindisi 100 boʻlishi shart');
-must(api('POST', '/profile/allocation', ['stone' => 40, 'wood' => 30, 'hide' => 10, 'bone' => 20]), 'Taqsimot');
+must(api('POST', '/profile/allocation', ['stone' => 50, 'wood' => 30, 'bone' => 20]), 'Taqsimot');
 must(step(7), 'qadam 7');
 $r = api('POST', '/buildings/upgrade', ['type' => 'hunt_path']);
 freeFinish($r, 'build');

@@ -19,7 +19,30 @@
   var ROLE_ICON = { scout: "🔍", attacker: "⚔️", defender: "🛡", hunter: "🏹" };
   var BLD_ICON = { den: "🏔", food_cave: "🍖", workshop: "🪨", scout_rock: "🔭", battle_ground: "⚔️",
     defense_wall: "🛡", hunt_path: "🐾", hospital: "🏥", market: "🛒" };
-  var RES_ICON = { meat: "🥩", water: "💧", stone: "🪨", wood: "🌲", hide: "🐾", bone: "🦴", moonstone: "🌕" };
+  var RES_ICON = { meat: "🥩", stone: "🪨", wood: "🌲", bone: "🦴", moonstone: "🌕" };
+  var RES_KEYS = ["meat", "stone", "wood", "bone", "moonstone"];
+  // Resurs ikonkalari (24×24) — panel va narxlarda bir xil koʻrinish uchun
+  var RES_SVG = {
+    meat: '<path d="M14.6 3.2c3.7-.9 6.9 2.3 6 6-.6 2.6-3.2 4.6-6 4.4l-3.8 3.8.6 1.3a2.1 2.1 0 1 1-3.5 1.9 2.1 2.1 0 1 1-1.9-3.5l1.3.6 3.8-3.8c-.2-2.8 1.8-5.4 4.4-6z" fill="#e8584f"/>' +
+      '<path d="M15.8 5.4c1.8-.3 3.2 1.1 2.9 2.9" stroke="#ffb3a8" stroke-width="1.4" fill="none" stroke-linecap="round"/>' +
+      '<path d="M7.6 17.2l-1.3-.6a2.1 2.1 0 1 0 1.9 3.5 2.1 2.1 0 1 0 3.5-1.9l-.6-1.3z" fill="#f3e6cf"/>',
+    stone: '<path d="M4 15.5 7 7.5l6-3 6.5 4 1.5 7-5 4.5H8.5z" fill="#8c9bb3"/><path d="M7 7.5l6-3 6.5 4-6 2.5z" fill="#b8c4d8"/>' +
+      '<path d="M13.5 11 19.5 8.5 21 15.5l-5 4.5z" fill="#6b7a93"/><path d="M4 15.5 13.5 11l2.5 9H8.5z" fill="#7d8ca5"/>',
+    wood: '<rect x="3" y="9" width="16" height="7" rx="3.5" fill="#9a6a3c"/><ellipse cx="19" cy="12.5" rx="2.6" ry="3.5" fill="#e3b77e"/>' +
+      '<ellipse cx="19" cy="12.5" rx="1.2" ry="1.7" fill="none" stroke="#9a6a3c" stroke-width=".9"/><path d="M6 9 4.5 5.5M4.5 5.5l-2 .8M4.5 5.5l.6-2" stroke="#6fae58" stroke-width="1.6" stroke-linecap="round"/>' +
+      '<path d="M7 12h7M8.5 14h4" stroke="#7a5230" stroke-width="1" stroke-linecap="round"/>',
+    bone: '<path d="M7.2 5.2a2.4 2.4 0 0 0-3.9 2.7 2.4 2.4 0 0 0 1.9 3.9l7.8 7.8a2.4 2.4 0 0 0 3.9 1.9 2.4 2.4 0 0 0 2.7-3.9 2.4 2.4 0 0 0-3.9-1.9L8.9 7.9a2.4 2.4 0 0 0-1.7-2.7z" fill="#efe4cc" stroke="#c9b48d" stroke-width=".9"/>',
+    moonstone: '<circle cx="12" cy="12" r="9.5" fill="#f5c04a" opacity=".2"/><path d="M15.5 3.8a8.6 8.6 0 1 0 4.7 12.7 6.8 6.8 0 0 1-4.7-12.7z" fill="#f7cd5c"/>' +
+      '<path d="M15.5 3.8a8.6 8.6 0 0 0-3.6 15.9" stroke="#fff3c4" stroke-width="1.1" fill="none" opacity=".7"/>'
+  };
+  function resIcon(k, cls) { return '<svg class="ri ' + (cls || "") + '" viewBox="0 0 24 24" aria-hidden="true">' + RES_SVG[k] + "</svg>"; }
+  // Ixcham son: 12 400 → 12.4K, 1 250 000 → 1.25M
+  function short(x) {
+    x = Math.floor(x || 0);
+    if (x < 10000) return n(x);
+    if (x < 1e6) return (x / 1000).toFixed(x < 1e5 ? 1 : 0).replace(/\.0$/, "") + "K";
+    return (x / 1e6).toFixed(2).replace(/\.?0+$/, "") + "M";
+  }
   var PREY_ICON = { rodent: "🐁", bird: "🐦", rabbit: "🐇", marmot: "🦫", gazelle: "🦌", boar: "🐗", deer: "🦌",
     reindeer: "🦌", argali: "🐏", horse: "🐎", moose: "🫎", bison: "🦬", mammoth_calf: "🦣", mammoth: "🦣", spirit: "👻" };
 
@@ -56,7 +79,7 @@
   function costHtml(cost, have) {
     return Object.keys(cost || {}).map(function (k) {
       var lack = have && (have[k] || 0) < cost[k];
-      return '<span class="cost' + (lack ? " lack" : "") + '">' + RES_ICON[k] + " " + n(cost[k]) + "</span>";
+      return '<span class="cost' + (lack ? " lack" : "") + '">' + resIcon(k) + n(cost[k]) + "</span>";
     }).join(" ");
   }
   function uuid() {
@@ -188,15 +211,46 @@
     if (S.state.incoming.length) flags += '<span class="flag bad pulse">' + t("flag.incoming") + "</span>";
     if (DEMO) flags += '<button class="flag demo" data-action="demo-sheet">⏩ ' + t("demo.badge") + "</button>";
     $("topFlags").innerHTML = flags;
-    var food = r.caps.food;
-    var cells = [
-      ["meat", n(r.meat) + '<small>/' + n(food) + "</small>", r.meat >= food ? "full" : (r.meat < food * 0.3 ? "low" : "")],
-      ["water", n(r.water), ""], ["stone", n(r.stone), ""], ["wood", n(r.wood), ""],
-      ["hide", n(r.hide), ""], ["bone", n(r.bone), ""], ["moonstone", n(r.moonstone), "gem"]
-    ];
-    $("resbar").innerHTML = cells.map(function (c) {
-      return '<div class="res ' + c[2] + '" title="' + esc(t("res." + c[0])) + '"><i>' + RES_ICON[c[0]] + "</i><span>" + c[1] + "</span></div>";
-    }).join("");
+    renderResbar(r);
+  }
+
+  // Resurslar paneli: goʻsht (ombor chizigʻi bilan) · tosh · shox-shabba · suyak · oy toshi
+  function renderResbar(r) {
+    var bar = $("resbar"), food = r.caps.food, fill = Math.min(100, r.meat / Math.max(1, food) * 100);
+    var meatState = r.meat >= food ? "full" : (r.meat < food * 0.3 ? "low" : "");
+    if (!bar.firstChild) {
+      bar.innerHTML = RES_KEYS.map(function (k) {
+        return '<button class="res res-' + k + '" data-action="res-info" data-res="' + k + '" aria-label="' + esc(t("res." + k)) + '">' +
+          resIcon(k) + '<span class="rv" id="rv-' + k + '"></span>' +
+          (k === "meat" ? '<span class="rcap"><span class="rfill" id="rfill"></span></span>' : "") + "</button>";
+      }).join("");
+    }
+    var prev = S.resPrev || {};
+    RES_KEYS.forEach(function (k) {
+      var v = Math.floor(r[k] || 0), el = $("rv-" + k);
+      el.textContent = k === "meat" ? short(v) + "/" + short(food) : short(v);
+      if (prev[k] != null && v !== prev[k]) {
+        var cell = el.parentNode, cls = v > prev[k] ? "up" : "down";
+        cell.classList.remove("up", "down"); void cell.offsetWidth; cell.classList.add(cls);
+      }
+      prev[k] = v;
+    });
+    S.resPrev = prev;
+    var meatCell = bar.querySelector(".res-meat");
+    meatCell.classList.toggle("low", meatState === "low");
+    meatCell.classList.toggle("full", meatState === "full");
+    $("rfill").style.width = Math.max(3, fill) + "%";
+  }
+
+  function resInfo(k) {
+    var r = S.state.resources;
+    if (k === "meat") {
+      toast(r.meat >= r.caps.food ? t("res.meat.full") :
+        t("res.meat.info", { v: n(r.meat), cap: n(r.caps.food), rate: Math.abs(r.rates.meat_per_h).toFixed(2) }));
+      return;
+    }
+    var share = r.alloc[k] != null ? r.rates.workshop_per_h * r.alloc[k] / 100 : 0;
+    toast(t("res." + k + ".info", { v: n(r[k]), rate: share.toFixed(1) }));
   }
 
   // Daraja oshdi — yangi boʻri turi
@@ -262,10 +316,10 @@
     });
 
     // Ustaxona
-    var ws = r.workshop, wsSum = ws.stone + ws.wood + ws.hide + ws.bone;
+    var ws = r.workshop, wsSum = ws.stone + ws.wood + ws.bone;
     html += '<h3>🪨 ' + t("bld.workshop") + "</h3>" +
-      '<div class="card workshop"><div class="ws-row">' + ["stone", "wood", "hide", "bone"].map(function (k) {
-        return '<div class="ws-cell"><i>' + RES_ICON[k] + "</i><b>" + n(ws[k]) + '</b><small>' + r.alloc[k] + "%</small></div>";
+      '<div class="card workshop"><div class="ws-row">' + ["stone", "wood", "bone"].map(function (k) {
+        return '<div class="ws-cell">' + resIcon(k, "lg") + "<b>" + n(ws[k]) + '</b><small>' + t("res." + k) + '</small><span class="ws-pct">' + r.alloc[k] + "%</span></div>";
       }).join("") + '</div><div class="bar"><div style="width:' + Math.min(100, wsSum / r.caps.workshop * 100) + '%"></div></div>' +
       '<div class="muted small">' + t("ws.rate", { v: r.rates.workshop_per_h, cap: n(r.caps.workshop) }) + "</div>" +
       '<div class="row2"><button class="btn" data-action="collect"' + (wsSum < 1 ? " disabled" : "") + ">📥 " + t("ws.collect") +
@@ -373,13 +427,13 @@
   function allocSheet() {
     var a = Object.assign({}, S.state.resources.alloc);
     var html = "<h2>⚖️ " + t("ws.alloc") + '</h2><p class="muted">' + t("ws.alloc_desc") + "</p>" +
-      ["stone", "wood", "hide", "bone"].map(function (k) {
-        return '<label class="slider">' + RES_ICON[k] + " " + t("res." + k) + ' <b id="al-' + k + '">' + a[k] + '%</b><input type="range" min="0" max="100" step="5" value="' +
+      ["stone", "wood", "bone"].map(function (k) {
+        return '<label class="slider">' + resIcon(k) + " " + t("res." + k) + ' <b id="al-' + k + '">' + a[k] + '%</b><input type="range" min="0" max="100" step="1" value="' +
           a[k] + '" data-alloc="' + k + '"></label>';
       }).join("") + '<div class="muted small" id="alSum"></div><button class="btn big" data-action="alloc-save">' + t("common.save") + "</button>";
     openSheet(html);
     S.sheet = { alloc: a };
-    var sum = function () { var s = a.stone + a.wood + a.hide + a.bone; $("alSum").textContent = t("ws.alloc_sum", { s: s }); return s; };
+    var sum = function () { var s = a.stone + a.wood + a.bone; $("alSum").textContent = t("ws.alloc_sum", { s: s }); return s; };
     sum();
     document.querySelectorAll("[data-alloc]").forEach(function (inp) {
       inp.addEventListener("input", function () { a[inp.dataset.alloc] = +inp.value; $("al-" + inp.dataset.alloc).textContent = inp.value + "%"; sum(); });
@@ -739,6 +793,7 @@
     switch (a) {
       case "tab": switchTab(el.dataset.tab); break;
       case "close-sheet": closeSheet(); break;
+      case "res-info": resInfo(el.dataset.res); break;
       case "close-levelup": $("levelup").className = "levelup hidden"; break;
       case "hunt-sheet": huntSheet(); break;
       case "hunt": doHunt(el.dataset.prey, +el.dataset.pack); break;
@@ -761,7 +816,7 @@
       case "collect": act(api("POST", "/buildings/collect"), t("ws.collected")); break;
       case "alloc-sheet": allocSheet(); break;
       case "alloc-save":
-        if (sh.alloc.stone + sh.alloc.wood + sh.alloc.hide + sh.alloc.bone !== 100) { toast(t("ws.alloc_sum", { s: sh.alloc.stone + sh.alloc.wood + sh.alloc.hide + sh.alloc.bone }), "err"); break; }
+        if (sh.alloc.stone + sh.alloc.wood + sh.alloc.bone !== 100) { toast(t("ws.alloc_sum", { s: sh.alloc.stone + sh.alloc.wood + sh.alloc.bone }), "err"); break; }
         act(api("POST", "/profile/allocation", sh.alloc), t("common.saved")).then(closeSheet); break;
       case "heal": act(api("POST", "/hospital/heal", { role: el.dataset.role, tier: +el.dataset.tier, qty: +el.dataset.qty }), t("hospital.started")).then(closeSheet); break;
       case "train-sheet": trainSheet(el.dataset.role); break;

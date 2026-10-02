@@ -15,7 +15,7 @@ namespace BlueWolf;
  */
 final class Game
 {
-    public const RES = ['meat', 'water', 'herb', 'stone', 'wood', 'hide', 'bone'];
+    public const RES = ['meat', 'stone', 'wood', 'bone'];
 
     // ================================================================ yaratish
 
@@ -33,7 +33,7 @@ final class Game
             ]);
             self::initEconomy($pid, $now, [
                 'meat' => Config::get('start_meat'), 'stone' => Config::get('start_stone'),
-                'wood' => Config::get('start_wood'), 'hide' => Config::get('start_hide'),
+                'wood' => Config::get('start_wood'),
                 'bone' => Config::get('start_bone'), 'moonstone' => Config::int('start_moonstone'),
             ]);
             Analytics::log($pid, 'player_created', ['lang' => $lang]);
@@ -353,12 +353,11 @@ final class Game
             'resources' => $res + [
                 'workshop' => $ws,
                 'alloc' => ['stone' => (int) $r['alloc_stone'], 'wood' => (int) $r['alloc_wood'],
-                    'hide' => (int) $r['alloc_hide'], 'bone' => (int) $r['alloc_bone']],
+                    'bone' => (int) $r['alloc_bone']],
                 'caps' => ['food' => (int) floor(F::foodCap($b['food_cave'])),
                     'workshop' => (int) floor(F::workshopCap($b['workshop']))],
                 'rates' => [
                     'meat_per_h' => -round(F::meatNeed($lvl) * $mouths / 24, 2),
-                    'water_per_h' => round(F::waterRate($b['food_cave']), 1),
                     'workshop_per_h' => round(F::workshopRate($b['workshop']), 1),
                 ],
             ],

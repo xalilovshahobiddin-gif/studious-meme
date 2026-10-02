@@ -20,7 +20,7 @@ final class F
     ];
     /** Qarshi-kuch uchburchagi: kalit rol ustun keladigan rol. */
     public const BEATS = ['defender' => 'attacker', 'attacker' => 'scout', 'scout' => 'defender'];
-    public const WORKSHOP_RES = ['stone', 'wood', 'hide', 'bone'];
+    public const WORKSHOP_RES = ['stone', 'wood', 'bone'];
 
     private static function c(string $k): float
     {
@@ -98,12 +98,6 @@ final class F
         return min(self::c('protect_max'), self::c('protect_base') + self::c('protect_growth') * ($l - 1));
     }
 
-    /** Passiv suv, birlik/soat */
-    public static function waterRate(int $l): float
-    {
-        return self::c('water_base') * self::c('water_growth') ** ($l - 1);
-    }
-
     /** Ustaxona ishlab chiqarishi, birlik/soat */
     public static function workshopRate(int $l): float
     {
@@ -160,10 +154,6 @@ final class F
         return self::c('need_base') + self::c('need_growth') * ($level - 1);
     }
 
-    public static function waterNeed(int $level): float
-    {
-        return self::c('water_need_base') + self::c('water_need_growth') * ($level - 1);
-    }
 
     /** Daraja uchun jami XP (shu darajaga yetish uchun). */
     public static function xpTotal(int $level): int

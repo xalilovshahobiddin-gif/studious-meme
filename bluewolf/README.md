@@ -115,6 +115,7 @@ Hujjatlar bir-biriga toʻliq mos emas. Quyidagi joylarda qaror qabul qilindi (ha
 9. **Oʻlja/gʻalaba chegaralari** hujjatda aniq emas: `R ≥ 1.1` gʻalaba, `R ≥ 1.5` toʻliq gʻalaba, `R ≤ 1/1.1` magʻlubiyat.
 10. **Mashq narxi 4+ tier:** Excel 187 (yaxlitlangan CP nisbati²), formula `20 × 1.45^(2(t−1))` = 186. MVP da ahamiyatsiz (maks tier 2).
 11. `blue_wolf_darajalar.xlsx` haqiqiy Excel fayl ekan (GDD oxiridagi "matn fayl" ogohlantirishi eskirgan).
+12. **Teri, shifobaxsh oʻt va suv olib tashlandi** (`sql/004_simplify_resources.sql`). Excel binolar varagʻida teri hech qayerda sarflanmaydi (ustaxona ishlab chiqarishining 15% i bekorga ketardi), oʻtning manbasi ham, davolashdagi narxi ham belgilanmagan, suv esa faqat yigʻilib, hech narsaga sarflanmas edi. Endi 4 ta resurs qoldi: goʻsht, tosh, shox-shabba, suyak (+ premium oy toshi). Ustaxona standart taqsimoti binolar talabiga moslandi: tosh 57% · shox-shabba 26% · suyak 17% (1→10 daraja binolari: 18 352 · 8 274 · 5 144).
 
 ## API
 

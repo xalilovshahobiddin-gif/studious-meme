@@ -85,9 +85,9 @@ final class Bots
     /** Botning "toʻliq" zaxirasi: 3 kunlik goʻsht + 8 soatlik ustaxona ishlab chiqarishi. */
     public static function stock(int $level): array
     {
-        $ws = F::workshopRate(max(1, $level - 1)) * 8 / 4;
+        $ws = F::workshopRate(max(1, $level - 1)) * 8 / count(F::WORKSHOP_RES);
         return ['meat' => round(F::meatNeed($level) * F::armyCap($level) * Config::get('reserve_days') + 5, 2),
-            'stone' => round($ws, 2), 'wood' => round($ws, 2), 'hide' => round($ws, 2), 'bone' => round($ws, 2)];
+            'stone' => round($ws, 2), 'wood' => round($ws, 2), 'bone' => round($ws, 2)];
     }
 
     /**

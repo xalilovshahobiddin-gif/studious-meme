@@ -65,12 +65,6 @@ final class Economy
         $prodK = ($offline ? Config::get('offline_prod_rate') : 1.0) * ($hungry ? 1 - Config::get('hunger_prod_penalty') : 1.0);
         $storeK = $offline ? Config::get('offline_store_mult') : 1.0;
 
-        // Oziq gʻori passiv suvi
-        $waterCap = F::foodCap($b['food_cave']) * $storeK;
-        if ($r['water'] < $waterCap) {
-            $r['water'] = min($waterCap, $r['water'] + F::waterRate($b['food_cave']) / 3600 * $dt * $prodK);
-        }
-
         // Ustaxona: soatlik ishlab chiqarish 4 resurs orasida taqsimot boʻyicha
         $add = F::workshopRate($b['workshop']) / 3600 * $dt * $prodK;
         $auto = (int) $ctx['p']['auto_collect'] === 1;

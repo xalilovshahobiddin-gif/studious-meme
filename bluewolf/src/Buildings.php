@@ -46,8 +46,7 @@ final class Buildings
         }
         return match ($type) {
             'den' => ['train_speed' => round(F::denCoef($l), 2)],
-            'food_cave' => ['capacity' => (int) floor(F::foodCap($l)), 'protection' => round(F::protection($l), 2),
-                'water_per_h' => round(F::waterRate($l), 1)],
+            'food_cave' => ['capacity' => (int) floor(F::foodCap($l)), 'protection' => round(F::protection($l), 2)],
             'workshop' => ['per_hour' => round(F::workshopRate($l), 1), 'capacity' => (int) floor(F::workshopCap($l)),
                 'slots' => F::workshopSlots($l)],
             'hospital' => ['heal_cap' => F::healCap($l), 'heal_minutes' => round(F::healTime($l) / 60, 1)],
