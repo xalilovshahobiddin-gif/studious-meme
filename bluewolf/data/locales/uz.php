@@ -144,6 +144,9 @@ return [
   'demo.offset' => 'Hozircha {t} oldinga surilgan.', 'demo.skipped' => 'Vaqt {t} oldinga surildi',
   'demo.reset' => 'Qaytadan boshlash', 'demo.reset_confirm' => 'Hamma progress oʻchadi — yana bosing',
 
+  // Daraja oshishi
+  'levelup.title' => '{l}-daraja! Yangi boʻri',
+
   // Xatolar
   'error.UNAUTHORIZED' => 'Telegram orqali qayta oching', 'error.BANNED' => 'Akkaunt bloklangan',
   'error.NOT_ENOUGH_RESOURCES' => 'Resurs yetarli emas', 'error.LEVEL_TOO_LOW' => 'Daraja yetarli emas ({need_level})',

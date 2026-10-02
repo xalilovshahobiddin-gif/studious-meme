@@ -35,7 +35,7 @@ p { margin: 8px 0; }
 .topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; display: flex; align-items: center; justify-content: space-between;
   padding: 10px 14px 6px; background: linear-gradient(var(--bg) 70%, transparent); }
 .wolf-chip { display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 0; }
-.wolf-avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-size: 22px;
+.wolf-avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; overflow: hidden;
   background: linear-gradient(135deg, var(--blue), #1f3f8f); box-shadow: 0 0 0 2px rgba(90,179,255,.35); }
 .wolf-meta { min-width: 0; }
 .wolf-line { display: flex; align-items: center; gap: 6px; }
@@ -96,9 +96,22 @@ p { margin: 8px 0; }
 /* Alfa kartasi */
 .alpha { background: linear-gradient(160deg, rgba(59,125,255,.2), rgba(255,255,255,.03)); }
 .alpha-row { display: flex; gap: 12px; align-items: center; }
-.alpha-pic { width: 64px; height: 64px; border-radius: 18px; display: grid; place-items: center; font-size: 36px;
-  background: radial-gradient(circle at 30% 30%, #5ab3ff, #1f3f8f); flex: 0 0 auto; }
-.alpha-pic.big { width: 84px; height: 84px; font-size: 48px; margin: 0 auto 6px; border-radius: 50%; }
+.alpha-pic { width: 76px; height: 76px; border-radius: 50%; flex: 0 0 auto; }
+.alpha-pic.big { width: 112px; height: 112px; margin: 0 auto 6px; }
+.wolf-img { display: block; width: 100%; height: 100%; border-radius: 50%; }
+.alpha-pic .wolf-img, .levelup .wolf-img { filter: drop-shadow(0 4px 12px rgba(0,0,0,.45)); }
+.rung { align-items: center; }
+.rung-img { width: 34px; height: 34px; }
+.rung-img.dim { filter: grayscale(.85) brightness(.7); }
+.t-img { width: 44px; height: 44px; }
+.coach-wolf { width: 46px; height: 46px; flex: 0 0 auto; }
+.levelup { position: fixed; left: 50%; top: 70px; transform: translateX(-50%); z-index: 70; display: flex; align-items: center; gap: 14px;
+  width: min(92vw, 380px); padding: 14px 16px; border-radius: 20px; background: linear-gradient(135deg, #22356a, #141f3d);
+  border: 1px solid var(--gold); box-shadow: 0 12px 40px rgba(0,0,0,.5), 0 0 30px rgba(245,192,74,.25); animation: luIn .5s; cursor: pointer; }
+.levelup .lu-img { width: 84px; height: 84px; flex: 0 0 auto; }
+.lu-title { color: var(--gold); font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .6px; }
+.lu-name { font-size: 19px; font-weight: 800; }
+@keyframes luIn { from { opacity: 0; transform: translate(-50%, -16px) scale(.92); } }
 .alpha-name { font-weight: 800; font-size: 17px; }
 .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; font-size: 13px; }
 .stats .cp { color: var(--gold); font-weight: 700; }
@@ -144,7 +157,7 @@ p { margin: 8px 0; }
 .prey .pp { font-size: 12px; color: var(--muted); }
 
 /* Jang */
-.target { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; }
+.target { display: grid; grid-template-columns: 44px 1fr auto; gap: 6px 10px; align-items: center; }
 .target.strong { border-left: 3px solid var(--red); }
 .target.weak { border-left: 3px solid var(--green); }
 .target.even { border-left: 3px solid var(--gold); }
@@ -200,7 +213,7 @@ p { margin: 8px 0; }
 .stats3 div { background: rgba(255,255,255,.04); border-radius: 12px; padding: 8px 4px; display: flex; flex-direction: column; }
 .stats3 b { font-size: 17px; } .stats3 small { color: var(--muted); font-size: 11.5px; }
 .ladder { display: flex; flex-direction: column; gap: 3px; margin-bottom: 10px; }
-.rung { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; padding: 6px 10px; border-radius: 10px; background: var(--card); font-size: 13.5px; }
+.rung { display: grid; grid-template-columns: 22px 34px 1fr auto; gap: 8px; padding: 6px 10px; border-radius: 10px; background: var(--card); font-size: 13.5px; }
 .rung .rl { font-weight: 800; color: var(--muted); }
 .rung .rx { color: var(--muted); font-size: 12px; }
 .rung.past .rl, .rung.past .rx { color: var(--green); }

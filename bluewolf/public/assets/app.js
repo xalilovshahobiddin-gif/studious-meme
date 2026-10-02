@@ -26,6 +26,11 @@
   // ------------------------------------------------------------------ yordamchilar
 
   function $(id) { return document.getElementById(id); }
+  // Boʻri avatari: demo yigʻmasida data URI (assets/wolves.js), serverda SVG fayl
+  function wolfSrc(level) { return (window.BW_WOLVES && window.BW_WOLVES[level]) || "assets/wolves/" + level + ".svg"; }
+  function wolfImg(level, cls, alt) {
+    return '<img class="wolf-img ' + (cls || "") + '" src="' + wolfSrc(level) + '" alt="' + esc(alt || "") + '" loading="lazy">';
+  }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   var nf = new Intl.NumberFormat("uz-UZ");
@@ -169,6 +174,11 @@
   function renderTop() {
     var p = S.state.player, r = S.state.resources;
     $("lvl").textContent = p.level;
+    if (S.avatarLevel !== p.level) {
+      $("wolfAvatar").innerHTML = wolfImg(p.level, "", p.wolf.name);
+      if (S.avatarLevel && p.level > S.avatarLevel) levelUp(p);
+      S.avatarLevel = p.level;
+    }
     $("wolfName").textContent = p.wolf.name;
     var pct = p.xp_next ? (p.xp - p.xp_level) / (p.xp_next - p.xp_level) * 100 : 100;
     $("xpFill").style.width = Math.max(2, Math.min(100, pct)) + "%";
@@ -187,6 +197,17 @@
     $("resbar").innerHTML = cells.map(function (c) {
       return '<div class="res ' + c[2] + '" title="' + esc(t("res." + c[0])) + '"><i>' + RES_ICON[c[0]] + "</i><span>" + c[1] + "</span></div>";
     }).join("");
+  }
+
+  // Daraja oshdi — yangi boʻri turi
+  function levelUp(p) {
+    haptic("ok");
+    var el = $("levelup");
+    el.innerHTML = wolfImg(p.level, "lu-img", p.wolf.name) + '<div><div class="lu-title">' + t("levelup.title", { l: p.level }) +
+      '</div><div class="lu-name">' + esc(p.wolf.name) + '</div><div class="muted small">' + esc(p.wolf.sci) + "</div></div>";
+    el.className = "levelup";
+    clearTimeout(S.luTimer);
+    S.luTimer = setTimeout(function () { el.className = "levelup hidden"; }, 4200);
   }
 
   function timerHtml(startIso, endIso, id) {
@@ -216,7 +237,7 @@
     var st = S.state, p = st.player, r = st.resources;
     var hunt = st.hunts[0];
     var html = '<div class="card alpha">' +
-      '<div class="alpha-row"><div class="alpha-pic">🐺</div><div class="alpha-info"><div class="alpha-name">' + esc(p.wolf.name) +
+      '<div class="alpha-row"><div class="alpha-pic">' + wolfImg(p.level, "", p.wolf.name) + '</div><div class="alpha-info"><div class="alpha-name">' + esc(p.wolf.name) +
       '</div><div class="muted small">' + esc(p.wolf.sci) + " · " + t("wolf.class." + p.wolf.class) + (p.wolf.weight ? " · " + p.wolf.weight + " kg" : "") +
       '</div><div class="stats"><span>💪 ' + p.wolf.power + '</span><span>💨 ' + p.wolf.speed + '</span><span>❤️ ' + p.wolf.hp +
       '</span><span class="cp">⚡ ' + n(p.cp) + ' CP</span></div></div></div>';
@@ -413,7 +434,7 @@
     else {
       tg_.targets.forEach(function (x) {
         var dis = x.shielded || x.attacks_today >= tg_.pair_limit;
-        html += '<div class="card target ' + x.power_band + '"><div class="t-main"><div class="t-name">' + esc(x.name) +
+        html += '<div class="card target ' + x.power_band + '">' + wolfImg(x.level, "t-img", x.wolf) + '<div class="t-main"><div class="t-name">' + esc(x.name) +
           (x.is_bot ? ' <span class="tag">' + t("pvp.wild") + "</span>" : "") + (x.shielded ? " 🛡" : "") + '</div><div class="muted small">' +
           t("common.level") + " " + x.level + " · " + esc(x.wolf) + " · " + x.distance_km + " km (" + x.march_minutes + " " + t("time.m") + ")</div></div>" +
           '<div class="band ' + x.power_band + '">' + t("band." + x.power_band) + "</div>" +
@@ -571,7 +592,7 @@
   function renderProfile(el) {
     var p = S.state.player, pr = S.profile;
     var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
-    var html = '<div class="card profile"><div class="alpha-pic big">🐺</div><h2>' + esc(p.name) + '</h2><div class="muted">' +
+    var html = '<div class="card profile"><div class="alpha-pic big">' + wolfImg(p.level, "", p.wolf.name) + '</div><h2>' + esc(p.name) + '</h2><div class="muted">' +
       (user && user.username ? "@" + esc(user.username) : "") + '</div><div class="stats3"><div><b>' + p.level + "</b><small>" + t("common.level") +
       "</small></div><div><b>" + n(p.cp) + "</b><small>CP</small></div><div><b>" + (pr ? pr.stats.wins + "/" + pr.stats.battles : "…") + "</b><small>" +
       t("profile.wins") + "</small></div></div>" + '<div class="stats3"><div><b>' + (pr ? n(pr.stats.hunts) : "…") + "</b><small>" + t("profile.hunts") +
@@ -579,7 +600,7 @@
     html += "<h3>" + t("profile.ladder") + '</h3><div class="ladder">';
     Object.keys(S.cfg.levels).forEach(function (l) {
       var row = S.cfg.levels[l], cur = +l === p.level, past = +l < p.level;
-      html += '<div class="rung' + (cur ? " cur" : past ? " past" : "") + (+l > S.cfg.max_level ? " v2" : "") + '"><span class="rl">' + l + '</span><span class="rn">' + esc(row.name) +
+      html += '<div class="rung' + (cur ? " cur" : past ? " past" : "") + (+l > S.cfg.max_level ? " v2" : "") + '"><span class="rl">' + l + "</span>" + wolfImg(+l, "rung-img" + (+l > p.level ? " dim" : ""), row.name) + '<span class="rn">' + esc(row.name) +
         '</span><span class="rx">' + (past ? "✓" : n(row.xp_total) + " XP") + "</span></div>";
     });
     html += "</div>" + '<div class="card"><div class="row-between"><span>🌐 ' + t("profile.lang") + "</span><b>Oʻzbekcha</b></div>" +
@@ -655,7 +676,7 @@
     if (step > 20) { el.classList.add("hidden"); el.innerHTML = ""; return; }
     el.classList.remove("hidden");
     el.className = "coach" + (step === 11 ? " epic" : "");
-    el.innerHTML = '<div class="coach-wolf">🐺</div><div class="coach-body"><div class="coach-step">' + t("tutorial.step", { n: step }) + "</div><div>" +
+    el.innerHTML = '<div class="coach-wolf">' + wolfImg(p.level, "", "") + '</div><div class="coach-body"><div class="coach-step">' + t("tutorial.step", { n: step }) + "</div><div>" +
       t("tutorial.step." + step + ".text") + '</div><div class="coach-actions"><button class="btn sm gold" data-action="tut-go"' + (S.busy ? " disabled" : "") + ">" +
       (S.busy ? "…" : t("tutorial.step." + step + ".action")) + "</button>" +
       (p.tutorial_step >= S.cfg.tutorial_skip_step ? '<button class="btn sm ghost" data-action="skip-tutorial">' + t("tutorial.skip") + "</button>" : "") + "</div></div>";
@@ -718,6 +739,7 @@
     switch (a) {
       case "tab": switchTab(el.dataset.tab); break;
       case "close-sheet": closeSheet(); break;
+      case "close-levelup": $("levelup").className = "levelup hidden"; break;
       case "hunt-sheet": huntSheet(); break;
       case "hunt": doHunt(el.dataset.prey, +el.dataset.pack); break;
       case "bld-sheet": bldSheet(el.dataset.type); break;

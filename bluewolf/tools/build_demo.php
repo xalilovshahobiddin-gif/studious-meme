@@ -21,7 +21,7 @@ $body = $m[1];
 $body = preg_replace('#<script src="assets/app.js"></script>#', '', $body);
 
 $css = file_get_contents("$pub/assets/style.css");
-$js = $data . "\n" . file_get_contents("$pub/assets/demo-engine.js") . "\n" . file_get_contents("$pub/assets/app.js");
+$js = $data . "\n" . file_get_contents("$pub/assets/wolves.js") . "\n" . file_get_contents("$pub/assets/demo-engine.js") . "\n" . file_get_contents("$pub/assets/app.js");
 $js = str_replace('</script', '<\/script', $js);
 
 $head = "<title>Blue Wolf</title>\n<meta name=\"theme-color\" content=\"#0f1626\">\n<style>\n$css\n</style>\n";

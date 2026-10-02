@@ -12,7 +12,7 @@
 <div id="app">
   <header class="topbar">
     <div class="wolf-chip" data-action="tab" data-tab="profile">
-      <span class="wolf-avatar">🐺</span>
+      <span class="wolf-avatar" id="wolfAvatar">🐺</span>
       <div class="wolf-meta">
         <div class="wolf-line"><span class="lvl" id="lvl">1</span><span class="wolf-name" id="wolfName">…</span></div>
         <div class="xpbar"><div class="xpfill" id="xpFill"></div></div>
@@ -44,6 +44,7 @@
 <div class="sheet-backdrop hidden" id="sheetBackdrop" data-action="close-sheet"></div>
 <div class="sheet hidden" id="sheet"></div>
 <div class="toast hidden" id="toast"></div>
+<div class="levelup hidden" id="levelup" data-action="close-levelup"></div>
 <div class="boot" id="boot"><div class="boot-wolf">🐺</div><div class="boot-title">Blue Wolf</div><div class="boot-msg" id="bootMsg">…</div></div>
 
 <script src="assets/app.js"></script>

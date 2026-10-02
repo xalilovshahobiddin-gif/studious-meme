@@ -22,6 +22,7 @@ GDD, API spetsifikatsiyasi, DB sxemasi, texnik spetsifikatsiya va `blue_wolf_dar
 | Tezlashtirish (oy toshi, progressiv narx, kunlik 25% chegara) | ✅ |
 | initData HMAC auth, `X-Request-Id` idempotentlik, chastota cheklovi | ✅ |
 | Cron, Telegram bildirishnomalari (kunlik byudjet, tungi sokinlik), bot `/start` | ✅ |
+| 25 ta boʻri avatari — har bir tur oʻz rangi, shakli va yashash muhiti bilan; daraja oshganda tabrik | ✅ |
 | Klan, toʻda urushi, lager, oazis, mavsum, doʻkon (Stars), taʼtil, ru/en | ⏳ v2 (`501 NOT_IN_MVP`) |
 
 ## Tuzilma
@@ -50,6 +51,7 @@ bluewolf/
 ├── cron/cron.php           har daqiqa
 ├── bin/install.php         migratsiya + lokalizatsiya + NPC
 ├── tools/xlsx_to_levels.py Excel → data/levels.php
+├── tools/gen_wolf_avatars.py 25 ta boʻri avatari → public/assets/wolves/*.svg (+ wolves.js demo uchun)
 └── tests/                  php tests/run.php
 ```
 
