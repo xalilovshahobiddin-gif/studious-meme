@@ -48,4 +48,31 @@ test("qoʻshin va ov (GDD bo'lim 4)", () => {
   assert.ok(Math.abs(G.hunterYield(cfg, 25, 1) - 15) < 1e-9);
 });
 
+test("resurs paneli: sigʻim, suv, Ustaxona (GDD bo'lim 5)", () => {
+  assert.equal(Math.round(G.caveCap(cfg, 1)), 40);
+  assert.equal(Math.round(G.caveCap(cfg, 25)), 4728);
+  assert.equal(Math.round(G.caveCap(cfg, 0)), 40); // gʻor yoʻq — 1-daraja sigʻimi
+  assert.equal(G.waterPerHour(cfg, 0), 0);
+  assert.ok(Math.abs(G.waterPerHour(cfg, 25) - 52.94) < 0.01);
+  assert.ok(Math.abs(G.waterNeed(cfg, 10) - 0.76) < 1e-9);
+  assert.equal(G.workshopPerHour(cfg, 0), 0);
+  assert.equal(Math.round(G.workshopPerHour(cfg, 25)), 2364);
+});
+
+test("resurslar maʼlumotnomasi toʻliq", () => {
+  assert.equal(G.RESOURCES.length, 9);
+  for (const r of G.RESOURCES) {
+    assert.ok(["food", "build", "premium"].includes(r.group), r.key);
+    assert.ok(r.from.length > 0 && r.use.length > 0, r.key);
+  }
+});
+
+test("ixcham raqamlar", () => {
+  assert.equal(G.fmtShort(950), "950");
+  assert.equal(G.fmtShort(12400), "12,4K");
+  assert.equal(G.fmtShort(123456), "123K");
+  assert.equal(G.fmtShort(1234567), "1,2M");
+  assert.equal(G.fmtShort(25000000), "25M");
+});
+
 console.log(`\n${passed} ta test oʻtdi`);

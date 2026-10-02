@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>BlueWolf UI — dizayn tizimi</title>
   <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="bluewolf-ui.css?v=0.0.0">
+  <link rel="stylesheet" href="bluewolf-ui.css?v=0.0.1">
   <style>
     .kit { max-width: 880px; margin: 0 auto; padding: 24px 16px 64px; }
     .kit section { margin-top: 36px; }
@@ -24,7 +24,7 @@
   <main class="kit">
     <div class="bw-between">
       <div>
-        <div class="bw-eyebrow">Blue Wolf · v0.0.0</div>
+        <div class="bw-eyebrow">Blue Wolf · v0.0.1</div>
         <h1 class="bw-h1">BlueWolf UI</h1>
         <p class="bw-muted" style="margin:6px 0 0">Tungi dasht, muz va oy nuri. Barcha klasslar <code>bw-</code> prefiksi bilan, ranglar CSS tokenlarida.</p>
       </div>
@@ -57,6 +57,16 @@
         <span class="bw-chip bw-chip--danger">Kuchli</span><span class="bw-badge">3</span>
       </div>
       <div class="bw-res-bar" id="res" style="margin-top:12px"></div>
+    </section>
+
+    <section>
+      <h2 class="bw-h3">Ixcham resurs paneli</h2>
+      <p class="bw-muted" style="margin-top:0"><code>bw-resgrid</code> + <code>bw-rescell</code> — 12 ustunli setka; oziq qatori 3–4 ta, qurilish qatori 4 ta. Pastki chiziq — ombor toʻlganligi (<code>--fill</code>), <code>is-full</code> / <code>is-low</code> holatlari. Premium valyuta — <code>bw-gem</code>.</p>
+      <div style="max-width:380px">
+        <div class="bw-between" style="margin-bottom:10px"><strong>Alfa</strong>
+          <button class="bw-gem" type="button"><svg class="bw-icon"><use href="#bw-i-moonstone"/></svg>150<span class="bw-gem__plus"><svg class="bw-icon"><use href="#bw-i-plus"/></svg></span></button></div>
+        <div class="bw-resgrid" id="resgrid"></div>
+      </div>
     </section>
 
     <section>
@@ -108,7 +118,7 @@
     </section>
   </main>
 
-  <script src="bluewolf-icons.js?v=0.0.0"></script>
+  <script src="bluewolf-icons.js?v=0.0.1"></script>
   <script>
     (function () {
       var sw = [
@@ -123,6 +133,13 @@
       var res = [["meat", "64"], ["water", "41"], ["herb", "12"], ["stone", "820"], ["wood", "610"], ["hide", "240"], ["bone", "305"], ["moonlight", "18"], ["moonstone", "150"]];
       document.getElementById("res").innerHTML = res.map(function (r) {
         return '<span class="bw-res bw-res--' + r[0] + '"><span class="bw-res__dot">' + BWIcons.svg(r[0]) + '</span><span class="bw-num">' + r[1] + "</span></span>";
+      }).join("");
+      var cells = [["meat", "52", .87, "wide"], ["water", "60", 1, "wide full"], ["herb", "3", .05, "wide low"],
+        ["stone", "12,4K"], ["wood", "610"], ["hide", "240"], ["bone", "305"]];
+      document.getElementById("resgrid").innerHTML = cells.map(function (c) {
+        var mods = (c[3] || "").split(" ").filter(Boolean).map(function (m) { return m === "wide" ? " bw-rescell--wide" : " is-" + m; }).join("");
+        return '<button class="bw-rescell bw-rescell--' + c[0] + mods + '" type="button">' + BWIcons.svg(c[0]) + '<span class="bw-rescell__val">' + c[1] + "</span>" +
+          (c[2] != null ? '<i class="bw-rescell__fill" style="--fill:' + c[2] + '"></i>' : "") + "</button>";
       }).join("");
       document.getElementById("tiers").innerHTML = [1, 2, 3, 4, 5, 6].map(function (t) {
         return '<div style="text-align:center"><span class="bw-avatar bw-tier-' + t + '">' + BWIcons.svg("wolf", "bw-icon--lg") + '</span><div class="bw-faint" style="font-size:11px;margin-top:6px">Tier ' + t + "</div></div>";

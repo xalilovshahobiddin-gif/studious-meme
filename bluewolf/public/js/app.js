@@ -1,4 +1,4 @@
-/* Blue Wolf Mini App — v0.0.0 (skelet / demo koʻrinish)
+/* Blue Wolf Mini App — v0.0.1 (skelet / demo koʻrinish)
    5 ta tab (In · Jang · Toʻda · Vazifalar · Profil), hash-router, Telegram WebApp integratsiyasi.
    Amallar (qurish, ov, hujum…) hali ishlamaydi — keyingi bosqichlarda ulanadi. */
 (function () {
@@ -74,6 +74,7 @@
     var p = app.state.player, cfg = app.config;
     $("#top-name").textContent = p.name;
     $("#top-level").textContent = p.level + "-daraja";
+    $("#top-gem-val").textContent = G.fmtShort(app.state.resources.moonstone || 0);
     var tier = G.maxTier(cfg, p.level);
     var av = $("#top-avatar");
     av.className = "bw-avatar bw-avatar--sm bw-tier-" + tier;
@@ -82,13 +83,7 @@
     $("#top-xp-bar").style.width = Math.round(xp.ratio * 100) + "%";
     $("#top-xp").textContent = p.level >= 25 ? "MAKS" : G.fmt(xp.into) + " / " + G.fmt(xp.need) + " XP";
 
-    var res = app.state.resources;
-    $("#res-bar").innerHTML = G.RESOURCES.filter(function (r) {
-      return !r.fromLevel || p.level >= r.fromLevel;
-    }).map(function (r) {
-      return '<span class="bw-res bw-res--' + r.key + '" title="' + esc(r.name) + '">' +
-        '<span class="bw-res__dot">' + icon(r.icon) + '</span><span class="bw-num">' + G.fmt(res[r.key] || 0) + "</span></span>";
-    }).join("");
+    renderResources();
 
     var banner = $("#demo-banner");
     if (app.mode === "demo") {
@@ -104,6 +99,139 @@
     var badge = $("#quest-badge");
     badge.hidden = !ready;
     badge.textContent = ready;
+  }
+
+  /* ---------------------------------------------------------------- Resurslar */
+  function resMeta(key) { return G.RESOURCES.filter(function (r) { return r.key === key; })[0]; }
+
+  function buildingLevel(type) {
+    var b = (app.state.buildings || []).filter(function (x) { return x.type === type; })[0];
+    return b ? b.level || 0 : 0;
+  }
+
+  function allocation() {
+    return app.state.allocation || prefs().alloc || { stone: 40, wood: 30, hide: 15, bone: 15 };
+  }
+
+  function totalArmy() {
+    var n = 0;
+    G.ROLES.forEach(function (r) { n += armyCount(r.key); });
+    return n;
+  }
+
+  /** Bitta resurs boʻyicha hisoblangan koʻrsatkichlar (panel va maʼlumot oynasi uchun). */
+  function resourceFacts(key) {
+    var cfg = app.config, p = app.state.player, r = resMeta(key);
+    var amount = (app.state.resources || {})[key] || 0;
+    var f = { amount: amount, meta: r };
+    if (r.group === "food") {
+      var cave = buildingLevel("food_cave");
+      f.cave = cave;
+      f.cap = Math.round(G.caveCap(cfg, cave));
+      f.fill = Math.min(1, amount / f.cap);
+      var army = totalArmy();
+      if (key === "meat") {
+        f.perDay = G.need(cfg, p.level) * army;
+        f.days = f.perDay > 0 ? amount / f.perDay : null;
+        f.perHunt = Math.max(1, armyCount("hunter")) * G.hunterYield(cfg, p.level, 1) * cfg.hunt_duration_min / 60;
+      } else if (key === "water") {
+        f.perHour = G.waterPerHour(cfg, cave);
+        f.perDay = G.waterNeed(cfg, p.level) * army;
+      } else if (key === "moonlight") {
+        f.perHour = p.level >= cfg.moonlight_need_level ? cfg.moonlight_passive_base * army : 0;
+        f.perDay = p.level >= cfg.moonlight_need_level ? cfg.moonlight_need * army : 0;
+      }
+    } else if (r.group === "build") {
+      var ws = buildingLevel("workshop");
+      f.share = allocation()[key] || 0;
+      f.perHour = G.workshopPerHour(cfg, ws) * f.share / 100;
+      f.buffer = f.perHour * cfg.workshop_buffer_h;
+      f.workshop = ws;
+    }
+    return f;
+  }
+
+  function fmtRate(n) {
+    if (!n) return "0";
+    return n < 10 ? n.toFixed(1).replace(".", ",") : G.fmt(n);
+  }
+
+  function renderResources() {
+    var p = app.state.player;
+    var food = G.RESOURCES.filter(function (r) { return r.group === "food" && (!r.fromLevel || p.level >= r.fromLevel); });
+    var build = G.RESOURCES.filter(function (r) { return r.group === "build"; });
+    var cell = function (r, wide) {
+      var f = resourceFacts(r.key);
+      var cls = "bw-rescell bw-rescell--" + r.key + (wide ? " bw-rescell--wide" : "");
+      if (f.fill != null && f.fill >= 1) cls += " is-full";
+      if (r.key === "meat" && f.days != null && f.days < 1) cls += " is-low";
+      return '<button class="' + cls + '" type="button" data-res="' + r.key + '" aria-label="' + esc(r.name) + ": " + G.fmt(f.amount) + '">' +
+        icon(r.icon) + '<span class="bw-rescell__val">' + G.fmtShort(f.amount) + "</span>" +
+        (f.fill != null ? '<i class="bw-rescell__fill" style="--fill:' + f.fill.toFixed(3) + '"></i>' : "") + "</button>";
+    };
+    $("#res-bar").innerHTML = food.map(function (r) { return cell(r, food.length === 3); }).join("") +
+      build.map(function (r) { return cell(r, false); }).join("");
+  }
+
+  function stat(value, label) {
+    return '<div class="bw-stat"><span class="bw-stat__value">' + value + '</span><span class="bw-stat__label">' + esc(label) + "</span></div>";
+  }
+
+  function resourceSheet(key) {
+    var cfg = app.config, p = app.state.player;
+    var f = resourceFacts(key), r = f.meta;
+    var groupName = { food: "Oziq resursi", build: "Qurilish resursi", premium: "Premium valyuta" }[r.group];
+    var unit = r.unit ? " " + r.unit : "";
+    var html = '<div class="bw-resinfo" style="--bw-rc: var(--bw-res-' + key + ')">';
+    html += '<div class="bw-resinfo__head"><span class="bw-resinfo__icon">' + icon(r.icon) + '</span><div class="bw-grow">' +
+      '<div class="bw-eyebrow">' + esc(groupName) + '</div><div class="bw-h2">' + esc(r.name) + "</div></div>" +
+      '<div style="text-align:right"><div class="bw-resinfo__amount">' + G.fmt(f.amount) + '</div><div class="bw-faint" style="font-size:12px">' +
+      (r.group === "food" ? "/ " + G.fmt(f.cap) + unit : r.group === "build" ? "ombor cheklanmagan" : "oy toshi") + "</div></div></div>";
+
+    var stats = [], note = "";
+    if (key === "moonlight" && p.level < cfg.moonlight_need_level) {
+      note = "Oy nuri " + cfg.moonlight_need_level + "-darajadan kerak boʻladi (mifologik boʻrilar).";
+    }
+    if (r.group === "food") {
+      html += '<div class="bw-progress' + (f.fill >= 1 ? " bw-progress--accent" : "") + '" style="margin-top:14px"><div class="bw-progress__bar" style="width:' +
+        Math.round(f.fill * 100) + '%;background:var(--bw-rc)"></div></div>' +
+        '<div class="bw-between bw-faint" style="font-size:12px;margin-top:6px"><span>' + (f.cave ? "Oziq gʻori " + f.cave + "-daraja" : "Oziq gʻori hali yoʻq") +
+        "</span><span>" + Math.round(f.fill * 100) + "% toʻla</span></div>";
+      if (f.fill >= 1) note = "Ombor toʻla — sigʻimdan ortiq kelgan " + r.name.toLowerCase() + " saqlanmaydi. Oziq gʻorini kuchaytiring.";
+    }
+    if (key === "meat") {
+      stats = [stat(G.fmt(f.perDay) + " kg", "Kunlik sarf"), stat(f.days == null ? "∞" : fmtRate(f.days) + " kun", "Zaxira yetadi"),
+        stat("~" + G.fmt(f.perHunt) + " kg", "Bir ov (1 soat)"), stat(G.fmt(f.cap) + " kg", "Sigʻim")];
+      if (f.days != null && f.days < 1) note = "Goʻsht bir kunga ham yetmaydi! Tugasa ochlik boshlanadi: CP −30%, ishlab chiqarish −50%.";
+    } else if (key === "water") {
+      var net = f.perHour * 24 - f.perDay;
+      stats = [stat("+" + fmtRate(f.perHour) + "/soat", "Passiv yigʻim"), stat(G.fmt(f.perDay), "Kunlik sarf"),
+        stat((net >= 0 ? "+" : "") + fmtRate(net), "Kunlik balans"), stat(G.fmt(f.cap), "Sigʻim")];
+      if (net < 0) note = "Suv yetishmayapti — yurish tezligi −20%. Oziq gʻorini kuchaytiring.";
+    } else if (key === "herb") {
+      stats = [stat(Math.round(cfg.hunt_herb_share * 100) + "%", "Ovdan keladi"), stat(cfg.heal_herb_per_tier + " × tier", "Davolash (1 boʻri)")];
+    } else if (key === "moonlight") {
+      stats = [stat("+" + fmtRate(f.perHour) + "/soat", "Passiv"), stat(fmtRate(f.perDay), "Kunlik ehtiyoj")];
+    } else if (r.group === "build") {
+      stats = [stat(f.share + "%", "Taqsimotdagi ulush"), stat(fmtRate(f.perHour) + "/soat", "Ishlab chiqarish"),
+        stat(G.fmt(f.perHour * 24), "Kuniga"), stat(G.fmt(f.buffer), "Bufer (" + cfg.workshop_buffer_h + " soat)")];
+      if (!f.workshop) note = "Ustaxona qoyasi 2-darajada ochiladi.";
+    } else if (key === "moonstone") {
+      stats = [stat(G.fmt(cfg.moonstone_per_usd) + " = $1", "Kurs"), stat("≤ " + Math.round(24 * cfg.speedup_daily_cap) + " soat", "Kunlik tezlashtirish")];
+    }
+    if (stats.length) html += '<div class="bw-grid-2" style="margin-top:14px">' + stats.join("") + "</div>";
+    if (note) html += '<div class="bw-banner" style="margin-top:12px">' + icon("info", "bw-icon--sm") + "<span>" + esc(note) + "</span></div>";
+
+    html += '<div class="bw-eyebrow" style="margin-top:18px">Qayerdan keladi</div><ul class="bw-resinfo__list">' +
+      r.from.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
+    html += '<div class="bw-eyebrow" style="margin-top:14px">Nimaga kerak</div><ul class="bw-resinfo__list">' +
+      r.use.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
+
+    var action = { meat: ["hunt", "paw", "Ovga chiqish"], herb: ["hunt", "paw", "Ovga chiqish"], moonstone: ["shop", "moonstone", "Doʻkon"] }[key] ||
+      (r.group === "build" ? ["goto-alloc", "workshop", "Ustaxona taqsimoti"] : r.group === "food" ? ["goto-cave", "cave", "Oziq gʻori"] : null);
+    if (action) html += '<button class="bw-btn bw-btn--soft bw-btn--block" style="margin-top:18px" data-action="' + action[0] + '">' + icon(action[1], "bw-icon--sm") + " " + action[2] + "</button>";
+    html += "</div>";
+    openSheet(html);
   }
 
   /* ---------------------------------------------------------------- Yordamchilar */
@@ -191,7 +319,7 @@
         '<span class="bw-res__dot">' + icon(r.icon) + "</span>" + esc(r.name) + '</span><span class="bw-num" data-alloc-out="' + k + '">' +
         alloc[k] + "% · " + G.fmt(prodHour * alloc[k] / 100) + "/soat</span></span>" +
         '<input class="bw-range" type="range" min="0" max="100" step="5" value="' + alloc[k] + '" data-alloc="' + k + '" ' + (ws.level ? "" : "disabled") + "></label>";
-    }).join("") + '<p class="bw-faint" style="margin:0;font-size:12px">Yigʻindi 100% boʻlishi shart. v0.0.0 da faqat qurilmada saqlanadi.</p></div>';
+    }).join("") + '<p class="bw-faint" style="margin:0;font-size:12px">Yigʻindi 100% boʻlishi shart. Hozircha faqat qurilmada saqlanadi.</p></div>';
 
     return html;
   }
@@ -216,6 +344,7 @@
       });
       p.alloc = alloc;
       savePrefs(p);
+      renderResources();
       var ws = buildingList().filter(function (b) { return b.type === "workshop"; })[0];
       var prodHour = ws.level ? app.config.prod_base * Math.pow(app.config.prod_growth, ws.level - 1) : 0;
       Object.keys(alloc).forEach(function (x) {
@@ -418,6 +547,17 @@
     "party-join": function () { toast("Ov guruhi — " + ROADMAP, "pack"); },
     claim: function () { toast("Mukofot olish — " + ROADMAP, "gift"); },
     vacation: function () { toast("Taʼtil rejimi — " + ROADMAP, "moon"); },
+    shop: function () { toast("Doʻkon — " + ROADMAP, "moonstone"); },
+    "goto-alloc": function () {
+      closeSheet();
+      if (app.tab !== "in") location.hash = "#/in";
+      setTimeout(function () { var el = $("#alloc"); if (el) el.scrollIntoView({ behavior: "smooth", block: "center" }); }, 120);
+    },
+    "goto-cave": function () {
+      closeSheet();
+      if (app.tab !== "in") location.hash = "#/in";
+      setTimeout(function () { buildingSheet("food_cave"); }, 260);
+    },
     theme: function () {
       var order = ["auto", "dark", "light"];
       var p = prefs();
@@ -434,6 +574,8 @@
   };
 
   document.addEventListener("click", function (e) {
+    var rc = e.target.closest("[data-res]");
+    if (rc) { resourceSheet(rc.getAttribute("data-res")); return; }
     var b = e.target.closest("[data-building]");
     if (b) { buildingSheet(b.getAttribute("data-building")); return; }
     var s = e.target.closest("[data-seg]");
