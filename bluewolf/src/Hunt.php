@@ -17,7 +17,8 @@ final class Hunt
             if ($p['level'] > Config::int('max_level')) {
                 continue;
             }
-            $out[] = ['key' => $key, 'kg' => $p['kg'], 'level' => $p['level'], 'pack' => $p['pack'],
+            $y = F::huntYield($p, 0);
+            $out[] = ['key' => $key, 'kg' => $p['kg'], 'meat' => $y['meat'], 'bone' => $y['bone'], 'level' => $p['level'], 'pack' => $p['pack'],
                 'unlocked' => $lvl >= $p['level'], 'seconds' => self::seconds($ctx, $p['kg']),
                 'xp' => (int) round($p['kg'] * Config::get('xp_hunt_coef'))];
         }
@@ -59,16 +60,17 @@ final class Hunt
             }
             // Kerakli toʻdadan ortiqcha ovchilar koʻproq goʻsht olib keladi
             $extra = max(0, $bonus - ($prey['pack'] - 1));
-            $meat = round($prey['kg'] * (1 + Config::get('hunt_hunter_bonus') * $extra), 2);
+            $yield = F::huntYield($prey, $extra);
+            $meat = $yield['meat'];
             $xp = (int) round($prey['kg'] * Config::get('xp_hunt_coef'));
             $sec = self::seconds($ctx, $prey['kg']);
             Army::move($ctx, $groups, 'alive', 'on_march');
             $id = Db::insert('hunts', [
                 'player_id' => $pid, 'prey_key' => $preyKey, 'payload' => json_encode($groups),
-                'meat' => $meat, 'xp' => max(1, $xp), 'started_at' => Db::dt($now), 'ends_at' => Db::dt($now + $sec),
+                'meat' => $meat, 'bone' => $yield['bone'], 'xp' => max(1, $xp), 'started_at' => Db::dt($now), 'ends_at' => Db::dt($now + $sec),
             ]);
             Game::save($ctx);
-            return ['hunt_id' => $id, 'seconds' => $sec, 'ends_at' => Game::iso(Db::dt($now + $sec)), 'meat' => $meat];
+            return ['hunt_id' => $id, 'seconds' => $sec, 'ends_at' => Game::iso(Db::dt($now + $sec)), 'meat' => $meat, 'bone' => $yield['bone']];
         });
     }
 
@@ -79,6 +81,7 @@ final class Hunt
         $cap = F::foodCap($ctx['b']['food_cave']);
         $meat = max(0.0, min((float) $h['meat'], $cap - $ctx['r']['meat']));
         $ctx['r']['meat'] += $meat;
+        $ctx['r']['bone'] += (float) $h['bone'];
         Economy::fed($ctx);
         Game::addXp($ctx, (float) $h['xp'], $at);
         $ctx['p']['stat_hunts']++;

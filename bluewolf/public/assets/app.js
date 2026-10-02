@@ -38,7 +38,9 @@
   function resIcon(k, cls) { return '<svg class="ri ' + (cls || "") + '" viewBox="0 0 24 24" aria-hidden="true">' + RES_SVG[k] + "</svg>"; }
   // Ixcham son: 12 400 → 12.4K, 1 250 000 → 1.25M
   function short(x) {
-    x = Math.floor(x || 0);
+    x = x || 0;
+    if (x > 0 && x < 10 && x % 1) return String(Math.round(x * 10) / 10); // 0.5 kg kabi kichik qiymatlar
+    x = Math.floor(x);
     if (x < 10000) return n(x);
     if (x < 1e6) return (x / 1000).toFixed(x < 1e5 ? 1 : 0).replace(/\.0$/, "") + "K";
     return (x / 1e6).toFixed(2).replace(/\.?0+$/, "") + "M";
@@ -408,7 +410,7 @@
       var dis = !pr.unlocked || !canPack;
       html += '<button class="prey' + (dis ? " dis" : "") + '" data-action="hunt" data-prey="' + pr.key + '" data-pack="' + pr.pack + '"' + (dis ? " disabled" : "") + ">" +
         '<span class="pi">' + (PREY_ICON[pr.key] || "🐾") + '</span><span class="pn">' + t("prey." + pr.key) + "<small>" +
-        (pr.unlocked ? pr.kg + " kg · ⏱ " + dur(pr.seconds) + " · +" + pr.xp + " XP" : t("common.level") + " " + pr.level) + "</small></span>" +
+        (pr.unlocked ? resIcon("meat") + short(pr.meat) + " " + resIcon("bone") + short(pr.bone) + " · ⏱ " + dur(pr.seconds) + " · +" + Math.max(1, pr.xp) + " XP" : t("common.level") + " " + pr.level) + "</small></span>" +
         '<span class="pp">' + (pr.pack > 1 ? "🐺×" + pr.pack : t("hunt.solo")) + "</span></button>";
     });
     html += "</div>";

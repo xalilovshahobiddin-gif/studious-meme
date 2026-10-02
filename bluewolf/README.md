@@ -116,6 +116,7 @@ Hujjatlar bir-biriga toʻliq mos emas. Quyidagi joylarda qaror qabul qilindi (ha
 10. **Mashq narxi 4+ tier:** Excel 187 (yaxlitlangan CP nisbati²), formula `20 × 1.45^(2(t−1))` = 186. MVP da ahamiyatsiz (maks tier 2).
 11. `blue_wolf_darajalar.xlsx` haqiqiy Excel fayl ekan (GDD oxiridagi "matn fayl" ogohlantirishi eskirgan).
 12. **Teri, shifobaxsh oʻt va suv olib tashlandi** (`sql/004_simplify_resources.sql`). Excel binolar varagʻida teri hech qayerda sarflanmaydi (ustaxona ishlab chiqarishining 15% i bekorga ketardi), oʻtning manbasi ham, davolashdagi narxi ham belgilanmagan, suv esa faqat yigʻilib, hech narsaga sarflanmas edi. Endi 4 ta resurs qoldi: goʻsht, tosh, shox-shabba, suyak (+ premium oy toshi). Ustaxona standart taqsimoti binolar talabiga moslandi: tosh 57% · shox-shabba 26% · suyak 17% (1→10 daraja binolari: 18 352 · 8 274 · 5 144).
+13. **Toʻda ×20** (`sql/005_army_scale.sql`, `army_scale = 20`). Qoʻshin sigʻimi Excel jadvalidan 20 marta katta: 4-darajada 200, 10-darajada 600, 25-darajada 9 200 (1–3 daraja yolgʻiz bosqich — 1 ta). Bitta askarning narxi, kuchi va yuki oʻzgarmagan, shuning uchun toʻda kuchi ham ×20. Oʻyin buzilmasligi uchun shu sozlama bilan birga oshadi: Oziq gʻori, rol binolari va Shifo gʻori sigʻimi (×20), toʻda ovi goʻshti (×20, yolgʻiz ov oʻzgarmaydi), ovdan suyak (goʻshtning 40%, GDD: "suyak — ustaxona / ov"); bitta askar mashqi vaqti ÷20, shunda toʻdani toʻldirish vaqti Excel'dagidek qoladi. Formulalar testlari Excel qiymatlarini shu masshtabga koʻpaytirib tekshiradi.
 
 ## API
 

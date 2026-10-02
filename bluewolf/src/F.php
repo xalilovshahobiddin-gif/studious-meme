@@ -88,9 +88,16 @@ final class F
         return (int) round($min * 60);
     }
 
+    /** Toʻda masshtabi (sql/005): qoʻshin va unga bogʻliq sigʻimlar shuncha marta katta. */
+    public static function armyScale(): float
+    {
+        return self::c('army_scale');
+    }
+
+    /** Oziq gʻori sigʻimi: Excel qiymati × toʻda masshtabi (ombor 3 kunlik ozuqani sigʻdirsin). */
     public static function foodCap(int $l): float
     {
-        return self::c('store_base') * self::c('store_growth') ** ($l - 1);
+        return self::c('store_base') * self::c('store_growth') ** ($l - 1) * self::armyScale();
     }
 
     public static function protection(int $l): float
@@ -116,7 +123,7 @@ final class F
 
     public static function roleCap(int $l): float
     {
-        return self::c('role_cap_base') * self::c('role_cap_growth') ** ($l - 1);
+        return self::c('role_cap_base') * self::c('role_cap_growth') ** ($l - 1) * self::armyScale();
     }
 
     public static function trainSpeed(int $bldLevel): float
@@ -132,7 +139,7 @@ final class F
 
     public static function healCap(int $l): int
     {
-        return (int) floor(self::c('heal_cap_base') + self::c('heal_cap_growth') * ($l - 1));
+        return (int) floor((self::c('heal_cap_base') + self::c('heal_cap_growth') * ($l - 1)) * self::armyScale());
     }
 
     /** Bitta boʻrini davolash vaqti, soniya */
@@ -143,9 +150,11 @@ final class F
 
     // ------------------------------------------------------------ oʻyinchi
 
+    /** Qoʻshin sigʻimi: Excel jadvali × toʻda masshtabi. 1–3 daraja yolgʻiz bosqich — 1 ta. */
     public static function armyCap(int $level): int
     {
-        return (int) Config::level($level)['army'];
+        $base = (int) Config::level($level)['army'];
+        return $level < Config::int('pack_unlock_level') ? $base : (int) round($base * self::armyScale());
     }
 
     /** Bir askarning kunlik goʻsht ehtiyoji, kg */
@@ -213,7 +222,8 @@ final class F
     /** Bitta askar bazaviy mashq vaqti, soniya */
     public static function trainTime(int $tier): float
     {
-        return self::c('train_time_min') * 60 * self::c('tier_coef') ** ($tier - 1);
+        // Bitta askar vaqti masshtabga boʻlinadi — toʻdani toʻldirish vaqti Excel'dagidek qoladi
+        return self::c('train_time_min') * 60 * self::c('tier_coef') ** ($tier - 1) / self::armyScale();
     }
 
     /** Qoʻshin toʻlganligi koeffitsienti: (toʻlganlik ÷ 60%)^1.8, [0.5; 3.0] */
@@ -269,6 +279,17 @@ final class F
     public static function marchSeconds(float $km, bool $scout = false): int
     {
         return (int) max(1, round($km / self::c($scout ? 'scout_speed' : 'march_speed') * 3600));
+    }
+
+    /**
+     * Ov oʻljasi: [goʻsht, suyak]. Toʻda talab qiladigan oʻljada toʻda podani ovlaydi — goʻsht × masshtab;
+     * yolgʻiz ov (kemiruvchi, qush, quyon) oʻzgarmaydi. Ortiqcha ovchilar bonus beradi.
+     */
+    public static function huntYield(array $prey, int $extraHunterTiers): array
+    {
+        $meat = $prey['kg'] * ($prey['pack'] > 1 ? self::armyScale() : 1.0)
+            * (1 + self::c('hunt_hunter_bonus') * $extraHunterTiers);
+        return ['meat' => round($meat, 2), 'bone' => round($meat * self::c('hunt_bone_ratio'), 2)];
     }
 
     /** Ov davomiyligi, soniya */

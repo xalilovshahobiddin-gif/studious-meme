@@ -364,7 +364,7 @@ final class Game
             'queues' => array_map([self::class, 'queueOut'], Db::all(
                 "SELECT * FROM queues WHERE player_id = ? AND state = 'running' ORDER BY ends_at", [$pid])),
             'hunts' => array_map(static fn($h) => [
-                'id' => (int) $h['id'], 'prey' => $h['prey_key'], 'meat' => (float) $h['meat'], 'xp' => (int) $h['xp'],
+                'id' => (int) $h['id'], 'prey' => $h['prey_key'], 'meat' => (float) $h['meat'], 'bone' => (float) $h['bone'], 'xp' => (int) $h['xp'],
                 'started_at' => self::iso($h['started_at']), 'ends_at' => self::iso($h['ends_at']),
                 'payload' => json_decode($h['payload'], true),
             ], Db::all("SELECT * FROM hunts WHERE player_id = ? AND state = 'running'", [$pid])),

@@ -16,11 +16,13 @@ ok(F::buildingCost('hospital', 2) === ['wood' => 48, 'meat' => 40, 'stone' => 32
 near(F::buildingTime('food_cave', 25) / 3600, 35.3, 0.05, 'Oziq gʻori L25 vaqti (soat)');
 near(F::buildingTime('workshop', 25) / 3600, 42.4, 0.05, 'Ustaxona L25 vaqti (soat)');
 near(F::buildingTime('battle_ground', 25) / 3600, 45.9, 0.05, 'Jang maydoni L25 vaqti (soat)');
-ok((int) floor(F::foodCap(25)) === 4728, 'Oziq gʻori sigʻimi L25', F::foodCap(25));
+$K = F::armyScale(); // toʻda masshtabi (sql/005) — Excel qiymatlari shunga koʻpaytiriladi
+ok($K === 20.0, 'army_scale = 20', $K);
+ok((int) floor(F::foodCap(25) / $K) === 4728, 'Oziq gʻori sigʻimi L25 (Excel × masshtab)', F::foodCap(25));
 near(F::protection(25), 0.78, 1e-9, 'Himoya L25');
 ok((int) round(F::workshopRate(25)) === 2364, 'Ustaxona L25 / soat', F::workshopRate(25));
 ok(F::workshopSlots(25) === 10, 'Yigʻuvchi slot L25');
-ok(F::healCap(25) === 11 || F::healCap(25) === 12, 'Shifo sigʻimi L25', F::healCap(25));
+ok(F::healCap(25) === (int) floor(11.6 * $K), 'Shifo sigʻimi L25 (Excel 11.6 × masshtab)', F::healCap(25));
 near(F::healTime(25) / 60, 27.3, 0.1, 'Davolash vaqti L25 (daq)');
 
 // --- Askar iqtisodi
@@ -31,7 +33,7 @@ near(F::tierCp('hunter', 3, 19), 201, 1, 'Ovchi t3 CP');
 ok(F::trainCost(1) === ['meat' => 20, 'bone' => 8], 'Yangi askar t1 narxi');
 ok(F::trainCost(2) === ['meat' => 42, 'bone' => 17], 'Yangi askar t2 narxi', F::trainCost(2));
 ok(F::trainCost(3) === ['meat' => 88, 'bone' => 35] || F::trainCost(3) === ['meat' => 89, 'bone' => 35], 'Yangi askar t3 narxi', F::trainCost(3));
-near(F::trainTime(3) / 60, 8.4, 0.05, 'Yangi askar t3 vaqti (daq)');
+near(F::trainTime(3) / 60 * $K, 8.4, 0.05, 'Yangi askar t3 vaqti (Excel ÷ masshtab)');
 ok((int) (300 / F::promoteNeed(1, 2)) === 188, '300 ta t1 → 188 ta t2');
 near(F::occupancyCoef(0.75), 1.49, 0.01, 'Toʻlganlik 75%');
 near(F::occupancyCoef(0.9), 2.07, 0.01, 'Toʻlganlik 90%');
@@ -43,7 +45,14 @@ ok(F::maxTier('attacker', 19, 16) === 4, 'Hujumchi L19/B16 → t4');
 
 // --- Daraja jadvali
 ok(F::xpTotal(5) === 280 && F::xpTotal(10) === 2420 && F::xpTotal(25) === 592680, 'Jami XP (Darajalar)');
-ok(F::armyCap(4) === 10 && F::armyCap(10) === 30, 'Qoʻshin sigʻimi');
+ok(F::armyCap(3) === 1, 'Yolgʻiz bosqich (1–3 daraja) — 1 askar', F::armyCap(3));
+ok(F::armyCap(4) === 200 && F::armyCap(10) === 600 && F::armyCap(25) === 9200, 'Qoʻshin sigʻimi ×20', [F::armyCap(4), F::armyCap(10), F::armyCap(25)]);
+$prey = Config::data('prey');
+ok(F::huntYield($prey['rodent'], 0) === ['meat' => 0.5, 'bone' => 0.2], 'Yolgʻiz ov oʻzgarmaydi', F::huntYield($prey['rodent'], 0));
+ok(F::huntYield($prey['gazelle'], 0) === ['meat' => 500.0, 'bone' => 200.0], 'Jayron toʻda bilan: 25 kg × 20, suyak 40%', F::huntYield($prey['gazelle'], 0));
+// Excel "Oziqlanish": 4-darajada kuniga 2 ta ov — toʻliq toʻdani (200) boqishi kerak
+ok(2 * F::huntYield($prey['marmot'], 0)['meat'] >= F::meatNeed(4) * F::armyCap(4), 'Kuniga 2 sugʻur ovi 200 boʻrini boqadi');
+ok(F::huntYield($prey['deer'], 0)['meat'] >= F::meatNeed(10) * F::armyCap(10), 'Kiyik ovi 600 boʻrini bir kun boqadi (Excel: 10-darajada 1 ov/kun)');
 ok(F::stage(4) === 0.4 && F::stage(5) === 0.7 && F::stage(11) === 1.0 && F::stage(16) === 1.25, 'Bosqich koeff.');
 near(F::meatNeed(10), 1.5, 1e-9, 'Kunlik goʻsht L10');
 

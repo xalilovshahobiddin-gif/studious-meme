@@ -8,7 +8,7 @@
   "use strict";
 
   var D = window.BW_DEMO_DATA;
-  var STORE = "bw_demo_v2"; // v2: teri, oʻt va suv olib tashlandi
+  var STORE = "bw_demo_v3"; // v3: toʻda ×20 (army_scale), ovdan suyak
   var ROLES = ["scout", "attacker", "defender", "hunter"];
   var TIERS = 6;
   var BUILDINGS = ["den", "food_cave", "workshop", "scout_rock", "battle_ground", "defense_wall", "hunt_path", "hospital", "market"];
@@ -68,17 +68,18 @@
     buildingTime: function (type, to) {
       return Math.round(C("build_time_base_min") * C("time_" + type) * Math.pow(C("time_growth"), to - 2) * F.stage(to) * 60);
     },
-    foodCap: function (l) { return C("store_base") * Math.pow(C("store_growth"), l - 1); },
+    armyScale: function () { return C("army_scale"); },
+    foodCap: function (l) { return C("store_base") * Math.pow(C("store_growth"), l - 1) * F.armyScale(); },
     protection: function (l) { return Math.min(C("protect_max"), C("protect_base") + C("protect_growth") * (l - 1)); },
     workshopRate: function (l) { return C("prod_base") * Math.pow(C("prod_growth"), l - 1); },
     workshopCap: function (l) { return F.workshopRate(l) * C("workshop_store_hours"); },
     workshopSlots: function (l) { return CI("workshop_slot_base") + Math.floor(l / 3); },
-    roleCap: function (l) { return C("role_cap_base") * Math.pow(C("role_cap_growth"), l - 1); },
+    roleCap: function (l) { return C("role_cap_base") * Math.pow(C("role_cap_growth"), l - 1) * F.armyScale(); },
     trainSpeed: function (l) { return 1 + C("train_speed_bonus") * (l - 1); },
     denCoef: function (l) { return 1 + C("den_speed_coef") * (l - 1); },
-    healCap: function (l) { return Math.floor(C("heal_cap_base") + C("heal_cap_growth") * (l - 1)); },
+    healCap: function (l) { return Math.floor((C("heal_cap_base") + C("heal_cap_growth") * (l - 1)) * F.armyScale()); },
     healTime: function (l) { return Math.round(C("heal_time_min") * 60 / (1 + C("heal_speed_growth") * (l - 1))); },
-    armyCap: function (l) { return levelRow(l).army; },
+    armyCap: function (l) { var b = levelRow(l).army; return l < CI("pack_unlock_level") ? b : Math.round(b * F.armyScale()); },
     meatNeed: function (l) { return C("need_base") + C("need_growth") * (l - 1); },
     xpTotal: function (l) { return levelRow(l).xp_total; },
     roleUnlock: function (role) { return role === "hunter" ? CI("role_hunter_unlock") : CI("pack_unlock_level"); },
@@ -95,7 +96,11 @@
       var m = Math.pow(C("tier_coef"), 2 * (tier - 1));
       return { meat: Math.round(C("train_meat_base") * m), bone: Math.round(C("train_bone_base") * m) };
     },
-    trainTime: function (tier) { return C("train_time_min") * 60 * Math.pow(C("tier_coef"), tier - 1); },
+    trainTime: function (tier) { return C("train_time_min") * 60 * Math.pow(C("tier_coef"), tier - 1) / F.armyScale(); },
+    huntYield: function (prey, extra) {
+      var meat = prey.kg * (prey.pack > 1 ? F.armyScale() : 1) * (1 + C("hunt_hunter_bonus") * extra);
+      return { meat: round2(meat), bone: round2(meat * C("hunt_bone_ratio")) };
+    },
     occupancyCoef: function (occ) {
       var k = Math.pow(occ / C("occupancy_normal"), C("occupancy_exp"));
       return Math.max(C("occupancy_min"), Math.min(C("occupancy_max"), k));
@@ -617,7 +622,8 @@
   function preyList(c) {
     return Object.keys(D.prey).filter(function (k) { return D.prey[k].level <= CI("max_level"); }).map(function (k) {
       var p = D.prey[k];
-      return { key: k, kg: p.kg, level: p.level, pack: p.pack, unlocked: c.p.level >= p.level, seconds: huntSec(c, p.kg),
+      var y = F.huntYield(p, 0);
+      return { key: k, kg: p.kg, meat: y.meat, bone: y.bone, level: p.level, pack: p.pack, unlocked: c.p.level >= p.level, seconds: huntSec(c, p.kg),
         xp: Math.round(p.kg * C("xp_hunt_coef")) };
     });
   }
@@ -632,16 +638,17 @@
     groups.forEach(function (g) { pack += g.qty; bonus += g.qty * g.tier; });
     if (pack < prey.pack) throw new ApiError("NOT_ENOUGH_ARMY", "Bu oʻljani yolgʻiz ovlab boʻlmaydi — toʻda kerak", { need_pack: prey.pack });
     var extra = Math.max(0, bonus - (prey.pack - 1));
-    var meat = round2(prey.kg * (1 + C("hunt_hunter_bonus") * extra)), xp = Math.max(1, Math.round(prey.kg * C("xp_hunt_coef")));
+    var y = F.huntYield(prey, extra), meat = y.meat, xp = Math.max(1, Math.round(prey.kg * C("xp_hunt_coef")));
     var sec = huntSec(c, prey.kg), id = nextId();
     move(c, groups, "alive", "on_march");
-    db.hunts.push({ id: id, player_id: pid, prey_key: key, payload: groups, meat: meat, xp: xp, started_at: now, ends_at: now + sec, state: "running" });
-    return { hunt_id: id, seconds: sec, ends_at: iso(now + sec), meat: meat };
+    db.hunts.push({ id: id, player_id: pid, prey_key: key, payload: groups, meat: meat, bone: y.bone, xp: xp, started_at: now, ends_at: now + sec, state: "running" });
+    return { hunt_id: id, seconds: sec, ends_at: iso(now + sec), meat: meat, bone: y.bone };
   }
   function completeHunt(c, h, at) {
     h.state = "done";
     move(c, h.payload, "on_march", "alive");
     c.r.meat += Math.max(0, Math.min(h.meat, F.foodCap(c.b.food_cave) - c.r.meat));
+    c.r.bone += h.bone || 0;
     fed(c);
     addXp(c, h.xp);
     c.p.stat_hunts++;
@@ -1047,7 +1054,7 @@
           tier: q.tier, from_tier: q.from_tier, qty: q.qty, started_at: iso(q.started_at), ends_at: iso(q.ends_at) };
       }),
       hunts: db.hunts.filter(function (h) { return h.player_id === pid && h.state === "running"; }).map(function (h) {
-        return { id: h.id, prey: h.prey_key, meat: h.meat, xp: h.xp, started_at: iso(h.started_at), ends_at: iso(h.ends_at), payload: h.payload };
+        return { id: h.id, prey: h.prey_key, meat: h.meat, bone: h.bone || 0, xp: h.xp, started_at: iso(h.started_at), ends_at: iso(h.ends_at), payload: h.payload };
       }),
       marches: db.marches.filter(function (m) { return m.player_id === pid && ["outbound", "returning", "recalled"].indexOf(m.state) >= 0; }).map(marchOut),
       incoming: [],

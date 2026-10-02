@@ -116,7 +116,7 @@ must(step(10), 'qadam 10');
 must(step(11), 'qadam 11 (toʻda)');
 $s = must(api('GET', '/state'), 'state');
 ok($s['player']['level'] === 4, '11-qadamdan keyin daraja 4', $s['player']['level']);
-ok($s['player']['army']['count'] === 4 && $s['player']['army']['cap'] === 10, '1 + 3 ovchi, sigʻim 10', $s['player']['army']);
+ok($s['player']['army']['count'] === 4 && $s['player']['army']['cap'] === 200, '1 + 3 ovchi, sigʻim 200 (×20)', $s['player']['army']);
 
 // --- 5. Toʻda ovi
 $r = api('POST', '/hunt', ['prey' => 'marmot']);
