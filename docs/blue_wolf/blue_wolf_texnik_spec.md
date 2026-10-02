@@ -195,8 +195,8 @@ Texnik jihatdan MVP uchun:
 | # | Ish | Holati |
 |---|---|---|
 | 1 | DB sxemasi | ✅ `blue_wolf_schema.sql` (32 jadval, MySQL 8.0 da tekshirilgan) |
-| 2 | Balans modeli | ✅ `blue_wolf_darajalar.xlsx` (21 varaq; kiritish — `Sozlamalar`) |
-| 3 | `game_config` ni jadvaldan toʻldirish | ✅ `tools/blue_wolf_config.py` → `blue_wolf_game_config.sql` (271 parametr + balans tekshiruvlari) |
+| 2 | Balans modeli | ✅ `blue_wolf_darajalar.xlsx` (21 varaq, ~4 700 formula; kiritish — `Sozlamalar`, nomlangan kataklar) |
+| 3 | `game_config` ni jadvaldan toʻldirish | ✅ `tools/blue_wolf_config.py` → `blue_wolf_game_config.sql` (273 parametr + balans tekshiruvlari) |
 | 4 | Ekran xaritasi | ✅ Shu hujjatda |
 | 5 | Bildirishnomalar | ✅ Shu hujjatda |
 | 6 | Lokalizatsiya rejasi | ✅ Shu hujjatda |

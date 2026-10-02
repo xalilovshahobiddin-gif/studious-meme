@@ -89,6 +89,8 @@ INSERT INTO game_config (config_key, config_value, unit, note) VALUES
   ('war_loser_death_share', 0.45, 'ulush', 'Yoʻqotilganlardan oʻladigan qismi'),
   ('war_member_cap', 0.15, 'ulush', 'Bitta aʼzo urush fondidan koʻpi bilan'),
   ('war_loser_reward_share', 0.25, 'ulush', 'Gʻolib mukofotiga nisbatan'),
+  ('clan_xp_base', 5000, 'XP', '1-darajadan keyingi daraja uchun'),
+  ('clan_xp_growth', 1.32, 'x', 'Kerakli klan XP = baza × shu^(daraja−1)'),
   ('pack_solo_size', 1, 'bosh', '1–3 daraja: oʻyinchi yolgʻiz'),
   ('pack_base', 10, 'askar', 'Toʻda ochilgan darajada (4-daraja)'),
   ('pack_growth', 1.2, 'x', 'Har darajada koʻpaytiriladi'),

@@ -2,6 +2,8 @@
 """Blue Wolf balans konfiguratsiyasi.
 
 Excel `blue_wolf_darajalar.xlsx` ning `Sozlamalar` varagʻi — balansning yagona manbai.
+Har bir parametr Excel da nomlangan katak (game_config kaliti bilan bir xil, masalan `xp_base`),
+boshqa varaqlar formulalari shu nomlar orqali hisoblanadi.
 Bu skript:
   1. Sozlamalar dagi har bir parametrni `game_config` kalitiga moslaydi
      (yangi yoki oʻchirilgan qator boʻlsa — xato beradi, jimgina oʻtkazib yubormaydi);
@@ -110,6 +112,8 @@ KEYS = {
     "Urush oʻlim ulushi (magʻlub)": "war_loser_death_share",
     "Aʼzo mukofot shifti": "war_member_cap",
     "Magʻlub ishtirok mukofoti": "war_loser_reward_share",
+    "Klan XP bazasi": "clan_xp_base",
+    "Klan XP oʻsishi": "clan_xp_growth",
     "Yolgʻiz bosqich toʻdasi": "pack_solo_size",
     "Bazaviy toʻda hajmi": "pack_base",
     "Toʻda oʻsish koeffitsienti": "pack_growth",

@@ -207,7 +207,7 @@ Barcha fayllar shu papkada: `blue_wolf_GDD.md`, `blue_wolf_texnik_spec.md`, `blu
 | 1.5 | MVP ↔ tanishtiruv | MVP: In + 6 bino, 3 rol (ovchi, hujumchi, razvedkachi), 1–2 tier, botlar 4-darajadan, PvP 7–10; tanishtiruvda klan → ov guruhi, Himoya devori → yigʻib olish | GDD 2, 15, 22 · spec 5 |
 | 1.6 | Boʻrilar oʻladimi | Oʻladi (formula boʻyicha 25–40%), qolgani jarohatlanadi; 7-qoida va oʻlja matni tuzatildi | GDD 8, 24 · Excel `PvP oʻlja` |
 | 1.7 | Kasr resurs yoʻqoladi | `DECIMAL(20,4)` + `DATETIME(3)`; MySQL 8.0.46 da sinaldi (0.0056 saqlanadi) | sxema |
-| 1.8 | Excel da formula yoʻq | `Sozlamalar` — yagona kiritish; `tools/blue_wolf_config.py` SQL ni yaratadi va 11 turdagi balans tekshiruvini bajaradi. GDD dagi “xlsx — matn fayl” ogohlantirishi olib tashlandi | tools · GDD 21 |
+| 1.8 | Excel da formula yoʻq | Excel ga ~4 700 ta haqiqiy formula qoʻshildi (19 varaq). `Sozlamalar` dagi har parametr nomlangan katak (`xp_base`, `prod_growth` …) — formulalar shu nomlar orqali hisoblanadi; kiritiladigan kataklar koʻk shriftda. `tools/blue_wolf_config.py` SQL ni yaratadi va 11 turdagi balans tekshiruvini bajaradi. GDD dagi “xlsx — matn fayl” ogohlantirishi olib tashlandi | tools · GDD 21 |
 
 ### Balans va nomuvofiqliklar
 
@@ -226,7 +226,7 @@ Barcha fayllar shu papkada: `blue_wolf_GDD.md`, `blue_wolf_texnik_spec.md`, `blu
 | 2.12 | 22/24/25 ochilishlari kuch emas — tezlik, davolash, ishlab chiqarish |
 | 2.13 | “4+ hujum 0.10” olib tashlandi |
 | 3 | Juftlik: 24 soatda 3 hujum (PvP) va mavsumda 3 jang hissasi (adolat) — ikki xil qoida aniq nomlandi · qalqon faqat 30%+ yoʻqotganda · haftalik vazifa 4 ta · PvP 7-darajadan, 4–6 da botlar · askar narxi — bitta model · 8 resurs · 9 karta · oflayn 2.0 / 2.5 · `DEN_AUTO_LEVEL` jadvalda · 32 jadval, 271 parametr |
-| 4.1 | Excel dagi barcha parametrlar + yangi parametrlar `game_config` da (271) |
+| 4.1 | Excel dagi barcha parametrlar + yangi parametrlar `game_config` da (273) |
 | 4.2 | Aralash qoʻshin qarshi-kuch formulasi, `role_coef` olib tashlandi, natija chegaralari, tuzoq, raundlar, Himoya devori bonusi — GDD 7 |
 | 4.3 | `request_log`, `player_settings` (tz, bildirishnomalar), `player_counters`, `player_items`, `hunt_parties`, `marches.kind` (`hunt`, `war`), `oy nuri`, `clans.rating`, botlar uchun ustunlar |
 | 4.4 | `/hunt*`, `/wars/:id/decline`, klan soʻrovlari, `GET /march/:id`, kick yoʻli, `/bot/webhook` |

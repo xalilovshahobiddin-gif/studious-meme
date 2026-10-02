@@ -1119,7 +1119,7 @@ uz (asosiy), ru, en; barcha matn `locales` jadvalida, kodda faqat kalit. Batafsi
 ## 21. Texnik arxitektura
 
 - **DB:** MySQL 8, 32 jadval — `blue_wolf_schema.sql`
-- **Balans:** `game_config` jadvali; qiymatlar Excel `Sozlamalar` varagʻidan `tools/blue_wolf_config.py` bilan generatsiya qilinadi (`blue_wolf_game_config.sql`). Kodda birorta balans raqami qattiq yozilmaydi
+- **Balans:** Excel `blue_wolf_darajalar.xlsx` — `Sozlamalar` varagʻidagi nomlangan kataklar (masalan `xp_base`) va ularga tayangan formulalar. `game_config` jadvali shu varaqdan `tools/blue_wolf_config.py` bilan generatsiya qilinadi (`blue_wolf_game_config.sql`); kalitlar Excel nomlari bilan bir xil. Kodda birorta balans raqami qattiq yozilmaydi
 - **API:** 70 endpoint — `blue_wolf_api.md`
 - **Server mantiqi, cron, xavfsizlik:** `blue_wolf_texnik_spec.md`, 4-boʻlim
 
