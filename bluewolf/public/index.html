@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Blue Wolf</title>
+<meta name="theme-color" content="#0f1626">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo+2:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="wolf-chip" data-action="tab" data-tab="profile">
+      <span class="wolf-avatar" id="wolfAvatar">🐺</span>
+      <div class="wolf-meta">
+        <div class="wolf-line"><span class="lvl" id="lvl">1</span><span class="wolf-name" id="wolfName">…</span></div>
+        <div class="xpbar"><div class="xpfill" id="xpFill"></div></div>
+      </div>
+    </div>
+    <div class="top-flags" id="topFlags"></div>
+  </header>
+
+  <div class="resbar" id="resbar"></div>
+
+  <main id="screens">
+    <section class="screen active" id="screen-den"></section>
+    <section class="screen" id="screen-battle"></section>
+    <section class="screen" id="screen-pack"></section>
+    <section class="screen" id="screen-quests"></section>
+    <section class="screen" id="screen-profile"></section>
+  </main>
+
+  <nav class="bottom-nav" id="nav">
+    <button class="nav-btn active" data-action="tab" data-tab="den"><span class="nav-ico" data-nav-icon="den">🏔</span><b data-t="nav.den"></b></button>
+    <button class="nav-btn" data-action="tab" data-tab="battle"><span class="nav-ico" data-nav-icon="battle">⚔️</span><b data-t="nav.battle"></b></button>
+    <button class="nav-btn" data-action="tab" data-tab="pack"><span class="nav-ico" data-nav-icon="pack">🐺</span><b data-t="nav.pack"></b></button>
+    <button class="nav-btn" data-action="tab" data-tab="quests"><span class="nav-ico" data-nav-icon="quests">📋</span><b data-t="nav.quests"></b><i class="dot" id="questDot"></i></button>
+    <button class="nav-btn" data-action="tab" data-tab="profile"><span class="nav-ico" data-nav-icon="profile">👤</span><b data-t="nav.profile"></b></button>
+  </nav>
+</div>
+
+<div class="coach hidden" id="coach"></div>
+<div class="sheet-backdrop hidden" id="sheetBackdrop" data-action="close-sheet"></div>
+<div class="sheet hidden" id="sheet"></div>
+<div class="toast hidden" id="toast"></div>
+<div class="levelup hidden" id="levelup" data-action="close-levelup"></div>
+<div class="boot" id="boot"><div class="boot-wolf">🐺</div><div class="boot-title">Blue Wolf</div><div class="boot-msg" id="bootMsg">…</div></div>
+
+<script src="assets/icons.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
