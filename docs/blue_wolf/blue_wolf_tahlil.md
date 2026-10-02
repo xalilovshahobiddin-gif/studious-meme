@@ -1,5 +1,7 @@
 # Blue Wolf — hujjatlar tahlili (xato, kamchilik, ortiqcha joylar)
 
+> **Holat:** barcha topilmalar tuzatildi — oxiridagi “9. Tuzatishlar holati” boʻlimiga qarang. Quyidagi 1–8 boʻlimlar asl hujjatlar (birinchi commit) haqida.
+
 Tekshirilgan fayllar: `blue_wolf_GDD.md`, `blue_wolf_texnik_spec.md`, `blue_wolf_schema.md` (SQL), `blue_wolf_api.md`, `blue_wolf_darajalar.xlsx` (21 varaq).
 Usul: har bir formula qayta hisoblandi, GDD jadvallari Excel bilan, Excel `Sozlamalar` varagʻi SQL `game_config` bilan, API esa sxema va GDD bilan solishtirildi.
 
@@ -187,3 +189,47 @@ XP narxi va jami XP, kuch/tezlik/chidam/CP, qoʻshin sigʻimi (10 × 1.2^(L−4)
    - Tanishtiruvdan klan qadamini olib tashlash (yoki “ov guruhiga qoʻshilish”ga almashtirish), har qadamga XP yozish.
 4. Sxemaga: `DECIMAL` resurslar, `oy nuri`, `hunt` yurishlari, idempotentlik va bildirishnoma sozlamalari jadvallari.
 5. Shundan keyin — reja boʻyicha tanishtiruv oqimini qurish.
+
+---
+
+## 9. Tuzatishlar holati
+
+Barcha fayllar shu papkada: `blue_wolf_GDD.md`, `blue_wolf_texnik_spec.md`, `blue_wolf_api.md`, `blue_wolf_schema.sql`, `blue_wolf_darajalar.xlsx`, `blue_wolf_game_config.sql` (generatsiya), `tools/blue_wolf_config.py`.
+
+### Kritik xatolar
+
+| # | Muammo | Qaror | Qayerda |
+|---|---|---|---|
+| 1.1 | Ombor sigʻimi < qurilish narxi | Qurilish resurslari ombori **cheklanmagan**; Ustaxona “sigʻimi” — 10 soatlik **bufer** (yigʻib olish kerak). Goʻsht bino narxidan olib tashlandi (rol binolari va Shifo gʻorida **teri** bilan almashtirildi — L25 jami narxlar oʻzgarmadi), shu bilan teri ham ishlatiladigan boʻldi | GDD 3, 5 · Excel `Binolar`, `Sozlamalar` · sxema `buf_*` |
+| 1.2 | 1–3 darajada askar yoʻq | `Maks tier = MAX(1, MIN(6, daraja÷4, bino÷4))` — 1-tier har doim ochiq; boshqa tierlar oʻzgarmadi | GDD 5, 6, 24 · Excel `Rollar`, `Askar iqtisodi`, `Binolar` |
+| 1.3 | Ov tizimi yoʻq / ikki model | Bitta model: 1 soatlik **ov yurishi**, ovchi unumi = 5 × kunlik ehtiyoj kg/soat (kuniga 4 ov ≈ sarfning 3×), oʻljaning minimal toʻdasi, yolgʻiz ov (1–3), ov guruhi (2–4 oʻyinchi). `marches.kind='hunt'`, `hunt_parties`, `/hunt*` endpointlari | GDD 4 · API 6 · sxema · `Sozlamalar` “Ov” |
+| 1.4 | Tanishtiruv XP si yetmaydi | Har qadamga XP (jami 330), tanishtiruvda XP faqat qadamlardan; skip qilinganda ham XP beriladi. Generator daraja/qadam mosligini tekshiradi | GDD 1, 15 · Excel `Tanishtiruv` |
+| 1.5 | MVP ↔ tanishtiruv | MVP: In + 6 bino, 3 rol (ovchi, hujumchi, razvedkachi), 1–2 tier, botlar 4-darajadan, PvP 7–10; tanishtiruvda klan → ov guruhi, Himoya devori → yigʻib olish | GDD 2, 15, 22 · spec 5 |
+| 1.6 | Boʻrilar oʻladimi | Oʻladi (formula boʻyicha 25–40%), qolgani jarohatlanadi; 7-qoida va oʻlja matni tuzatildi | GDD 8, 24 · Excel `PvP oʻlja` |
+| 1.7 | Kasr resurs yoʻqoladi | `DECIMAL(20,4)` + `DATETIME(3)`; MySQL 8.0.46 da sinaldi (0.0056 saqlanadi) | sxema |
+| 1.8 | Excel da formula yoʻq | `Sozlamalar` — yagona kiritish; `tools/blue_wolf_config.py` SQL ni yaratadi va 11 turdagi balans tekshiruvini bajaradi. GDD dagi “xlsx — matn fayl” ogohlantirishi olib tashlandi | tools · GDD 21 |
+
+### Balans va nomuvofiqliklar
+
+| # | Qaror |
+|---|---|
+| 2.1–2.2 | Oy nuri passivi 0.006/askar/soat (ehtiyojning 72%); Oy mehrobi — **oy nuri +40%** (100%), oy toshi emas; yetishmasa CP −15% |
+| 2.3 | Passiv suv `0.25 × 1.25^(L−1)`/soat (ehtiyojning ~2×); yetishmasa yurish −20% |
+| 2.4 | Oʻt: ovdan 10%; davolash 2 × tier oʻt |
+| 2.5 | Chirish olib tashlandi: sigʻimdan ortiq goʻsht saqlanmaydi |
+| 2.6 | Bitta ochlik modeli (CP −30%, ishlab chiqarish −50%) |
+| 2.7 | 81% ga tuzatildi |
+| 2.8 | Ikkinchi navbat 10-darajada hammaga bepul; sotuvda faqat erta ochish |
+| 2.9 | Aʼzo A = 7,500; shiftdan ortgan 20,779 → klan xazinasi |
+| 2.10 | Formula: `ceil(0.6 × Σ blok narxi)` → 6 · 6 · 16 · 32 · 96 |
+| 2.11 | GDD oʻlja va mavsum jadvallari Excel qiymatlariga almashtirildi |
+| 2.12 | 22/24/25 ochilishlari kuch emas — tezlik, davolash, ishlab chiqarish |
+| 2.13 | “4+ hujum 0.10” olib tashlandi |
+| 3 | Juftlik: 24 soatda 3 hujum (PvP) va mavsumda 3 jang hissasi (adolat) — ikki xil qoida aniq nomlandi · qalqon faqat 30%+ yoʻqotganda · haftalik vazifa 4 ta · PvP 7-darajadan, 4–6 da botlar · askar narxi — bitta model · 8 resurs · 9 karta · oflayn 2.0 / 2.5 · `DEN_AUTO_LEVEL` jadvalda · 32 jadval, 271 parametr |
+| 4.1 | Excel dagi barcha parametrlar + yangi parametrlar `game_config` da (271) |
+| 4.2 | Aralash qoʻshin qarshi-kuch formulasi, `role_coef` olib tashlandi, natija chegaralari, tuzoq, raundlar, Himoya devori bonusi — GDD 7 |
+| 4.3 | `request_log`, `player_settings` (tz, bildirishnomalar), `player_counters`, `player_items`, `hunt_parties`, `marches.kind` (`hunt`, `war`), `oy nuri`, `clans.rating`, botlar uchun ustunlar |
+| 4.4 | `/hunt*`, `/wars/:id/decline`, klan soʻrovlari, `GET /march/:id`, kick yoʻli, `/bot/webhook` |
+| 4.5 | Taʼriflanmagan ochilishlar (v3) deb belgilandi |
+| 5 | Stars — bot webhook (`pre_checkout_query` 10 soniya), `requestWriteAccess`, `tz`, oflayn taʼrifi, ochlik vaqti, `FOR UPDATE`, lazy hisob, 429 → 400, `players.clan_id` olib tashlandi, FK lar qoʻshildi |
+| 6 | Erishib boʻlmaydigan chegaralar va `occupancy_max` olib tashlandi, `'den'` navbat ENUM idan chiqarildi, `stage_normal` aniq qoʻshildi, takroriy boʻlimlar spec ga havola qilindi, “tuzatildi” izohlari tozalandi |

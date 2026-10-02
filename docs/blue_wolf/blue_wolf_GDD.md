@@ -14,7 +14,7 @@ Oʻyinchi toʻdasini yoʻqotgan yolgʻiz boʻri sifatida boshlaydi. Ov qiladi, i
 
 **Uchta ustun:**
 1. **Progressiya** — 25 daraja, haqiqiy boʻri turlaridan afsonaviy boʻrilargacha
-2. **Iqtisod** — 7 resurs, 9 bino (8 tasi qurilib oʻstiriladi, 1 tasi — In — oʻyinchi darajasiga avtomatik ergashadi), oziqlanish va ombor cheklovlari
+2. **Iqtisod** — 8 resurs (+2 premium valyuta), 9 bino (8 tasi qurilib oʻstiriladi, 1 tasi — In — oʻyinchi darajasiga avtomatik ergashadi), oziqlanish va ombor cheklovlari
 3. **Raqobat** — PvP reyd, razvedka, klan urushi, mavsum reytingi
 
 **Asosiy trade-off:** bitta toʻda ham ov qiladi, ham resurs yigʻadi, ham jangga chiqadi. Oʻyinchi har kuni shu taqsimotni tanlaydi.
@@ -69,7 +69,7 @@ Qoʻshin sigʻimi = 1 (1–3 daraja) yoki 10 × 1.20^(daraja-4)
 **Bosqich koeffitsientlari:** 1–4 daraja ×0.40 · 5–10 ×0.70 · 11–15 ×1.00 · 16–25 ×1.25
 Bu XP, bino narxi va qurilish vaqtiga bir vaqtda qoʻllanadi — boshlanish tez, oxiri qiyin.
 
-> ⚠️ **Eslatma (formulani "tuzatishga" urinmang):** har bir boʻri turining kuch/tezlik modifikatori individual va lore asosida tanlangan (masalan, Fenrir — ulkan, kuchli, lekin sekinroq boʻri). Shuning uchun **tezlik** darajama-daraja monoton oʻsmasligi mumkin (24-daraja Fenrir tezligi 23-daraja Geri va Frekidan past). Balans kafolati tezlikda emas — **CP** har doim monoton oʻsadi. Jadvaldagi tezlik pasayishini xato deb hisoblamang.
+> **Eslatma:** har bir boʻri turining kuch/tezlik modifikatori individual va lore asosida tanlangan (masalan, Fenrir — ulkan, kuchli, lekin sekinroq boʻri). Shuning uchun **tezlik** darajama-daraja monoton oʻsmasligi mumkin (24-daraja Fenrir tezligi 23-daraja Geri va Frekidan past). Balans kafolati tezlikda emas — **CP** har doim monoton oʻsadi. Jadvaldagi tezlik pasayishini xato deb hisoblamang.
 
 ### Oʻyinchi XP manbalari
 
@@ -77,10 +77,13 @@ Bu XP, bino narxi va qurilish vaqtiga bir vaqtda qoʻllanadi — boshlanish tez,
 Ov XP        = oʻlja vazni (kg) × 0.50
 Qurilish/mashq tugash XP = sarflangan asosiy resurs (tosh+yogʻoch+teri+suyak yigʻindisi) × 0.02
 PvP XP       = yetkazilgan EP zarar × 0.03 × natija koeff. (gʻalaba 1.5 · durang 1.0 · magʻlubiyat 0.5)
-Kundalik vazifa XP = mukofot byudjetining 10% i XP sifatida beriladi
+Kundalik vazifa XP = vazifa mukofoti byudjetining (resurs birligida) 10% i, 1 birlik = 1 XP
+Tanishtiruv XP = har qadamning qatʼiy XP mukofoti (bo'lim 15), jami 330 XP
 ```
 
-Ov — asosiy va doimiy manba (asosiy sikl bilan bir xil ritmda). Qurilish/mashq XP dastlabki darajalarda tez-tez tugaydigan arzon amallardan kelib koʻp XP beradi (shuning uchun 1→4 daraja 15 daqiqada oʻtadi), lekin 16+ darajada navbatlar oʻta uzun boʻlib qoladi va ov asosiy manbaga aylanadi. Har bir XP manbasi `game_config` da alohida koeffitsient sifatida saqlanadi (`xp_hunt_coef`, `xp_build_coef`, `xp_pvp_coef`, `xp_quest_share`) — dizayn testida balanslash uchun.
+**Tanishtiruv davomida** (1–20 qadam) oddiy XP manbalari oʻchiriladi — XP faqat qadam mukofotidan keladi. Shunda daraja chegaralari qadamlarga aniq mos tushadi: 3-qadamdan keyin 2-daraja, 7-qadamdan keyin 3-daraja, 10-qadamdan keyin 4-daraja, 16-qadamdan keyin 5-daraja.
+
+Tanishtiruvdan keyin ov — asosiy va doimiy manba (kuniga ~4 ov × oʻlja kg × 0.5), PvP — eng tez, lekin xavfli manba. Har bir XP manbasi `game_config` da alohida koeffitsient (`xp_hunt_coef`, `xp_build_coef`, `xp_pvp_coef`, `xp_quest_share`).
 
 
 ---
@@ -89,59 +92,64 @@ Ov — asosiy va doimiy manba (asosiy sikl bilan bir xil ritmda). Qurilish/mashq
 
 | Daraja | Modul | Ochiladigan imkoniyat |
 |---|---|---|
-| 1 | Ov / Iqtisod | Yolgʻiz ov (kemiruvchi, qush), birinchi in |
+| 1 | Ov / Iqtisod | Yolgʻiz ov (alfa oʻzi: kemiruvchi, qush), In |
 | 2 | Iqtisod | Oziq gʻori, Ustaxona qoyasi |
-| 3 | Ov | Quyon ovi, yolgʻiz bosqich yakuni |
-| **4** | **Toʻda / Klan / PvP** | **🔓 Toʻda bilan ov · klan yaratish yoki qoʻshilish · PvP arena · toʻda janglari** |
-| 5 | Toʻda / Ov | Toʻdaning umumiy ombori, yirik oʻlja (faqat toʻda bilan) |
-| 6 | Iqtisod / PvP | 🏥 Shifo gʻori, toʻda reydi |
-| 7 | PvP | Reyting va liga tizimi |
-| 8 | PvP | Toʻda urushi (rejalashtirilgan sessiya) |
-| 9 | Klan / Iqtisod | Toʻda lavozimlari, 🛒 Bozor |
-| 10 | Klan | Hudud egallash (dasht zonasi) |
-| 11 | Toʻda | Co-op boss (togʻ ayigʻi) |
-| 12 | Klan | Toʻda xazinasi va ulush taqsimoti |
-| 13 | PvP | Himoya urushi |
-| 14 | PvP | Haftalik mavsumiy turnir |
-| 15 | Toʻda | Taktika: qurshab olish, chekinish, tuzoq |
-| 16 | PvP | Katta toʻda urushi (20v20) |
-| 17 | Klan | Toʻdalar ittifoqi |
-| 18 | PvP | Elite reyd, hudud bosib olish |
-| 19 | Klan | Alfa unvoni, server reytingi |
-| 20 | Toʻda | Muz davri zonasi, qadimgi janglar |
-| 21 | PvP | Afsona bossi |
-| 22 | PvP | Tungi reyd (hujum kuchi ×2) |
-| 23 | Toʻda | Juft hujum |
-| 24 | PvP | Zanjirni uzish (urushda toʻliq tiklanish) |
-| 25 | Klan | Koʻk Boʻri — ittifoqqa +10% doimiy bonus |
+| 3 | Ov | Ov soʻqmogʻi, birinchi ovchi, quyon ovi |
+| **4** | **Toʻda / Jang** | **🔓 Toʻda (qoʻshin 10 askar) · Jang maydoni, Razvedka qoyasi, Himoya devori · yovvoyi toʻdalarga (bot) hujum · ov guruhi (2–4 oʻyinchi) · 🏕 Lager (v2) · klan yaratish yoki qoʻshilish (v2)** |
+| 5 | Ov | Yirik oʻlja — jayron (kamida 2 boʻri) |
+| 6 | Iqtisod | 🏥 Shifo gʻori · 💧 Suv oazisi (v2) |
+| **7** | **PvP** | **Haqiqiy oʻyinchilarga hujum (yangi oʻyinchi qalqoni tugaydi)** · reyting va liga (v2) |
+| 8 | PvP / Klan | Toʻda urushi (v2) · 🌿 Oʻt oazisi (v2) |
+| 9 | Iqtisod / Klan | 🛒 Bozor · toʻda lavozimlari (v2) |
+| 10 | Iqtisod | Ikkinchi qurilish navbati — hammaga bepul |
+| 11 | Toʻda | Co-op boss — togʻ ayigʻi (v3) |
+| 12 | Klan | Toʻda xazinasi va ulush taqsimoti (v2) · 🪨 Tosh koni (v2) |
+| 13 | PvP | Himoya urushi (v3) |
+| 14 | PvP | Haftalik turnir (v3) |
+| 15 | Toʻda | Taktika: qurshab olish, chekinish, tuzoq (v3) |
+| 16 | PvP | 🦴 Suyak dalasi (v2) · katta toʻda urushi 20v20 (v3) |
+| 17 | Klan | Toʻdalar ittifoqi (v3) |
+| 18 | PvP | Elite reyd (v3) |
+| 19 | Klan | Alfa unvoni, server reytingi (v2) |
+| 20 | Iqtisod | 🌙 Oy nuri ehtiyoji va passiv ishlab chiqarishi · 🌕 Oy mehrobi (v2) · muz davri zonasi (v3) |
+| 21 | PvP | Afsona bossi (v3) |
+| 22 | PvP | Tungi reyd: 22:00–06:00 (server vaqti) yurish tezligi +25% |
+| 23 | Toʻda | Juft hujum (v3) |
+| 24 | PvP | Zanjirni uzish: urushdan keyin jarohatlangan boʻrilar 2× tez davolanadi |
+| 25 | Klan | Koʻk Boʻri unvoni · klanga +10% ishlab chiqarish bonusi (kuch emas) |
+
+**(v2)** — tizim shu hujjatda taʼriflangan, lekin MVP dan keyin quriladi. **(v3)** — faqat nomi bor; ishlab chiqishdan oldin alohida dizayn hujjati kerak.
+**Qoida:** ochilish yangi imkoniyat, tezlik yoki ishlab chiqarish beradi, lekin **doimiy jangovar kuch (CP/EP koeffitsienti) bermaydi** (bo'lim 24, qoida 5).
 
 ---
 
 ## 3. Resurslar
 
-### Oziq resurslari
+### Oziq resurslari (Oziq gʻorida saqlanadi, sigʻim bilan cheklangan)
 | Resurs | Vazifasi | Manba |
 |---|---|---|
-| 🥩 Goʻsht | Asosiy oziq va valyuta | Ov |
-| 💧 Suv | Chidam tiklash | Daryo, Oziq gʻori passiv yigʻimi |
-| 🌿 Shifobaxsh oʻt | Davolash | Oʻrmon, togʻ |
-| 🌙 Oy nuri | 20+ daraja oziqlanishi | Toʻlin oy, Oy mehrobi, shaxsiy passiv ishlab chiqarish |
+| 🥩 Goʻsht | Oziq, askar yollash | Ov (bo'lim 4), PvP oʻljasi |
+| 💧 Suv | Ichimlik — yetmasa yurish tezligi −20% | Oziq gʻori passiv yigʻimi, Suv oazisi |
+| 🌿 Shifobaxsh oʻt | Jarohatlangan boʻrini davolash | Ov (oʻlja vaznining 10% i), Oʻt oazisi |
+| 🌙 Oy nuri | 20+ daraja oziqlanishi | Oziq gʻori passiv ishlab chiqarishi (20+), Oy mehrobi bonusi |
 
-### Qurilish resurslari
-| Resurs | Manba |
-|---|---|
-| 🪨 Tosh | Ustaxona qoyasi |
-| 🌲 Shox-shabba | Ustaxona qoyasi |
-| 🐾 Teri | Ustaxona qoyasi / yirik oʻlja |
-| 🦴 Suyak | Ustaxona qoyasi / ov |
+### Qurilish resurslari (ombori cheklanmagan, Ustaxona buferi orqali keladi)
+| Resurs | Sarfi | Manba |
+|---|---|---|
+| 🪨 Tosh | Barcha binolar | Ustaxona qoyasi |
+| 🌲 Shox-shabba | Oziq gʻori, Ustaxona, Shifo gʻori, Bozor | Ustaxona qoyasi |
+| 🐾 Teri | Rol binolari, Shifo gʻori | Ustaxona qoyasi |
+| 🦴 Suyak | Ustaxona, rol binolari, askar yollash | Ustaxona qoyasi |
+
+Jami **8 resurs** + 2 premium valyuta.
 
 ### Premium
-🌕 **Oy toshi** — Telegram Stars orqali sotib olinadi
+🌕 **Oy toshi** — faqat Telegram Stars orqali sotib olinadi (oʻyin ichida mukofot sifatida berilmaydi)
 🪙 **Tanga** — mavsum mukofoti
 
 ---
 
-## 4. Oziqlanish
+## 4. Oziqlanish va ov
 
 ```
 Bir askarning kunlik ehtiyoji = 0.6 + 0.1 × (daraja − 1)  kg
@@ -151,7 +159,7 @@ Oy nuri = 0.2 × qoʻshin (faqat 20+ daraja)
 Zaxira talabi = 3 kunlik sarf
 ```
 
-| Daraja | 1 askar | Qoʻshin | Kunlik goʻsht | Suv | Oy nuri | Asosiy oʻlja | Ov/kun | 3 kunlik zaxira | Kerakli Oziq gʻori |
+| Daraja | 1 askar | Qoʻshin | Kunlik goʻsht | Suv | Oy nuri | Asosiy oʻlja | Sarfga kerakli oʻlja/kun | 3 kunlik zaxira | Kerakli Oziq gʻori |
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | 0.6 | 1 | 1 | 0 | — | Kemiruvchi (0.5 kg) | 2 | 3 | 1 |
 | 4 | 0.9 | 10 | 9 | 5 | — | Sugʻur (8 kg) | 2 | 27 | 1 |
@@ -160,18 +168,60 @@ Zaxira talabi = 3 kunlik sarf
 | 20 | 2.5 | 185 | 463 | 215 | 37 | Mamont bolasi (800 kg) | 1 | 1,389 | 19 |
 | 25 | 3.0 | 460 | 1,380 | 626 | 92 | Ruh oʻljasi (400 kg) | 4 | 4,140 | 25 |
 
-> ⚠️ **Oy nuri — ikki qatlamli ishlab chiqarish (bottleneck oldini olish uchun):** serverda Oy mehrobi oazisi bitta boʻlgani sababli, uni egallamagan toʻdalar 20+ darajaga chiqqach ochlikka mahkum boʻlmasligi kerak. Shu sababli:
-> - **Shaxsiy passiv ishlab chiqarish** — Oziq gʻori 20-darajadan boshlab kichik miqdorda oy nuri ishlab chiqaradi: `0.03 × qoʻshin soni / soat` (`game_config`: `moonlight_passive_base`). Bu kichik-oʻrta qoʻshinni boqishga yetadi.
-> - **Oy mehrobi — kengaytiruvchi, yagona manba emas.** +1/kun bonusi katta (25-daraja, 460 qoʻshin) armiyani toʻliq boqish uchun zarur boʻladi va shu bois strategik qimmatini saqlaydi, lekin uni egallamagan oʻyinchi tiqilib qolmaydi.
+### 🌙 Oy nuri — ikki qatlam
+
+```
+Passiv oy nuri (Oziq gʻori, 20+ daraja) = 0.006 × qoʻshin / soat   → kuniga 0.144 × qoʻshin (ehtiyojning 72%)
+Oy mehrobi egasi (klan aʼzolari)        = passiv × 1.40              → kuniga 0.20 × qoʻshin (ehtiyojning 100%)
+Yetishmovchilik                         = jangda CP −15% (goʻsht ochligidan alohida, ular qoʻshilmaydi)
+```
+
+Qolgan 28% ni Bozor orqali (oy nuri kursi ×2) yoki Oy mehrobini egallash orqali qoplash mumkin. Shu bilan oazis strategik qiymatini saqlaydi, lekin uni egallamagan oʻyinchi tiqilib qolmaydi.
+
+### 💧 Suv
+
+```
+Passiv suv(L) = 0.25 × 1.25^(L−1) birlik/soat   (Oziq gʻori darajasi L)
+```
+Oziq gʻori oʻyinchi darajasida boʻlsa, suv ehtiyojning ~2× ini beradi; gʻor orqada qolsa yetishmaydi → **yurish tezligi −20%**.
+
+### 🥩 Ov
+
+Ov — faol harakat: oʻyinchi ovchilarni (va xohlasa boshqa askarlarni) **1 soatlik ov yurishiga** yuboradi.
+
+```
+Ovchi unumi(L, tier) = 5 × bir askarning kunlik ehtiyoji(L) × (1 + 0.10 × (tier−1))   kg/soat
+Bir ov (kg)          = Σ ovchi unumi × ov davomiyligi (1 soat)
+Kichik oʻlja jazosi  = yuborilgan boʻrilar soni oʻljaning minimal toʻdasidan kam boʻlsa → natija × 0.30
+Shifobaxsh oʻt       = ov natijasining 10% i (birlik)
+```
+
+| Daraja | Qoʻshin | Ovchi (15%) | Bir ov (1 soat) | Kuniga 4 ov | Kunlik sarf | Nisbat |
+|---|---|---|---|---|---|---|
+| 1 | 1 | 1 | 3 kg | 12 kg | 1 kg | 12× |
+| 4 | 10 | 2 | 9 kg | 36 kg | 9 kg | 4.0× |
+| 10 | 30 | 5 | 38 kg | 150 kg | 45 kg | 3.3× |
+| 15 | 74 | 11 | 110 kg | 440 kg | 148 kg | 3.0× |
+| 20 | 185 | 28 | 350 kg | 1,400 kg | 463 kg | 3.0× |
+| 25 | 460 | 69 | 1,035 kg | 4,140 kg | 1,380 kg | 3.0× |
+
+Ovning ~1/3 qismi toʻdani boqadi, qolgani askar yollash va zaxiraga ketadi. Faol oʻyinchi (kuniga 4 ov) ochlikka tushmaydi; kuniga 1–2 marta kiradigan oʻyinchi ham sarfni qoplaydi.
+
+**Yolgʻiz ov (1–3 daraja):** alfaning oʻzi bir bosishda ovlaydi — oʻlja = shu darajaning asosiy oʻljasi (0.5 / 1 / 2 kg), 2 daqiqa kutish. 4-darajadan keyin yolgʻiz ov yopiladi, ov faqat toʻda bilan.
+
+**Ov guruhi (4+ daraja):** 2–4 oʻyinchi bitta ovga birlashadi. Har qoʻshimcha oʻyinchi uchun natija +10%; oʻlja yuborilgan ovchi unumiga proporsional boʻlinadi. Bu rasmiy klan emas — bitta ov uchun vaqtinchalik guruh.
 
 **Oʻlja zinapoyasi:** kemiruvchi 0.5 → qush 1 → quyon 2 → sugʻur 8 → jayron 25 → yovvoyi choʻchqa 50 → kiyik 60 → bugʻu 100 → arxar 120 → yovvoyi ot 250 → los 300 → bizon 500 → mamont bolasi 800 → mamont 1,200 → ruh oʻljasi 400
+
+**Oʻljaning minimal toʻdasi** = yuqoriga yaxlitlangan(oʻlja vazni ÷ 20), kamida 1 boʻri: sugʻur 1 · jayron 2 · kiyik 3 · yovvoyi ot 13 · mamont bolasi 40 · ruh oʻljasi 20. Ovchilar yetmasa, ovga hujumchi yoki boshqa askar qoʻshib yuboriladi — ular shu vaqt inni himoya qilmaydi (asosiy trade-off).
 
 5-darajadan boshlab asosiy oʻlja jayron (25 kg) — bir boʻri uni ovlay olmaydi. **Toʻda ixtiyoriy emas, majburiy.**
 
 ### Ochlik mexanikasi
-- Ombor toʻla (>80%) → kuch +10%, XP +5%
-- Normal (30–80%) → oddiy
-- Och (<30%) → tezlik −15%, jangda CP −20%
+Ochlik — goʻsht zaxirasi 0 ga tushgan holat (bo'lim 16 da batafsil):
+- Jangovar quvvat −30%, ishlab chiqarish −50%
+- Birinchi 7 kun hech kim ketmaydi, keyin kuniga 1% (maks 50%)
+- Goʻsht qoʻshilishi bilan jazolar darhol oʻchadi
 
 ---
 
@@ -184,7 +234,20 @@ Narx(L) = bazaviy × 1.30^(L-2) × bosqich koeffitsienti
 Vaqt(L) = 10 daqiqa × bino koeffitsienti × 1.25^(L-2) × bosqich koeffitsienti
 ```
 
-> ⚠️ **Tuzatish (v2 — Excel manba bilan tekshirilgach):** avvalgi versiyada ikkita xato bor edi va men buni faqat qisman toʻgʻrilagan edim. Haqiqiy manba — `blue_wolf_darajalar.xlsx` (Binolar varagʻi) — bilan solishtirib chiqilgach maʼlum boʻldiki: **1) birlik xato edi** (soniya emas, soat — bu toʻgʻri topilgan edi), lekin **2) formuladagi `× bosqich koeffitsienti` ni olib tashlash NOTOʻGʻRI edi** — asl formula toʻgʻri ekan, muammo GDD dagi jadval qiymatlarining oʻzida boʻlgan: ular bosqich koeffitsientisiz (×1.00 bilan) hisoblangan, Excel esa toʻgʻri (×1.25 bilan) hisoblagan — natijada GDD jadvali **haqiqiy qiymatdan aynan 20% past** edi (nisbat 0.80 — barcha 8 bino uchun bir xil), va bu **narx ustunida ham xuddi shunday takrorlangan**. Formula yuqorida asl holatiga qaytarildi; jadval Excel asosida toʻgʻrilandi.
+- **1-daraja** bino ochilganda (bo'lim 2) bepul va darhol paydo boʻladi; narx va navbat 2-darajadan boshlanadi.
+- **Qurilish resurslari** (tosh, shox-shabba, teri, suyak) uchun ombor cheklanmagan — har qanday daraja narxini yigʻish mumkin. Cheklov Ustaxona **buferida** (pastga qarang).
+- **Goʻsht binolar narxiga kirmaydi** — goʻsht faqat oziq va askar yollash uchun (Oziq gʻori sigʻimi shunga moslangan).
+
+**Bazaviy narx (1→2 daraja, bosqich koeffitsientisiz):**
+
+| Bino | Tosh | Shox-shabba | Teri | Suyak | Jami |
+|---|---|---|---|---|---|
+| Oziq gʻori | 100 | 60 | — | — | 160 |
+| Ustaxona qoyasi | 150 | 100 | — | 40 | 290 |
+| Rol binosi (bazaviy maydon) | 180 | — | 150 | 90 | 420 |
+| ↳ Razvedka ×0.50 · Jang ×0.70 · Himoya ×0.60 · Ov ×0.45 | | | | | 210 · 294 · 252 · 189 |
+| Shifo gʻori | 80 | 120 | 100 | — | 300 |
+| Bozor | 130 | 110 | — | — | 240 |
 
 | # | Bino | Vazifasi | Vaqt koeff. | L25 resurs | L25 vaqt | Jami 1→25 resurs | Jami 1→25 vaqt |
 |---|---|---|---|---|---|---|---|
@@ -197,11 +260,11 @@ Vaqt(L) = 10 daqiqa × bino koeffitsienti × 1.25^(L-2) × bosqich koeffitsienti
 | 7 | 🏥 Shifo gʻori | Jarohatlangan boʻrilarni davolash | 0.90 | 156,577 | 31.8 soat | 664,418 | 153.5 soat |
 | 8 | 🛒 Bozor | Resurs almashtirish | 1.00 | 125,262 | 35.3 soat | 531,532 | 170.6 soat |
 
-**Amaliy taʼsir:** barcha 8 bino jami navbat vaqti (1→25, bitta navbat bilan, ketma-ket) = 1,364.0 soat ≈ **56.8 kun** sof navbat vaqti. Bu "necha oy" hisobiga (bo'lim 1 XP manbalari qismi) qoʻshimcha lower-bound beradi — resurs jamgʻarish vaqti hisobga olinmagan holda ham, faqat qurilish navbatlarining oʻzi ~2 oy talab qiladi.
+**Amaliy taʼsir:** barcha 8 bino jami navbat vaqti (1→25, ketma-ket) = 1,364.6 soat ≈ **56.9 kun** sof navbat vaqti (10-darajadan ikkinchi navbat bilan ~35 kun). Resurs jamgʻarish vaqti bunga kirmaydi.
 
 ### 🏠 In (9-bino — avtomatik, narxsiz)
 
-> ⚠️ **Topilgan nomuvofiqlik:** DB sxemasidagi `buildings.type` ENUM ida `'den'` bor va tanishtiruvning 3-qadamida ("Inni qoʻyish → In 1-daraja") tilga olinadi, lekin yuqoridagi 8 ta bino roʻyxatida In yoʻq edi — uning narxi/vaqti/foydasi hech qayerda taʼriflanmagan edi. Quyida taʼriflanadi.
+In — oʻyinchining asosiy makoni. U navbat orqali qurilmaydi va narxi yoʻq (tanishtiruvning 3-qadamida qoʻyiladi).
 
 ```
 In darajasi = oʻyinchi darajasi (avtomatik — daraja koʻtarilganda darhol oshadi, alohida narx yoki qurilish navbati YOʻQ)
@@ -223,26 +286,28 @@ Yakuniy mashq tezligi = Rol binosi mashq tezligi(L) × In tezlanish koeffitsient
 
 ### Oziq gʻori
 ```
-Sigʻim(L)      = 40 × 1.22^(L-1) kg
-Chirish(L)     = 12 soat × (1 + 0.12×(L-1))
-Passiv suv(L)  = 5 × 1.20^(L-1) birlik/soat
-Himoya(L)      = 30% + 2%×(L-1), maksimum 85%
+Sigʻim(L)      = 40 × 1.22^(L-1)   — goʻsht (kg), suv, oʻt va oy nuri uchun alohida-alohida
+Passiv suv(L)  = 0.25 × 1.25^(L-1) birlik/soat
+Oy nuri        = 0.006 × qoʻshin / soat (faqat 20+ daraja)
+Himoya(L)      = 30% + 2%×(L-1)
 ```
-25-darajada: 4,728 kg sigʻim, 47 soat chirish, 397 suv/soat, 78% himoya
+25-darajada: 4,728 sigʻim, 53 suv/soat, 78% himoya.
+Sigʻimdan ortiq kelgan goʻsht saqlanmaydi (chiriydi) — shuning uchun gʻorni oʻyinchi darajasi bilan birga koʻtarish kerak.
 
 ### Ustaxona qoyasi
 ```
 Ishlab chiqarish(L) = 20 × 1.22^(L-1) birlik/soat
-Sigʻim(L)           = soatlik ishlab chiqarish × 10
-Yigʻuvchi slot(L)   = 2 + butun(L/3)
+Bufer(L)            = soatlik ishlab chiqarish × 10   (onlayn; oflaynda bo'lim 16 koeffitsienti)
 ```
-25-darajada: 2,364/soat = **56,736/kun**, sigʻim 23,640, 10 slot
+25-darajada: 2,364/soat = **56,736/kun**, bufer 23,640.
 
-Oʻyinchi soatlik ishlab chiqarishni 4 resurs orasida oʻzi taqsimlaydi.
+Ishlab chiqarish avval Ustaxona **buferiga** tushadi; oʻyinchi “Yigʻib olish” tugmasi bilan uni omborga oʻtkazadi (yoki “Avtomatik yigʻish” xaridi bilan har kirishda oʻzi oʻtadi). Bufer toʻlsa, ishlab chiqarish toʻxtaydi — bu kirish uchun sabab. Ombor (qurilish resurslari) cheklanmagan.
+
+Oʻyinchi soatlik ishlab chiqarishni 4 resurs orasida oʻzi taqsimlaydi (standart: tosh 40% · shox-shabba 30% · teri 15% · suyak 15%).
 
 ### Rol binolari (Razvedka, Jang, Himoya, Ov)
 ```
-Ochadigan tier   = MIN(6, butun(bino darajasi / 4))
+Ochadigan tier   = MAX(1, MIN(6, butun(bino darajasi / 4)))
 Askar sigʻimi(L) = 6 × 1.20^(L-1)
 Mashq tezligi(L) = 1 + 0.04 × (L-1)
 ```
@@ -250,18 +315,19 @@ Narx koeffitsientlari: Razvedka 0.50 · Jang 0.70 · Himoya 0.60 · Ov 0.45
 
 ### Shifo gʻori
 ```
-Sigʻim(L)        = 2 + 0.4 × (L-1) boʻri
-Davolash vaqti(L) = 60 daqiqa / (1 + 0.05×(L-1))
+Sigʻim(L)         = yaxlitlangan(2 + 0.4 × (L-1)) boʻri bir vaqtda
+Davolash vaqti(L) = 60 daqiqa / (1 + 0.05×(L-1)) — bir boʻri uchun
+Davolash narxi    = 2 × tier shifobaxsh oʻt — bir boʻri uchun
 ```
-25-darajada: 12 boʻri, 27 daqiqa
+25-darajada: 12 boʻri, 27 daqiqa. Shifo gʻori boʻlmasa (1–5 daraja) jarohatlangan boʻri 3 soatda oʻzi tuzaladi (bepul, sekin).
 
 ### Bozor
 ```
-Almashinuv kursi(L) = MAX(1.1, 3.0 − 0.075×(L-1))
+Almashinuv kursi(L) = 3.0 − 0.075×(L-1)     (oy nuri uchun ×2)
 Kunlik limit(L)     = 200 × 1.20^(L-1)
-Soliq(L)            = MAX(5%, 20% − 0.6%×(L-1))
+Soliq(L)            = 20% − 0.6%×(L-1)
 ```
-25-darajada: 1.20:1 kurs, 15,899 limit, 6% soliq
+25-darajada: 1.20:1 kurs, 15,899 limit, 5.6% soliq
 
 ---
 
@@ -274,16 +340,20 @@ Soliq(L)            = MAX(5%, 20% − 0.6%×(L-1))
 | 🔍 Razvedkachi | Raqibni koʻrish, tuzoq topish | 8 | 22 | 30 | 0 | Razvedka qoyasi |
 | ⚔️ Hujumchi | Reyd va toʻda janglari | 20 | 12 | 45 | 0 | Jang maydoni |
 | 🛡 Himoyachi | In va omborni qoʻriqlash | 12 | 8 | 90 | 0 | Himoya devori |
-| 🥩 Ovchi | Goʻsht va resurs yigʻish | 10 | 14 | 40 | 12 kg/soat | Ov soʻqmogʻi |
+| 🥩 Ovchi | Ov (goʻsht va oʻt) | 10 | 14 | 40 | 5 × kunlik ehtiyoj kg/soat (bo'lim 4) | Ov soʻqmogʻi |
 
-Ovchi 1-darajadan, qolgan 3 rol 4-darajadan ochiladi.
+Ovchi 3-darajadan (Ov soʻqmogʻi bilan), qolgan 3 rol 4-darajadan ochiladi. Alfa — oʻyinchining oʻz boʻrisi — qoʻshinga kirmaydi va jangda qatnashmaydi; 1–3 darajada u yolgʻiz ovlaydi.
 
 ### Tierlar
 
 ```
 Tier CP = (Kuch×2 + Tezlik×1.5 + Chidam×0.5) × 1.45^(tier-1) × (1 + 0.03 × alfa darajasi)
-Maks tier = MIN(6, alfa darajasi ÷ 4, shu rol binosi ÷ 4)
+Maks tier = MAX(1, MIN(6, butun(alfa darajasi ÷ 4), butun(shu rol binosi ÷ 4)))
+Yangi askar narxi ≈ 20 kg goʻsht + 8 suyak, har tierda ×2.10 (= 1.45²)
+Yangi askar vaqti = 4 daqiqa × 1.45^(tier−1)
 ```
+
+1-tier har doim ochiq (rol binosi qurilgan zahoti); 2-tier 8-darajada, 3-tier 12-da, 4-tier 16-da, 5-tier 20-da, 6-tier 24-darajada ochiladi (bino ham shu darajada boʻlishi kerak).
 
 | Tier | Nomi | CP (alfa 19) | Kuch nisbati | Yangi askar: goʻsht | suyak | vaqt |
 |---|---|---|---|---|---|---|
@@ -302,7 +372,7 @@ Narx = yangi askar narxining 60%
 Vaqt = yangi askar vaqtining 50%
 ```
 
-**Misol:** 300 ta 1-tier askar → **188 ta 2-tier** (200 emas). Kuch 37,800 dan 34,400 ga tushadi.
+**Misol:** 300 ta 1-tier askar → **188 ta 2-tier** (200 emas). Kuch 37,800 dan 34,404 ga tushadi.
 
 **Nega baribir foydali:** 188 askar 300 tasidan kam goʻsht yeydi va bino sigʻimida kam joy oladi. Foyda kuchda emas — samaradorlikda.
 
@@ -311,7 +381,7 @@ Vaqt = yangi askar vaqtining 50%
 ```
 🛡 Himoyachi → ⚔️ Hujumchi → 🔍 Razvedkachi → 🛡 Himoyachi
 ```
-Ustunlik ×1.30, zaiflik ×0.77, boshqa holatlarda ×1.00
+Strelka “ustun keladi” degani: himoyachi hujumchiga, hujumchi razvedkachiga, razvedkachi himoyachiga qarshi ×1.30; teskari yoʻnalishda ×0.77; ovchi va bir xil rol ×1.00. Aralash qoʻshinlarda qanday qoʻllanishi — bo'lim 7, “Jang hisobi”.
 
 ### Tavsiya etilgan taqsimot
 
@@ -336,9 +406,9 @@ T = maksimal tier. T=6 da ulushlar: 29% · 24% · 19% · 14% · 10% · 5%
 ### Qoʻshin toʻlganligi
 
 ```
-Vaqt koeffitsienti = (toʻlganlik ÷ 60%)^1.8 , 0.50× va 3.00× orasida
-Yakuniy vaqt = tier vaqti × bino jazosi × toʻlganlik koeff. ÷ mashq tezligi
-Bino jazosi = (askar ÷ bino sigʻimi)^2 , maksimum 5×
+Vaqt koeffitsienti = MAX(0.50, (toʻlganlik ÷ 60%)^1.8)        — 100% da 2.51×
+Bino jazosi = MAX(1, (shu rol askarlari ÷ bino sigʻimi)^2)
+Yakuniy vaqt = tier vaqti × MIN(5, bino jazosi × toʻlganlik koeff.) ÷ (mashq tezligi × In koeff.)
 ```
 
 | Toʻlganlik | Koeff. | Holat |
@@ -348,7 +418,7 @@ Bino jazosi = (askar ÷ bino sigʻimi)^2 , maksimum 5×
 | **60%** | **1.00×** | Normal |
 | 75% | 1.49× | Sekinlashdi |
 | 90% | 2.07× | Juda sekin |
-| 100% | — | Butunlay toʻxtaydi |
+| 100% | 2.51× | Qoʻshin toʻla — yangi askar qoʻshib boʻlmaydi (`CAPACITY_FULL`) |
 
 **Jangdan keyin tiklanish (70% yoʻqotish):** 25-daraja 322 askarni 1-tierda 10.7 soatda tiklaydi.
 
@@ -365,6 +435,14 @@ Bino jazosi = (askar ÷ bino sigʻimi)^2 , maksimum 5×
 
 Server **9 ta** raqib taklif qiladi: −1, teng, +1 daraja. 30 daqiqada yoki 3 hujumdan keyin yangilanadi.
 
+**Yovvoyi toʻdalar (botlar):** 4–6 darajada roʻyxat faqat botlardan iborat (oʻyinchi oʻzi ham, raqiblar ham qalqon ostida). 7+ darajada oynada mos raqib yetmasa, boʻsh joylar botlar bilan toʻldiriladi.
+
+```
+Bot EP     = oʻyinchining hozirgi EP si × band (kuchsiz 0.70 · teng 1.00 · kuchli 1.30) × tasodif(0.90–1.10)
+Bot zaxira = shu darajaning 3 kunlik goʻsht zaxirasi (Oziqlanish jadvali)
+```
+Botga hujum oʻlja, XP va kundalik vazifa hissasini beradi; mavsum reytingiga kirmaydi; bot qasos olmaydi.
+
 | Maʼlumot | Razvedkasiz | Razvedka bilan |
 |---|---|---|
 | Nomi va darajasi | ✅ | ✅ |
@@ -379,7 +457,8 @@ Server **9 ta** raqib taklif qiladi: −1, teng, +1 daraja. 30 daqiqada yoki 3 h
 
 | Daraja | Hujum qila oladi | Tanlov |
 |---|---|---|
-| 1–6 | — | 🛡 Qalqon ostida |
+| 1–3 | — | Jang yoʻq |
+| 4–6 | Faqat botlar | 🛡 Oʻzi qalqon ostida |
 | 7 | 7–8 | 2 |
 | 8–24 | ±1 | 3 |
 | 25 | 24–25 | 2 |
@@ -413,42 +492,62 @@ Qoʻshin: 20 km/soat · Razvedka: 60 km/soat
 ### Jang hisobi
 
 ```
-EP = Σ(askar × tier CP × rol koeff. × qarshi-kuch koeff.)
-R  = hujumchi EP ÷ himoyachi EP
-Hujumchi yoʻqotishi  = MIN(90%, 40% ÷ R) × (1 ± 10%)
-Himoyachi yoʻqotishi = MIN(90%, 40% × R) × (1 ± 10%)
-Oʻlim = yoʻqotish × oʻlim ulushi (hujumchi 40%, himoyachi 25%)
-Kasalxona = yoʻqotish × qolgani
+Har bir rol guruhi uchun:  EP_rol = Σ (askar soni × tier CP)        (alfa bonusi tier CP ichida)
+Tomon EP si:               EP     = Σ EP_rol
+
+Qarshi-kuch (aralash qoʻshin) — raqib tarkibi ulushlari boʻyicha vaznlangan:
+  k_hujumchi  = Σ_i Σ_j (EP_i ÷ EP_hujum) × (EP_j ÷ EP_himoya) × M[i][j]
+  k_himoyachi = Σ_j Σ_i (EP_j ÷ EP_himoya) × (EP_i ÷ EP_hujum) × M[j][i]
+  M — bo'lim 6 dagi 4×4 jadval (1.30 / 0.77 / 1.00)
+
+Holat koeffitsientlari (koʻpaytiriladi):
+  ochlik ×0.70 · oy nuri yetishmasligi ×0.85 · Himoya devori (faqat himoyachi) ×(1 + 0.01 × devor darajasi)
+
+EP_samarali = EP × k × holat koeffitsientlari
+R = EP_samarali(hujumchi) ÷ EP_samarali(himoyachi)
+
+Hujumchi yoʻqotishi  = MIN(90%, 40% ÷ R × tuzoq) × tasodif(0.90–1.10)
+Himoyachi yoʻqotishi = MIN(90%, 40% × R) × tasodif(0.90–1.10)
+Oʻlim     = yoʻqotish × oʻlim ulushi (hujumchi 40%, himoyachi 25%)
+Kasalxona = yoʻqotish − oʻlim
+Tuzoq     = 1.20 — hujumda razvedkachi yoʻq va amal qiluvchi razvedka hisoboti yoʻq boʻlsa, 15% ehtimol bilan; aks holda 1.00
 ```
+
+Himoyada inda turgan barcha sogʻlom askarlar qatnashadi (yurishdagi va jarohatlanganlar emas). Yoʻqotish har rol va tier boʻyicha proporsional taqsimlanadi.
+
+**Natija chegaralari:** R ≥ 1.50 — toʻliq gʻalaba · 1.10 ≤ R < 1.50 — qisman gʻalaba · 0.90 < R < 1.10 — durang (oʻlja yoʻq) · R ≤ 0.90 — magʻlubiyat.
 
 | R | Natija | Hujumchi yoʻq. | Himoyachi yoʻq. | Hujumchi oʻlim/kasal | Himoyachi oʻlim/kasal |
 |---|---|---|---|---|---|
 | 0.50 | Magʻlubiyat | 80% | 20% | 32% / 48% | 5% / 15% |
 | 0.75 | Magʻlubiyat | 53% | 30% | 21% / 32% | 8% / 23% |
 | 1.00 | Durang | 40% | 40% | 16% / 24% | 10% / 30% |
-| 1.25 | Gʻalaba | 32% | 50% | 13% / 19% | 13% / 38% |
-| 1.50 | Gʻalaba | 27% | 60% | 11% / 16% | 15% / 45% |
-| 2.00 | Gʻalaba | 20% | 80% | 8% / 12% | 20% / 60% |
-| 3.00 | Gʻalaba | 13% | 90% | 5% / 8% | 23% / 68% |
+| 1.25 | Qisman gʻalaba | 32% | 50% | 13% / 19% | 13% / 38% |
+| 1.50 | Toʻliq gʻalaba | 27% | 60% | 11% / 16% | 15% / 45% |
+| 2.00 | Toʻliq gʻalaba | 20% | 80% | 8% / 12% | 20% / 60% |
+| 3.00 | Toʻliq gʻalaba | 13% | 90% | 5% / 8% | 23% / 68% |
 
-### Jang tartibi (5 raund)
+### Jang tartibi (raundlar — natijani koʻrsatish uchun)
+
+Natija yuqoridagi formula bilan **bir marta** hisoblanadi; raundlar shu yoʻqotishlarni jurnal (`battles.log`) boʻylab taqsimlab koʻrsatadi.
 
 | Raund | Nima boʻladi |
 |---|---|
-| 0 — yaqinlashuv | Razvedkachilar tuzoqni aniqlaydi. Razvedkasiz — 15% tuzoq ehtimoli, zarar +20% |
-| 1 — toʻqnashuv | Qarshi-kuch uchburchagi qoʻllanadi |
-| 2–3 — asosiy jang | EP ga proporsional zarar, ±10% tasodif |
-| 4 — hal qiluvchi | Kuchi 20% dan kam qolgan tomon chekinadi |
+| 0 — yaqinlashuv | Tuzoq tekshiruvi (yuqoridagi `Tuzoq` koeffitsienti) |
+| 1 — toʻqnashuv | Qarshi-kuch koeffitsientlari koʻrsatiladi; yoʻqotishning 20% i |
+| 2–3 — asosiy jang | Yoʻqotishning 60% i (har raundda 30%) |
+| 4 — hal qiluvchi | Qolgan 20%. Yoʻqotishi 80% dan oshgan tomon shu raundda chekinadi — jang 4 raundda tugaydi |
 | 5 — yakun | Gʻolib aniqlanadi, oʻlja olinadi |
-| Qaytish | Masofa boʻyicha. Yoʻlda hujum qilib boʻlmaydi |
-| Hisobot | Ikkala tomon toʻliq jurnalni koʻradi |
+
+R ≥ 5 yoki R ≤ 0.2 boʻlsa (bir tomonlama jang) jurnal 2 raundda tugaydi — adolat nazoratida “minimal raund 3” sharti shuni ushlaydi (bo'lim 13).
+Qaytish masofa boʻyicha; yoʻlda hujum qilib boʻlmaydi. Ikkala tomon toʻliq jurnalni koʻradi.
 
 ### Qoʻshimcha qoidalar
-- Bir raqibga kuniga 3 marta
+- Bir raqibga 24 soat ichida koʻpi bilan 3 hujum
 - Razvedka bepul, 10 daqiqa kutish; muvaffaqiyatsiz boʻlsa 10% razvedkachi jarohatlanadi
 - Yuborilgan askarlar inda yoʻq — shu vaqtda siz himoyasizsiz
 - Yurish paytida qaytarib chaqirish mumkin
-- Hujumdan keyin himoyachiga 8 soat qalqon; oʻzi hujum qilsa oʻchadi
+- Reydda askarlarining 30%+ ini yoʻqotgan himoyachiga 8 soat qalqon (bo'lim 8); oʻzi hujum qilsa oʻchadi
 - Mavsum hissasi faqat server tayinlagan janglardan
 
 ---
@@ -456,46 +555,50 @@ Kasalxona = yoʻqotish × qolgani
 ## 8. Oʻlja
 
 ```
-Oʻlja = Ombordagi zaxira × (1 − Himoya%) × 0.22 × gʻalaba koeff. × daraja koeff. × takror koeff.
+Oʻlja = Ombordagi goʻsht × (1 − Himoya%) × 0.22 × gʻalaba koeff. × daraja koeff. × takror koeff. × oflayn koeff.
         lekin yuk sigʻimidan oshmaydi
+Oflayn koeff. = 0.5, agar himoyachi 24 soatdan koʻp oflayn boʻlsa; aks holda 1.0
 Yuk sigʻimi = hujumchilar soni × 15 kg × (1 + 0.2 × tier)
 ```
 
-| Daraja | Zaxira | Himoya | Himoyalanmagan | Yuk sigʻimi | Maks oʻlja | Kunlik ov | Nisbat |
-|---|---|---|---|---|---|---|---|
-| 5 | 39 | 30% | 27 | 21 | 6 | 13 | 46% ✅ |
-| 10 | 114 | 44% | 64 | 72 | 14 | 38 | 37% ✅ |
-| 15 | 243 | 56% | 117 | 135 | 26 | 81 | 32% ✅ |
-| 25 | 606 | 78% | 218 | 363 | 48 | 202 | 24% ✅ |
+Zaxira — 3 kunlik goʻsht zaxirasi, Himoya — shu zaxirani sigʻdiradigan Oziq gʻori darajasidagi himoya (Excel `PvP oʻlja` varagʻi).
 
-**Asosiy qoida:** oʻlja kunlik ovning 50% idan oshmasligi kerak — aks holda oʻyinchilar ov qilishni tashlab, faqat bir-birini talaydi.
+| Daraja | Zaxira | Himoya | Himoyalanmagan | Yuk sigʻimi | Maks oʻlja | Kunlik ehtiyoj | Kunlik ov (4 ov) | Oʻlja / ov |
+|---|---|---|---|---|---|---|---|---|
+| 5 | 36 | 30% | 25 | 108 | 6 | 12 | 40 | 15% ✅ |
+| 10 | 135 | 44% | 76 | 273 | 17 | 45 | 150 | 11% ✅ |
+| 15 | 444 | 56% | 195 | 792 | 43 | 148 | 440 | 10% ✅ |
+| 25 | 4,140 | 78% | 911 | 6,831 | 200 | 1,380 | 4,140 | 5% ✅ |
+
+**Asosiy qoida:** bitta reyd oʻljasi kunlik ehtiyojning (demak kunlik ovning ham) 50% idan oshmasligi kerak — aks holda oʻyinchilar ov qilishni tashlab, faqat bir-birini talaydi.
 
 ### Takror hujum koeffitsienti
-1-hujum 1.00 → 2-hujum 0.50 → 3-hujum 0.25 → 4+ 0.10 (24 soat ichida)
+1-hujum 1.00 → 2-hujum 0.50 → 3-hujum 0.25 (bir raqibga 24 soat ichida; 4-hujum juftlik chegarasi bilan taqiqlangan)
 
 ### Gʻalaba koeffitsienti
 Toʻliq gʻalaba 1.00 · Qisman 0.55 · Magʻlubiyat 0.00 · Qasos hujumi (24 soat) 1.20
 
 ### Olinmaydigan narsalar
-Oy toshi · XP · binolar · boʻrilar (oʻlmaydi, jarohatlanadi)
+Oy toshi · XP · binolar · qurilish resurslari · boʻrilar (jangda oʻladi yoki jarohatlanadi, lekin oʻljaga aylanmaydi). Faqat goʻsht olinadi.
 
 ### Qalqon tizimi
 | Holat | Qalqon |
 |---|---|
-| Yangi oʻyinchi (1–6 daraja) | Toʻliq |
+| Yangi oʻyinchi (1–6 daraja) | Toʻliq (botlarga hujum uni oʻchirmaydi) |
 | Reydda 30%+ yoʻqotgan | 8 soat |
 | Ketma-ket 2 marta yutqazgan | 16 soat |
 | 72 soat oflayn | Uyqu qalqoni |
-| Oʻzi hujum qilsa | Darhol oʻchadi |
+| Oʻzi oʻyinchiga hujum qilsa | 8/16 soatlik va uyqu qalqoni darhol oʻchadi |
 
 ---
 
 ## 9. Razvedka
 
 ```
-Razvedka kuchi = razvedkachilar soni × tier koeffitsienti × (1 + 0.03 × daraja)
-Nisbat = oʻz kuchi ÷ raqib kuchi
+Razvedka kuchi = Σ(razvedkachilar soni × 1.45^(tier−1)) × (1 + 0.03 × alfa darajasi)
+Nisbat = yuborilgan razvedkachilar kuchi ÷ raqib inida turgan razvedkachilar kuchi
 ```
+Raqibda razvedkachi yoʻq boʻlsa (yoki bot boʻlsa) — natija har doim “Aniq”.
 
 | Nisbat | Natija | Nima koʻrinadi | Raqib biladimi |
 |---|---|---|---|
@@ -508,7 +611,7 @@ Nisbat = oʻz kuchi ÷ raqib kuchi
 - Kutish vaqti 10 daqiqa, maʼlumot 30 daqiqa amal qiladi
 - **Himoyachi faqat muvaffaqiyatsiz razvedkani koʻradi** — muvaffaqiyatli razvedka jim oʻtadi
 - Standart taqsimotda teng darajadagi nisbat aynan 1.00 — koʻrish uchun razvedkachilarni tavsiyadan oshirish kerak
-- Tavsiya: nisbat 0.95–1.05 oraligʻida natija 50/50 tasodifiy boʻlsin
+- Nisbat 0.95–1.05 oraligʻida natija tasodifiy: 50% “Muvaffaqiyatsiz”, 50% “Qisman”
 
 ---
 
@@ -519,13 +622,11 @@ Nisbat = oʻz kuchi ÷ raqib kuchi
 ```
 Soatlik yigʻim (xom) = yuborilgan boʻrilar × Ustaxona soatlik ishlab chiqarishi × 0.10 × (1 + 0.05 × tier)
 Lager ulushi (xom)   = (8 soatlik yigʻim) ÷ (Ustaxona kunlik ishlab chiqarishi)
-Lager ulushi         = MIN(0.60, Lager ulushi (xom))   ← YANGI TAVAN
+Lager ulushi         = MIN(0.60, Lager ulushi (xom))
 Soatlik yigʻim       = Lager ulushi × Ustaxona kunlik ishlab chiqarishi ÷ 8
 ```
 
-> ⚠️ **Ikki tuzatish (Excel bilan solishtirilgach):**
-> 1. **"Yuboriladi" ustuni notoʻgʻri edi** — avval 2/4/7/9/11 (eski, yangilanmagan qoʻshin jadvalidan qolgan raqamlar) yozilgan edi, toʻgʻrisi — qoʻshinning 50% i (bo'lim 6 jadvaliga mos): 5/11/37/77/230.
-> 2. **Ulush cheksiz oʻsib ketardi** — formula matematik jihatdan Ustaxonaning oʻzini bekor qiladi (u ham numeratorda, ham denominatorda), shuning uchun ulush faqat qoʻshin hajmiga bogʻliq boʻlib qoladi, u esa ×1.20/daraja oʻsadi. Toʻgʻri "Yuboriladi" raqamlari bilan hisoblasa, 25-darajada ulush **997%** ga chiqadi (Excel oʻzi yozgan "5–60% sogʻlom" chegarasidan 16 baravar oshib) — bu Ustaxonani maʼnosiz qilib qoʻyardi. Yuqoridagi **60% tavan** shuni oldini oladi: boshqa hech qanday tizimga (Ustaxona, qoʻshin, narx) taʼsir qilmaydi, faqat Lager tizimining oʻzida ishlaydi.
+Formula Ustaxonani ham suratda, ham maxrajda saqlagani uchun xom ulush faqat qoʻshin hajmi bilan (×1.20/daraja) oʻsadi va 25-darajada 997% ga chiqardi. **60% tavan** Lagerni Ustaxonadan foydaliroq boʻlib ketishidan saqlaydi va faqat Lager tizimining ichida ishlaydi.
 
 | Daraja | Yuboriladi (maks 50%) | 8 soatlik yigʻim | Ustaxona kunlik | Ulush (xom) | Ulush (tavan bilan) |
 |---|---|---|---|---|---|
@@ -547,7 +648,7 @@ Soatlik yigʻim       = Lager ulushi × Ustaxona kunlik ishlab chiqarishi ÷ 8
 | 🌿 Oʻt oazisi | Davolash +20% | 5 | 8+ daraja, 5 hujumchi |
 | 🪨 Tosh koni | Tosh +15% | 4 | 12+ daraja, 8 hujumchi |
 | 🦴 Suyak dalasi | Suyak +15% | 2 | 16+ daraja, toʻda urushi |
-| 🌕 Oy mehrobi | Oy toshi +1/kun | 1 | 20+ daraja, butun toʻda |
+| 🌕 Oy mehrobi | Oy nuri ishlab chiqarishi +40% (ehtiyojning 72% → 100%) | 1 | 20+ daraja, butun toʻda |
 
 **Qoidalar:** oazis toʻdaga tegishli (bitta oʻyinchiga emas) · egallangach 24 soat daxlsiz · faqat jang bilan tortib olinadi · bir toʻda maks 3 ta ushlaydi · yoʻqotsa bonus darhol toʻxtaydi
 
@@ -579,7 +680,7 @@ Klan XP = aʼzolarning jang hissalari yigʻindisi. Bonus barcha aʼzolarning ish
 - Faqat **±20%** kuchdagi klanlar roʻyxatga tushadi
 - Maqsadni alfa yoki beta tanlaydi
 - Eʼlon qilgan klan xazinasining **5%** ini garovga qoʻyadi
-- Raqibga 30 daqiqa beriladi; rad etsa reytingdan ball yoʻqotadi
+- Raqibga 30 daqiqa beriladi; rad etsa yoki javob bermasa klan reytingidan 50 ball yoʻqotadi, garov eʼlon qilganga qaytariladi
 - Bir juftlik **7 kun** ichida qayta urusholmaydi
 - Bitta klan bir vaqtda 1 ta urushda (15-darajadan 2 ta)
 
@@ -620,19 +721,21 @@ Gʻalaba ham bepul emas — bu ataylab yutishni ham qimmat qiladi.
 
 ```
 Hissa balli = yuborilgan askarlarning EP si × yetkazilgan zarar ulushi
-Mukofot = (shaxsiy ball ÷ klan jami balli) × urush fondi, 15% shift bilan
+Mukofot     = (shaxsiy ball ÷ klan jami balli) × urush fondi, lekin fondning 15% idan oshmaydi
+Shiftdan ortib qolgan qism → klan xazinasiga
 ```
 
-Misol (fond 50,000 tanga):
+Misol (fond 50,000 tanga; barcha aʼzolarning zarar ulushi bir xil, shuning uchun ball EP ga proporsional; jami 98,200):
 
-| Aʼzo | Askar | EP | Ulush | Mukofot |
+| Aʼzo | Askar | Hissa balli | Ulush | Mukofot |
 |---|---|---|---|---|
-| Alfa | 120 | 42,000 | 15% (shift) | 7,500 |
-| Beta | 90 | 28,000 | 15% (shift) | 7,500 |
-| Aʼzo A | 60 | 15,000 | 15.3% | — |
+| Alfa | 120 | 42,000 | 42.8% → 15% (shift) | 7,500 |
+| Beta | 90 | 28,000 | 28.5% → 15% (shift) | 7,500 |
+| Aʼzo A | 60 | 15,000 | 15.3% → 15% (shift) | 7,500 |
 | Aʼzo B | 40 | 8,000 | 8.1% | 4,073 |
-| Aʼzo C | 25 | 4,000 | 4.1% | 2,036 |
+| Aʼzo C | 25 | 4,000 | 4.1% | 2,037 |
 | Aʼzo D | 10 | 1,200 | 1.2% | 611 |
+| **Klan xazinasiga** | | | | **20,779** |
 
 - Magʻlub klan aʼzolari gʻolib mukofotining **25%** ini oladi
 - Askar **yubormagan** aʼzo hech narsa olmaydi — hatto klan yutsa ham
@@ -681,10 +784,12 @@ Mukofot = (shaxsiy hissa ÷ barcha hissalar) × mavsum fondi
 
 | Daraja | Toʻda CP | Haftalik hissa | Ulush | Mukofot |
 |---|---|---|---|---|
-| 5 | 329 | 2,632 | 0.29% | $1.52 |
-| 10 | 1,117 | 8,936 | 0.98% | $5.17 |
-| 15 | 2,925 | 23,400 | 2.58% | $13.53 |
-| 21+ | 9,558+ | 76,464+ | 5% (shift) | $26.25 |
+| 5 | 1,029 | 8,232 | 0.07% | $0.37 |
+| 10 | 4,188 | 33,504 | 0.28% | $1.49 |
+| 15 | 16,775 | 134,200 | 1.14% | $5.98 |
+| 20+ | 97,283+ | 778,264+ | 5% (shift) | $26.25 |
+
+Toʻda CP — bo'lim 6 “Tavsiya etilgan taqsimot” jadvalidagi qiymat (Excel `Mukofot va mavsum` varagʻi; faraz: har darajada bittadan oʻyinchi).
 
 ### Mavsum tuzilmasi
 - **7 kun.** Har dushanba reyting nolga tushadi
@@ -703,7 +808,7 @@ Mukofot = (shaxsiy hissa ÷ barcha hissalar) × mavsum fondi
 
 ### Orqada qolganlarni tenglashtirish (Catch-up)
 
-**Muammo:** 20→25 daraja jami progressiyaning 47–72% ini yeydi (bo'lim 1 hisob-kitobi). Kech qoʻshilgan yoki uzoq tanaffusdan qaytgan oʻyinchi uchun bu masofa zerikarli tuyulishi mumkin.
+**Muammo:** 20→25 daraja jami XP ning **81%** ini talab qiladi ((592,680 − 113,480) ÷ 592,680, bo'lim 1 jadvali). Kech qoʻshilgan yoki uzoq tanaffusdan qaytgan oʻyinchi uchun bu masofa zerikarli tuyulishi mumkin.
 
 ```
 Orqada qolish nisbati = MAX(0, (server oʻrtacha darajasi − oʻyinchi darajasi) ÷ server oʻrtacha darajasi)
@@ -721,7 +826,7 @@ Aks holda:
 
 Bu koeffitsient bo'lim 1 dagi barcha XP manbalariga (ov, qurilish/mashq, PvP, vazifa) koʻpaytiruvchi sifatida qoʻllanadi.
 
-**Toʻrt qatlamli himoya (birinchi versiyadan tuzatildi — ×2.5 juda tez yetib olishga imkon berardi):**
+**Toʻrt qatlamli himoya:**
 - **30% chegara** — faqat sezilarli orqada qolganlar uchun ishlaydi; bir necha kunlik tabiiy farqni "tenglashtirish" shart emas
 - **Maksimal +50% (×1.5)** — ×2.5 emas; 1 oylik veteranni 2 haftada emas, tabiiy ravishda sekinroq quvib yetadi
 - **15–20 oraligʻida asta-sekin soʻnadi** — keskin "20 da birdan oʻchish" oʻrniga, oʻyinchi bu bosqichga yetganda bonus allaqachon yarmiga (yoki kamroqqa) tushgan boʻladi — tabiiyroq oʻtish
@@ -750,7 +855,7 @@ Bu koeffitsient bo'lim 1 dagi barcha XP manbalariga (ov, qurilish/mashq, PvP, va
 
 | Qoida | Qiymat | Natija |
 |---|---|---|
-| Juftlik chegarasi | 3 jang/mavsum | 4-jangdan hissa 0 |
+| Juftlik hissa chegarasi | 3 jang/mavsum | Bir juftlikning 4-jangidan boshlab mavsum hissasi 0 (hujumning oʻzi PvP qoidasi bilan cheklanadi: 24 soatda 3 ta) |
 | Yopiq guruh | 60% | Guruh bayroqlanadi |
 | Guruh hajmi | 5 oʻyinchi | Graf tahlili |
 | Minimal himoya CP | 60% | Past boʻlsa hissa 0 |
@@ -790,10 +895,10 @@ Xavfsiz chegara = 60%
 | 25 | 56,738 | 8,511 | 2,128 | 22,695 | 21% ✅ |
 
 ### Kundalik (4+1)
-Ovchi (3 ov) · Quruvchi (1 bino) · Murabbiy (1 askar) · Jangchi (1 PvP) · Kirish bonusi
+Ovchi (3 ov) · Quruvchi (1 bino) · Murabbiy (1 askar) · Jangchi (1 hujum, botlar ham hisoblanadi) · Kirish bonusi
 
 ### Haftalik (4)
-Katta ov (20 ov) · Sayohatchi (3 lager) · Tajovuzkor (10 PvP) · Toʻda aʼzosi (3 toʻda jangi)
+Katta ov (20 ov) · Sayohatchi (3 lager; MVP da — 3 razvedka) · Tajovuzkor (10 hujum, botlar ham hisoblanadi) · Toʻda aʼzosi (3 guruh ovi yoki toʻda jangi)
 
 ### Bosqichli (10 yoʻnalish)
 Quruvchi (5·15·40·80·150) · Toʻda alfasi (5·10·15·20·25 askar) · Murabbiy (birinchi 2/4/6-tier) · Ovchi (50·200·1000) · Toʻplovchi (10k·100k·1mln) · Jangchi (10·50·200) · Gʻolib (5·25·100) · Razvedkachi (20·100) · Egallovchi (1·3 oazis) · Sodiq (7·30·100 kun)
@@ -816,38 +921,44 @@ Quruvchi (5·15·40·80·150) · Toʻda alfasi (5·10·15·20·25 askar) · Mura
 
 ## 15. Tanishtiruv (1–5 daraja, 20 qadam, 15 daqiqa)
 
-| # | Daraja | Yoʻriqchi matni | Harakat | Mukofot | Vaqt |
-|---|---|---|---|---|---|
-| 1 | 1 | Sen toʻdangni yoʻqotgan yolgʻiz boʻrisan. Omon qolish kerak. | Bosish | — | 0.5 |
-| 2 | 1 | Mana quyon. Ov qilib koʻr. | Quyonni bosish | 5 kg goʻsht | 0.5 |
-| 3 | 1 | Yashash uchun in kerak. Mana bu joy yaxshi. | Inni qoʻyish | In 1-daraja | 1 |
-| 4 | 2 | Goʻsht buziladi. Uni saqlash uchun Oziq gʻori kerak. | Oziq gʻori qurish | Bepul tezlashtirish | 1 |
-| 5 | 2 | Ovlagan goʻshtingni gʻorga sol. | Goʻshtni saqlash | 20 kg goʻsht | 0.5 |
-| 6 | 2 | Qurilish uchun tosh kerak. Ustaxona qoyasini qur. | Ustaxona qurish | Bepul tezlashtirish | 1 |
-| 7 | 2 | Ustaxonaga boʻri qoʻy — u sen uchun tosh yigʻadi. | Yigʻuvchi tayinlash | 100 tosh | 0.5 |
-| 8 | 3 | Ov qilish uchun mashq kerak. Ov soʻqmogʻini qur. | Ov soʻqmogʻi | Bepul tezlashtirish | 1 |
-| 9 | 3 | Birinchi ovchingni tayyorla. | Ovchi mashqi | 1 ovchi | 1 |
-| 10 | 3 | Binolarni kuchaytirsang, koʻproq sigʻadi. | Oziq gʻori L2 | Bepul tezlashtirish | 1 |
-| **11** | **4** | **Boʻri yolgʻiz kuchsiz. Endi toʻdang boʻladi!** | Toʻdani koʻrish | 3 boʻri | 0.5 |
-| 12 | 4 | Toʻda bilan kattaroq oʻlja ovlash mumkin. | Toʻda ovi | 8 kg goʻsht | 1 |
-| 13 | 4 | Jang qiladigan boʻrilar kerak. | Jang maydoni | Bepul tezlashtirish | 0.5 |
-| 14 | 4 | Birinchi hujumchingni tayyorla. | Hujumchi mashqi | 1 hujumchi | 0.5 |
-| 15 | 4 | Yolgʻiz boʻri omon qolmaydi. Toʻdaga qoʻshil. | Klanga qoʻshilish | Klan bonusi | 1 |
-| 16 | 4 | Endi birinchi jang. Qoʻrqma — bu mashq jangi. | PvP (bot raqib) | Gʻalaba + 50 tosh | 1.5 |
-| 17 | 5 | Raqibni oldindan koʻrish uchun razvedkachi kerak. | Razvedka qoyasi | Bepul tezlashtirish | 0.5 |
-| 18 | 5 | Raqibni razvedka qilib koʻr. | Razvedka yuborish | Maʼlumot | 0.5 |
-| 19 | 5 | Sening iningga ham hujum qilishadi. | Himoya devori | Bepul tezlashtirish | 0.5 |
-| 20 | 5 | **Endi siz oʻyinga tayyorsiz. Omad, alfa!** | Yakun | Boshlangʻich paket | 0.5 |
+| # | Daraja | Yoʻriqchi matni | Harakat | Mukofot | XP | Vaqt |
+|---|---|---|---|---|---|---|
+| 1 | 1 | Sen toʻdangni yoʻqotgan yolgʻiz boʻrisan. Omon qolish kerak. | Bosish | — | 5 | 0.5 |
+| 2 | 1 | Mana quyon. Ov qilib koʻr. | Quyonni bosish (yolgʻiz ov) | 5 kg goʻsht | 10 | 0.5 |
+| 3 | 1 | Yashash uchun in kerak. Mana bu joy yaxshi. | Inni qoʻyish | In 1-daraja | 15 | 1 |
+| 4 | 2 | Goʻsht buziladi. Uni saqlash uchun Oziq gʻori kerak. | Oziq gʻorini ochish | Oziq gʻori 1-daraja | 10 | 1 |
+| 5 | 2 | Ovlagan goʻshtingni gʻorga sol. | Goʻshtni saqlash | 20 kg goʻsht | 10 | 0.5 |
+| 6 | 2 | Qurilish uchun tosh kerak. Ustaxona qoyasini qur. | Ustaxonani ochish | Ustaxona 1-daraja | 10 | 1 |
+| 7 | 2 | Ustaxona resursni oʻzi yigʻadi. Qaysi biri koʻproq kerakligini tanla. | Taqsimotni sozlash | 100 tosh | 10 | 0.5 |
+| 8 | 3 | Ov qilish uchun mashq kerak. Ov soʻqmogʻini qur. | Ov soʻqmogʻini ochish | Ov soʻqmogʻi 1-daraja | 20 | 1 |
+| 9 | 3 | Birinchi ovchingni tayyorla. | Ovchi mashqi | 1 ovchi | 20 | 1 |
+| 10 | 3 | Binolarni kuchaytirsang, koʻproq sigʻadi. | Oziq gʻori L2 | — | 20 | 1 |
+| **11** | **4** | **Boʻri yolgʻiz kuchsiz. Endi toʻdang boʻladi!** | Toʻdani koʻrish | 2 ovchi | 20 | 0.5 |
+| 12 | 4 | Toʻda bilan kattaroq oʻlja ovlash mumkin. | Ovchilarni ovga yuborish (sugʻur) | 8 kg goʻsht | 25 | 1 |
+| 13 | 4 | Jang qiladigan boʻrilar kerak. | Jang maydonini ochish | Jang maydoni 1-daraja | 25 | 0.5 |
+| 14 | 4 | Birinchi hujumchingni tayyorla. | Hujumchi mashqi | 1 hujumchi | 25 | 0.5 |
+| 15 | 4 | Yolgʻiz boʻri omon qolmaydi. Ov guruhiga qoʻshil. | Ov guruhiga qoʻshilish | Ov +10% (24 soat) | 25 | 1 |
+| 16 | 4 | Endi birinchi jang. Qoʻrqma — bu yovvoyi toʻda. | Botga hujum | Gʻalaba + 50 tosh | 30 | 1.5 |
+| 17 | 5 | Raqibni oldindan koʻrish uchun razvedkachi kerak. | Razvedka qoyasini ochish | 1 razvedkachi | 10 | 0.5 |
+| 18 | 5 | Raqibni razvedka qilib koʻr. | Razvedka yuborish (botga) | Maʼlumot | 10 | 0.5 |
+| 19 | 5 | Ustaxona buferi toʻldi — resursni omborga ol. | Yigʻib olish | 100 shox-shabba | 10 | 0.5 |
+| 20 | 5 | **Endi siz oʻyinga tayyorsiz. Omad, alfa!** | Yakun | Boshlangʻich paket | 20 | 0.5 |
+| | | | | | **330** | **15** |
+
+Jami XP qadamlar boʻyicha: 3-qadamdan keyin 30 (2-daraja), 7-dan keyin 70 (3-daraja), 10-dan keyin 130 (4-daraja), 16-dan keyin 280 (5-daraja).
 
 ### Qoidalar
-- **5 marta bepul tezlashtirish** — tanishtiruvda hech narsa kutilmaydi
-- **16-qadamdagi jang bot bilan** — birinchi tajriba gʻalaba boʻlishi shart
+- **Tanishtiruv davomida barcha navbatlar (qurilish, mashq) darhol tugaydi** — hech narsa kutilmaydi. Bundan tashqari keyin ishlatish uchun **5 ta bepul tezlashtirish** (har biri 1 soatgacha) beriladi
+- **Tanishtiruv davomida XP faqat qadam mukofotidan** keladi (bo'lim 1)
+- **16-qadamdagi jang bot bilan** — birinchi tajriba gʻalaba boʻlishi shart (bot EP si “kuchsiz” band, oʻyinchi askar yoʻqotmaydi)
 - **1–12 qadam qattiq qulf** — faqat koʻrsatilgan tugma ishlaydi
-- **12-qadamdan keyin "Oʻtkazib yuborish"** tugmasi chiqadi
-- Yakuniy paket: 500 goʻsht, 300 tosh, 200 shox-shabba, 1 bepul tier mashqi
+- **12-qadamdan keyin "Oʻtkazib yuborish"** tugmasi chiqadi; oʻtkazib yuborilgan qadamlarning **XP si beriladi** (resurs mukofotlari berilmaydi) — oʻyinchi baribir 5-darajaga chiqadi
+- 13–15, 17–19-qadamlar “tavsiya” turida: bajarmasa ham XP si tanishtiruv yakunida beriladi
+- Yakuniy paket: Oziq gʻorini toʻliq toʻldiradigan goʻsht, 300 tosh, 200 shox-shabba, 100 teri, 100 suyak, 1 bepul tier mashqi
 - Yakunda darhol yangi maqsad: "Shifo gʻorini och — 6-daraja"
 - 60 soniya harakatsizlikda koʻrsatma qayta miltillaydi
 - **11-qadam eng muhim:** yolgʻizlikdan toʻdaga oʻtish — musiqa va animatsiya oʻzgarsin
+- **v2 da** (klan va himoyachi roli chiqqach): 15-qadam → “Klanga qoʻshilish”, 19-qadam → “Himoya devorini qur”
 
 ---
 
@@ -857,15 +968,17 @@ Quruvchi (5·15·40·80·150) · Toʻda alfasi (5·10·15·20·25 askar) · Mura
 
 | Yoʻqlik | Ishlab chiqarish | Oziqlanish | Qoʻshin | PvP |
 |---|---|---|---|---|
-| 0–8 soat | Toʻliq (70% oflayn stavka) | Ombordan | Normal | Hujum qilinadi |
-| 8–24 soat | Ombor toʻlguncha | Ombordan | Normal | Hujum qilinadi |
-| 1–3 kun | Toʻxtaydi (ombor toʻla) | Zaxira kamayadi | Normal | Oʻlja koeff. 0.5× |
-| 3–7 kun | Toʻxtagan | Ochlik rejimi | CP −30% | Uyqu qalqoni |
-| 7+ kun | Toʻxtagan | Ochlik | Kuniga 1% ketadi (maks 50%) | Qalqon davom etadi |
+| 0–20 soat | 70% oflayn stavka, Ustaxona buferi toʻlguncha (oflaynda bufer 2× = 20 soat) | Ombordan | Normal | Hujum qilinadi |
+| 20 soat – 3 kun | Toʻxtaydi (bufer toʻla) | Zaxira kamayadi | Normal | Hujum qilinadi; 24 soatdan keyin oʻlja ×0.5 |
+| 3 – ~7 kun | Toʻxtagan | Zaxira kamayadi (oflayn ombor ~6–7 kunga yetadi) | Normal | Uyqu qalqoni (72 soatdan) |
+| zaxira tugagach | Toʻxtagan | **Ochlik** | CP −30% | Uyqu qalqoni |
+| ochlikning 7-kunidan | Toʻxtagan | Ochlik | Kuniga 1% ketadi (maks 50%) | Qalqon davom etadi |
+
+**Oflayn** — oʻyinchining oxirgi soʻrovidan 5 daqiqadan koʻp oʻtgan vaqt (`last_seen_at` boʻyicha).
 
 ### Ombor necha kunga yetadi
 
-Oflaynda sigʻim **2× kengayadi**:
+Oflaynda Oziq gʻori sigʻimi va Ustaxona buferi **2× kengayadi** (“Oflayn ombor +50%” xaridi bilan **2.5×**). Jadvalda sigʻim — 3 kunlik zaxirani sigʻdiradigan gʻor darajasida:
 
 | Daraja | Kunlik goʻsht | Oddiy sigʻim | Oflayn sigʻim | Yetadi |
 |---|---|---|---|---|
@@ -875,7 +988,7 @@ Oflaynda sigʻim **2× kengayadi**:
 | 20 | 463 | 1,434 | 2,868 | 6.2 kun |
 | 25 | 1,380 | 4,728 | 9,456 | 6.9 kun |
 
-### Ochlik rejimi — askar YOʻQOLMAYDI
+### Ochlik rejimi — birinchi 7 kun askar yoʻqolmaydi
 - Jangovar quvvat −30%, ishlab chiqarish −50%
 - **Birinchi 7 kun hech kim ketmaydi**
 - 7 kundan keyin kuniga 1%, maksimum 50%
@@ -885,7 +998,7 @@ Oflaynda sigʻim **2× kengayadi**:
 Sarlavha ("Qaytganingiz bilan, alfa! Siz 3 kun yoʻq edingiz") → hisobot → jang jurnali → 30 daqiqalik qalqon → qaytish paketi (1 kunlik goʻsht) → katta tugma "Toʻdani boq". Ketma-ket kunlar nolga tushmaydi.
 
 ### Texnik
-- **Timestamp asosida, tick yoʻq.** Har resursda `last_update`; kirganda `(hozir − last_update) × stavka`, sigʻim bilan cheklanadi
+- **Timestamp asosida, tick yoʻq.** Hisob algoritmi — `blue_wolf_texnik_spec.md`, 4.1
 - Navbatlar tugash vaqti bilan saqlanadi, oflaynda oʻzi tugaydi
 - Oflayn stavka 70% — kirish uchun sabab, lekin jazo emas
 
@@ -899,7 +1012,9 @@ Sarlavha ("Qaytganingiz bilan, alfa! Siz 3 kun yoʻq edingiz") → hisobot → j
 Tezlashtirish kunlik progressning 25% idan oshmaydi
 ```
 
-Chegara tugagach tugma oʻchadi. Natija: **eng koʻp toʻlagan oʻyinchi bepul oʻynagandan 1.25× tez**, 5× emas.
+Chegara tugagach tugma oʻchadi. Progressiv narx va chegara har kuni 00:00 UTC da yangilanadi. Natija: **eng koʻp toʻlagan oʻyinchi bepul oʻynagandan koʻpi bilan 1.25× tez**, 5× emas.
+
+Ikkinchi qurilish navbati bu hisobni buzmasligi uchun u **10-darajada hammaga bepul** ochiladi; oy toshiga faqat uni 4–9 darajada **erta** ochish sotiladi. Uzoq muddatda toʻlovchi va bepul oʻyinchi navbatlari teng.
 
 ### Tezlashtirish narxi (progressiv, ×1.6)
 
@@ -916,19 +1031,24 @@ Kunlik maksimal xarajat ~$2.64, oyiga ~$79.
 
 ### Qaytish tezlashtirishi (koeff. 0.60)
 
-| Masofa | Qaytish vaqti | Narx | $ |
-|---|---|---|---|
-| 5 km | 15 daq | 6 | $0.06 |
-| 15 km | 45 daq | 6 | $0.06 |
-| 30 km | 1.5 soat | 10 | $0.10 |
-| 60 km | 3 soat | 15 | $0.15 |
-| 100 km | 5 soat | 39 | $0.39 |
+```
+Bloklar soni = yuqoriga yaxlitlangan(qolgan qaytish vaqti, soat)
+Narx = yuqoriga yaxlitlangan(0.60 × Σ blok narxlari)   — blok narxlari yuqoridagi progressiv jadvaldan (10, 16, 26, ...)
+```
+
+| Masofa | Qaytish vaqti | Bloklar | Narx | $ |
+|---|---|---|---|---|
+| 5 km | 15 daq | 1 | 6 | $0.06 |
+| 15 km | 45 daq | 1 | 6 | $0.06 |
+| 30 km | 1.5 soat | 2 | 16 | $0.16 |
+| 60 km | 3 soat | 3 | 32 | $0.32 |
+| 100 km | 5 soat | 5 | 96 | $0.96 |
 
 - ❌ Borish yoʻli — hech qachon
 - ❌ Jangning oʻzi — hech qachon
 - ✅ Qaytish yoʻli — PvP, lager, oazis
 - Iningizga hujum kelayotgan boʻlsa tugma oʻchadi
-- Kunlik 25% chegaraga kiradi
+- Kunlik 25% chegaraga kiradi (tejalgan soniyalar `speedup_usage` ga qoʻshiladi); bir yurishga bir marta
 
 ### Oy toshi paketlari
 
@@ -940,7 +1060,7 @@ Kunlik maksimal xarajat ~$2.64, oyiga ~$79.
 | Alfa | 3,300 | $25 | +32% |
 
 ### Doimiy xaridlar
-Ikkinchi qurilish navbati 1,500 · Oflayn ombor +50% 800 · Avtomatik yigʻish 600 · Mavsum yoʻli 500/mavsum · Skin toʻplami 200–900
+Ikkinchi qurilish navbati — erta ochish (4–9 daraja) 1,500 · Oflayn ombor +50% (oflayn koeff. 2.0 → 2.5) 800 · Avtomatik yigʻish 600 · Mavsum yoʻli 500/mavsum · Skin toʻplami 200–900
 
 ### Sotiladi / sotilmaydi
 
@@ -980,105 +1100,48 @@ Ikkinchi qurilish navbati 1,500 · Oflayn ombor +50% 800 · Avtomatik yigʻish 6
 
 ## 18. Ekranlar (5 tab)
 
-### 🏔 In
-Bino kartalari (8 ta) · resurs paneli · qurilish navbati (1–2 slot) · Ustaxona taqsimoti · Bozor · Shifo gʻori
-
-### ⚔️ Jang
-PvP roʻyxati (9 raqib) · qoʻshin yuborish oynasi · lager · oazis · jang jurnali · razvedka hisobotlari
-
-### 🐺 Toʻda
-Klan profili · aʼzolar va lavozimlar · toʻda urushi (taklif, eʼlon, jonli hisob, hissa jadvali) · klan chati · oazislar
-
-### 📋 Vazifalar
-Kundalik · haftalik · bosqichli · mavsum yoʻli
-
-### 👤 Profil
-Qoʻshin (4×6 jadval) · askar yigʻish va almashtirish · statistika va liga · sozlamalar (til, bildirishnoma, taʼtil) · doʻkon
+5 ta asosiy tab: 🏔 In · ⚔️ Jang · 🐺 Toʻda · 📋 Vazifalar · 👤 Profil. Har tabning tarkibi — `blue_wolf_texnik_spec.md`, 1-boʻlim.
 
 ---
 
 ## 19. Bildirishnomalar
 
-Kuniga eng koʻpi **6 ta**. Tunda (23:00–08:00) faqat 1-ustuvorlik.
-
-| Tur | Qachon | Ustuvorlik |
-|---|---|---|
-| `attack_incoming` | Hujum yoʻlga chiqqanda | 1 |
-| `attack_result` | Jang tugagach (ikkala tomonga) | 1 |
-| `war_declared` | Urush eʼlon qilinganda | 1 |
-| `war_start` / `war_end` | Urush boshlanishi va yakuni | 1 |
-| `camp_raided` | Lager bosib olinganda | 1 |
-| `build_done` | Qurilish tugaganda (>1 soat) | 2 |
-| `train_done` | Katta mashq partiyasi | 2 |
-| `storage_full` | Ombor toʻlganda | 2 |
-| `hunger_warning` | Goʻsht 12 soatga qolganda | 2 |
-| `season_ending` | Mavsumga 6 soat | 3 |
-| `daily_quests` | Kuniga bir marta | 3 |
-| `comeback_2d` | 2 kun kirmasa | 3 |
-| `comeback_7d` | 7 kun kirmasa (keyin toʻxtaydi) | 3 |
-
-Taʼtil rejimida faqat `war_*` va `season_*`. 1-ustuvorlik byudjetdan tashqarida.
+Telegram bot orqali, kuniga koʻpi bilan 6 ta (1-ustuvorlik byudjetdan tashqari), tunda faqat 1-ustuvorlik. Turlar va qoidalar — `blue_wolf_texnik_spec.md`, 2-boʻlim.
 
 ---
 
 ## 20. Lokalizatsiya
 
-- **uz** (asosiy), **ru**, **en** — `locales` jadvalida
-- Kodda matn yozilmaydi: `t('battle.result.win')`
-- Til Telegram `language_code` dan, topilmasa `uz`; profilda oʻzgartiriladi
-- Kalit tuzilishi: `bolim.element.holat`
-- Boʻri va tier nomlari lokalizatsiya qilinadi; **klan va oʻyinchi nomi — yoʻq**
-- Raqamlar va sanalar `Intl` formatida
-- Bildirishnomalar oʻyinchi tilida
-- Hajm: ~600 kalit
+uz (asosiy), ru, en; barcha matn `locales` jadvalida, kodda faqat kalit. Batafsil — `blue_wolf_texnik_spec.md`, 3-boʻlim.
 
 ---
 
 ## 21. Texnik arxitektura
 
-### Maʼlumotlar bazasi — 22 jadval
-`players` · `player_resources` · `buildings` · `army` · `queues` · `marches` · `battles` · `scout_reports` · `match_offers` · `camps` · `oases` · `clans` · `clan_members` · `clan_wars` · `clan_war_contributions` · `quests` · `seasons` · `season_scores` · `transactions` · `speedup_usage` · `fairplay_flags` · `notifications` · `notification_budget` · `game_config` · `locales` · `analytics_events`
-
-**`game_config`** — 70 ta balans parametri baza ichida. Kodda birorta raqam qattiq yozilmaydi.
-**`army`** kompozit kaliti (player_id, role, tier) — har tier alohida qator, `alive`/`on_march`/`injured` bilan.
-
-### API — 60 endpoint
-10 boʻlim: holat va profil · binolar · qoʻshin · PvP · lager va oazis · klan · urush · vazifalar va mavsum · doʻkon · tanishtiruv va xizmat
-
-Auth: Telegram `initData` HMAC-SHA256, har soʻrovda tekshiriladi.
-Idempotentlik: `X-Request-Id` (UUID) barcha holat oʻzgartiruvchi `POST` larda.
-Har javobda `state` snapshot — klient kamdan-kam `GET /state` chaqiradi.
-
-### Cron
-
-| Vaqt | Ish |
-|---|---|
-| Har daqiqa | Navbatlar, yurishlar, janglar, bildirishnoma |
-| Har 5 daqiqa | Matchmaking roʻyxati |
-| Har soat | Klan `power_cache`, oazis bonuslari |
-| Har kun 00:00 | Kundalik vazifalar, tezlashtirish chegarasi, streak |
-| Har dushanba | Haftalik vazifalar, mavsum, liga |
-| Mavsum + 48 soat | Adolat auditi → toʻlov |
-
-### Xavfsizlik
-- Klientga hech qachon ishonilmaydi: narx, vaqt, CP, oʻlja serverda qayta hisoblanadi
-- Har holat oʻzgarishi bitta tranzaksiyada (resurs yechish + navbat yaratish atomar)
-- Jang natijasi faqat serverda; klient animatsiyani `log` dan chizadi
+- **DB:** MySQL 8, 32 jadval — `blue_wolf_schema.sql`
+- **Balans:** `game_config` jadvali; qiymatlar Excel `Sozlamalar` varagʻidan `tools/blue_wolf_config.py` bilan generatsiya qilinadi (`blue_wolf_game_config.sql`). Kodda birorta balans raqami qattiq yozilmaydi
+- **API:** 70 endpoint — `blue_wolf_api.md`
+- **Server mantiqi, cron, xavfsizlik:** `blue_wolf_texnik_spec.md`, 4-boʻlim
 
 ---
 
-## 22. MVP doirasi (8–10 hafta)
+## 22. MVP doirasi (10–12 hafta)
 
 ### Kiritiladi
-1–10 daraja · 3 bino (Oziq gʻori, Ustaxona, Jang maydoni) · 2 rol (ovchi, hujumchi) 3 tier · PvP 1v1 + oʻlja + razvedka · tanishtiruv (20 qadam) · kundalik vazifalar · oflayn hisob · uz tili · **yengil toʻda ovi**
+- **1–10 daraja**
+- **Binolar:** In (avtomatik) + 6 ta — Oziq gʻori, Ustaxona qoyasi, Ov soʻqmogʻi, Jang maydoni, Razvedka qoyasi, Shifo gʻori
+- **Rollar:** ovchi, hujumchi, razvedkachi — **1–2 tier** (2-tier 8-darajada ochiladi)
+- **Ov:** yolgʻiz ov (1–3 daraja), toʻda ovi, ov guruhi (2–4 oʻyinchi)
+- **Jang:** yovvoyi toʻdalar (botlar) 4-darajadan, PvP 1v1 7–10 darajada, oʻlja, razvedka, jarohat va davolash
+- Tanishtiruv (20 qadam) · kundalik vazifalar · oflayn hisob, ochlik · uz tili · oy toshi (faqat test uchun, sotuvsiz)
 
-> **Yengil toʻda ovi (MVP) vs Klan (v2) — muhim farq:** 5-darajadan boshlab asosiy oʻlja (jayron, 25 kg) yolgʻiz ovlanmaydi — bu **mexanik zaruriyat**, "toʻda majburiy" qoidasi shundan kelib chiqadi. MVP bosqichida bu talab rasmiy klan tizimisiz, **vaqtinchalik ov guruhi** orqali qondiriladi: 2–4 oʻyinchi bitta ov uchun birlashadi, aʼzolik, lavozim, xazina va urush kerak emas. Texnik jihatdan bu `clans`/`clan_members` jadvallarisiz, `marches.payload` ichida bir nechta `player_id` ni bogʻlaydigan oddiy "hunt_party" strukturasi bilan amalga oshiriladi. Rasmiy klan (aʼzolik, lavozim, xazina, toʻda urushi) v2 ga qoladi.
+> **Ov guruhi (MVP) va Klan (v2):** 5-darajadan boshlab asosiy oʻlja (jayron, 25 kg) yolgʻiz ovlanmaydi — “toʻda majburiy” qoidasi shundan kelib chiqadi. MVP da bu rasmiy klan tizimisiz, **vaqtinchalik ov guruhi** bilan qondiriladi: 2–4 oʻyinchi bitta ov uchun birlashadi, aʼzolik, lavozim, xazina va urush kerak emas. Texnik jihatdan — `hunt_parties` / `hunt_party_members` jadvallari va `marches.kind = 'hunt'`.
 
 ### v2 ga qoldiriladi
-11–25 daraja · qolgan 5 bino · razvedkachi va himoyachi · 4–6 tier · **rasmiy klan tizimi** (aʼzolik, lavozim, xazina) va toʻda urushi · lager va oazis · mavsum va liga · monetizatsiya · **pul mukofoti** · ru va en
+11–25 daraja · Himoya devori va Bozor · himoyachi roli · 3–6 tier · **rasmiy klan tizimi** (aʼzolik, lavozim, xazina) va toʻda urushi · lager va oazis · mavsum va liga · monetizatsiya (Telegram Stars) · **pul mukofoti** · ru va en
 
 ### Oʻlchanadigan raqamlar
-D1 retention >30% · D7 >12% · tanishtiruv tugatish >70% · 4-darajaga yetish <15 daqiqa
+D1 retention >30% · D7 >12% · tanishtiruv tugatish >70% · 4-darajaga yetish <15 daqiqa · birinchi botga hujumgacha vaqt · 7-darajaga (birinchi PvP) yetish vaqti
 
 ---
 
@@ -1095,22 +1158,20 @@ Batafsil art keyingi bosqichda qoʻshiladi.
 
 ## 24. Balans falsafasi — 7 qoida
 
-1. **Kuch qoʻshish orqali oʻsadi, koʻpaytirish orqali emas.** 1-darajadan 25-gacha **bitta boʻrining CP**si ~149× oshadi (69→10,269), lekin **butun toʻdaning jangovar quvvati** ~6,092× oshadi (63→383,763 — Excel "Umumiy bogʻlanish" varagʻi). Farq — 460× qoʻshin oʻsishidan (1→460), statdan emas. Shuning uchun matchmaking ishlaydi. *(Tuzatish: avval "294×" yozilgan edi — bu raqam Excel manba bilan solishtirilganda hech qaysi ustunga mos kelmadi; toʻgʻri qiymatlar yuqorida.)*
+1. **Kuch qoʻshish orqali oʻsadi, koʻpaytirish orqali emas.** 1-darajadan 25-gacha **bitta boʻrining CP**si ~149× oshadi (69→10,269), lekin **butun toʻdaning jangovar quvvati** ~6,092× oshadi (63→383,763 — Excel "Umumiy bogʻlanish" varagʻi). Farq — 460× qoʻshin oʻsishidan (1→460), statdan emas. Shuning uchun matchmaking ishlaydi.
 
-2. **Har tizimda uch qulf.** Askar tieri: alfa darajasi ÷ 4, rol binosi ÷ 4, maksimum 6. Bitta yoʻl bilan tezlashtirib boʻlmaydi.
+2. **Har tizimda uch qulf.** Askar tieri: alfa darajasi ÷ 4, rol binosi ÷ 4, maksimum 6 (1-tier har doim ochiq). Bitta yoʻl bilan tezlashtirib boʻlmaydi.
 
 3. **Ishlab chiqarish narxdan sekin oʻsadi.** Ishlab chiqarish 1.22×, narx 1.30× — resurs har darajada qadrliroq boʻlib boradi.
 
-4. **Oʻlja kunlik ovning 50% idan oshmaydi.** Aks holda oʻyinchilar ov qilishni tashlab, faqat bir-birini talaydi.
+4. **Bitta reyd oʻljasi kunlik ehtiyojning (va kunlik ovning) 50% idan oshmaydi.** Aks holda oʻyinchilar ov qilishni tashlab, faqat bir-birini talaydi.
 
 5. **Mukofot vaqt tejaydi, kuch bermaydi.** Vazifa, mavsum va pul — hech biri stat bermaydi.
 
-6. **Yutqazgan tez tiklanadi, yutgan sekin oʻsadi.** Toʻlganlik koeffitsienti 0.5× va 3× orasida — farq vaqt bilan yopiladi, lekin gʻalaba baribir foydali.
+6. **Yutqazgan tez tiklanadi, yutgan sekin oʻsadi.** Toʻlganlik koeffitsienti 0.5× va 2.5× orasida — farq vaqt bilan yopiladi, lekin gʻalaba baribir foydali.
 
-7. **Hech kim hamma narsani yoʻqotmaydi.** Jangda maksimal yoʻqotish 90%, ochlikda 50%, boʻrilar oʻlmaydi — jarohatlanadi.
+7. **Hech kim hamma narsani yoʻqotmaydi.** Jangda maksimal yoʻqotish 90%, va yoʻqotilganlarning koʻpi (60–75%) oʻlmaydi — jarohatlanib, davolanadi. Ochlikda askar 7 kun yoʻqolmaydi, keyin ham koʻpi bilan 50%.
 
 ---
 
-*Hujjat Blue Wolf balans jadvali (21 varaq, 5,300 formula), DB sxemasi (22 jadval) va API spetsifikatsiyasi (60 endpoint) bilan birga ishlatiladi.*
-
-> ⚠️ **Fayl format ogohlantirishi:** `blue_wolf_darajalar.xlsx` haqiqiy Excel binary emas — bu `.xlsx` kengaytmali oddiy matn fayl (UTF-8, tab bilan ajratilgan). Excel/Google Sheets uni ocholmaydi ("buzuq fayl" xatosi beradi). Ishlab chiqarishga oʻtishdan oldin buni haqiqiy `.xlsx` ga (yoki CSV toʻplamiga) aylantirish kerak, aks holda jamoa balans jadvalini tahrirlay olmaydi.
+*Hujjat Blue Wolf balans jadvali (`blue_wolf_darajalar.xlsx`, 21 varaq — kiritish `Sozlamalar` varagʻida), DB sxemasi (`blue_wolf_schema.sql`, 32 jadval), API spetsifikatsiyasi (`blue_wolf_api.md`) va texnik spetsifikatsiya (`blue_wolf_texnik_spec.md`) bilan birga ishlatiladi.*

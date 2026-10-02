@@ -3,6 +3,7 @@
 Stack: PHP 8 + MySQL 8 + Telegram Bot webhook + Mini App (WebApp)
 Hosting: ISPmanager, domen `bluewolf.uz`
 Barcha vaqtlar UTC. Balans raqamlari `game_config` jadvalidan oʻqiladi — kodda qattiq raqam yoʻq.
+Oʻyin dizayni (formulalar, jadvallar, MVP doirasi) — `blue_wolf_GDD.md`; bu hujjat faqat texnik qismni yozadi va formulalarni takrorlamaydi.
 
 ---
 
@@ -11,15 +12,16 @@ Barcha vaqtlar UTC. Balans raqamlari `game_config` jadvalidan oʻqiladi — kodd
 Pastda **5 ta asosiy tab**. Qolgan hamma narsa shu beshtasining ichida.
 
 ### 🏔 In (asosiy ekran)
-- Bino kartalari: Bosh in, Oziq gʻori, Ustaxona, Razvedka qoyasi, Jang maydoni, Himoya devori, Ov soʻqmogʻi, Shifo gʻori, Bozor
-- Yuqorida resurs paneli (goʻsht, suv, tosh, shox-shabba, teri, suyak, oy toshi)
-- Qurilish navbati (1 yoki 2 slot)
-- Ustaxona taqsimoti (4 resurs orasida slayder)
+- 9 ta bino kartasi: In (avtomatik), Oziq gʻori, Ustaxona, Razvedka qoyasi, Jang maydoni, Himoya devori, Ov soʻqmogʻi, Shifo gʻori, Bozor (ochilmaganlari qulf belgisi bilan)
+- Yuqorida resurs paneli: goʻsht, suv, shifobaxsh oʻt, tosh, shox-shabba, teri, suyak, oy toshi; 20+ darajada oy nuri
+- Qurilish navbati (1 slot; 10-darajadan yoki erta xarid bilan 2 slot)
+- Ustaxona: taqsimot slayderi (4 resurs) va bufer + “Yigʻib olish” tugmasi
+- **Ov:** “Ovga chiqish” (ovchilar va qoʻshimcha askar tanlash, 1 soat), 1–3 darajada “Yolgʻiz ov” tugmasi, ov guruhlari roʻyxati
 - Bozor: almashinuv oynasi
 - Shifo gʻori: davolash navbati
 
 ### ⚔️ Jang
-- **PvP**: 9 ta raqib kartasi (nomi, daraja, masofa, kuch bandi, qalqon belgisi) → har kartada `Razvedka` va `Hujum` tugmasi
+- **Raqiblar**: 9 ta karta (nomi, daraja, masofa, kuch bandi, qalqon belgisi; botlar “Yovvoyi toʻda” belgisi bilan) → har kartada `Razvedka` va `Hujum` tugmasi. 4–6 darajada faqat botlar
 - **Qoʻshin yuborish oynasi**: rol × tier boʻyicha miqdor tanlash, yurish vaqti koʻrsatiladi
 - **Lager**: yuborish, yigʻilayotgan miqdor, erta chaqirish
 - **Oazis**: xaritadagi 20 nuqta, egasi, egallash tugmasi
@@ -40,7 +42,7 @@ Pastda **5 ta asosiy tab**. Qolgan hamma narsa shu beshtasining ichida.
 - Mukofot olish tugmalari
 
 ### 👤 Profil
-- Qoʻshin: 4 rol × 6 tier jadvali, sonlar bilan
+- Qoʻshin: 4 rol × 6 tier jadvali (sogʻlom / yurishda / jarohatlangan)
 - Askar yigʻish va tierga almashtirish oynasi
 - Statistika: jami CP, gʻalabalar, mavsum reytingi, liga
 - Sozlamalar: til (uz/ru/en), bildirishnomalar, taʼtil rejimi
@@ -61,7 +63,7 @@ Telegram bot orqali. **Kuniga eng koʻpi 6 ta** (`notification_budget`), aks hol
 | `camp_raided` | Lager bosib olinganda | 1 |
 | `build_done` | Qurilish tugaganda (faqat >1 soat boʻlsa) | 2 |
 | `train_done` | Katta mashq partiyasi tugaganda | 2 |
-| `storage_full` | Ombor toʻlganda | 2 |
+| `storage_full` | Ustaxona buferi yoki Oziq gʻori toʻlganda | 2 |
 | `hunger_warning` | Goʻsht 12 soatga qolganda | 2 |
 | `season_ending` | Mavsum tugashiga 6 soat | 3 |
 | `daily_quests` | Har kuni bir marta, oʻyinchi odatda kiradigan vaqtda | 3 |
@@ -69,10 +71,11 @@ Telegram bot orqali. **Kuniga eng koʻpi 6 ta** (`notification_budget`), aks hol
 | `comeback_7d` | 7 kun kirmasa — bir marta, keyin toʻxtaydi | 3 |
 
 **Qoidalar:**
+- Bot faqat ruxsat bergan oʻyinchiga yoza oladi: Mini App birinchi ochilganda `WebApp.requestWriteAccess()` soʻraladi, natija `player_settings.allows_pm` ga yoziladi (`initData.user.allows_write_to_pm` ham hisobga olinadi). Ruxsat boʻlmasa bildirishnoma `inapp` kanaliga tushadi
 - Taʼtil rejimida faqat `war_*` va `season_*` yuboriladi
 - 1-ustuvorlik byudjetdan tashqarida
 - Har bildirishnomada Mini App'ga chuqur havola (deep link)
-- Tunda (oʻyinchi vaqti boʻyicha 23:00–08:00) faqat 1-ustuvorlik
+- Tunda (oʻyinchi vaqti boʻyicha 23:00–08:00) faqat 1-ustuvorlik. Telegram vaqt zonasini bermaydi — klient uni `Intl` dan oladi va `POST /profile/settings` bilan yuboradi (`player_settings.tz`, standart `Asia/Tashkent`)
 - Oʻyinchi sozlamalardan har turni alohida oʻchira oladi
 
 ---
@@ -98,52 +101,61 @@ Uch til: **uz** (asosiy), **ru**, **en**.
 
 ### 4.1 Resurs hisobi (timestamp accrual)
 
-Tick yoʻq. Har soʻrovda:
+Tick yoʻq. Har soʻrovda, tranzaksiya ichida `player_resources` qatori `SELECT … FOR UPDATE` bilan qulflanadi:
 
 ```
-dt = now - last_tick_at   (soniya)
-rate = prod_base * prod_growth^(workshop_level-1) / 3600
-if (offline) rate *= offline_prod_rate      // 0.70
-if (hunger)  rate *= (1 - hunger_prod_penalty)
-if (vacation) rate = 0
-if (oasis bonus) rate *= (1 + bonus)
-
-qoʻshildi = rate * dt * taqsimot_ulushi
-resurs = MIN(resurs + qoʻshildi, sigʻim)     // sigʻim = ombor darajasidan
-last_tick_at = now
+t0 = last_tick_at, t1 = now                          (DATETIME(3), millisekund)
+oraliqlarga boʻlish — har bir chegara nuqtasida stavka oʻzgaradi:
+  · onlayn / oflayn chegarasi: last_seen_at + 5 daqiqa (offline_after_min)
+  · taʼtil boshlanishi / tugashi
+  · goʻsht 0 ga tushadigan aniq vaqt (ochlik boshlanishi)
+  · tugagan navbatlar (masalan Oziq gʻori yoki Ustaxona darajasi oshgan vaqt)
+har bir oraliq uchun (dt soniya):
+  prod = prod_base × prod_growth^(Ustaxona L−1) / 3600
+  if oflayn:  prod × offline_prod_rate
+  if ochlik:  prod × (1 − hunger_prod_penalty)
+  if taʼtil:  prod = 0, sarf = 0
+  prod × (1 + klan bonusi + oazis bonusi)
+  buf_x += prod × dt × alloc_x / 100, bufer sigʻimi bilan cheklanadi
+           (bufer = soatlik × 10 × taqsimot ulushi; oflaynda × 2.0, xarid bilan × 2.5)
+  water += (passiv suv − suv sarfi) × dt, [0, gʻor sigʻimi]
+  moonlight (20+) shu tarzda
+  meat −= goʻsht sarfi × dt; 0 ga yetsa — hunger_since = aynan shu vaqt
+  auto_collect boʻlsa: buf_* → ombor
+last_tick_at = t1, last_seen_at = t1
 ```
 
-Goʻsht sarfi xuddi shu tarzda ayiriladi. Goʻsht 0 ga tushsa → `hunger_since = now`.
+- Ustunlar `DECIMAL(20,4)` — soniyalik kasr qismlar yoʻqolmaydi; klientga butun son koʻrsatiladi.
+- Goʻsht faqat ov, oʻlja va mukofotdan qoʻshiladi (passiv ishlab chiqarilmaydi); gʻor sigʻimidan ortigʻi tashlanadi.
+- Goʻsht qoʻshilganda `hunger_since = NULL` — jazolar darhol oʻchadi.
 
 ### 4.2 Navbatlar
 
-`queues` jadvalida `ends_at` bilan. Ikki yoʻl bilan yopiladi:
+`queues` jadvalida `ends_at` bilan, yechilgan resurs `cost` da. Ikki yoʻl bilan yopiladi:
 1. Oʻyinchi kirganda — barcha `ends_at <= now` boʻlganlar bajariladi
 2. Cron (har daqiqa) — bildirishnoma yuborish uchun
 
-### 4.3 Yurishlar va janglar
+Ikki marta bajarilmasligi uchun: `UPDATE queues SET state='done' WHERE id=? AND state='running'` — `affected_rows = 1` boʻlgandagina natija qoʻllanadi.
+Taʼtilda qolgan vaqt `frozen_sec` ga yoziladi va chiqishda `ends_at = now + frozen_sec`.
+Tanishtiruv davomida (`tutorial_step < 20`) navbatlar darhol tugaydi.
 
-Cron har daqiqa:
-- `arrives_at <= now` → jang hisoblanadi, natija `battles` ga yoziladi, `returns_at` qoʻyiladi
-- `returns_at <= now` → askarlar `on_march` dan `alive`/`injured` ga qaytadi
+### 4.3 Yurishlar, ov va janglar
+
+Cron har daqiqa **va** dangasa (lazy) hisob — hujumchi yoki himoyachi soʻrov yuborganda ham:
+- `kind = hunt`, `arrives_at <= now` → ov natijasi hisoblanadi (ov guruhida — aʼzolarga ulush), `returns_at` qoʻyiladi
+- `kind = attack`, `arrives_at <= now` → jang hisoblanadi (himoyachining resurslari avval 4.1 boʻyicha `arrives_at` vaqtiga keltiriladi), natija `battles` ga, `returns_at` qoʻyiladi
+- `returns_at <= now` → askarlar `on_march` dan `alive`/`injured` ga, oʻlja omborga
+- Bot raqib (`target_bot`) uchun himoyachi tomoni yangilanmaydi — faqat hujumchi natijasi
+
+Holat oʻtishlari ham shartli `UPDATE … WHERE state = …` bilan.
 
 ### 4.4 Jang formulasi
 
-```
-EP = Σ(qty × tier_cp × role_coef × counter_coef)
-tier_cp = (kuch×2 + tezlik×1.5 + chidam×0.5) × tier_coef^(tier-1) × (1 + alpha_bonus × level)
-R = EP_attacker / EP_defender
-att_loss% = MIN(0.90, 0.40 / R) × (1 ± 0.10)
-def_loss% = MIN(0.90, 0.40 × R) × (1 ± 0.10)
-oʻlim = loss% × death_share   (hujumchi 0.40, himoyachi 0.25)
-kasalxona = loss% × (1 - death_share)
-```
-
-Yoʻqotish tierlar boʻyicha proporsional taqsimlanadi (yuqori tier ham yoʻqoladi).
+Toʻliq formula (EP, aralash qoʻshinda qarshi-kuch, holat koeffitsientlari, yoʻqotish, natija chegaralari, tuzoq, raund jurnali) — **GDD, bo'lim 7 “Jang hisobi”**. Kodda bitta `BattleResolver` sinfi shu formulani amalga oshiradi va barcha koeffitsientlarni `game_config` dan oladi; birlik testlari GDD dagi jadval (R = 0.5 … 3.0) qiymatlarini tekshiradi.
 
 ### 4.5 Server tekshiruvlari (klientga ishonilmaydi)
 
-Har amalda: resurs yetarlimi, bino darajasi yetarlimi, tier ochilganmi, qoʻshin sigʻimi, qalqon holati, juftlik chegarasi, hujum oynasi (±1 daraja), taʼtil holati, tezlashtirish kunlik chegarasi.
+Har amalda: resurs yetarlimi, bino darajasi yetarlimi, tier ochilganmi, qoʻshin sigʻimi, qalqon holati, juftlik chegarasi (24 soatda 3), hujum oynasi (±1 daraja; 1–6 daraja faqat botga), taʼtil holati, tezlashtirish kunlik chegarasi, tanishtiruv qulfi (1–12 qadam).
 
 Mini App `initData` imzosi har soʻrovda tekshiriladi (HMAC-SHA256, bot tokeni bilan).
 
@@ -151,42 +163,30 @@ Mini App `initData` imzosi har soʻrovda tekshiriladi (HMAC-SHA256, bot tokeni b
 
 | Vaqt | Ish |
 |---|---|
-| Har daqiqa | Navbatlar, yurishlar, janglar, bildirishnoma navbati |
+| Har daqiqa | Navbatlar, yurishlar (ov, hujum), janglar, bildirishnoma navbati |
 | Har 5 daqiqa | Matchmaking roʻyxatini yangilash |
-| Har soat | Klan `power_cache`, oazis bonuslari |
-| Har kun 00:00 | Kundalik vazifalar, tezlashtirish chegarasi, login streak |
+| Har soat | Klan `power_cache`, oazis bonuslari, 24 soatdan eski `request_log` ni oʻchirish |
+| Har kun 00:00 | Kundalik vazifalar, tezlashtirish chegarasi va progressiv narx, login streak, `player_counters` (kunlik) |
 | Har dushanba | Haftalik vazifalar, mavsum yopilishi, liga |
 | Mavsum + 48 soat | Adolat auditi → mukofot toʻlovi |
 
 ---
 
-## 5. MVP doirasi (8–10 hafta)
+## 5. MVP doirasi
 
-### Kiritiladi
-- 1–10 daraja
-- 3 bino: Oziq gʻori, Ustaxona, Jang maydoni
-- 2 rol: ovchi, hujumchi — 3 tier
-- PvP 1v1 + oʻlja + razvedka
-- Yengil toʻda ovi (rasmiy klan tizimisiz vaqtinchalik ov guruhi — GDD bo'lim 22)
-- Tanishtiruv (20 qadam)
-- Kundalik vazifalar
-- Oflayn hisob, ochlik rejimi
-- uz tili
-
-### v2 ga qoldiriladi
-- 11–25 daraja, qolgan 5 bino, razvedkachi va himoyachi rollari, 4–6 tier
-- Klan va toʻda urushi, lager, oazis
-- Mavsum, reyting, liga
-- Monetizatsiya (MVP'da test uchun faqat oy toshi)
-- **Pul mukofoti — albatta keyinga**
-- ru, en tillari
+Nima kiradi va nima v2 ga qoladi — **GDD, bo'lim 22** (yagona manba). Muddat: 10–12 hafta.
+Texnik jihatdan MVP uchun:
+- Barcha 32 jadval bir martada yaratiladi (v2 jadvallari boʻsh turadi — keyinroq migratsiya kerak boʻlmaydi)
+- API dan 39 ta endpoint (`blue_wolf_api.md` oxiridagi roʻyxat)
+- Botlar (yovvoyi toʻdalar) — `match_offers.bot` va `marches.target_bot` orqali, alohida jadvalsiz
+- Monetizatsiya oʻchirilgan (faqat test oy toshi); `POST /bot/webhook` faqat buyruqlar uchun
 
 ### Oʻlchanadigan raqamlar
 - D1 retention (maqsad >30%)
 - D7 retention (maqsad >12%)
-- Tanishtiruv tugatish foizi (maqsad >70%)
+- Tanishtiruv tugatish foizi (maqsad >70%) va har qadamda tark etish
 - 4-darajaga yetish vaqti (maqsad <15 daqiqa)
-- Birinchi PvP jangigacha vaqt
+- Birinchi botga hujumgacha va 7-darajaga (birinchi PvP) yetish vaqti
 
 ---
 
@@ -194,23 +194,23 @@ Mini App `initData` imzosi har soʻrovda tekshiriladi (HMAC-SHA256, bot tokeni b
 
 | # | Ish | Holati |
 |---|---|---|
-| 1 | DB sxemasi | ✅ Tayyor (`blue_wolf_schema.sql`) |
-| 2 | Balans modeli | ✅ Tayyor (21 varaqli jadval) |
-| 3 | Ekran xaritasi | ✅ Shu hujjatda |
-| 4 | Bildirishnomalar | ✅ Shu hujjatda |
-| 5 | Lokalizatsiya rejasi | ✅ Shu hujjatda |
-| 6 | Art yoʻnalishi | ⏳ Oddiy: bitta boʻri silueti + rol rangi + tier ramkasi |
-| 7 | `game_config` ni jadvaldan toʻldirish | ⏳ Asosiylari SQL da |
-| 8 | Locales kalitlari (~600) | ⏳ |
-| 9 | API endpointlari | ✅ Tayyor (`blue_wolf_api.md`, 60 endpoint) — *tuzatildi: bu qator eski, API spec yozilishidan oldingi holatni koʻrsatib turgan edi* |
-| 10 | Mini App frontend | ⏳ |
+| 1 | DB sxemasi | ✅ `blue_wolf_schema.sql` (32 jadval, MySQL 8.0 da tekshirilgan) |
+| 2 | Balans modeli | ✅ `blue_wolf_darajalar.xlsx` (21 varaq; kiritish — `Sozlamalar`) |
+| 3 | `game_config` ni jadvaldan toʻldirish | ✅ `tools/blue_wolf_config.py` → `blue_wolf_game_config.sql` (271 parametr + balans tekshiruvlari) |
+| 4 | Ekran xaritasi | ✅ Shu hujjatda |
+| 5 | Bildirishnomalar | ✅ Shu hujjatda |
+| 6 | Lokalizatsiya rejasi | ✅ Shu hujjatda |
+| 7 | API endpointlari | ✅ `blue_wolf_api.md` (70 endpoint, MVP — 39) |
+| 8 | Art yoʻnalishi | ⏳ Oddiy: bitta boʻri silueti + rol rangi + tier ramkasi |
+| 9 | Locales kalitlari (~600) | ⏳ |
+| 10 | Mini App frontend | ⏳ Repodagi hozirgi `index.html`/`js/game.js` — Phaser “Blue Wolf Run” yuguruvchi oʻyini; bu dizaynga mos emas. Undan faqat splash ekran va Telegram WebApp init qismi qayta ishlatiladi |
 | 11 | Telegram bot webhook | ⏳ |
-| 12 | Test rejasi | ⏳ |
+| 12 | Test rejasi | ⏳ `BattleResolver`, resurs accrual va navbatlar uchun birlik testlari birinchi navbatda |
 
 ---
 
 ## 7. Keyingi qadam
 
-`schema.sql` ni bazaga yuklash → `game_config` ni jadvaldagi qiymatlar bilan toʻldirish → *(API endpointlari roʻyxati allaqachon `blue_wolf_api.md` da tayyor — 60 ta)* → tanishtiruv oqimini birinchi boʻlib qurish.
+`blue_wolf_schema.sql` ni bazaga yuklash → `python3 tools/blue_wolf_config.py` → `blue_wolf_game_config.sql` ni yuklash → tanishtiruv oqimini birinchi boʻlib qurish.
 
 Tanishtiruvdan boshlash sababi: u butun oʻyin zanjirini (resurs → bino → askar → jang) eng qisqa yoʻlda sinab koʻradi. Ishlasa, qolgani shu asos ustiga qoʻyiladi.
