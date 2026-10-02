@@ -12,8 +12,8 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="ui/bluewolf-ui.css?v=0.0.0">
-  <link rel="stylesheet" href="css/app.css?v=0.0.0">
+  <link rel="stylesheet" href="ui/bluewolf-ui.css?v=0.0.1">
+  <link rel="stylesheet" href="css/app.css?v=0.0.1">
   <!-- Telegram Mini App SDK: Telegram ichida initData, mavzu, BackButton beradi; brauzerda zararsiz -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -32,8 +32,14 @@
         <button class="bw-avatar bw-avatar--sm bw-tier-1" id="top-avatar" type="button" aria-label="Profil"></button>
         <div class="bw-grow">
           <div class="bw-between">
-            <strong class="topbar__name" id="top-name">—</strong>
-            <span class="bw-chip bw-chip--primary" id="top-level">1-daraja</span>
+            <span class="topbar__who">
+              <strong class="topbar__name" id="top-name">—</strong>
+              <span class="bw-chip bw-chip--primary" id="top-level">1-d.</span>
+            </span>
+            <button class="bw-gem" id="top-gem" type="button" data-res="moonstone" aria-label="Oy toshi">
+              <svg class="bw-icon"><use href="#bw-i-moonstone"/></svg><span id="top-gem-val">0</span>
+              <span class="bw-gem__plus"><svg class="bw-icon"><use href="#bw-i-plus"/></svg></span>
+            </button>
           </div>
           <div class="topbar__xp">
             <div class="bw-progress bw-progress--sm bw-grow"><div class="bw-progress__bar" id="top-xp-bar" style="width:0"></div></div>
@@ -41,7 +47,7 @@
           </div>
         </div>
       </div>
-      <div class="bw-res-bar" id="res-bar" aria-label="Resurslar"></div>
+      <div class="bw-resgrid" id="res-bar" aria-label="Resurslar — batafsil maʼlumot uchun bosing"></div>
       <div class="bw-banner topbar__demo" id="demo-banner" hidden></div>
     </header>
 
@@ -63,10 +69,10 @@
   </section>
   <div class="bw-toast-host" id="toasts" aria-live="polite"></div>
 
-  <script src="ui/bluewolf-icons.js?v=0.0.0"></script>
-  <script src="js/demo-data.js?v=0.0.0"></script>
-  <script src="js/game.js?v=0.0.0"></script>
-  <script src="js/api.js?v=0.0.0"></script>
-  <script src="js/app.js?v=0.0.0"></script>
+  <script src="ui/bluewolf-icons.js?v=0.0.1"></script>
+  <script src="js/demo-data.js?v=0.0.1"></script>
+  <script src="js/game.js?v=0.0.1"></script>
+  <script src="js/api.js?v=0.0.1"></script>
+  <script src="js/app.js?v=0.0.1"></script>
 </body>
 </html>

@@ -4,16 +4,36 @@
 (function (root) {
   "use strict";
 
+  // group: food — Oziq gʻorida (sigʻim bilan), build — Ustaxona (ombor cheklanmagan), premium — Telegram Stars
+  // GDD bo'lim 3: manba (from), sarf (use)
   var RESOURCES = [
-    { key: "meat", name: "Goʻsht", icon: "meat" },
-    { key: "water", name: "Suv", icon: "water" },
-    { key: "herb", name: "Shifobaxsh oʻt", icon: "herb" },
-    { key: "stone", name: "Tosh", icon: "stone" },
-    { key: "wood", name: "Shox-shabba", icon: "wood" },
-    { key: "hide", name: "Teri", icon: "hide" },
-    { key: "bone", name: "Suyak", icon: "bone" },
-    { key: "moonlight", name: "Oy nuri", icon: "moonlight", fromLevel: 20 },
-    { key: "moonstone", name: "Oy toshi", icon: "moonstone" }
+    { key: "meat", name: "Goʻsht", short: "Goʻsht", unit: "kg", icon: "meat", group: "food",
+      from: ["Ov — ovchilar 1 soatlik ovga chiqadi", "Yovvoyi toʻdalar va PvP oʻljasi", "Vazifa mukofotlari"],
+      use: ["Toʻdani boqish — har bir askar kuniga yeydi", "Yangi askar yollash"] },
+    { key: "water", name: "Suv", short: "Suv", unit: "", icon: "water", group: "food",
+      from: ["Oziq gʻori passiv yigʻadi (darajasi bilan oʻsadi)", "Suv oazisi (v2)"],
+      use: ["Toʻdaning ichimligi — yetmasa yurish tezligi −20%"] },
+    { key: "herb", name: "Shifobaxsh oʻt", short: "Oʻt", unit: "", icon: "herb", group: "food",
+      from: ["Ov — natijaning 10% i oʻt boʻlib keladi", "Oʻt oazisi (v2)"],
+      use: ["Shifo gʻorida jarohatlangan boʻrini davolash"] },
+    { key: "moonlight", name: "Oy nuri", short: "Oy nuri", unit: "", icon: "moonlight", group: "food", fromLevel: 20,
+      from: ["Oziq gʻori passiv ishlab chiqaradi (20+ daraja)", "Oy mehrobi oazisi +40% (v2)", "Bozor (×2 kurs)"],
+      use: ["Mifologik boʻrilarni boqish (20+ daraja) — yetmasa jangda CP −15%"] },
+    { key: "stone", name: "Tosh", short: "Tosh", unit: "", icon: "stone", group: "build",
+      from: ["Ustaxona qoyasi (taqsimotdagi ulush boʻyicha)"],
+      use: ["Barcha binolarni kuchaytirish"] },
+    { key: "wood", name: "Shox-shabba", short: "Shox", unit: "", icon: "wood", group: "build",
+      from: ["Ustaxona qoyasi (taqsimotdagi ulush boʻyicha)"],
+      use: ["Oziq gʻori, Ustaxona, Shifo gʻori, Bozor"] },
+    { key: "hide", name: "Teri", short: "Teri", unit: "", icon: "hide", group: "build",
+      from: ["Ustaxona qoyasi (taqsimotdagi ulush boʻyicha)"],
+      use: ["Rol binolari (Jang maydoni, Razvedka, Himoya, Ov soʻqmogʻi)", "Shifo gʻori"] },
+    { key: "bone", name: "Suyak", short: "Suyak", unit: "", icon: "bone", group: "build",
+      from: ["Ustaxona qoyasi (taqsimotdagi ulush boʻyicha)"],
+      use: ["Yangi askar yollash", "Ustaxona va rol binolari"] },
+    { key: "moonstone", name: "Oy toshi", short: "Oy toshi", unit: "", icon: "moonstone", group: "premium",
+      from: ["Faqat Telegram Stars orqali sotib olinadi"],
+      use: ["Tezlashtirish (kuniga koʻpi bilan 25%)", "Ikkinchi navbatni erta ochish, taʼtil, kosmetika"] }
   ];
 
   // GDD bo'lim 5. cost: bazaviy narx kalitlari (1→2 daraja), coef: rol binosi koeffitsienti
@@ -107,6 +127,27 @@
   /** Bitta ovchining unumi, kg/soat. */
   function hunterYield(cfg, L, tier) { return cfg.hunter_yield_mult * need(cfg, L) * (1 + cfg.hunter_tier_bonus * ((tier || 1) - 1)); }
 
+  /** Oziq gʻori sigʻimi (har bir oziq resursi uchun alohida). */
+  function caveCap(cfg, caveLevel) { return cfg.store_base * Math.pow(cfg.store_growth, Math.max(1, caveLevel) - 1); }
+
+  /** Oziq gʻorining passiv suvi, birlik/soat (0 — gʻor qurilmagan). */
+  function waterPerHour(cfg, caveLevel) { return caveLevel > 0 ? cfg.water_passive_base * Math.pow(cfg.water_passive_growth, caveLevel - 1) : 0; }
+
+  /** Bir askarning kunlik suv ehtiyoji. */
+  function waterNeed(cfg, L) { return cfg.water_need_base + cfg.water_need_growth * (L - 1); }
+
+  /** Ustaxonaning jami ishlab chiqarishi, birlik/soat (0 — qurilmagan). */
+  function workshopPerHour(cfg, wsLevel) { return wsLevel > 0 ? cfg.prod_base * Math.pow(cfg.prod_growth, wsLevel - 1) : 0; }
+
+  /** Ixcham raqam: 950 · 12,4K · 1,2M */
+  function fmtShort(n) {
+    if (n == null || isNaN(n)) return "—";
+    var v = Math.floor(n);
+    if (v < 10000) return fmt(v);
+    if (v < 1e6) return (v / 1000).toFixed(v < 1e5 ? 1 : 0).replace(".", ",").replace(",0", "") + "K";
+    return (v / 1e6).toFixed(v < 1e7 ? 1 : 0).replace(".", ",").replace(",0", "") + "M";
+  }
+
   function fmt(n) {
     if (n == null || isNaN(n)) return "—";
     var v = Math.floor(n);
@@ -126,7 +167,8 @@
     RESOURCES: RESOURCES, BUILDINGS: BUILDINGS, BUILDING_ORDER: BUILDING_ORDER, ROLES: ROLES, TIERS: TIERS,
     stage: stage, levelCost: levelCost, totalXp: totalXp, xpProgress: xpProgress,
     buildingCost: buildingCost, buildingTime: buildingTime, maxTier: maxTier, armyCap: armyCap,
-    need: need, hunterYield: hunterYield, fmt: fmt, fmtMinutes: fmtMinutes
+    need: need, hunterYield: hunterYield, caveCap: caveCap, waterPerHour: waterPerHour, waterNeed: waterNeed,
+    workshopPerHour: workshopPerHour, fmt: fmt, fmtShort: fmtShort, fmtMinutes: fmtMinutes
   };
 
   if (typeof module !== "undefined" && module.exports) module.exports = api;

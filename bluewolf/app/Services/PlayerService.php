@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Oʻyinchini Telegram foydalanuvchisidan topish/yaratish va holat snapshotini yigʻish.
- * v0.0.0: resurs hisobi (accrual), navbatlar va yurishlar hali yoʻq — faqat skelet.
+ * v0.0.x: resurs hisobi (accrual), navbatlar va yurishlar hali yoʻq — faqat skelet.
  */
 class PlayerService
 {

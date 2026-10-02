@@ -16,6 +16,8 @@
   background: linear-gradient(180deg, var(--bw-bg-2) 70%, transparent);
 }
 .topbar__player { display: flex; align-items: center; gap: 12px; }
+.topbar__who { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.topbar__who .bw-chip { height: 20px; padding: 0 6px; }
 .topbar__name { font-size: var(--bw-fs-md); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .topbar__xp { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
 .topbar__xp-text { font-size: var(--bw-fs-xs); white-space: nowrap; }

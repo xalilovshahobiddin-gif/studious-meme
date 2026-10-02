@@ -1,9 +1,9 @@
-# Blue Wolf — Telegram Mini App · v0.0.0
+# Blue Wolf — Telegram Mini App · v0.0.1
 
 Strategiya / omon qolish oʻyini: ov qil, in qur, toʻda yigʻ va Koʻk Boʻriga aylan.
-Dizayn hujjatlari: [`docs/blue_wolf/`](../docs/blue_wolf/) (GDD, API, sxema, balans jadvali).
+Dizayn hujjatlari: [`docs/blue_wolf/`](../docs/blue_wolf/) (GDD, API, sxema, balans jadvali). Oʻzgarishlar: [CHANGELOG.md](CHANGELOG.md).
 
-> **v0.0.0 — skelet / demo koʻrinish.** Ekranlar, dizayn tizimi, Telegram integratsiyasi va backend asosi tayyor.
+> **v0.0.x — skelet / demo koʻrinish.** Ekranlar, dizayn tizimi, Telegram integratsiyasi va backend asosi tayyor.
 > Oʻyin amallari (qurish, ov, mashq, hujum…) hali ishlamaydi — tugmalar “keyingi bosqichda” xabarini koʻrsatadi.
 
 - **Backend:** PHP 8.2+ · Laravel 12 · MySQL 8 (lokal sinov uchun SQLite)
@@ -78,7 +78,7 @@ vendor/bin/pint --test        # kod uslubi
 3. @BotFather → `/newapp` (yoki bot sozlamalari → Menu Button) → URL: `https://domen/`.
 4. Botni Telegram’da oching → menyu tugmasi → ilova jonli rejimda ochiladi.
 
-## API (v0.0.0)
+## API (v0.0.x)
 
 Javob konverti: `{ ok: true, data, state }` yoki `{ ok: false, error: { code, message, details } }`.
 
@@ -105,7 +105,8 @@ Skript `database/seeders/data/game_config.json` va `public/data/game_config.json
 
 | Versiya | Nima qoʻshiladi |
 |---|---|
-| **v0.0.0** | Skelet: ekranlar, BlueWolf UI, PWA, Telegram auth, `/state` ✅ |
+| v0.0.0 | Skelet: ekranlar, BlueWolf UI, PWA, Telegram auth, `/state` ✅ |
+| **v0.0.1** | Ixcham resurs paneli, resurs maʼlumot oynasi ✅ |
 | v0.1 | Resurs hisobi (timestamp accrual), Ustaxona buferi va yigʻib olish, taqsimot serverda |
 | v0.2 | Qurilish navbati, bino kuchaytirish, bepul tezlashtirish |
 | v0.3 | Askar mashqi, ov (yolgʻiz, toʻda), oziqlanish va ochlik |

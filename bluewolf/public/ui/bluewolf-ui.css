@@ -1,6 +1,6 @@
 /* ==========================================================================
    BlueWolf UI — Blue Wolf oʻyini uchun dizayn tizimi
-   v0.0.0
+   v0.0.1
 
    Tuzilishi:
      1. Tokenlar (palitra, semantik ranglar, rol va tier ranglari, shrift, oraliq, radius, soya, harakat)
@@ -255,6 +255,59 @@ button { font: inherit; color: inherit; }
 .bw-res--bone .bw-res__dot { color: var(--bw-res-bone); }
 .bw-res--moonstone .bw-res__dot { color: var(--bw-res-moonstone); }
 [data-bw-theme="light"] .bw-res--bone .bw-res__dot { color: #a08b5c; }
+
+/* Ixcham resurs paneli (v0.0.1): 12 ustunli setka — oziq qatori 3 yoki 4 ta, qurilish qatori 4 ta */
+.bw-resgrid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px; }
+.bw-rescell {
+  --bw-rc: var(--bw-text-2);
+  position: relative; overflow: hidden; grid-column: span 3;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  height: 34px; padding: 0 6px; border-radius: 11px;
+  background: var(--bw-surface); border: 1px solid var(--bw-border);
+  cursor: pointer; transition: transform var(--bw-fast) var(--bw-ease), border-color var(--bw-fast), background var(--bw-fast);
+}
+.bw-rescell--wide { grid-column: span 4; }
+.bw-rescell:hover { border-color: var(--bw-border-2); }
+.bw-rescell:active { transform: scale(.95); }
+.bw-rescell .bw-icon { width: 16px; height: 16px; color: var(--bw-rc); }
+.bw-rescell__val { font: 750 13px/1 var(--bw-font-num); font-variant-numeric: tabular-nums; letter-spacing: -.01em; white-space: nowrap; }
+.bw-rescell__fill { position: absolute; left: 0; bottom: 0; height: 2px; width: calc(var(--fill, 0) * 100%); background: var(--bw-rc); opacity: .85; border-radius: 0 2px 2px 0; transition: width var(--bw-med) var(--bw-ease); }
+.bw-rescell.is-full { border-color: rgba(255, 181, 71, .45); }
+.bw-rescell.is-full .bw-rescell__val { color: var(--bw-accent); }
+.bw-rescell.is-low .bw-rescell__val { color: var(--bw-ember-400); }
+[data-bw-theme="light"] .bw-rescell.is-low .bw-rescell__val { color: #b8321d; }
+.bw-rescell--meat { --bw-rc: var(--bw-res-meat); }
+.bw-rescell--water { --bw-rc: var(--bw-res-water); }
+.bw-rescell--herb { --bw-rc: var(--bw-res-herb); }
+.bw-rescell--moonlight { --bw-rc: var(--bw-res-moonlight); }
+.bw-rescell--stone { --bw-rc: var(--bw-res-stone); }
+.bw-rescell--wood { --bw-rc: var(--bw-res-wood); }
+.bw-rescell--hide { --bw-rc: var(--bw-res-hide); }
+.bw-rescell--bone { --bw-rc: var(--bw-res-bone); }
+[data-bw-theme="light"] .bw-rescell--bone { --bw-rc: #a08b5c; }
+[data-bw-theme="light"] .bw-rescell--stone { --bw-rc: #6d7891; }
+
+/* Premium valyuta tugmasi (oy toshi) */
+.bw-gem {
+  display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 4px 0 8px;
+  border-radius: var(--bw-r-full); cursor: pointer;
+  background: linear-gradient(135deg, rgba(143, 216, 255, .2), rgba(47, 141, 255, .12));
+  border: 1px solid rgba(143, 216, 255, .4); color: var(--bw-text);
+  font: 750 13px/1 var(--bw-font-num); font-variant-numeric: tabular-nums;
+}
+.bw-gem > .bw-icon { width: 15px; height: 15px; color: var(--bw-res-moonstone); }
+.bw-gem__plus { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--bw-primary); color: #fff; }
+.bw-gem__plus .bw-icon { width: 12px; height: 12px; }
+[data-bw-theme="light"] .bw-gem > .bw-icon { color: var(--bw-ice-600); }
+
+/* Resurs maʼlumot oynasi */
+.bw-resinfo__head { display: flex; align-items: center; gap: 14px; }
+.bw-resinfo__icon { width: 56px; height: 56px; flex: none; border-radius: 18px; display: grid; place-items: center; color: var(--bw-rc); background: color-mix(in srgb, var(--bw-rc) 16%, transparent); border: 1px solid color-mix(in srgb, var(--bw-rc) 35%, transparent); }
+.bw-resinfo__icon .bw-icon { width: 28px; height: 28px; }
+.bw-resinfo__amount { font: 800 28px/1.1 var(--bw-font-num); font-variant-numeric: tabular-nums; }
+.bw-resinfo__list { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.bw-resinfo__list li { display: flex; gap: 8px; font-size: var(--bw-fs-sm); color: var(--bw-text-2); }
+.bw-resinfo__list li::before { content: ""; flex: none; width: 6px; height: 6px; margin-top: 7px; border-radius: 50%; background: var(--bw-rc); }
 
 /* Progress */
 .bw-progress { height: 8px; border-radius: var(--bw-r-full); background: rgba(255, 255, 255, .08); overflow: hidden; }
