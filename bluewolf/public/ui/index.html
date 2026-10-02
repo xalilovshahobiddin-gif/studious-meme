@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>BlueWolf UI — dizayn tizimi</title>
+  <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="bluewolf-ui.css?v=0.0.0">
+  <style>
+    .kit { max-width: 880px; margin: 0 auto; padding: 24px 16px 64px; }
+    .kit section { margin-top: 36px; }
+    .kit h2 { margin-bottom: 14px; }
+    .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); gap: 10px; }
+    .swatch { border-radius: 12px; overflow: hidden; border: 1px solid var(--bw-border); font-size: 12px; }
+    .swatch div:first-child { height: 52px; }
+    .swatch div:last-child { padding: 6px 8px; background: var(--bw-surface); }
+    .icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+    .icons div { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 4px; border-radius: 12px; background: var(--bw-surface); border: 1px solid var(--bw-border); font-size: 11px; color: var(--bw-text-2); }
+    code { font-size: 12px; color: var(--bw-ice-300); }
+    [data-bw-theme="light"] code { color: var(--bw-ice-700); }
+  </style>
+</head>
+<body class="bw-body">
+  <main class="kit">
+    <div class="bw-between">
+      <div>
+        <div class="bw-eyebrow">Blue Wolf · v0.0.0</div>
+        <h1 class="bw-h1">BlueWolf UI</h1>
+        <p class="bw-muted" style="margin:6px 0 0">Tungi dasht, muz va oy nuri. Barcha klasslar <code>bw-</code> prefiksi bilan, ranglar CSS tokenlarida.</p>
+      </div>
+      <button class="bw-btn bw-btn--ghost bw-btn--sm" id="theme">Mavzu</button>
+    </div>
+
+    <section>
+      <h2 class="bw-h3">Ranglar</h2>
+      <div class="swatches" id="swatches"></div>
+    </section>
+
+    <section>
+      <h2 class="bw-h3">Tugmalar</h2>
+      <div class="bw-inline">
+        <button class="bw-btn">Asosiy</button>
+        <button class="bw-btn bw-btn--accent">Urgʻu</button>
+        <button class="bw-btn bw-btn--soft">Yumshoq</button>
+        <button class="bw-btn bw-btn--ghost">Ramka</button>
+        <button class="bw-btn bw-btn--danger">Xavf</button>
+        <button class="bw-btn" disabled>Oʻchiq</button>
+        <button class="bw-btn bw-btn--sm"><svg class="bw-icon bw-icon--sm"><use href="#bw-i-plus"/></svg> Kichik</button>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="bw-h3">Chip, nishon, resurs</h2>
+      <div class="bw-inline">
+        <span class="bw-chip">Oddiy</span><span class="bw-chip bw-chip--primary">5-daraja</span>
+        <span class="bw-chip bw-chip--accent">Mukofot</span><span class="bw-chip bw-chip--success">Kuchsiz</span>
+        <span class="bw-chip bw-chip--danger">Kuchli</span><span class="bw-badge">3</span>
+      </div>
+      <div class="bw-res-bar" id="res" style="margin-top:12px"></div>
+    </section>
+
+    <section>
+      <h2 class="bw-h3">Rollar va tier ramkalari</h2>
+      <div class="bw-inline" style="gap:16px">
+        <span class="bw-role bw-role--scout"><span class="bw-role__dot"></span>Razvedkachi</span>
+        <span class="bw-role bw-role--attacker"><span class="bw-role__dot"></span>Hujumchi</span>
+        <span class="bw-role bw-role--defender"><span class="bw-role__dot"></span>Himoyachi</span>
+        <span class="bw-role bw-role--hunter"><span class="bw-role__dot"></span>Ovchi</span>
+      </div>
+      <div class="bw-inline" style="gap:14px;margin-top:16px" id="tiers"></div>
+    </section>
+
+    <section>
+      <h2 class="bw-h3">Kartalar va progress</h2>
+      <div class="bw-grid-2">
+        <div class="bw-card">
+          <div class="bw-card__head"><strong>Oddiy karta</strong><span class="bw-chip">bw-card</span></div>
+          <div class="bw-progress"><div class="bw-progress__bar" style="width:64%"></div></div>
+          <div class="bw-progress bw-progress--accent" style="margin-top:8px"><div class="bw-progress__bar" style="width:38%"></div></div>
+          <div class="bw-progress bw-progress--success" style="margin-top:8px"><div class="bw-progress__bar" style="width:100%"></div></div>
+        </div>
+        <div class="bw-card bw-card--glow">
+          <div class="bw-grid-2">
+            <div class="bw-stat"><span class="bw-stat__value">412</span><span class="bw-stat__label">XP</span></div>
+            <div class="bw-stat"><span class="bw-stat__value">12</span><span class="bw-stat__label">Askar</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="bw-grid-3" style="margin-top:12px">
+        <button class="bw-card bw-card--tap bw-building"><span class="bw-building__icon"><svg class="bw-icon bw-icon--lg"><use href="#bw-i-cave"/></svg></span><span class="bw-building__name">Oziq gʻori</span><span class="bw-building__lvl"><span class="bw-chip bw-chip--primary">3-daraja</span></span></button>
+        <button class="bw-card bw-card--tap bw-building"><span class="bw-building__icon"><svg class="bw-icon bw-icon--lg"><use href="#bw-i-swords"/></svg></span><span class="bw-building__name">Jang maydoni</span><span class="bw-building__lvl"><span class="bw-chip bw-chip--primary">2-daraja</span></span></button>
+        <button class="bw-card bw-building bw-building--locked"><span class="bw-building__lock"><svg class="bw-icon bw-icon--sm"><use href="#bw-i-lock"/></svg></span><span class="bw-building__icon"><svg class="bw-icon bw-icon--lg"><use href="#bw-i-market"/></svg></span><span class="bw-building__name">Bozor</span><span class="bw-building__lvl"><span class="bw-faint" style="font-size:11px">9-darajada</span></span></button>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="bw-h3">Segment, kalit, ogohlantirish</h2>
+      <div class="bw-seg" style="max-width:320px"><button class="bw-seg__btn" aria-selected="true">Raqiblar</button><button class="bw-seg__btn">Jurnal</button></div>
+      <div class="bw-inline" style="margin-top:12px"><label class="bw-switch"><input type="checkbox" checked><span></span></label><span class="bw-muted">Bildirishnomalar</span></div>
+      <div class="bw-banner" style="margin-top:12px"><svg class="bw-icon bw-icon--sm"><use href="#bw-i-info"/></svg><span>Demo rejim — namuna maʼlumotlar</span></div>
+      <div class="bw-skeleton" style="height:56px;margin-top:12px"></div>
+    </section>
+
+    <section>
+      <h2 class="bw-h3">Ikonkalar</h2>
+      <p class="bw-muted" style="margin-top:0"><code>&lt;svg class="bw-icon"&gt;&lt;use href="#bw-i-<i>nom</i>"/&gt;&lt;/svg&gt;</code> yoki <code>BWIcons.svg('nom')</code></p>
+      <div class="icons" id="icons"></div>
+    </section>
+  </main>
+
+  <script src="bluewolf-icons.js?v=0.0.0"></script>
+  <script>
+    (function () {
+      var sw = [
+        ["--bw-night-950", "Tun 950"], ["--bw-night-800", "Tun 800"], ["--bw-night-600", "Tun 600"],
+        ["--bw-ice-500", "Muz 500 · asosiy"], ["--bw-ice-300", "Muz 300"], ["--bw-moon-100", "Oy 100"], ["--bw-moon-500", "Oy 500"],
+        ["--bw-amber-400", "Kahrabo · urgʻu"], ["--bw-ember-500", "Choʻgʻ · xavf"], ["--bw-moss-500", "Moʻx · muvaffaqiyat"],
+        ["--bw-role-scout", "Razvedkachi"], ["--bw-role-attacker", "Hujumchi"], ["--bw-role-defender", "Himoyachi"], ["--bw-role-hunter", "Ovchi"]
+      ];
+      document.getElementById("swatches").innerHTML = sw.map(function (s) {
+        return '<div class="swatch"><div style="background:var(' + s[0] + ')"></div><div><b>' + s[1] + "</b><br><code>" + s[0] + "</code></div></div>";
+      }).join("");
+      var res = [["meat", "64"], ["water", "41"], ["herb", "12"], ["stone", "820"], ["wood", "610"], ["hide", "240"], ["bone", "305"], ["moonlight", "18"], ["moonstone", "150"]];
+      document.getElementById("res").innerHTML = res.map(function (r) {
+        return '<span class="bw-res bw-res--' + r[0] + '"><span class="bw-res__dot">' + BWIcons.svg(r[0]) + '</span><span class="bw-num">' + r[1] + "</span></span>";
+      }).join("");
+      document.getElementById("tiers").innerHTML = [1, 2, 3, 4, 5, 6].map(function (t) {
+        return '<div style="text-align:center"><span class="bw-avatar bw-tier-' + t + '">' + BWIcons.svg("wolf", "bw-icon--lg") + '</span><div class="bw-faint" style="font-size:11px;margin-top:6px">Tier ' + t + "</div></div>";
+      }).join("");
+      document.getElementById("icons").innerHTML = BWIcons.names.map(function (n) {
+        return "<div>" + BWIcons.svg(n, "bw-icon--lg") + "<span>" + n + "</span></div>";
+      }).join("");
+      var root = document.documentElement;
+      document.getElementById("theme").onclick = function () {
+        root.setAttribute("data-bw-theme", root.getAttribute("data-bw-theme") === "light" ? "dark" : "light");
+      };
+    })();
+  </script>
+</body>
+</html>

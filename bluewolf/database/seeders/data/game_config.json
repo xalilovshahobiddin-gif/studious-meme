@@ -1,0 +1,1640 @@
+[
+ {
+  "config_key": "xp_base",
+  "config_value": 80.0,
+  "unit": "XP",
+  "note": "Boshlangʻich daraja narxi"
+ },
+ {
+  "config_key": "xp_growth",
+  "config_value": 1.38,
+  "unit": "x",
+  "note": "Har daraja oldingisidan shuncha qimmat"
+ },
+ {
+  "config_key": "stat_power_base",
+  "config_value": 12.0,
+  "unit": "ball",
+  "note": "1-daraja kuchi"
+ },
+ {
+  "config_key": "stat_power_growth",
+  "config_value": 1.2,
+  "unit": "x",
+  "note": "Har darajada"
+ },
+ {
+  "config_key": "stat_speed_base",
+  "config_value": 10.0,
+  "unit": "ball",
+  "note": "1-daraja tezligi"
+ },
+ {
+  "config_key": "stat_speed_growth",
+  "config_value": 1.13,
+  "unit": "x",
+  "note": "Har darajada"
+ },
+ {
+  "config_key": "stat_hp_base",
+  "config_value": 60.0,
+  "unit": "HP",
+  "note": "1-daraja jon miqdori"
+ },
+ {
+  "config_key": "stat_hp_growth",
+  "config_value": 1.18,
+  "unit": "x",
+  "note": "Har darajada"
+ },
+ {
+  "config_key": "class_real",
+  "config_value": 1.0,
+  "unit": "x",
+  "note": "1–19 daraja"
+ },
+ {
+  "config_key": "class_ancient",
+  "config_value": 1.35,
+  "unit": "x",
+  "note": "20–21 daraja"
+ },
+ {
+  "config_key": "class_myth",
+  "config_value": 1.8,
+  "unit": "x",
+  "note": "22–25 daraja"
+ },
+ {
+  "config_key": "pack_unlock_level",
+  "config_value": 4.0,
+  "unit": "daraja",
+  "note": "Shu darajadan toʻda, klan va PvP ochiladi"
+ },
+ {
+  "config_key": "stage_early",
+  "config_value": 0.4,
+  "unit": "x",
+  "note": "1–4 daraja: XP, narx va vaqt shunga koʻpaytiriladi"
+ },
+ {
+  "config_key": "stage_mid",
+  "config_value": 0.7,
+  "unit": "x",
+  "note": "5–10 daraja"
+ },
+ {
+  "config_key": "stage_mid_level",
+  "config_value": 10.0,
+  "unit": "daraja",
+  "note": "Shu darajagacha oʻrta koeffitsient"
+ },
+ {
+  "config_key": "stage_normal",
+  "config_value": 1.0,
+  "unit": "x",
+  "note": "11–15 daraja"
+ },
+ {
+  "config_key": "stage_late",
+  "config_value": 1.25,
+  "unit": "x",
+  "note": "16+ daraja: ataylab qiyinlashadi"
+ },
+ {
+  "config_key": "stage_late_level",
+  "config_value": 15.0,
+  "unit": "daraja",
+  "note": "Shundan keyin kech bosqich"
+ },
+ {
+  "config_key": "tutorial_end_level",
+  "config_value": 5.0,
+  "unit": "daraja",
+  "note": "Shu darajada qoʻllanma tugaydi"
+ },
+ {
+  "config_key": "tutorial_target_min",
+  "config_value": 15.0,
+  "unit": "daqiqa",
+  "note": "Boshidan tugashigacha"
+ },
+ {
+  "config_key": "tutorial_free_speedups",
+  "config_value": 5.0,
+  "unit": "marta",
+  "note": "Tanishtiruvda qurilish darhol tugaydi"
+ },
+ {
+  "config_key": "tutorial_skip_step",
+  "config_value": 12.0,
+  "unit": "qadam",
+  "note": "Shundan keyin «Oʻtkazib yuborish» tugmasi chiqadi"
+ },
+ {
+  "config_key": "quest_daily_count",
+  "config_value": 4.0,
+  "unit": "ta",
+  "note": "Har kuni yangilanadi"
+ },
+ {
+  "config_key": "quest_weekly_count",
+  "config_value": 4.0,
+  "unit": "ta",
+  "note": "Har dushanba yangilanadi"
+ },
+ {
+  "config_key": "quest_daily_cap",
+  "config_value": 0.15,
+  "unit": "ulush",
+  "note": "Kunlik ishlab chiqarishdan — hammasi qoʻshib"
+ },
+ {
+  "config_key": "quest_weekly_cap",
+  "config_value": 0.4,
+  "unit": "ulush",
+  "note": "Bir kunlik ishlab chiqarishdan"
+ },
+ {
+  "config_key": "quest_milestone_cap",
+  "config_value": 0.5,
+  "unit": "ulush",
+  "note": "Bir martalik, kunlik ishlab chiqarishdan"
+ },
+ {
+  "config_key": "quest_speedup_min",
+  "config_value": 10.0,
+  "unit": "daqiqa",
+  "note": "Vazifa uchun beriladigan tezlashtirish"
+ },
+ {
+  "config_key": "quest_safe_cap",
+  "config_value": 0.6,
+  "unit": "ulush",
+  "note": "Barcha vazifa mukofoti kunlik ishlab chiqarishdan oshmasin"
+ },
+ {
+  "config_key": "train_meat_base",
+  "config_value": 20.0,
+  "unit": "kg",
+  "note": "1-tier askar yigʻish"
+ },
+ {
+  "config_key": "train_bone_base",
+  "config_value": 8.0,
+  "unit": "birlik",
+  "note": "1-tier askar yigʻish"
+ },
+ {
+  "config_key": "train_time_min",
+  "config_value": 4.0,
+  "unit": "daqiqa",
+  "note": "1-tier askar yigʻish"
+ },
+ {
+  "config_key": "promote_loss",
+  "config_value": 0.1,
+  "unit": "ulush",
+  "note": "Kuch konversiyasida yoʻqoladigan ulush"
+ },
+ {
+  "config_key": "promote_cost_share",
+  "config_value": 0.6,
+  "unit": "x",
+  "note": "Yangi askar narxiga nisbatan"
+ },
+ {
+  "config_key": "promote_time_share",
+  "config_value": 0.5,
+  "unit": "x",
+  "note": "Yangi askar vaqtiga nisbatan"
+ },
+ {
+  "config_key": "occupancy_normal",
+  "config_value": 0.6,
+  "unit": "ulush",
+  "note": "Shu nuqtada vaqt koeffitsienti 1.00"
+ },
+ {
+  "config_key": "occupancy_exp",
+  "config_value": 1.8,
+  "unit": "daraja",
+  "note": "Qanchalik keskin oʻzgarishi"
+ },
+ {
+  "config_key": "occupancy_min",
+  "config_value": 0.5,
+  "unit": "x",
+  "note": "Qoʻshin juda kam boʻlganda chegirma"
+ },
+ {
+  "config_key": "train_coef_max",
+  "config_value": 5.0,
+  "unit": "x",
+  "note": "Bino jazosi bilan birga eng koʻpi"
+ },
+ {
+  "config_key": "offline_store_mult",
+  "config_value": 2.0,
+  "unit": "x",
+  "note": "Oʻyinchi yoʻqligida ombor sigʻimi shuncha oshadi"
+ },
+ {
+  "config_key": "offline_prod_rate",
+  "config_value": 0.7,
+  "unit": "ulush",
+  "note": "Oflaynda ishlab chiqarish shuncha qismda ishlaydi"
+ },
+ {
+  "config_key": "hunger_cp_penalty",
+  "config_value": 0.3,
+  "unit": "ulush",
+  "note": "Ochlikda jangovar quvvat shuncha tushadi"
+ },
+ {
+  "config_key": "hunger_prod_penalty",
+  "config_value": 0.5,
+  "unit": "ulush",
+  "note": "Ochlikda ishlab chiqarish shuncha tushadi"
+ },
+ {
+  "config_key": "hunger_leave_after_d",
+  "config_value": 7.0,
+  "unit": "kun",
+  "note": "Shundan keyin askarlar asta ketadi"
+ },
+ {
+  "config_key": "hunger_leave_daily",
+  "config_value": 0.01,
+  "unit": "ulush",
+  "note": "Har kuni shuncha askar ketadi"
+ },
+ {
+  "config_key": "hunger_leave_max",
+  "config_value": 0.5,
+  "unit": "ulush",
+  "note": "Ochlikdan koʻpi bilan shuncha yoʻqoladi"
+ },
+ {
+  "config_key": "sleep_shield_h",
+  "config_value": 72.0,
+  "unit": "soat",
+  "note": "Shundan keyin avtomatik qalqon yoqiladi"
+ },
+ {
+  "config_key": "comeback_shield_min",
+  "config_value": 30.0,
+  "unit": "daqiqa",
+  "note": "Kirgandan keyin qalqon shuncha turadi"
+ },
+ {
+  "config_key": "speedup_daily_cap",
+  "config_value": 0.25,
+  "unit": "ulush",
+  "note": "Kunlik progressning shunchasidan koʻpini sotib boʻlmaydi"
+ },
+ {
+  "config_key": "speedup_base_price",
+  "config_value": 10.0,
+  "unit": "oy toshi/soat",
+  "note": "Birinchi blok narxi"
+ },
+ {
+  "config_key": "speedup_price_growth",
+  "config_value": 1.6,
+  "unit": "x",
+  "note": "Har keyingi blok shuncha qimmat"
+ },
+ {
+  "config_key": "speedup_block_h",
+  "config_value": 1.0,
+  "unit": "soat",
+  "note": "Narx bloki"
+ },
+ {
+  "config_key": "moonstone_per_usd",
+  "config_value": 100.0,
+  "unit": "oy toshi/$",
+  "note": "1 dollarga nechta oy toshi"
+ },
+ {
+  "config_key": "price_season_pass",
+  "config_value": 500.0,
+  "unit": "oy toshi",
+  "note": "Battle pass"
+ },
+ {
+  "config_key": "price_second_queue",
+  "config_value": 1500.0,
+  "unit": "oy toshi",
+  "note": "4–9 darajada erta ochish; 10-darajadan bepul"
+ },
+ {
+  "config_key": "return_price_coef",
+  "config_value": 0.6,
+  "unit": "x",
+  "note": "Qaytish tezlashtirishi arzonroq"
+ },
+ {
+  "config_key": "return_speedup_max",
+  "config_value": 1.0,
+  "unit": "ulush",
+  "note": "Qaytish vaqtining shunchasini qisqartirish mumkin"
+ },
+ {
+  "config_key": "vacation_delay_h",
+  "config_value": 12.0,
+  "unit": "soat",
+  "note": "Yoqilgandan keyin shuncha vaqtdan soʻng ishga tushadi"
+ },
+ {
+  "config_key": "vacation_min_h",
+  "config_value": 24.0,
+  "unit": "soat",
+  "note": "Undan qisqa boʻlmaydi"
+ },
+ {
+  "config_key": "vacation_max_h",
+  "config_value": 168.0,
+  "unit": "soat",
+  "note": "7 kun"
+ },
+ {
+  "config_key": "vacation_free_h",
+  "config_value": 48.0,
+  "unit": "soat/oy",
+  "note": "Oyiga bir marta bepul"
+ },
+ {
+  "config_key": "vacation_price_day",
+  "config_value": 250.0,
+  "unit": "oy toshi/kun",
+  "note": "Bepul muddatdan keyin"
+ },
+ {
+  "config_key": "match_offers",
+  "config_value": 9.0,
+  "unit": "ta",
+  "note": "Server tasodifiy tanlaydi"
+ },
+ {
+  "config_key": "match_refresh_min",
+  "config_value": 30.0,
+  "unit": "daqiqa",
+  "note": "Yoki 3 ta hujumdan keyin"
+ },
+ {
+  "config_key": "battle_base_loss",
+  "config_value": 0.4,
+  "unit": "ulush",
+  "note": "Teng kuchda yoʻqotiladigan askar"
+ },
+ {
+  "config_key": "battle_max_loss",
+  "config_value": 0.9,
+  "unit": "ulush",
+  "note": "Bir jangda eng koʻp yoʻqotish"
+ },
+ {
+  "config_key": "battle_rounds",
+  "config_value": 5.0,
+  "unit": "raund",
+  "note": "Har raundda ikki tomon zarba beradi"
+ },
+ {
+  "config_key": "battle_variance",
+  "config_value": 0.1,
+  "unit": "ulush",
+  "note": "Zarar ±shuncha tebranadi"
+ },
+ {
+  "config_key": "att_death_share",
+  "config_value": 0.4,
+  "unit": "ulush",
+  "note": "Yoʻqotilganlarning shunchasi oʻladi"
+ },
+ {
+  "config_key": "def_death_share",
+  "config_value": 0.25,
+  "unit": "ulush",
+  "note": "Uyda — Shifo gʻori yaqin"
+ },
+ {
+  "config_key": "march_speed",
+  "config_value": 20.0,
+  "unit": "km/soat",
+  "note": "Eng sekin askar tezligi"
+ },
+ {
+  "config_key": "scout_speed",
+  "config_value": 60.0,
+  "unit": "km/soat",
+  "note": "Razvedkachi 3 barobar tez"
+ },
+ {
+  "config_key": "war_duration_h",
+  "config_value": 12.0,
+  "unit": "soat",
+  "note": "Ochilgandan yopilgunicha"
+ },
+ {
+  "config_key": "war_power_window",
+  "config_value": 0.2,
+  "unit": "ulush",
+  "note": "Faqat ±shuncha kuchdagi klanlar taklif etiladi"
+ },
+ {
+  "config_key": "war_min_participation",
+  "config_value": 0.25,
+  "unit": "ulush",
+  "note": "Klan kuchining shunchasi yuborilishi shart"
+ },
+ {
+  "config_key": "war_min_members",
+  "config_value": 0.4,
+  "unit": "ulush",
+  "note": "Aʼzolarning shunchasi qatnashishi shart"
+ },
+ {
+  "config_key": "war_repeat_block_d",
+  "config_value": 7.0,
+  "unit": "kun",
+  "note": "Bir juftlik shu muddat ichida qayta urusholmaydi"
+ },
+ {
+  "config_key": "war_deposit",
+  "config_value": 0.05,
+  "unit": "ulush",
+  "note": "Klan xazinasidan garovga qoʻyiladi"
+ },
+ {
+  "config_key": "war_winner_loss",
+  "config_value": 0.2,
+  "unit": "ulush",
+  "note": "Yuborilgan askarlardan"
+ },
+ {
+  "config_key": "war_loser_loss",
+  "config_value": 0.4,
+  "unit": "ulush",
+  "note": "Yuborilgan askarlardan"
+ },
+ {
+  "config_key": "war_winner_death_share",
+  "config_value": 0.3,
+  "unit": "ulush",
+  "note": "Yoʻqotilganlardan oʻladigan qismi"
+ },
+ {
+  "config_key": "war_loser_death_share",
+  "config_value": 0.45,
+  "unit": "ulush",
+  "note": "Yoʻqotilganlardan oʻladigan qismi"
+ },
+ {
+  "config_key": "war_member_cap",
+  "config_value": 0.15,
+  "unit": "ulush",
+  "note": "Bitta aʼzo urush fondidan koʻpi bilan"
+ },
+ {
+  "config_key": "war_loser_reward_share",
+  "config_value": 0.25,
+  "unit": "ulush",
+  "note": "Gʻolib mukofotiga nisbatan"
+ },
+ {
+  "config_key": "clan_xp_base",
+  "config_value": 5000.0,
+  "unit": "XP",
+  "note": "1-darajadan keyingi daraja uchun"
+ },
+ {
+  "config_key": "clan_xp_growth",
+  "config_value": 1.32,
+  "unit": "x",
+  "note": "Kerakli klan XP = baza × shu^(daraja−1)"
+ },
+ {
+  "config_key": "pack_solo_size",
+  "config_value": 1.0,
+  "unit": "bosh",
+  "note": "1–3 daraja: oʻyinchi yolgʻiz"
+ },
+ {
+  "config_key": "pack_base",
+  "config_value": 10.0,
+  "unit": "askar",
+  "note": "Toʻda ochilgan darajada (4-daraja)"
+ },
+ {
+  "config_key": "pack_growth",
+  "config_value": 1.2,
+  "unit": "x",
+  "note": "Har darajada koʻpaytiriladi"
+ },
+ {
+  "config_key": "cp_w_power",
+  "config_value": 2.0,
+  "unit": "x",
+  "note": "Jangovar quvvat formulasida"
+ },
+ {
+  "config_key": "cp_w_speed",
+  "config_value": 1.5,
+  "unit": "x",
+  "note": "Jangovar quvvat formulasida"
+ },
+ {
+  "config_key": "cp_w_hp",
+  "config_value": 0.5,
+  "unit": "x",
+  "note": "Jangovar quvvat formulasida"
+ },
+ {
+  "config_key": "need_base",
+  "config_value": 0.6,
+  "unit": "kg/askar",
+  "note": "1-darajali askar bir kunda"
+ },
+ {
+  "config_key": "need_growth",
+  "config_value": 0.1,
+  "unit": "kg/daraja",
+  "note": "Har darajada qoʻshiladi"
+ },
+ {
+  "config_key": "water_need_base",
+  "config_value": 0.4,
+  "unit": "birlik/askar",
+  "note": "1-darajada"
+ },
+ {
+  "config_key": "water_need_growth",
+  "config_value": 0.04,
+  "unit": "birlik/daraja",
+  "note": "Har darajada"
+ },
+ {
+  "config_key": "moonlight_need",
+  "config_value": 0.2,
+  "unit": "birlik/boʻri",
+  "note": "Faqat 20+ daraja"
+ },
+ {
+  "config_key": "reserve_days",
+  "config_value": 3.0,
+  "unit": "kun",
+  "note": "Ombor shuncha kunlik oziqni sigʻdirishi kerak"
+ },
+ {
+  "config_key": "store_base",
+  "config_value": 40.0,
+  "unit": "kg",
+  "note": "1-daraja"
+ },
+ {
+  "config_key": "store_growth",
+  "config_value": 1.22,
+  "unit": "x",
+  "note": "Har darajada — qoʻshin oʻsishiga moslangan"
+ },
+ {
+  "config_key": "water_passive_base",
+  "config_value": 0.25,
+  "unit": "birlik/soat",
+  "note": "Gʻor oʻzi yigʻadi"
+ },
+ {
+  "config_key": "water_passive_growth",
+  "config_value": 1.25,
+  "unit": "x",
+  "note": "Har darajada — suv ehtiyojiga moslangan (~2×)"
+ },
+ {
+  "config_key": "cave_protect_base",
+  "config_value": 0.3,
+  "unit": "ulush",
+  "note": "Reyddan saqlanadigan zaxira"
+ },
+ {
+  "config_key": "cave_protect_growth",
+  "config_value": 0.02,
+  "unit": "ulush/daraja",
+  "note": "Har darajada"
+ },
+ {
+  "config_key": "cost_food_cave_stone",
+  "config_value": 100.0,
+  "unit": "birlik",
+  "note": "1→2 daraja uchun"
+ },
+ {
+  "config_key": "cost_food_cave_wood",
+  "config_value": 60.0,
+  "unit": "birlik",
+  "note": "1→2 daraja uchun"
+ },
+ {
+  "config_key": "prod_base",
+  "config_value": 20.0,
+  "unit": "birlik/soat",
+  "note": "Jami qurilish resursi"
+ },
+ {
+  "config_key": "prod_growth",
+  "config_value": 1.22,
+  "unit": "x",
+  "note": "Har darajada — narx oʻsishidan (1.30) past boʻlishi shart"
+ },
+ {
+  "config_key": "workshop_buffer_h",
+  "config_value": 10.0,
+  "unit": "soat",
+  "note": "Bufer = soatlik ishlab chiqarish × shu; qurilish resurslari ombori cheklanmagan"
+ },
+ {
+  "config_key": "cost_workshop_stone",
+  "config_value": 150.0,
+  "unit": "birlik",
+  "note": "1→2 daraja uchun"
+ },
+ {
+  "config_key": "cost_workshop_wood",
+  "config_value": 100.0,
+  "unit": "birlik",
+  "note": "1→2 daraja uchun"
+ },
+ {
+  "config_key": "cost_workshop_bone",
+  "config_value": 40.0,
+  "unit": "birlik",
+  "note": "1→2 daraja uchun"
+ },
+ {
+  "config_key": "cost_growth",
+  "config_value": 1.3,
+  "unit": "x",
+  "note": "Har darajada (25 daraja uchun moslangan)"
+ },
+ {
+  "config_key": "time_growth",
+  "config_value": 1.25,
+  "unit": "x",
+  "note": "Har darajada (25 daraja uchun moslangan)"
+ },
+ {
+  "config_key": "build_time_base_min",
+  "config_value": 10.0,
+  "unit": "daqiqa",
+  "note": "1→2 daraja uchun"
+ },
+ {
+  "config_key": "build_plan_days",
+  "config_value": 7.0,
+  "unit": "kun",
+  "note": "Keyingi darajaga resurs toʻplash muddati"
+ },
+ {
+  "config_key": "alpha_bonus",
+  "config_value": 0.03,
+  "unit": "ulush/daraja",
+  "note": "Askar statiga qoʻshiladi (25-darajada +75%)"
+ },
+ {
+  "config_key": "tier_coef",
+  "config_value": 1.45,
+  "unit": "x",
+  "note": "Har tierda stat shuncha oshadi"
+ },
+ {
+  "config_key": "tier_step_level",
+  "config_value": 4.0,
+  "unit": "daraja",
+  "note": "Maks tier = MAX(1, MIN(6, alfa darajasi ÷ shu, bino ÷ shu))"
+ },
+ {
+  "config_key": "counter_bonus",
+  "config_value": 1.3,
+  "unit": "x",
+  "note": "Uchburchakda ustunlik"
+ },
+ {
+  "config_key": "sample_alpha_level",
+  "config_value": 19.0,
+  "unit": "daraja",
+  "note": "Quyidagi CP jadvali shu darajaga hisoblangan"
+ },
+ {
+  "config_key": "share_scout",
+  "config_value": 0.2,
+  "unit": "ulush",
+  "note": "Tavsiya etilgan slot ulushi"
+ },
+ {
+  "config_key": "share_attacker",
+  "config_value": 0.45,
+  "unit": "ulush",
+  "note": "Tavsiya etilgan slot ulushi"
+ },
+ {
+  "config_key": "share_defender",
+  "config_value": 0.2,
+  "unit": "ulush",
+  "note": "Tavsiya etilgan slot ulushi"
+ },
+ {
+  "config_key": "share_hunter",
+  "config_value": 0.15,
+  "unit": "ulush",
+  "note": "Eng kamida 1 ta ovchi doim boʻladi"
+ },
+ {
+  "config_key": "tier_step_building",
+  "config_value": 4.0,
+  "unit": "daraja",
+  "note": "Har 4 daraja = 1 tier ochiladi"
+ },
+ {
+  "config_key": "building_level_over_player",
+  "config_value": 0.0,
+  "unit": "daraja",
+  "note": "Bino alfa darajasidan oshmaydi — maks daraja = oʻyinchi darajasi"
+ },
+ {
+  "config_key": "cost_role_stone",
+  "config_value": 180.0,
+  "unit": "birlik",
+  "note": "1→2 daraja"
+ },
+ {
+  "config_key": "cost_role_bone",
+  "config_value": 90.0,
+  "unit": "birlik",
+  "note": "1→2 daraja"
+ },
+ {
+  "config_key": "cost_role_hide",
+  "config_value": 150.0,
+  "unit": "birlik",
+  "note": "1→2 daraja"
+ },
+ {
+  "config_key": "train_speed_per_level",
+  "config_value": 0.04,
+  "unit": "ulush/daraja",
+  "note": "Mashq vaqtini qisqartiradi"
+ },
+ {
+  "config_key": "cost_coef_scout_rock",
+  "config_value": 0.5,
+  "unit": "x",
+  "note": "Bazaviy maydon narxiga nisbatan"
+ },
+ {
+  "config_key": "cost_coef_battle_ground",
+  "config_value": 0.7,
+  "unit": "x",
+  "note": "Eng qimmat — hujumchi asosiy rol"
+ },
+ {
+  "config_key": "cost_coef_defense_wall",
+  "config_value": 0.6,
+  "unit": "x",
+  "note": "Bazaviy maydon narxiga nisbatan"
+ },
+ {
+  "config_key": "cost_coef_hunt_path",
+  "config_value": 0.45,
+  "unit": "x",
+  "note": "Eng arzon — boshidan kerak boʻladi"
+ },
+ {
+  "config_key": "camp_rate",
+  "config_value": 0.1,
+  "unit": "x",
+  "note": "Bir boʻri = Ustaxona soatlik ishlab chiqarishining shuncha qismi"
+ },
+ {
+  "config_key": "camp_tier_bonus",
+  "config_value": 0.05,
+  "unit": "ulush/tier",
+  "note": "Yuqori tier tezroq yigʻadi"
+ },
+ {
+  "config_key": "camp_hours",
+  "config_value": 8.0,
+  "unit": "soat",
+  "note": "Shundan keyin toʻda inga qaytadi"
+ },
+ {
+  "config_key": "camp_send_share",
+  "config_value": 0.5,
+  "unit": "ulush",
+  "note": "Toʻdaning eng koʻpi shuncha qismi"
+ },
+ {
+  "config_key": "oasis_count",
+  "config_value": 20.0,
+  "unit": "ta",
+  "note": "Cheklangan — shuning uchun urush sababi"
+ },
+ {
+  "config_key": "oasis_bonus_water",
+  "config_value": 0.12,
+  "unit": "ulush",
+  "note": "Suv oazisi; boshqa oazislar bonusi oazis jadvalida"
+ },
+ {
+  "config_key": "oasis_hold_h",
+  "config_value": 24.0,
+  "unit": "soat",
+  "note": "Egallangandan keyin hujum qilib boʻlmaydi"
+ },
+ {
+  "config_key": "role_cap_base",
+  "config_value": 6.0,
+  "unit": "ta",
+  "note": "Bino 1-darajada nechta askar sigʻadi"
+ },
+ {
+  "config_key": "role_cap_growth",
+  "config_value": 1.2,
+  "unit": "x",
+  "note": "Har bino darajasida koʻpaytiriladi"
+ },
+ {
+  "config_key": "role_cap_penalty_exp",
+  "config_value": 2.0,
+  "unit": "daraja",
+  "note": "Vaqt koeffitsienti = toʻlganlik ^ shu"
+ },
+ {
+  "config_key": "role_cap_penalty_max",
+  "config_value": 5.0,
+  "unit": "x",
+  "note": "Mashq vaqti shundan koʻp choʻzilmaydi"
+ },
+ {
+  "config_key": "time_coef_food_cave",
+  "config_value": 1.0,
+  "unit": "x",
+  "note": "Bazaviy qurilish vaqtiga nisbatan"
+ },
+ {
+  "config_key": "time_coef_workshop",
+  "config_value": 1.2,
+  "unit": "x",
+  "note": "Asosiy iqtisod binosi — sekinroq"
+ },
+ {
+  "config_key": "time_coef_scout_rock",
+  "config_value": 0.8,
+  "unit": "x",
+  "note": "Yengil qurilish"
+ },
+ {
+  "config_key": "time_coef_battle_ground",
+  "config_value": 1.3,
+  "unit": "x",
+  "note": "Eng sekin — asosiy PvP binosi"
+ },
+ {
+  "config_key": "time_coef_defense_wall",
+  "config_value": 1.1,
+  "unit": "x",
+  "note": "Ogʻir qurilish"
+ },
+ {
+  "config_key": "time_coef_hunt_path",
+  "config_value": 0.7,
+  "unit": "x",
+  "note": "Eng tez — boshidan kerak"
+ },
+ {
+  "config_key": "time_coef_hospital",
+  "config_value": 0.9,
+  "unit": "x",
+  "note": "Bazaviy qurilish vaqtiga nisbatan"
+ },
+ {
+  "config_key": "time_coef_market",
+  "config_value": 1.0,
+  "unit": "x",
+  "note": "Bazaviy qurilish vaqtiga nisbatan"
+ },
+ {
+  "config_key": "hospital_cap_base",
+  "config_value": 2.0,
+  "unit": "boʻri",
+  "note": "Bir vaqtda nechta jarohatlangan boʻri davolanadi"
+ },
+ {
+  "config_key": "hospital_cap_growth",
+  "config_value": 0.4,
+  "unit": "boʻri/daraja",
+  "note": "Har darajada"
+ },
+ {
+  "config_key": "heal_time_min",
+  "config_value": 60.0,
+  "unit": "daqiqa",
+  "note": "Bitta boʻri, 1-darajada"
+ },
+ {
+  "config_key": "heal_speed_growth",
+  "config_value": 0.05,
+  "unit": "ulush/daraja",
+  "note": "Vaqtni qisqartiradi"
+ },
+ {
+  "config_key": "cost_hospital_wood",
+  "config_value": 120.0,
+  "unit": "birlik",
+  "note": "1→2 daraja"
+ },
+ {
+  "config_key": "cost_hospital_hide",
+  "config_value": 100.0,
+  "unit": "birlik",
+  "note": "1→2 daraja"
+ },
+ {
+  "config_key": "cost_hospital_stone",
+  "config_value": 80.0,
+  "unit": "birlik",
+  "note": "1→2 daraja"
+ },
+ {
+  "config_key": "market_rate_base",
+  "config_value": 3.0,
+  "unit": "x",
+  "note": "1-darajada 3 birlik berib 1 olasiz"
+ },
+ {
+  "config_key": "market_rate_step",
+  "config_value": 0.075,
+  "unit": "x/daraja",
+  "note": "Har darajada kurs yaxshilanadi"
+ },
+ {
+  "config_key": "market_limit_base",
+  "config_value": 200.0,
+  "unit": "birlik",
+  "note": "Kuniga almashtirish mumkin boʻlgan miqdor"
+ },
+ {
+  "config_key": "market_limit_growth",
+  "config_value": 1.2,
+  "unit": "x",
+  "note": "Har darajada"
+ },
+ {
+  "config_key": "market_tax_base",
+  "config_value": 0.2,
+  "unit": "ulush",
+  "note": "Almashinuvdan ushlanadi"
+ },
+ {
+  "config_key": "market_tax_step",
+  "config_value": 0.006,
+  "unit": "ulush/daraja",
+  "note": "Har darajada"
+ },
+ {
+  "config_key": "cost_market_stone",
+  "config_value": 130.0,
+  "unit": "birlik",
+  "note": "1→2 daraja"
+ },
+ {
+  "config_key": "cost_market_wood",
+  "config_value": 110.0,
+  "unit": "birlik",
+  "note": "1→2 daraja"
+ },
+ {
+  "config_key": "fund_dau_estimate",
+  "config_value": 10000.0,
+  "unit": "ta",
+  "note": "Kunlik faol oʻyinchi (DAU)"
+ },
+ {
+  "config_key": "fund_arpu_estimate",
+  "config_value": 0.05,
+  "unit": "$",
+  "note": "Bitta oʻyinchidan kunlik daromad"
+ },
+ {
+  "config_key": "fund_share",
+  "config_value": 0.15,
+  "unit": "ulush",
+  "note": "Daromadning shuncha qismi sovrin fondiga"
+ },
+ {
+  "config_key": "season_days",
+  "config_value": 7.0,
+  "unit": "kun",
+  "note": "Reyting shundan keyin nolga tushadi"
+ },
+ {
+  "config_key": "season_player_cap",
+  "config_value": 0.05,
+  "unit": "ulush",
+  "note": "Bitta oʻyinchi fondning shuncha qismidan koʻp ololmaydi"
+ },
+ {
+  "config_key": "season_min_battles",
+  "config_value": 5.0,
+  "unit": "ta",
+  "note": "Shundan kam jang qilgan mukofot olmaydi"
+ },
+ {
+  "config_key": "season_final_days_mult",
+  "config_value": 1.5,
+  "unit": "x",
+  "note": "Mavsumning oxirgi 3 kunida hissa"
+ },
+ {
+  "config_key": "coins_per_usd",
+  "config_value": 1000.0,
+  "unit": "tanga/$",
+  "note": "Oʻyin ichidagi tanga qiymati"
+ },
+ {
+  "config_key": "season_new_account_d",
+  "config_value": 14.0,
+  "unit": "kun",
+  "note": "Shundan keyin mukofotga kira oladi"
+ },
+ {
+  "config_key": "fair_pair_season_limit",
+  "config_value": 3.0,
+  "unit": "jang",
+  "note": "Bir juftlikning mavsumda hisobga olinadigan janglari"
+ },
+ {
+  "config_key": "fair_closed_group_share",
+  "config_value": 0.6,
+  "unit": "ulush",
+  "note": "Janglarning shuncha qismi bir guruh ichida boʻlsa — bayroq"
+ },
+ {
+  "config_key": "fair_closed_group_size",
+  "config_value": 5.0,
+  "unit": "oʻyinchi",
+  "note": "Shuncha kishilik guruh tekshiriladi"
+ },
+ {
+  "config_key": "fair_min_defense_cp",
+  "config_value": 0.6,
+  "unit": "ulush",
+  "note": "Himoyachi inida shuncha kuch turishi shart"
+ },
+ {
+  "config_key": "fair_min_rounds",
+  "config_value": 3.0,
+  "unit": "raund",
+  "note": "Jang shundan qisqa boʻlsa — hissa 0"
+ },
+ {
+  "config_key": "fair_min_att_loss",
+  "config_value": 0.15,
+  "unit": "ulush",
+  "note": "Hujumchi shuncha askar yoʻqotishi kerak"
+ },
+ {
+  "config_key": "fair_one_sided_ratio",
+  "config_value": 10.0,
+  "unit": "x",
+  "note": "Zarar nisbati shundan yuqori boʻlsa koeff. tushadi"
+ },
+ {
+  "config_key": "fair_clan_switch_d",
+  "config_value": 7.0,
+  "unit": "kun",
+  "note": "Toʻda almashtirgan shu muddat mukofotsiz"
+ },
+ {
+  "config_key": "fair_payout_wait_h",
+  "config_value": 48.0,
+  "unit": "soat",
+  "note": "Mavsum tugagach tekshiruv muddati"
+ },
+ {
+  "config_key": "fair_manual_top",
+  "config_value": 100.0,
+  "unit": "oʻyinchi",
+  "note": "Top shuncha profil qoʻlda koʻriladi"
+ },
+ {
+  "config_key": "loot_carry_base",
+  "config_value": 15.0,
+  "unit": "kg/hujumchi",
+  "note": "Bitta hujumchi olib keta oladigan miqdor"
+ },
+ {
+  "config_key": "loot_carry_tier",
+  "config_value": 0.2,
+  "unit": "ulush/tier",
+  "note": "Yuqori tier koʻproq olib ketadi"
+ },
+ {
+  "config_key": "loot_cap_ratio",
+  "config_value": 0.5,
+  "unit": "ulush",
+  "note": "Reyd daromadi kunlik ovdan shuncha oshmasin"
+ },
+ {
+  "config_key": "raid_coef",
+  "config_value": 0.22,
+  "unit": "ulush",
+  "note": "Himoyalanmagan zaxiradan olinadigan ulush"
+ },
+ {
+  "config_key": "attack_window_down",
+  "config_value": 1.0,
+  "unit": "daraja",
+  "note": "Shuncha past darajaga hujum qilish mumkin"
+ },
+ {
+  "config_key": "attack_window_up",
+  "config_value": 1.0,
+  "unit": "daraja",
+  "note": "Shuncha yuqori darajaga hujum qilish mumkin"
+ },
+ {
+  "config_key": "shield_newbie_level",
+  "config_value": 6.0,
+  "unit": "daraja",
+  "note": "Shu darajagacha umuman hujum qilib boʻlmaydi"
+ },
+ {
+  "config_key": "window_expand_min",
+  "config_value": 30.0,
+  "unit": "daqiqa",
+  "note": "Mos raqib topilmasa, oyna shuncha vaqtdan keyin kengayadi"
+ },
+ {
+  "config_key": "window_max",
+  "config_value": 3.0,
+  "unit": "daraja",
+  "note": "Oyna eng koʻpi bilan shuncha kengayadi"
+ },
+ {
+  "config_key": "window_min_pool",
+  "config_value": 10.0,
+  "unit": "oʻyinchi",
+  "note": "Oynada shuncha faol raqib boʻlishi kerak"
+ },
+ {
+  "config_key": "scout_partial",
+  "config_value": 1.0,
+  "unit": "x",
+  "note": "Shundan past — razvedka muvaffaqiyatsiz"
+ },
+ {
+  "config_key": "scout_full",
+  "config_value": 1.5,
+  "unit": "x",
+  "note": "Askar soni va oʻlja koʻrinadi"
+ },
+ {
+  "config_key": "scout_exact",
+  "config_value": 2.5,
+  "unit": "x",
+  "note": "Aniq raqamlar va himoya foizi koʻrinadi"
+ },
+ {
+  "config_key": "scout_cooldown_min",
+  "config_value": 10.0,
+  "unit": "daqiqa",
+  "note": "Keyingi razvedkagacha"
+ },
+ {
+  "config_key": "scout_report_min",
+  "config_value": 30.0,
+  "unit": "daqiqa",
+  "note": "Shundan keyin maʼlumot eskiradi"
+ },
+ {
+  "config_key": "scout_fail_injury",
+  "config_value": 0.1,
+  "unit": "ulush",
+  "note": "Yoʻqotilgan razvedkachilar ulushi"
+ },
+ {
+  "config_key": "scout_loot_accuracy",
+  "config_value": 0.2,
+  "unit": "ulush",
+  "note": "Toʻliq bosqichda raqam ±shuncha xato koʻrsatiladi"
+ },
+ {
+  "config_key": "revenge_bonus",
+  "config_value": 0.2,
+  "unit": "ulush",
+  "note": "24 soat ichida qaytarilgan hujumga"
+ },
+ {
+  "config_key": "xp_hunt_coef",
+  "config_value": 0.5,
+  "unit": "xp/kg",
+  "note": "Oʻlja vazni × shu"
+ },
+ {
+  "config_key": "xp_build_coef",
+  "config_value": 0.02,
+  "unit": "xp/birlik",
+  "note": "Sarflangan qurilish resursi × shu"
+ },
+ {
+  "config_key": "xp_pvp_coef",
+  "config_value": 0.03,
+  "unit": "xp/EP",
+  "note": "Yetkazilgan EP zarar × shu × natija koeff."
+ },
+ {
+  "config_key": "xp_pvp_win",
+  "config_value": 1.5,
+  "unit": "x",
+  "note": "Natija koeffitsienti"
+ },
+ {
+  "config_key": "xp_pvp_draw",
+  "config_value": 1.0,
+  "unit": "x",
+  "note": "Natija koeffitsienti"
+ },
+ {
+  "config_key": "xp_pvp_loss",
+  "config_value": 0.5,
+  "unit": "x",
+  "note": "Natija koeffitsienti"
+ },
+ {
+  "config_key": "xp_quest_share",
+  "config_value": 0.1,
+  "unit": "ulush",
+  "note": "Vazifa mukofot byudjetining shunchasi XP sifatida"
+ },
+ {
+  "config_key": "catchup_max_mult",
+  "config_value": 0.5,
+  "unit": "ulush",
+  "note": "+50% gacha"
+ },
+ {
+  "config_key": "catchup_gap_coef",
+  "config_value": 1.5,
+  "unit": "x",
+  "note": "(nisbat − chegara) × shu"
+ },
+ {
+  "config_key": "catchup_gap_threshold",
+  "config_value": 0.3,
+  "unit": "ulush",
+  "note": "Shundan kam orqada qolganga bonus yoʻq"
+ },
+ {
+  "config_key": "catchup_taper_start",
+  "config_value": 15.0,
+  "unit": "daraja",
+  "note": "Bonus shu darajadan pasayadi"
+ },
+ {
+  "config_key": "catchup_taper_end",
+  "config_value": 20.0,
+  "unit": "daraja",
+  "note": "Shu darajada bonus 0"
+ },
+ {
+  "config_key": "hunter_unlock_level",
+  "config_value": 3.0,
+  "unit": "daraja",
+  "note": "Ov soʻqmogʻi bilan"
+ },
+ {
+  "config_key": "solo_hunt_max_level",
+  "config_value": 3.0,
+  "unit": "daraja",
+  "note": "1–3 darajada alfa oʻzi ovlaydi"
+ },
+ {
+  "config_key": "solo_hunt_cooldown_min",
+  "config_value": 2.0,
+  "unit": "daqiqa",
+  "note": "Bosishlar orasida"
+ },
+ {
+  "config_key": "hunt_duration_min",
+  "config_value": 60.0,
+  "unit": "daqiqa",
+  "note": "Bitta ov yurishi"
+ },
+ {
+  "config_key": "hunter_yield_mult",
+  "config_value": 5.0,
+  "unit": "x",
+  "note": "Ovchi unumi (kg/soat) = shu × bir askarning kunlik ehtiyoji"
+ },
+ {
+  "config_key": "hunter_tier_bonus",
+  "config_value": 0.1,
+  "unit": "ulush/tier",
+  "note": "Yuqori tier ovchi koʻproq ovlaydi"
+ },
+ {
+  "config_key": "prey_kg_per_wolf",
+  "config_value": 20.0,
+  "unit": "kg/boʻri",
+  "note": "Minimal toʻda = oʻlja vazni ÷ shu (yuqoriga)"
+ },
+ {
+  "config_key": "hunt_small_party_penalty",
+  "config_value": 0.3,
+  "unit": "x",
+  "note": "Toʻda yetmasa ov natijasi × shu"
+ },
+ {
+  "config_key": "hunt_party_bonus",
+  "config_value": 0.1,
+  "unit": "ulush/oʻyinchi",
+  "note": "Har qoʻshimcha oʻyinchi uchun"
+ },
+ {
+  "config_key": "hunt_party_max",
+  "config_value": 4.0,
+  "unit": "oʻyinchi",
+  "note": "2–4 oʻyinchi"
+ },
+ {
+  "config_key": "hunt_herb_share",
+  "config_value": 0.1,
+  "unit": "ulush",
+  "note": "Ov natijasining shunchasi oʻt (birlik)"
+ },
+ {
+  "config_key": "moonlight_need_level",
+  "config_value": 20.0,
+  "unit": "daraja",
+  "note": "Shu darajadan oy nuri kerak"
+ },
+ {
+  "config_key": "moonlight_passive_base",
+  "config_value": 0.006,
+  "unit": "birlik/askar/soat",
+  "note": "Ehtiyojning 72%"
+ },
+ {
+  "config_key": "moon_altar_bonus",
+  "config_value": 0.4,
+  "unit": "ulush",
+  "note": "Passiv oy nuriga qoʻshiladi (72% → 100%)"
+ },
+ {
+  "config_key": "moonlight_cp_penalty",
+  "config_value": 0.15,
+  "unit": "ulush",
+  "note": "Goʻsht ochligidan alohida"
+ },
+ {
+  "config_key": "market_moonlight_mult",
+  "config_value": 2.0,
+  "unit": "x",
+  "note": "Oy nuri boshqa resursdan shuncha qimmat"
+ },
+ {
+  "config_key": "thirst_speed_penalty",
+  "config_value": 0.2,
+  "unit": "ulush",
+  "note": "Yurish tezligi shuncha kamayadi"
+ },
+ {
+  "config_key": "heal_herb_per_tier",
+  "config_value": 2.0,
+  "unit": "birlik/tier",
+  "note": "Bir boʻri uchun"
+ },
+ {
+  "config_key": "heal_no_hospital_min",
+  "config_value": 180.0,
+  "unit": "daqiqa",
+  "note": "1–5 daraja: bepul, sekin"
+ },
+ {
+  "config_key": "battle_full_win_r",
+  "config_value": 1.5,
+  "unit": "R",
+  "note": "R shundan katta yoki teng"
+ },
+ {
+  "config_key": "battle_win_r",
+  "config_value": 1.1,
+  "unit": "R",
+  "note": "Qisman gʻalaba shundan"
+ },
+ {
+  "config_key": "battle_loss_r",
+  "config_value": 0.9,
+  "unit": "R",
+  "note": "R shundan kichik yoki teng — magʻlubiyat; oraliq — durang"
+ },
+ {
+  "config_key": "trap_chance",
+  "config_value": 0.15,
+  "unit": "ulush",
+  "note": "Razvedkasiz hujumda"
+ },
+ {
+  "config_key": "trap_damage",
+  "config_value": 0.2,
+  "unit": "ulush",
+  "note": "Hujumchi yoʻqotishiga qoʻshiladi"
+ },
+ {
+  "config_key": "retreat_loss",
+  "config_value": 0.8,
+  "unit": "ulush",
+  "note": "Yoʻqotish shundan oshsa jang 4-raundda tugaydi"
+ },
+ {
+  "config_key": "wall_bonus_per_level",
+  "config_value": 0.01,
+  "unit": "ulush/daraja",
+  "note": "Himoyachi EP si"
+ },
+ {
+  "config_key": "pair_limit",
+  "config_value": 3.0,
+  "unit": "ta",
+  "note": "24 soat ichida"
+ },
+ {
+  "config_key": "loot_partial_win",
+  "config_value": 0.55,
+  "unit": "x",
+  "note": "Toʻliq gʻalaba — 1.00"
+ },
+ {
+  "config_key": "loot_repeat_2",
+  "config_value": 0.5,
+  "unit": "x",
+  "note": "24 soat ichida"
+ },
+ {
+  "config_key": "loot_repeat_3",
+  "config_value": 0.25,
+  "unit": "x",
+  "note": "24 soat ichida"
+ },
+ {
+  "config_key": "loot_level_m1",
+  "config_value": 0.7,
+  "unit": "x",
+  "note": "Pastga hujum"
+ },
+ {
+  "config_key": "loot_level_p1",
+  "config_value": 1.3,
+  "unit": "x",
+  "note": "Yuqoriga hujum"
+ },
+ {
+  "config_key": "loot_level_m2",
+  "config_value": 0.5,
+  "unit": "x",
+  "note": "Kengaygan oyna"
+ },
+ {
+  "config_key": "loot_level_p2",
+  "config_value": 1.5,
+  "unit": "x",
+  "note": "Kengaygan oyna"
+ },
+ {
+  "config_key": "loot_level_m3",
+  "config_value": 0.3,
+  "unit": "x",
+  "note": "Kengaygan oyna"
+ },
+ {
+  "config_key": "loot_level_p3",
+  "config_value": 1.7,
+  "unit": "x",
+  "note": "Kengaygan oyna"
+ },
+ {
+  "config_key": "loot_offline_mult",
+  "config_value": 0.5,
+  "unit": "x",
+  "note": "Himoyachi 24+ soat oflayn boʻlsa"
+ },
+ {
+  "config_key": "loot_offline_after_h",
+  "config_value": 24.0,
+  "unit": "soat",
+  "note": "Shundan uzoq oflayn"
+ },
+ {
+  "config_key": "bot_unlock_level",
+  "config_value": 4.0,
+  "unit": "daraja",
+  "note": "4–6 darajada roʻyxat faqat botlardan"
+ },
+ {
+  "config_key": "bot_power_weak",
+  "config_value": 0.7,
+  "unit": "x",
+  "note": "Oʻyinchi EP siga nisbatan"
+ },
+ {
+  "config_key": "bot_power_even",
+  "config_value": 1.0,
+  "unit": "x",
+  "note": "Oʻyinchi EP siga nisbatan"
+ },
+ {
+  "config_key": "bot_power_strong",
+  "config_value": 1.3,
+  "unit": "x",
+  "note": "Oʻyinchi EP siga nisbatan"
+ },
+ {
+  "config_key": "bot_variance",
+  "config_value": 0.1,
+  "unit": "ulush",
+  "note": "±shuncha"
+ },
+ {
+  "config_key": "queue_cancel_refund",
+  "config_value": 0.8,
+  "unit": "ulush",
+  "note": "Navbat bekor qilinsa resursning shunchasi qaytadi"
+ },
+ {
+  "config_key": "second_queue_free_level",
+  "config_value": 10.0,
+  "unit": "daraja",
+  "note": "Shu darajadan hammaga"
+ },
+ {
+  "config_key": "offline_store_plus",
+  "config_value": 0.5,
+  "unit": "x",
+  "note": "Oflayn koeffitsientga qoʻshiladi (2.0 → 2.5)"
+ },
+ {
+  "config_key": "offline_after_min",
+  "config_value": 5.0,
+  "unit": "daqiqa",
+  "note": "Oxirgi soʻrovdan shuncha oʻtsa — oflayn"
+ },
+ {
+  "config_key": "den_speed_coef",
+  "config_value": 0.01,
+  "unit": "ulush/daraja",
+  "note": "In darajasi boshiga"
+ },
+ {
+  "config_key": "camp_yield_share_max",
+  "config_value": 0.6,
+  "unit": "ulush",
+  "note": "Ustaxona kunlik ishlab chiqarishiga nisbatan"
+ },
+ {
+  "config_key": "shield_after_raid_loss",
+  "config_value": 0.3,
+  "unit": "ulush",
+  "note": "Shundan koʻp yoʻqotgan himoyachiga qalqon"
+ },
+ {
+  "config_key": "shield_after_raid_h",
+  "config_value": 8.0,
+  "unit": "soat",
+  "note": "30%+ yoʻqotgandan keyin"
+ },
+ {
+  "config_key": "shield_two_losses_h",
+  "config_value": 16.0,
+  "unit": "soat",
+  "note": "Ketma-ket 2 magʻlubiyatdan keyin"
+ },
+ {
+  "config_key": "tutorial_speedup_min",
+  "config_value": 60.0,
+  "unit": "daqiqa",
+  "note": "Har bir bepul tezlashtirish"
+ },
+ {
+  "config_key": "war_decline_penalty",
+  "config_value": 50.0,
+  "unit": "reyting",
+  "note": "Klan reytingidan"
+ },
+ {
+  "config_key": "night_raid_speed_bonus",
+  "config_value": 0.25,
+  "unit": "ulush",
+  "note": "22-darajadan, 22:00–06:00"
+ }
+]

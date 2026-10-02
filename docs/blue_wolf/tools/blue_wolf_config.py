@@ -12,10 +12,11 @@ Bu skript:
 
 Ishlatish (docs/blue_wolf papkasidan):
     pip install openpyxl
-    python3 tools/blue_wolf_config.py            # SQL yaratadi + tekshiradi
+    python3 tools/blue_wolf_config.py            # SQL + bluewolf seeder JSON yaratadi, tekshiradi
     python3 tools/blue_wolf_config.py --check    # faqat tekshiradi, SQL ni oʻzgartirmaydi
 """
 import argparse
+import json
 import math
 import pathlib
 import sys
@@ -25,6 +26,10 @@ import openpyxl
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 XLSX = ROOT / "blue_wolf_darajalar.xlsx"
 SQL = ROOT / "blue_wolf_game_config.sql"
+# Blue Wolf Laravel ilovasining seeder maʼlumoti (bluewolf/ papkasi)
+APP_JSON = ROOT.parent.parent / "bluewolf" / "database" / "seeders" / "data" / "game_config.json"
+# Mini App demo rejimi uchun ixcham {kalit: qiymat} (serversiz ishlaganda)
+APP_PUBLIC_JSON = ROOT.parent.parent / "bluewolf" / "public" / "data" / "game_config.json"
 
 # Sozlamalar varagʻidagi yorliq -> game_config kaliti
 KEYS = {
@@ -323,6 +328,15 @@ def read_settings(wb):
     return params
 
 
+def write_json(params):
+    APP_JSON.parent.mkdir(parents=True, exist_ok=True)
+    rows = [{"config_key": k, "config_value": v, "unit": u, "note": n} for k, (v, u, n) in params.items()]
+    APP_JSON.write_text(json.dumps(rows, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    APP_PUBLIC_JSON.parent.mkdir(parents=True, exist_ok=True)
+    compact = {k: (int(v) if float(v).is_integer() else v) for k, (v, _u, _n) in params.items()}
+    APP_PUBLIC_JSON.write_text(json.dumps(compact, separators=(",", ":")) + "\n", encoding="utf-8")
+
+
 def write_sql(params):
     def q(s):
         return "NULL" if s is None else "'" + str(s).replace("'", "''") + "'"
@@ -474,7 +488,8 @@ def main():
     errors = run_checks(Balance(params), wb)
     if not args.check:
         write_sql(params)
-        print(f"{SQL.name}: {len(params)} parametr yozildi")
+        write_json(params)
+        print(f"{SQL.name} va bluewolf/…/{APP_JSON.name}: {len(params)} parametr yozildi")
     if errors:
         print(f"{len(errors)} ta balans xatosi:")
         for e in errors:
