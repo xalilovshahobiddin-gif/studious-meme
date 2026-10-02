@@ -26,6 +26,7 @@ return [
   // In
   'den.queues' => 'Navbat', 'den.queue_empty' => 'Navbat boʻsh — bino quring yoki askar tayyorlang.',
   'den.free_speedups' => '⚡ bepul: {n}', 'den.buildings' => 'Binolar',
+  'den.meat_rate_short' => '−{v} kg/soat',
   'den.meat_rate' => 'Toʻda soatiga {v} kg goʻsht yeydi',
   'hunt.go' => 'Ovga chiqish', 'hunt.title' => 'Ov', 'hunt.on' => '{prey} ovi…', 'hunt.started' => 'Ov boshlandi!',
   'hunt.solo' => 'yolgʻiz', 'hunt.desc' => 'Alfa ovga chiqadi. Yirik oʻlja uchun toʻda kerak — inda {n} ta ovchi bor.',
@@ -148,6 +149,12 @@ return [
   'demo.desc' => 'Bu brauzerda ishlaydigan demo: oʻyin mantiqi server bilan bir xil, holat shu brauzerda saqlanadi. Qurilish, mashq va yurishlarni kutmaslik uchun vaqtni oldinga suring.',
   'demo.offset' => 'Hozircha {t} oldinga surilgan.', 'demo.skipped' => 'Vaqt {t} oldinga surildi',
   'demo.reset' => 'Qaytadan boshlash', 'demo.reset_confirm' => 'Hamma progress oʻchadi — yana bosing',
+
+  // In sahnasi: kun vaqti va yashash muhiti
+  'phase.day' => '☀️ Kunduz', 'phase.night' => '🌙 Tun', 'phase.dawn' => '🌅 Tong', 'phase.dusk' => '🌇 Shom',
+  'habitat.forest' => 'Oʻrmon', 'habitat.autumn' => 'Kuzgi oʻrmon', 'habitat.mountain' => 'Togʻ', 'habitat.desert' => 'Choʻl',
+  'habitat.steppe' => 'Dasht', 'habitat.swamp' => 'Botqoq', 'habitat.snow' => 'Qorli oʻlka', 'habitat.aurora' => 'Qutb yogʻdusi',
+  'habitat.ice' => 'Muzlik', 'habitat.tar' => 'Smola botqogʻi', 'habitat.fire' => 'Olovli oʻlka', 'habitat.sky' => 'Koʻk Tangri osmoni',
 
   // Daraja oshishi
   'levelup.title' => '{l}-daraja! Yangi boʻri',

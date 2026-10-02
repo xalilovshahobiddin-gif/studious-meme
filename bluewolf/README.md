@@ -23,6 +23,7 @@ GDD, API spetsifikatsiyasi, DB sxemasi, texnik spetsifikatsiya va `blue_wolf_dar
 | initData HMAC auth, `X-Request-Id` idempotentlik, chastota cheklovi | ✅ |
 | Cron, Telegram bildirishnomalari (kunlik byudjet, tungi sokinlik), bot `/start` | ✅ |
 | 25 ta boʻri avatari — har bir tur oʻz rangi, shakli va yashash muhiti bilan; daraja oshganda tabrik | ✅ |
+| In ekrani — sahna: binolar manzarada, fon boʻri turi muhitiga (oʻrmon, choʻl, qor…) va kun vaqtiga (tong, kunduz, shom, tun) mos; chizilgan bino va menyu ikonkalari (`assets/icons.js`); sarlavha va raqamlar uchun Exo 2 shrifti | ✅ |
 | Klan, toʻda urushi, lager, oazis, mavsum, doʻkon (Stars), taʼtil, ru/en | ⏳ v2 (`501 NOT_IN_MVP`) |
 
 ## Tuzilma

@@ -35,6 +35,10 @@
     moonstone: '<circle cx="12" cy="12" r="9.5" fill="#f5c04a" opacity=".2"/><path d="M15.5 3.8a8.6 8.6 0 1 0 4.7 12.7 6.8 6.8 0 0 1-4.7-12.7z" fill="#f7cd5c"/>' +
       '<path d="M15.5 3.8a8.6 8.6 0 0 0-3.6 15.9" stroke="#fff3c4" stroke-width="1.1" fill="none" opacity=".7"/>'
   };
+  function bldIcon(type, cls) {
+    var I = window.BW_ICONS && window.BW_ICONS.bld[type];
+    return I ? '<svg class="bi ' + (cls || "") + '" viewBox="0 0 48 48" aria-hidden="true">' + I + "</svg>" : BLD_ICON[type];
+  }
   function resIcon(k, cls) { return '<svg class="ri ' + (cls || "") + '" viewBox="0 0 24 24" aria-hidden="true">' + RES_SVG[k] + "</svg>"; }
   // Ixcham son: 1 000 dan boshlab — 1K, 1.2K, 12.5K, 125K, 1.2M, 3.4B (yaxlitlash pastga: bor narsadan koʻp koʻrsatmaydi)
   function short(x) {
@@ -292,6 +296,10 @@
       el.querySelector(".tfill").style.width = Math.min(100, (now() - s) / Math.max(1, e - s) * 100) + "%";
       if (l === 0 && !el.dataset.fired) { el.dataset.fired = "1"; due = true; }
     });
+    document.querySelectorAll("[data-countdown]").forEach(function (el) {
+      var l = left(el.dataset.countdown);
+      el.textContent = "⏳ " + (l > 0 ? dur(l) : t("common.done"));
+    });
     if (due && !S.busy) setTimeout(reload, 600);
     else if (Date.now() - S.lastLoad > 30000 && document.visibilityState === "visible" && !S.busy) reload();
   }, 1000);
@@ -301,18 +309,14 @@
   function renderDen(el) {
     var st = S.state, p = st.player, r = st.resources;
     var hunt = st.hunts[0];
-    var html = '<div class="card alpha">' +
-      '<div class="alpha-row"><div class="alpha-pic">' + wolfImg(p.level, "", p.wolf.name) + '</div><div class="alpha-info"><div class="alpha-name">' + esc(p.wolf.name) +
-      '</div><div class="muted small">' + esc(p.wolf.sci) + " · " + t("wolf.class." + p.wolf.class) + (p.wolf.weight ? " · " + p.wolf.weight + " kg" : "") +
-      '</div><div class="stats"><span>💪 ' + p.wolf.power + '</span><span>💨 ' + p.wolf.speed + '</span><span>❤️ ' + p.wolf.hp +
-      '</span><span class="cp">⚡ ' + short(p.cp) + ' CP</span></div></div></div>';
-    if (hunt) {
-      html += '<div class="hunt-live"><span>' + (PREY_ICON[hunt.prey] || "🐾") + " " + t("hunt.on", { prey: t("prey." + hunt.prey) }) +
-        "</span>" + timerHtml(hunt.started_at, hunt.ends_at) + "</div>";
-    } else {
-      html += '<button class="btn big" data-action="hunt-sheet">🐾 ' + t("hunt.go") + "</button>";
-    }
-    html += '<div class="muted small center">' + t("den.meat_rate", { v: Math.abs(r.rates.meat_per_h).toFixed(2) }) + "</div></div>";
+    var html = sceneHtml(p.level);
+
+    // Alfa paneli: boʻri, CP va ov
+    html += '<div class="alpha-bar"><div class="alpha-pic sm">' + wolfImg(p.level, "", p.wolf.name) + '</div><div class="alpha-info">' +
+      '<div class="alpha-name">' + esc(p.wolf.name) + '</div><div class="muted small">⚡ ' + short(p.cp) + " CP · " + resIcon("meat") +
+      t("den.meat_rate_short", { v: Math.abs(r.rates.meat_per_h).toFixed(2) }) + "</div></div>" +
+      (hunt ? '<div class="hunt-live">' + (PREY_ICON[hunt.prey] || "🐾") + " " + timerHtml(hunt.started_at, hunt.ends_at) + "</div>"
+        : '<button class="btn hunt-btn" data-action="hunt-sheet">🐾 ' + t("hunt.go") + "</button>") + "</div>";
 
     // Navbatlar
     var queues = st.queues;
@@ -328,29 +332,142 @@
 
     // Ustaxona
     var ws = r.workshop, wsSum = ws.stone + ws.wood + ws.bone;
-    html += '<h3>🪨 ' + t("bld.workshop") + "</h3>" +
+    html += "<h3>" + bldIcon("workshop", "h3i") + " " + t("bld.workshop") + "</h3>" +
       '<div class="card workshop"><div class="ws-row">' + ["stone", "wood", "bone"].map(function (k) {
         return '<div class="ws-cell">' + resIcon(k, "lg") + "<b>" + short(ws[k]) + '</b><small>' + t("res." + k) + '</small><span class="ws-pct">' + r.alloc[k] + "%</span></div>";
       }).join("") + '</div><div class="bar"><div style="width:' + Math.min(100, wsSum / r.caps.workshop * 100) + '%"></div></div>' +
       '<div class="muted small">' + t("ws.rate", { v: short(r.rates.workshop_per_h), cap: short(r.caps.workshop) }) + "</div>" +
       '<div class="row2"><button class="btn" data-action="collect"' + (wsSum < 1 ? " disabled" : "") + ">📥 " + t("ws.collect") +
       '</button><button class="btn ghost" data-action="alloc-sheet">⚖️ ' + t("ws.alloc") + "</button></div></div>";
-
-    // Binolar
-    html += "<h3>" + t("den.buildings") + '</h3><div class="grid">';
-    (S.buildings || []).forEach(function (b) {
-      var lock = !b.mvp;
-      html += '<div class="bld' + (b.busy ? " busy" : "") + (lock ? " locked" : "") + '" data-action="bld-sheet" data-type="' + b.type + '">' +
-        '<div class="bld-icon">' + BLD_ICON[b.type] + '</div><div class="bld-lvl">' + b.level + "</div>" +
-        '<div class="bld-name">' + t("bld." + b.type) + "</div>" +
-        '<div class="bld-sub">' + (b.busy ? "⏳ " + dur(left(b.busy.ends_at)) : lock ? t("common.soon") : bldShort(b)) + "</div></div>";
-    });
-    html += "</div>";
     el.innerHTML = html;
   }
 
+  // ------------------------------------------------------------------ In sahnasi
+
+  // Binolarning sahnadagi joyi (%): tepada qoyalar, oʻrtada In, pastda soʻqmoq va devor
+  var PLOTS = {
+    scout_rock: [14, 29], hospital: [38, 25], market: [62, 25], workshop: [86, 29],
+    food_cave: [16, 59], den: [50, 54], battle_ground: [84, 59],
+    hunt_path: [28, 86], defense_wall: [72, 86]
+  };
+  // Yashash muhiti ranglari (kunduz). far — uzoq togʻlar, near — tepaliklar
+  var HAB = {
+    forest:   { sky: ["#6fb0e8", "#cfe8ff"], far: "#6d8ea5", near: "#4c7a4d", ground: ["#5d8b4a", "#3b6634"], deco: "pines" },
+    autumn:   { sky: ["#86b4de", "#f4e2c4"], far: "#8a7c6c", near: "#9a6a2e", ground: ["#a87a3e", "#6e4a22"], deco: "autumn" },
+    mountain: { sky: ["#86b8e4", "#dbecfa"], far: "#7a8ca2", near: "#5d7055", ground: ["#7e915f", "#556843"], deco: "peaks" },
+    desert:   { sky: ["#efbf7c", "#fde9c6"], far: "#d09a5f", near: "#c98a4b", ground: ["#e5b672", "#c08a48"], deco: "dunes" },
+    steppe:   { sky: ["#8fc4f0", "#e8f4ff"], far: "#a99b6e", near: "#c2a14f", ground: ["#d0b15d", "#a2833a"], deco: "grass" },
+    swamp:    { sky: ["#9bbaa9", "#e0eee6"], far: "#6e8a79", near: "#4a6944", ground: ["#557149", "#33492d"], deco: "reeds" },
+    snow:     { sky: ["#b3d3ec", "#eef6fc"], far: "#a6bbd0", near: "#d6e4f0", ground: ["#f1f6fa", "#cbdbe9"], deco: "snow" },
+    aurora:   { sky: ["#b3d3ec", "#eef6fc"], far: "#a6bbd0", near: "#d6e4f0", ground: ["#f1f6fa", "#cbdbe9"], deco: "snow", aurora: true },
+    ice:      { sky: ["#9ad4ef", "#e6f7ff"], far: "#8bc1dc", near: "#c4e6f5", ground: ["#e2f4fb", "#b3daec"], deco: "ice" },
+    tar:      { sky: ["#c69e78", "#f0dcc0"], far: "#89694a", near: "#6a4a2f", ground: ["#795533", "#49301f"], deco: "tar" },
+    fire:     { sky: ["#6e2212", "#df6f39"], far: "#4a2018", near: "#3a1a14", ground: ["#4a2a22", "#2a1410"], deco: "embers" },
+    sky:      { sky: ["#0b1e5a", "#2346a0"], far: "#1c3270", near: "#213b82", ground: ["#2b4a9a", "#1a2e6a"], deco: "cosmos", night: true }
+  };
+
+  // Kun vaqti — qurilma soati boʻyicha
+  function dayPhase() {
+    var h = new Date(now()).getHours();
+    return h >= 20 || h < 5 ? "night" : h < 7 ? "dawn" : h < 18 ? "day" : "dusk";
+  }
+
+  function sceneHtml(level) {
+    var habKey = (window.BW_ICONS && window.BW_ICONS.habitat[level]) || "forest", hab = HAB[habKey] || HAB.forest;
+    var phase = hab.night ? "night" : dayPhase();
+    var sky = phase === "night" ? ["#070d22", "#1c2a52"] : phase === "dawn" ? ["#f0a07a", "#ffe0b0"] : phase === "dusk" ? ["#5a4b8a", "#f29a6b"] : hab.sky;
+    var svg = '<svg class="scene-bg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>' +
+      '<linearGradient id="sSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + sky[0] + '"/><stop offset="1" stop-color="' + sky[1] + '"/></linearGradient>' +
+      '<linearGradient id="sGround" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + hab.ground[0] + '"/><stop offset="1" stop-color="' + hab.ground[1] + '"/></linearGradient>' +
+      '<radialGradient id="sGlow"><stop offset="0" stop-color="#ffd27a" stop-opacity=".9"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient></defs>' +
+      '<rect width="400" height="300" fill="url(#sSky)"/>';
+    // Quyosh / oy va yulduzlar
+    if (phase === "night") {
+      for (var i = 0; i < 40; i++) {
+        var x = (i * 97 + 13) % 400, y = (i * 53 + 7) % 130, r = (i % 3) * 0.4 + 0.6;
+        svg += '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="#fff" opacity="' + (0.4 + (i % 5) * 0.12) + '"/>';
+      }
+      svg += '<circle cx="352" cy="26" r="12" fill="#f6efd2"/><circle cx="357" cy="22" r="10.5" fill="' + sky[0] + '"/>';
+    } else {
+      var sx = phase === "dawn" ? 40 : phase === "dusk" ? 360 : 352, sy = phase === "day" ? 26 : 70;
+      svg += '<circle cx="' + sx + '" cy="' + sy + '" r="34" fill="url(#sGlow)" opacity=".7"/><circle cx="' + sx + '" cy="' + sy + '" r="15" fill="#fff1b8"/>';
+    }
+    if (hab.aurora || habKey === "sky") {
+      svg += '<path d="M-10 70C60 20 120 90 200 40S330 60 410 20" stroke="' + (habKey === "sky" ? "#7fb0ff" : "#3dffb0") + '" stroke-width="16" fill="none" opacity="' + (phase === "night" ? .35 : .15) + '"/>' +
+        '<path d="M-10 95C70 55 130 110 210 70S330 85 410 50" stroke="#5ae0ff" stroke-width="9" fill="none" opacity="' + (phase === "night" ? .3 : .12) + '"/>';
+    }
+    // Uzoq togʻlar va tepaliklar
+    svg += '<path d="M0 150 45 98 85 128 135 72 185 122 235 84 285 118 335 66 400 112V300H0z" fill="' + hab.far + '"/>';
+    if (hab.deco === "peaks" || hab.deco === "snow" || hab.deco === "ice") {
+      svg += '<path d="M135 72 122 88 135 84 146 90zM335 66 322 82 335 78 347 85zM45 98 36 110 45 107 53 112z" fill="#fff" opacity=".8"/>';
+    }
+    svg += '<path d="M0 182Q100 140 200 170T400 160V300H0z" fill="' + hab.near + '"/>' +
+      '<path d="M0 196Q120 176 220 192T400 186V300H0z" fill="url(#sGround)"/>';
+    svg += sceneDeco(hab.deco);
+    // Binolarni bogʻlovchi soʻqmoqlar
+    svg += '<path d="M200 150C150 175 100 170 68 165M200 150C250 175 300 170 332 165M200 150C190 200 140 230 112 252M200 150C210 200 260 230 288 252M200 150V252" stroke="#fff3d6" stroke-width="7" stroke-linecap="round" fill="none" opacity=".16"/>';
+    if (phase === "night") svg += '<rect width="400" height="300" fill="#050a1c" opacity=".42"/>';
+    else if (phase !== "day") svg += '<rect width="400" height="300" fill="#ff9a5a" opacity=".1"/>';
+    svg += "</svg>";
+
+    var plots = (S.buildings || []).map(function (b) {
+      var pos = PLOTS[b.type] || [50, 50], lock = !b.mvp;
+      var canUp = !lock && !b.busy && b.next && Object.keys(b.next.cost).every(function (k) { return (S.state.resources[k] || 0) >= b.next.cost[k]; });
+      return '<button class="plot' + (b.type === "den" ? " plot-den" : "") + (b.busy ? " busy" : "") + (lock ? " locked" : "") +
+        '" style="left:' + pos[0] + "%;top:" + pos[1] + '%" data-action="bld-sheet" data-type="' + b.type + '">' +
+        '<span class="plot-icon">' + bldIcon(b.type) + (b.type === "den" && phase === "night" ? '<i class="den-fire"></i>' : "") + "</span>" +
+        '<span class="plot-lvl">' + (lock ? "🔒" : b.level) + "</span>" + (canUp ? '<span class="plot-up">▲</span>' : "") +
+        (b.busy ? '<span class="plot-busy" data-countdown="' + b.busy.ends_at + '">⏳ ' + dur(left(b.busy.ends_at)) + "</span>" : "") +
+        '<span class="plot-name">' + t("bld." + b.type) + "</span></button>";
+    }).join("");
+    var label = '<span class="scene-tag">' + t("phase." + phase) + " · " + t("habitat." + habKey) + "</span>";
+    return '<div class="scene phase-' + phase + '">' + svg + label + plots + "</div>";
+  }
+
+  // Muhit bezaklari — sahna chetlarida, binolarni yopmaydi
+  function sceneDeco(kind) {
+    var g = "";
+    var pine = function (x, y, s, c) {
+      return '<path d="M' + x + " " + (y - 26 * s) + "l" + (-9 * s) + " " + 14 * s + "h" + 4 * s + "l" + (-7 * s) + " " + 12 * s + "h" + 24 * s + "l" + (-7 * s) + " " + (-12 * s) + "h" + 4 * s + 'z" fill="' + c + '"/>';
+    };
+    if (kind === "pines" || kind === "snow") {
+      var c = kind === "snow" ? "#5f7f74" : "#2f5a3a";
+      [[8, 190, 1.1], [26, 186, .9], [372, 186, 1], [392, 192, 1.2], [110, 172, .7], [300, 170, .7]].forEach(function (p) { g += pine(p[0], p[1], p[2], c); });
+      if (kind === "snow") g += '<path d="M0 205Q100 196 200 206T400 200" stroke="#fff" stroke-width="6" fill="none" opacity=".7"/>';
+    } else if (kind === "autumn") {
+      [[12, 188], [34, 182], [370, 184], [390, 190]].forEach(function (p) {
+        g += '<rect x="' + (p[0] - 1.5) + '" y="' + (p[1] - 8) + '" width="3" height="10" fill="#5a3a1c"/><circle cx="' + p[0] + '" cy="' + (p[1] - 14) + '" r="10" fill="#d0782a"/><circle cx="' + (p[0] + 5) + '" cy="' + (p[1] - 18) + '" r="6" fill="#e9a03a"/>';
+      });
+    } else if (kind === "dunes") {
+      g += '<path d="M0 230Q60 205 130 228T260 222T400 226V300H0z" fill="#d9a35c" opacity=".55"/>';
+      g += '<path d="M372 196v-22M372 184h-7v-6M372 180h6v-8" stroke="#6f8a3a" stroke-width="4" stroke-linecap="round" fill="none"/>';
+    } else if (kind === "grass") {
+      for (var i = 0; i < 26; i++) {
+        var x = (i * 41) % 400, y = 206 + (i * 23) % 80;
+        g += '<path d="M' + x + " " + y + "q2 -9 4 -12M" + (x + 3) + " " + y + 'q1 -7 -2 -10" stroke="#8a7330" stroke-width="1.5" fill="none" opacity=".7"/>';
+      }
+    } else if (kind === "reeds") {
+      [6, 14, 22, 378, 388, 396].forEach(function (x) {
+        g += '<path d="M' + x + ' 205v-30" stroke="#3d5a35" stroke-width="2.5"/><ellipse cx="' + (x + 1) + '" cy="176" rx="2.2" ry="6" fill="#6b4a2a"/>';
+      });
+      g += '<ellipse cx="200" cy="290" rx="90" ry="10" fill="#3a5a6a" opacity=".35"/>';
+    } else if (kind === "ice") {
+      [[14, 200, 22], [30, 198, 14], [372, 198, 18], [388, 202, 26]].forEach(function (p) {
+        g += '<path d="M' + (p[0] - 6) + " " + p[1] + "L" + p[0] + " " + (p[1] - p[2]) + "L" + (p[0] + 6) + " " + p[1] + 'z" fill="#e8f8ff" opacity=".9"/>';
+      });
+    } else if (kind === "tar") {
+      g += '<ellipse cx="60" cy="275" rx="38" ry="7" fill="#1a120c" opacity=".7"/><ellipse cx="350" cy="280" rx="30" ry="6" fill="#1a120c" opacity=".7"/>' +
+        '<path d="M20 230l26-6M372 236l18 8" stroke="#e9dcc3" stroke-width="3" stroke-linecap="round" opacity=".5"/>';
+    } else if (kind === "embers") {
+      for (var j = 0; j < 18; j++) g += '<circle cx="' + ((j * 67) % 400) + '" cy="' + (60 + (j * 37) % 200) + '" r="' + (1 + j % 2) + '" fill="#ffb15a" opacity=".7"/>';
+    } else if (kind === "peaks") {
+      g += pine(10, 192, 1, "#3d5a45") + pine(390, 192, 1.1, "#3d5a45");
+    }
+    return g;
+  }
+
   function queueTitle(q) {
-    if (q.kind === "build") return BLD_ICON[q.building_type] + " " + t("bld." + q.building_type) + " → " + q.target_level;
+    if (q.kind === "build") return bldIcon(q.building_type, "qi") + " " + t("bld." + q.building_type) + " → " + q.target_level;
     if (q.kind === "train") return ROLE_ICON[q.role] + " " + t("queue.train", { n: q.qty, role: t("role." + q.role), tier: t("tier." + q.tier) });
     if (q.kind === "promote") return "⬆️ " + t("queue.promote", { n: q.qty, role: t("role." + q.role), tier: t("tier." + q.tier) });
     return "🏥 " + t("queue.heal", { n: q.qty, role: t("role." + q.role) });
@@ -370,7 +487,7 @@
     var b = (S.buildings || []).filter(function (x) { return x.type === type; })[0];
     if (!b) return;
     S.sheet = { refresh: function () { bldSheet(type); } };
-    var html = '<div class="sheet-head"><span class="big-icon">' + BLD_ICON[type] + "</span><div><h2>" + t("bld." + type) +
+    var html = '<div class="sheet-head"><span class="big-icon">' + bldIcon(type, "xl") + "</span><div><h2>" + t("bld." + type) +
       "</h2><div class=\"muted\">" + t("common.level") + " " + b.level + " / " + b.max_level + "</div></div></div>" +
       '<p class="muted">' + t("bld." + type + ".desc") + "</p>" + effectTable(b);
     if (b.auto) html += '<div class="note">' + t("bld.den.auto") + "</div>";
@@ -584,7 +701,7 @@
       '<div class="muted small">' + t("pack.occupancy", { p: Math.round(a.occupancy * 100), k: a.time_coef }) + "</div></div>";
     a.roles.forEach(function (r) {
       html += '<div class="card role role-' + r.role + (r.unlocked ? "" : " locked") + '"><div class="row-between"><b>' + ROLE_ICON[r.role] + " " + t("role." + r.role) +
-        "</b><span class=\"muted small\">" + BLD_ICON[r.building] + " L" + r.building_level + " · T" + r.max_tier + "</span></div>" +
+        "</b><span class=\"muted small\">" + bldIcon(r.building, "qi") + " L" + r.building_level + " · T" + r.max_tier + "</span></div>" +
         '<div class="muted small">' + t("role." + r.role + ".desc") + "</div>";
       if (!r.unlocked) { html += '<div class="note">' + t("role.unlock", { l: r.unlock_level }) + "</div></div>"; return; }
       html += '<div class="tiers">' + r.tiers.filter(function (x) { return x.unlocked || x.alive || x.injured || x.on_march; }).map(function (x) {
@@ -879,6 +996,10 @@
     Promise.all([api("GET", "/locales/uz"), api("GET", "/config")]).then(function (res) {
       S.L = res[0]; S.cfg = res[1];
       document.querySelectorAll("[data-t]").forEach(function (e) { e.textContent = t(e.dataset.t); });
+      document.querySelectorAll("[data-nav-icon]").forEach(function (e) {
+        var I = window.BW_ICONS && window.BW_ICONS.nav[e.dataset.navIcon];
+        if (I) e.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + I + "</svg>";
+      });
       return api("GET", "/state");
     }).then(function (st) {
       S.buildings = st.buildings; S.army = st.army;

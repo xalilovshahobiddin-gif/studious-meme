@@ -18,13 +18,14 @@ $index = file_get_contents("$pub/index.html");
 preg_match('#<body>(.*)</body>#s', $index, $m);
 $body = $m[1];
 // Server va Telegram skriptlari oʻrniga — inline demo
-$body = preg_replace('#<script src="assets/app.js"></script>#', '', $body);
+$body = preg_replace('#<script src="assets/(app|icons)\.js"></script>#', '', $body);
 
 $css = file_get_contents("$pub/assets/style.css");
-$js = $data . "\n" . file_get_contents("$pub/assets/wolves.js") . "\n" . file_get_contents("$pub/assets/demo-engine.js") . "\n" . file_get_contents("$pub/assets/app.js");
+$js = $data . "\n" . file_get_contents("$pub/assets/wolves.js") . "\n" . file_get_contents("$pub/assets/icons.js") . "\n" . file_get_contents("$pub/assets/demo-engine.js") . "\n" . file_get_contents("$pub/assets/app.js");
 $js = str_replace('</script', '<\/script', $js);
 
-$head = "<title>Blue Wolf</title>\n<meta name=\"theme-color\" content=\"#0f1626\">\n<style>\n$css\n</style>\n";
+$font = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo+2:wght@600;700;800&display=swap">';
+$head = "<title>Blue Wolf</title>\n<meta name=\"theme-color\" content=\"#0f1626\">\n$font\n<style>\n$css\n</style>\n";
 $page = $head . $body . "<script>\n$js\n</script>\n";
 if (!$artifact) {
     $page = "<!DOCTYPE html>\n<html lang=\"uz\">\n<head>\n<meta charset=\"utf-8\">\n" .
