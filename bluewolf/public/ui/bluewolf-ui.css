@@ -1,0 +1,410 @@
+/* ==========================================================================
+   BlueWolf UI — Blue Wolf oʻyini uchun dizayn tizimi
+   v0.0.0
+
+   Tuzilishi:
+     1. Tokenlar (palitra, semantik ranglar, rol va tier ranglari, shrift, oraliq, radius, soya, harakat)
+     2. Yorugʻ mavzu (asosiy mavzu — tungi, qorongʻi)
+     3. Asos (reset, tipografiya)
+     4. Komponentlar (bw-*)
+     5. Yordamchi klasslar
+   Barcha klasslar "bw-" prefiksi bilan boshlanadi.
+   ========================================================================== */
+
+/* 1. TOKENLAR ------------------------------------------------------------- */
+:root {
+  /* Palitra — tungi dasht, muz va oy nuri */
+  --bw-night-950: #060b16;
+  --bw-night-900: #0a1222;
+  --bw-night-800: #0f1a31;
+  --bw-night-700: #162443;
+  --bw-night-600: #1f3158;
+  --bw-night-500: #2b4170;
+
+  --bw-ice-200: #c9e6ff;
+  --bw-ice-300: #9fd3ff;
+  --bw-ice-400: #63b5ff;
+  --bw-ice-500: #2f8dff;   /* asosiy — koʻk boʻri */
+  --bw-ice-600: #1f6fd6;
+  --bw-ice-700: #1755a6;
+
+  --bw-moon-50:  #f5f8ff;
+  --bw-moon-100: #e8eefb;
+  --bw-moon-300: #c3cde4;
+  --bw-moon-500: #8b98b8;
+  --bw-moon-700: #5a6684;
+
+  --bw-amber-300: #ffd08a;
+  --bw-amber-400: #ffb547;  /* urgʻu, goʻsht */
+  --bw-amber-600: #d98a17;
+  --bw-ember-400: #ff7a5c;
+  --bw-ember-500: #f0533a;  /* xavf */
+  --bw-moss-400: #5fd497;
+  --bw-moss-500: #34b674;   /* muvaffaqiyat */
+
+  /* Rol ranglari (GDD bo'lim 23) */
+  --bw-role-scout:    #4aa8ff;
+  --bw-role-attacker: #ff5a5a;
+  --bw-role-defender: #3fbf7f;
+  --bw-role-hunter:   #c48a52;
+
+  /* Resurs ranglari */
+  --bw-res-meat:      #ff8a65;
+  --bw-res-water:     #4fc3f7;
+  --bw-res-herb:      #66d38e;
+  --bw-res-moonlight: #c5b8ff;
+  --bw-res-stone:     #a7b1c6;
+  --bw-res-wood:      #c4a06a;
+  --bw-res-hide:      #d28b5e;
+  --bw-res-bone:      #ece3cf;
+  --bw-res-moonstone: #8fd8ff;
+
+  /* Semantik — qorongʻi (asosiy) mavzu */
+  --bw-bg:         var(--bw-night-950);
+  --bw-bg-2:       var(--bw-night-900);
+  --bw-surface:    rgba(22, 36, 67, .72);
+  --bw-surface-2:  rgba(31, 49, 88, .78);
+  --bw-surface-solid: var(--bw-night-800);
+  --bw-border:     rgba(159, 211, 255, .14);
+  --bw-border-2:   rgba(159, 211, 255, .26);
+  --bw-text:       var(--bw-moon-50);
+  --bw-text-2:     var(--bw-moon-300);
+  --bw-text-3:     var(--bw-moon-500);
+  --bw-primary:    var(--bw-ice-500);
+  --bw-primary-2:  var(--bw-ice-400);
+  --bw-on-primary: #fff;
+  --bw-accent:     var(--bw-amber-400);
+  --bw-danger:     var(--bw-ember-500);
+  --bw-success:    var(--bw-moss-500);
+  --bw-focus:      0 0 0 3px rgba(99, 181, 255, .45);
+  --bw-backdrop:   rgba(3, 6, 14, .66);
+
+  /* Fon manzarasi */
+  --bw-sky: radial-gradient(120% 70% at 50% -10%, rgba(47, 141, 255, .35), transparent 60%),
+            radial-gradient(60% 40% at 85% 5%, rgba(197, 184, 255, .18), transparent 70%),
+            linear-gradient(180deg, var(--bw-night-900), var(--bw-night-950) 60%);
+
+  /* Shrift */
+  --bw-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --bw-font-num: ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  --bw-fs-xs: 11px;
+  --bw-fs-sm: 13px;
+  --bw-fs-md: 15px;
+  --bw-fs-lg: 17px;
+  --bw-fs-xl: 21px;
+  --bw-fs-2xl: 27px;
+
+  /* Oraliq (4px setka) */
+  --bw-s-1: 4px;  --bw-s-2: 8px;  --bw-s-3: 12px; --bw-s-4: 16px;
+  --bw-s-5: 20px; --bw-s-6: 24px; --bw-s-8: 32px; --bw-s-10: 40px;
+
+  /* Radius */
+  --bw-r-sm: 8px; --bw-r-md: 12px; --bw-r-lg: 18px; --bw-r-xl: 24px; --bw-r-full: 999px;
+
+  /* Soya */
+  --bw-shadow-1: 0 1px 2px rgba(0, 0, 0, .35);
+  --bw-shadow-2: 0 6px 20px rgba(0, 0, 0, .35);
+  --bw-shadow-3: 0 18px 50px rgba(0, 0, 0, .5);
+  --bw-glow: 0 0 24px rgba(47, 141, 255, .45);
+
+  /* Harakat */
+  --bw-ease: cubic-bezier(.2, .8, .2, 1);
+  --bw-fast: 120ms;
+  --bw-med: 220ms;
+
+  /* Telegram xavfsiz zonalari (app.js toʻldiradi) */
+  --bw-safe-top: env(safe-area-inset-top, 0px);
+  --bw-safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  color-scheme: dark;
+}
+
+/* 2. YORUGʻ MAVZU -------------------------------------------------------- */
+[data-bw-theme="light"] {
+  --bw-bg:         #eef3fb;
+  --bw-bg-2:       #e3ebf8;
+  --bw-surface:    rgba(255, 255, 255, .86);
+  --bw-surface-2:  rgba(240, 245, 253, .95);
+  --bw-surface-solid: #ffffff;
+  --bw-border:     rgba(23, 85, 166, .14);
+  --bw-border-2:   rgba(23, 85, 166, .26);
+  --bw-text:       #0b1730;
+  --bw-text-2:     #3a4a6b;
+  --bw-text-3:     #6a7896;
+  --bw-primary:    var(--bw-ice-600);
+  --bw-primary-2:  var(--bw-ice-500);
+  --bw-accent:     var(--bw-amber-600);
+  --bw-backdrop:   rgba(11, 23, 48, .4);
+  --bw-sky: radial-gradient(120% 70% at 50% -10%, rgba(47, 141, 255, .22), transparent 60%),
+            linear-gradient(180deg, #e3ebf8, #eef3fb 60%);
+  --bw-shadow-2: 0 6px 20px rgba(23, 50, 100, .12);
+  --bw-shadow-3: 0 18px 50px rgba(23, 50, 100, .22);
+  color-scheme: light;
+}
+
+/* 3. ASOS ---------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body.bw-body {
+  margin: 0;
+  min-height: 100vh;
+  font: 400 var(--bw-fs-md)/1.45 var(--bw-font);
+  color: var(--bw-text);
+  background: var(--bw-sky), var(--bw-bg);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+.bw-body h1, .bw-body h2, .bw-body h3 { margin: 0; line-height: 1.2; letter-spacing: -.01em; }
+.bw-h1 { font-size: var(--bw-fs-2xl); font-weight: 800; }
+.bw-h2 { font-size: var(--bw-fs-xl); font-weight: 750; }
+.bw-h3 { font-size: var(--bw-fs-lg); font-weight: 700; }
+.bw-muted { color: var(--bw-text-2); }
+.bw-faint { color: var(--bw-text-3); }
+.bw-num { font-family: var(--bw-font-num); font-variant-numeric: tabular-nums; font-weight: 700; }
+.bw-eyebrow { font-size: var(--bw-fs-xs); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--bw-text-3); }
+button { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+:focus-visible { outline: none; box-shadow: var(--bw-focus); }
+
+/* Ikonka */
+.bw-icon { width: 20px; height: 20px; flex: none; display: inline-block; vertical-align: middle; }
+.bw-icon--sm { width: 16px; height: 16px; }
+.bw-icon--lg { width: 26px; height: 26px; }
+.bw-icon--xl { width: 40px; height: 40px; }
+
+/* 4. KOMPONENTLAR -------------------------------------------------------- */
+
+/* Karta */
+.bw-card {
+  background: var(--bw-surface);
+  border: 1px solid var(--bw-border);
+  border-radius: var(--bw-r-lg);
+  padding: var(--bw-s-4);
+  box-shadow: var(--bw-shadow-1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.bw-card--flat { box-shadow: none; }
+.bw-card--glow { border-color: var(--bw-border-2); box-shadow: var(--bw-glow); }
+.bw-card--tap { cursor: pointer; transition: transform var(--bw-fast) var(--bw-ease), border-color var(--bw-fast); }
+.bw-card--tap:active { transform: scale(.98); }
+.bw-card__head { display: flex; align-items: center; justify-content: space-between; gap: var(--bw-s-2); margin-bottom: var(--bw-s-3); }
+
+/* Tugma */
+.bw-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--bw-s-2);
+  min-height: 44px; padding: 0 var(--bw-s-4);
+  border: 1px solid transparent; border-radius: var(--bw-r-md);
+  background: var(--bw-primary); color: var(--bw-on-primary);
+  font-weight: 700; font-size: var(--bw-fs-md); cursor: pointer;
+  transition: transform var(--bw-fast) var(--bw-ease), filter var(--bw-fast), background var(--bw-fast);
+  box-shadow: 0 4px 14px rgba(47, 141, 255, .35);
+}
+.bw-btn:active { transform: scale(.97); }
+.bw-btn:hover { filter: brightness(1.08); }
+.bw-btn--accent { background: var(--bw-accent); color: #2a1600; box-shadow: 0 4px 14px rgba(255, 181, 71, .3); }
+.bw-btn--danger { background: var(--bw-danger); box-shadow: none; }
+.bw-btn--ghost { background: transparent; color: var(--bw-text); border-color: var(--bw-border-2); box-shadow: none; }
+.bw-btn--soft { background: var(--bw-surface-2); color: var(--bw-text); border-color: var(--bw-border); box-shadow: none; }
+.bw-btn--sm { min-height: 34px; padding: 0 var(--bw-s-3); font-size: var(--bw-fs-sm); border-radius: var(--bw-r-sm); }
+.bw-btn--block { display: flex; width: 100%; }
+.bw-btn--icon { width: 44px; padding: 0; }
+.bw-btn[disabled], .bw-btn--disabled { opacity: .45; filter: grayscale(.4); cursor: not-allowed; box-shadow: none; }
+
+/* Chip / nishon */
+.bw-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  height: 24px; padding: 0 var(--bw-s-2); border-radius: var(--bw-r-full);
+  font-size: var(--bw-fs-xs); font-weight: 700;
+  background: var(--bw-surface-2); color: var(--bw-text-2); border: 1px solid var(--bw-border);
+  white-space: nowrap;
+}
+.bw-chip--primary { background: rgba(47, 141, 255, .18); color: var(--bw-ice-300); border-color: rgba(47, 141, 255, .35); }
+.bw-chip--accent  { background: rgba(255, 181, 71, .16); color: var(--bw-amber-300); border-color: rgba(255, 181, 71, .35); }
+.bw-chip--success { background: rgba(52, 182, 116, .16); color: var(--bw-moss-400); border-color: rgba(52, 182, 116, .35); }
+.bw-chip--danger  { background: rgba(240, 83, 58, .16); color: var(--bw-ember-400); border-color: rgba(240, 83, 58, .35); }
+[data-bw-theme="light"] .bw-chip--primary { color: var(--bw-ice-700); }
+[data-bw-theme="light"] .bw-chip--accent { color: var(--bw-amber-600); }
+[data-bw-theme="light"] .bw-chip--success { color: #1f7a4c; }
+[data-bw-theme="light"] .bw-chip--danger { color: #b8321d; }
+.bw-badge {
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: var(--bw-r-full);
+  background: var(--bw-danger); color: #fff; font-size: 10px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+/* Resurs paneli */
+.bw-res-bar { display: flex; gap: var(--bw-s-2); overflow-x: auto; scrollbar-width: none; padding: 2px 0; }
+.bw-res-bar::-webkit-scrollbar { display: none; }
+.bw-res {
+  display: inline-flex; align-items: center; gap: 6px; flex: none;
+  height: 32px; padding: 0 10px 0 6px; border-radius: var(--bw-r-full);
+  background: var(--bw-surface); border: 1px solid var(--bw-border);
+  font-size: var(--bw-fs-sm);
+}
+.bw-res__dot { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .06); }
+.bw-res__dot .bw-icon { width: 15px; height: 15px; }
+.bw-res--meat .bw-res__dot { color: var(--bw-res-meat); }
+.bw-res--water .bw-res__dot { color: var(--bw-res-water); }
+.bw-res--herb .bw-res__dot { color: var(--bw-res-herb); }
+.bw-res--moonlight .bw-res__dot { color: var(--bw-res-moonlight); }
+.bw-res--stone .bw-res__dot { color: var(--bw-res-stone); }
+.bw-res--wood .bw-res__dot { color: var(--bw-res-wood); }
+.bw-res--hide .bw-res__dot { color: var(--bw-res-hide); }
+.bw-res--bone .bw-res__dot { color: var(--bw-res-bone); }
+.bw-res--moonstone .bw-res__dot { color: var(--bw-res-moonstone); }
+[data-bw-theme="light"] .bw-res--bone .bw-res__dot { color: #a08b5c; }
+
+/* Progress */
+.bw-progress { height: 8px; border-radius: var(--bw-r-full); background: rgba(255, 255, 255, .08); overflow: hidden; }
+[data-bw-theme="light"] .bw-progress { background: rgba(23, 85, 166, .1); }
+.bw-progress__bar { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--bw-ice-600), var(--bw-ice-400)); transition: width var(--bw-med) var(--bw-ease); }
+.bw-progress--accent .bw-progress__bar { background: linear-gradient(90deg, var(--bw-amber-600), var(--bw-amber-400)); }
+.bw-progress--success .bw-progress__bar { background: linear-gradient(90deg, #22915a, var(--bw-moss-400)); }
+.bw-progress--sm { height: 5px; }
+
+/* Avatar va tier ramkasi (GDD bo'lim 23: 1–2 oddiy · 3–4 kumush · 5 oltin · 6 alangali) */
+.bw-avatar {
+  --bw-frame: var(--bw-moon-700);
+  width: 48px; height: 48px; flex: none; border-radius: 14px;
+  display: grid; place-items: center;
+  background: linear-gradient(160deg, var(--bw-night-600), var(--bw-night-800));
+  color: var(--bw-ice-300);
+  box-shadow: 0 0 0 2px var(--bw-frame), var(--bw-shadow-1);
+}
+.bw-avatar--sm { width: 36px; height: 36px; border-radius: 11px; }
+.bw-avatar--lg { width: 64px; height: 64px; border-radius: 18px; }
+.bw-tier-1, .bw-tier-2 { --bw-frame: #6b7a99; }
+.bw-tier-3, .bw-tier-4 { --bw-frame: #d9e1ef; }
+.bw-tier-5 { --bw-frame: #f5c04a; }
+.bw-tier-6 { --bw-frame: #ff7a3d; animation: bw-flame 2.4s ease-in-out infinite; }
+@keyframes bw-flame {
+  0%, 100% { box-shadow: 0 0 0 2px #ff7a3d, 0 0 14px rgba(255, 122, 61, .55); }
+  50%      { box-shadow: 0 0 0 2px #ffc14d, 0 0 22px rgba(255, 193, 77, .7); }
+}
+
+/* Rol belgisi */
+.bw-role { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; }
+.bw-role__dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+.bw-role--scout { color: var(--bw-role-scout); }
+.bw-role--attacker { color: var(--bw-role-attacker); }
+.bw-role--defender { color: var(--bw-role-defender); }
+.bw-role--hunter { color: var(--bw-role-hunter); }
+
+/* Bino kartasi */
+.bw-building { position: relative; display: flex; flex-direction: column; gap: var(--bw-s-2); min-height: 132px; padding: var(--bw-s-3); }
+.bw-building__icon {
+  width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center;
+  background: linear-gradient(160deg, rgba(47, 141, 255, .28), rgba(47, 141, 255, .08));
+  color: var(--bw-ice-300);
+}
+[data-bw-theme="light"] .bw-building__icon { color: var(--bw-ice-700); }
+.bw-building__name { font-weight: 700; font-size: var(--bw-fs-sm); line-height: 1.25; }
+.bw-building__lvl { margin-top: auto; display: flex; align-items: center; justify-content: space-between; }
+.bw-building--locked { opacity: .55; }
+.bw-building--locked .bw-building__icon { background: rgba(255, 255, 255, .05); color: var(--bw-text-3); }
+.bw-building__lock { position: absolute; top: 10px; right: 10px; color: var(--bw-text-3); }
+
+/* Roʻyxat */
+.bw-list { display: flex; flex-direction: column; }
+.bw-row { display: flex; align-items: center; gap: var(--bw-s-3); padding: var(--bw-s-3) 0; border-bottom: 1px solid var(--bw-border); }
+.bw-row:last-child { border-bottom: 0; }
+.bw-row__main { flex: 1; min-width: 0; }
+.bw-row__title { font-weight: 650; }
+.bw-row__sub { font-size: var(--bw-fs-sm); color: var(--bw-text-2); }
+.bw-row--tap { cursor: pointer; }
+
+/* Segment (ichki tablar) */
+.bw-seg { display: flex; padding: 3px; gap: 3px; border-radius: var(--bw-r-md); background: var(--bw-surface); border: 1px solid var(--bw-border); }
+.bw-seg__btn { flex: 1; height: 36px; border: 0; border-radius: 9px; background: transparent; color: var(--bw-text-2); font-weight: 700; font-size: var(--bw-fs-sm); cursor: pointer; }
+.bw-seg__btn[aria-selected="true"] { background: var(--bw-primary); color: #fff; }
+
+/* Pastki tab panel */
+.bw-tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  padding: 6px 6px calc(6px + var(--bw-safe-bottom));
+  background: rgba(6, 11, 22, .86); border-top: 1px solid var(--bw-border);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+}
+[data-bw-theme="light"] .bw-tabbar { background: rgba(255, 255, 255, .9); }
+.bw-tab {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 0; border: 0; border-radius: var(--bw-r-md); background: transparent;
+  color: var(--bw-text-3); font-size: 10.5px; font-weight: 700; cursor: pointer; text-decoration: none;
+}
+.bw-tab .bw-icon { width: 24px; height: 24px; }
+.bw-tab[aria-current="page"] { color: var(--bw-primary-2); }
+.bw-tab[aria-current="page"]::before {
+  content: ""; position: absolute; top: -6px; width: 28px; height: 3px; border-radius: 0 0 3px 3px;
+  background: var(--bw-primary-2); box-shadow: var(--bw-glow);
+}
+.bw-tab .bw-badge { position: absolute; top: 2px; left: 50%; margin-left: 6px; }
+
+/* Varaq (bottom sheet) */
+.bw-sheet-backdrop { position: fixed; inset: 0; z-index: 50; background: var(--bw-backdrop); opacity: 0; pointer-events: none; transition: opacity var(--bw-med); }
+.bw-sheet-backdrop.is-open { opacity: 1; pointer-events: auto; }
+.bw-sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 51;
+  max-height: 86vh; overflow-y: auto;
+  padding: var(--bw-s-2) var(--bw-s-4) calc(var(--bw-s-6) + var(--bw-safe-bottom));
+  background: var(--bw-surface-solid); border-top: 1px solid var(--bw-border-2);
+  border-radius: var(--bw-r-xl) var(--bw-r-xl) 0 0; box-shadow: var(--bw-shadow-3);
+  transform: translateY(105%); visibility: hidden;
+  transition: transform var(--bw-med) var(--bw-ease), visibility 0s linear var(--bw-med);
+}
+.bw-sheet.is-open { transform: translateY(0); visibility: visible; transition: transform var(--bw-med) var(--bw-ease), visibility 0s; }
+.bw-sheet__grip { width: 40px; height: 4px; margin: 0 auto var(--bw-s-3); border-radius: 4px; background: var(--bw-border-2); }
+@media (min-width: 640px) { .bw-sheet { left: 50%; right: auto; width: 520px; margin-left: -260px; } }
+
+/* Toast */
+.bw-toast-host { position: fixed; left: 0; right: 0; bottom: calc(84px + var(--bw-safe-bottom)); z-index: 60; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
+.bw-toast {
+  max-width: min(92vw, 420px); padding: 10px 14px; border-radius: var(--bw-r-md);
+  background: var(--bw-night-700); color: var(--bw-moon-50); border: 1px solid var(--bw-border-2);
+  font-size: var(--bw-fs-sm); font-weight: 600; box-shadow: var(--bw-shadow-2);
+  display: flex; align-items: center; gap: 8px;
+  animation: bw-toast-in var(--bw-med) var(--bw-ease);
+}
+@keyframes bw-toast-in { from { opacity: 0; transform: translateY(10px); } }
+
+/* Boʻsh holat */
+.bw-empty { text-align: center; padding: var(--bw-s-8) var(--bw-s-4); color: var(--bw-text-2); }
+.bw-empty .bw-icon { width: 44px; height: 44px; color: var(--bw-text-3); margin-bottom: var(--bw-s-2); }
+
+/* Skelet (yuklanish) */
+.bw-skeleton { border-radius: var(--bw-r-md); background: linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.1), rgba(255,255,255,.04)); background-size: 200% 100%; animation: bw-shimmer 1.3s linear infinite; }
+@keyframes bw-shimmer { to { background-position: -200% 0; } }
+
+/* Kalit (switch) */
+.bw-switch { position: relative; width: 46px; height: 28px; flex: none; }
+.bw-switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.bw-switch span { position: absolute; inset: 0; border-radius: 28px; background: var(--bw-surface-2); border: 1px solid var(--bw-border-2); transition: background var(--bw-fast); pointer-events: none; }
+.bw-switch span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform var(--bw-fast) var(--bw-ease); }
+.bw-switch input:checked + span { background: var(--bw-primary); }
+.bw-switch input:checked + span::after { transform: translateX(18px); }
+
+/* Slayder */
+.bw-range { width: 100%; accent-color: var(--bw-primary); }
+
+/* Ogohlantirish lentasi */
+.bw-banner { display: flex; align-items: center; gap: var(--bw-s-2); padding: 8px 12px; border-radius: var(--bw-r-md); font-size: var(--bw-fs-sm); background: rgba(255, 181, 71, .14); border: 1px solid rgba(255, 181, 71, .35); color: var(--bw-amber-300); }
+[data-bw-theme="light"] .bw-banner { color: var(--bw-amber-600); }
+
+/* Statistika plitkasi */
+.bw-stat { display: flex; flex-direction: column; gap: 2px; padding: var(--bw-s-3); border-radius: var(--bw-r-md); background: var(--bw-surface-2); border: 1px solid var(--bw-border); }
+.bw-stat__value { font: 800 var(--bw-fs-xl)/1.1 var(--bw-font-num); }
+.bw-stat__label { font-size: var(--bw-fs-xs); color: var(--bw-text-3); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+
+/* 5. YORDAMCHI ----------------------------------------------------------- */
+.bw-stack { display: flex; flex-direction: column; gap: var(--bw-s-3); }
+.bw-stack--lg { gap: var(--bw-s-4); }
+.bw-inline { display: flex; align-items: center; gap: var(--bw-s-2); flex-wrap: wrap; }
+.bw-between { display: flex; align-items: center; justify-content: space-between; gap: var(--bw-s-2); }
+.bw-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--bw-s-3); }
+.bw-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--bw-s-2); }
+@media (min-width: 560px) { .bw-grid-3--wide { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.bw-grow { flex: 1; min-width: 0; }
+.bw-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
