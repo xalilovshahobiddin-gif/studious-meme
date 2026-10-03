@@ -242,7 +242,7 @@ XP              = olingan goʻsht × 0.5
 ```
 
 **Xavf.** Oʻrta va uzoq kartalarda har bir yuborilgan boʻri (ovchi ham, yordamchi ham) alohida tasodif bilan **yarador** yoki **halok** boʻlishi mumkin. Natija ovga chiqishda server tomonida aniqlanadi va qaytishda maʼlum boʻladi (kartada faqat ehtimollar koʻrinadi).
-- **Yarador** boʻri qaytgach `injured` ga oʻtadi va **3 soatda** oʻzi tuzaladi (Shifo gʻori orqali davolash — keyingi bosqichda); bu vaqt ovga va jangga chiqmaydi, lekin ovqat yeydi.
+- **Yarador** boʻri qaytgach `injured` ga oʻtadi va **3 soatda** oʻzi tuzaladi yoki **Shifo gʻorida** oʻt evaziga tezroq davolanadi (bo'lim 5); bu vaqt ovga va jangga chiqmaydi, lekin ovqat yeydi.
 - **Halok** boʻlgan boʻri tieri bilan butunlay ketadi (qoʻshin kamayadi).
 - Yaqin kartalar doim xavfsiz — ehtiyotkor oʻyinchi kam, lekin kafolatlangan oʻlja oladi.
 
@@ -346,13 +346,32 @@ Mashq tezligi(L) = 1 + 0.04 × (L-1)
 ```
 Narx koeffitsientlari: Razvedka 0.50 · Jang 0.70 · Himoya 0.60 · Ov 0.45
 
-### Shifo gʻori
+### Shifo gʻori (v0.0.16)
 ```
-Sigʻim(L)         = yaxlitlangan(2 + 0.4 × (L-1)) boʻri bir vaqtda
-Davolash vaqti(L) = 60 daqiqa / (1 + 0.05×(L-1)) — bir boʻri uchun
-Davolash narxi    = 2 × tier shifobaxsh oʻt — bir boʻri uchun
+Sigʻim(L)         = yaxlitlangan((2 + 0.4 × (L−1)) × eng katta askar birligi(1…L)) boʻri bir toʻlqinda   (L — bino darajasi)
+Bitta toʻlqin(L)  = 60 daqiqa / (1 + 0.05 × (L−1))
+Davolash narxi    = 2 × tier ÷ askar birligi(oʻyinchi darajasi) shifobaxsh oʻt — bir boʻri uchun
+Muolaja vaqti     = ⌈boʻrilar ÷ sigʻim⌉ × bitta toʻlqin
 ```
-25-darajada: 12 boʻri, 27 daqiqa. Shifo gʻori boʻlmasa (1–5 daraja) jarohatlangan boʻri 3 soatda oʻzi tuzaladi (bepul, sekin).
+
+| Bino | Sigʻim | Toʻlqin | Oʻt / T1 boʻri | Tezlik |
+|---|---|---|---|---|
+| 1 | 2 | 60 daq | 2.00 | 2 boʻri/soat |
+| 6 | 8 | 48 daq | 0.95 | 10 boʻri/soat |
+| 10 | 23 | 41 daq | 0.49 | 33 boʻri/soat |
+| 15 | 34 | 35 daq | 0.45 | 58 boʻri/soat |
+| 25 | 53 | 27 daq | 0.87 | 117 boʻri/soat |
+
+Sigʻimda askar birligining **shu darajagacha eng kattasi** olinadi (birlik 13-darajadan keyin kamayadi) — shuning uchun Shifo gʻorini kuchaytirish sigʻimni hech qachon kamaytirmaydi.
+
+**Qoidalar:**
+- 6-darajada ochiladi (bino 1-darajada bepul paydo boʻladi), keyin boshqa binolar kabi kuchaytiriladi (shox-shabba, teri, tosh).
+- Yarador boʻrilar har doim **oʻzi tuzaladi** — 3 soatda, bepul (tabiiy navbat). Shifo gʻori — **tezroq**, lekin oʻt evaziga.
+- Oʻyinchi yaradorlarni rol × tier boʻyicha tanlaydi (slayderlar, “Hammasi” tugmasi) va **bitta muolaja** boshlaydi: oʻt darhol yechiladi, boʻrilar tabiiy navbatdan (eng kech tuzaladiganlaridan) olinadi.
+- Bir vaqtda bitta muolaja — u tugaguncha Shifo gʻori band. Muolajani bekor qilib boʻlmaydi; bepul tezlashtirish butun muolajaga ishlaydi.
+- Oyna ikki vaqtni solishtiradi: “Oʻzi tuzaladi” va “Shifo gʻorida”. Shifo gʻori tezroq boʻlmasa yoki oʻt yetmasa — tugma oʻchadi va sababi yoziladi (kamroq boʻri tanlash yoki binoni kuchaytirish).
+- Davolanayotgan boʻri ovga va jangga chiqmaydi, lekin ovqat yeydi va qoʻshin sigʻimida joy egallaydi.
+- Interfeys: In sahifasida Shifo gʻori kartasida yaradorlar soni (pushti nishon); taymerlar panelida pushti taymer (muolaja) va nuqtali pushti taymer (oʻzi tuzalish, eng yaqini); Ov tabida “Yaradorlar” boʻlimi va “Shifo gʻorida davolash” tugmasi.
 
 ### Bozor
 ```
@@ -1179,8 +1198,10 @@ Ikkinchi qurilish navbati — erta ochish (4–9 daraja) 1,500 · Oflayn ombor +
 | Qurilish | qahrabo (sariq) | bolgʻa |
 | Mashq | binafsha | rol ikonkasi |
 | Ov (toʻda ovda) | yashil | panja |
+| Shifo gʻorida davolash | pushti | Shifo gʻori |
+| Yaradorlar oʻzi tuzalmoqda (eng yaqini) | pushti, nuqtali ramka | shifobaxsh oʻt |
 
-  Taymerlar tugash vaqti boʻyicha tartiblanadi; toʻliq nomi bosib turganda (title) va ekran oʻquvchida. Bosilganda qurilish va mashq taymeri tegishli bino oynasini, ov taymeri Ov tabini ochadi. In sahifasida alohida “Qurilish navbati” boʻlimi yoʻq — navbat holati shu paneldan, tezlashtirish va bekor qilish bino oynasidan. Keyin davolash va boshqa taymerlar ham shu qatorga qoʻshiladi (har biri alohida rang va ikonka).
+  Taymerlar tugash vaqti boʻyicha tartiblanadi; toʻliq nomi bosib turganda (title) va ekran oʻquvchida. Bosilganda qurilish va mashq taymeri tegishli bino oynasini, ov taymeri Ov tabini ochadi. In sahifasida alohida “Qurilish navbati” boʻlimi yoʻq — navbat holati shu paneldan, tezlashtirish va bekor qilish bino oynasidan. Davolash taymeri Shifo gʻori oynasini, tuzalish taymeri Ov tabini ochadi. Keyin boshqa taymerlar ham shu qatorga qoʻshiladi (har biri alohida rang va ikonka).
 
 ### Profil → Qoʻshin
 Jadval oʻrniga uchta koʻrinish (subtablar): 

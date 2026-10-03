@@ -1,4 +1,4 @@
-/* Blue Wolf — demo maʼlumotlar (v0.0.15).
+/* Blue Wolf — demo maʼlumotlar (v0.0.16).
    Server topilmaganda (GitHub Pages, oddiy brauzer) ilova shu bilan ochiladi.
    Raqamlar GDD dagi 5-darajali oʻyinchiga mos namuna.
    v0.0.2: resurslar qurilmada vaqt boʻyicha hisoblanadi (localStorage "bw.demo.econ"). */

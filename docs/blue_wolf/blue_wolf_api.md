@@ -53,6 +53,7 @@ Xato:
 | `BUILDING_TOO_LOW` | 400 | Bino darajasi yetarli emas |
 | `QUEUE_BUSY` | 409 | Navbat band |
 | `CAPACITY_FULL` | 400 | Qoʻshin yoki bino sigʻimi toʻlgan |
+| `NOT_ENOUGH_TROOPS` | 400 | Tanlangan rol/tierda shuncha boʻri (yoki yarador) yoʻq |
 | `TIER_LOCKED` | 400 | Tier hali ochilmagan |
 | `OUT_OF_WINDOW` | 400 | Hujum oynasidan tashqarida |
 | `TARGET_SHIELDED` | 400 | Raqib qalqon ostida |
@@ -113,8 +114,14 @@ Ustaxona buferini (`buf_*`) omborga oʻtkazish. “Avtomatik yigʻish” sotib o
 `{ "from": "stone", "to": "bone", "amount": 500 }`
 Kurs va soliq `market` bino darajasidan. Kunlik limit tekshiriladi.
 
-### `POST /hospital/heal`
-`{ "role": "attacker", "tier": 3, "qty": 20 }` → davolash navbati. Narx: `2 × tier` shifobaxsh oʻt bir boʻri uchun; bir vaqtda Shifo gʻori sigʻimicha boʻri.
+### `POST /hospital/heal` ✅ v0.0.16
+`{ "troops": { "hunter": { "1": 6 }, "attacker": { "2": 3 } } }` (yoki qisqa: `{ "role": "attacker", "tier": 2, "qty": 3 }`) → bitta muolaja.
+- Faqat **tabiiy tuzalayotgan** yaradorlar yuboriladi (ular tuzalish navbatidan, eng kech tugaydiganlaridan olinadi).
+- Narx: `2 × tier ÷ askar birligi` shifobaxsh oʻt bir boʻri uchun (darhol yechiladi, qaytarilmaydi).
+- Vaqt: `toʻlqinlar × bitta boʻri vaqti`, toʻlqinlar = `⌈boʻrilar ÷ sigʻim⌉`; sigʻim = `(2 + 0.4 × (bino − 1)) × askar birligi(bino)`, vaqt = `60 ÷ (1 + 0.05 × (bino − 1))` daqiqa.
+- Har (rol, tier) uchun `queues` qatori (`kind = heal`, `building_type = hospital`), hammasi bir xil `ends_at`; `queue/speedup` hammasini birga qisqartiradi, bekor qilib boʻlmaydi.
+- Javob: `{ queues: [...], plan: { qty, herb, minutes, waves, cap }, finished }` + holat.
+- Xatolar: `LEVEL_TOO_LOW` (Shifo gʻori yoʻq), `QUEUE_BUSY` (muolaja davom etmoqda), `NOT_ENOUGH_TROOPS` (`details.available`), `NOT_ENOUGH_RESOURCES` (`details.missing.herb`), `VALIDATION`.
 
 ---
 

@@ -136,7 +136,7 @@ class EconomyService
                     $finished[] = ['kind' => 'train', 'role' => $item->role, 'tier' => $item->tier, 'qty' => $item->qty];
                 } elseif ($item->kind === 'heal') {
                     $this->army->heal($player, $item->role, $item->tier, $item->qty);
-                    $finished[] = ['kind' => 'heal', 'role' => $item->role, 'tier' => $item->tier, 'qty' => $item->qty];
+                    $finished[] = ['kind' => 'heal', 'role' => $item->role, 'tier' => $item->tier, 'qty' => $item->qty, 'hospital' => $item->building_type === 'hospital'];
                 }
                 foreach ($this->progress->addXp($player, $xp) as $level) {
                     $after['level'] = $level;

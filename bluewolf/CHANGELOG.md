@@ -1,5 +1,21 @@
 # Blue Wolf — oʻzgarishlar tarixi
 
+## v0.0.16 — Shifo gʻori
+- **Shifo gʻori** (6-daraja) endi ishlaydi: yarador boʻrilarni shifobaxsh oʻt evaziga tabiiy tuzalishdan (3 soat) tezroq davolaydi.
+  - Sigʻim (bir toʻlqinda) = (2 + 0.4 × (bino − 1)) × shu darajagacha eng katta askar birligi — kuchaytirishda hech qachon kamaymaydi
+    (1-d.: 2, 6-d.: 8, 10-d.: 23, 25-d.: 53); bitta toʻlqin = 60 ÷ (1 + 0.05 × (bino − 1)) daqiqa.
+  - Narx: 2 × tier ÷ askar birligi oʻt bir boʻri uchun; muolaja vaqti = toʻlqinlar × bitta toʻlqin.
+  - Yaradorlar rol × tier boʻyicha slayder bilan tanlanadi (“Hammasi”), bitta muolaja boshlanadi; boʻrilar tabiiy navbatning
+    eng kech tugaydiganlaridan olinadi. Oyna “Oʻzi tuzaladi” va “Shifo gʻorida” vaqtlarini solishtiradi; tezroq boʻlmasa yoki
+    oʻt yetmasa — tugma oʻchadi va sababi yoziladi. Bir vaqtda bitta muolaja, bekor qilinmaydi, tezlashtirish butun muolajaga.
+- **Interfeys:** In dagi Shifo gʻori kartasida yaradorlar soni (pushti nishon); taymerlar panelida pushti taymer (muolaja) va
+  nuqtali pushti taymer (oʻzi tuzalish); Ov tabida Shifo gʻori kartasi va “Shifo gʻorida davolash” tugmasi; kuchaytirish oynasida
+  sigʻim va toʻlqin vaqti (rol binolari sigʻimi ham endi askar birligi bilan koʻrsatiladi).
+- Server: `POST /hospital/heal` (`troops` yoki `role/tier/qty`), `Formula::hospitalCap/healMinutes/healHerb/healPlan` = `BWGame`,
+  `NOT_ENOUGH_TROOPS` xatosi; tezlashtirish muolajaning hamma qatorlariga.
+- Excel “Binolar” (Shifo gʻori: sigʻim formulasi, oʻt va tezlik ustunlari), balans tekshiruvi (sigʻim kamaymaydi), GDD bo'lim 4–5 va 18, API.
+- Testlar: PHP 52 ta (`HospitalTest`), JS — umumiy `army_cases.json` (heal).
+
 ## v0.0.15 — katta toʻda (1000+ boʻri) va askar birligi
 - **Qoʻshin sigʻimi** = 10 + 6 × n + 2.1 × n² (n = daraja − 4): 5-darajada 18, 10-da 122, 15-da 330, 20-da 644,
   **25-darajada 1062** (oldin 460). Har darajada sezilarli oʻsish: +8 … +92.

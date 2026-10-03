@@ -110,12 +110,22 @@ test("bufer yigʻish va taqsimot tekshiruvi", () => {
   assert.ok(!G.validAlloc({ stone: 110, wood: -10, hide: 0, bone: 0 }));
 });
 
-test("askar formulalari (PHP bilan bir xil, GDD bo'lim 6)", () => {
+test("askar va Shifo gʻori formulalari (PHP bilan bir xil, GDD bo'lim 5–6)", () => {
   const cases = require(path.join(__dirname, "../fixtures/army_cases.json"));
   for (const c of cases.train) {
     assert.deepEqual(G.trainCost(cfg, c.tier, c.level), c.cost);
     assert.ok(Math.abs(G.trainSeconds(cfg, c.tier, c.level, c.building, c.army, c.role) - c.seconds) < 1e-5);
   }
+  for (const c of cases.heal) {
+    assert.equal(G.hospitalCap(cfg, c.building), c.cap);
+    assert.ok(Math.abs(G.healMinutes(cfg, c.building) - c.minutes) < 1e-6);
+    assert.equal(G.healHerb(cfg, c.tier, c.level), c.herb);
+    assert.deepEqual(G.healPlan(cfg, c.building, c.level, c.troops), c.plan);
+  }
+  assert.equal(G.hospitalCap(cfg, 0), 0);
+  assert.equal(G.hospitalCap(cfg, 1), 2);
+  for (let b = 2; b <= 25; b++) assert.ok(G.hospitalCap(cfg, b) >= G.hospitalCap(cfg, b - 1), "sigʻim kuchaytirishda kamaymaydi");
+  assert.equal(G.hospitalCap(cfg, 25), 53); // GDD bo'lim 5: 11.6 × eng katta askar birligi 4.54
   assert.deepEqual(G.trainCost(cfg, 1), { meat: 20, bone: 8 });
   assert.equal(G.trainSeconds(cfg, 1, 1, 1, 0, 0), 120); // boʻsh qoʻshin — 0.5× chegirma
   assert.equal(G.PREY.length, 26);

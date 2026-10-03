@@ -1,4 +1,4 @@
-# Blue Wolf — Telegram Mini App · v0.0.15
+# Blue Wolf — Telegram Mini App · v0.0.16
 
 Strategiya / omon qolish oʻyini: ov qil, in qur, toʻda yigʻ va Koʻk Boʻriga aylan.
 Dizayn hujjatlari: [`docs/blue_wolf/`](../docs/blue_wolf/) (GDD, API, sxema, balans jadvali). Oʻzgarishlar: [CHANGELOG.md](CHANGELOG.md).
@@ -126,6 +126,13 @@ vendor/bin/pint --test        # kod uslubi
   yangi binolar ochiladi, “Yangi daraja!” oynasi chiqadi.
 - Voqealar (qurilish, mashq, ovdan qaytish) server tomonda vaqt tartibida yopiladi — resurs hisobi har biridan keyin yangi holat bilan davom etadi.
 
+## Shifo gʻori (v0.0.16)
+
+6-darajada ochiladi (GDD bo'lim 5). Yaradorlar har doim 3 soatda oʻzi tuzaladi; Shifo gʻori ularni **shifobaxsh oʻt** evaziga tezroq davolaydi.
+- Sigʻim (bir toʻlqinda) bino darajasi bilan oʻsadi va hech qachon kamaymaydi; vaqt = toʻlqinlar × bitta toʻlqin (60 daq dan 27 daq gacha).
+- Oynada yaradorlar rol × tier boʻyicha slayder bilan tanlanadi; “Oʻzi tuzaladi” va “Shifo gʻorida” vaqtlari solishtiriladi.
+- `POST /hospital/heal`, `Formula::healPlan` = `BWGame.healPlan` (umumiy test: `tests/fixtures/army_cases.json`).
+
 ## Interfeys (v0.0.10–v0.0.14)
 
 - **Taymerlar paneli** resurslar ostida (faqat taymer boʻlsa): ixcham belgilar — ikonka (progress halqasi) + vaqt; qurilish — qahrabo + bolgʻa, mashq — binafsha + rol ikonkasi, ov — yashil + panja. In sahifasida alohida navbat boʻlimi yoʻq.
@@ -205,7 +212,8 @@ Skript `database/seeders/data/game_config.json` va `public/data/game_config.json
 | v0.0.12 | Ov taymeri, In dan navbat boʻlimi olib tashlandi, ov slayderlari faqat bor rollar uchun ✅ |
 | v0.0.13 | Profil → Qoʻshin: Kartalar, Medallar, Radar koʻrinishlari ✅ |
 | v0.0.14 | Qoʻshin subtablari: Rollar · Tierlar · Radar ✅ |
-| **v0.0.15** | Katta toʻda: 25-darajada 1062 boʻri, askar birligi bilan balans saqlandi ✅ |
+| v0.0.15 | Katta toʻda: 25-darajada 1062 boʻri, askar birligi bilan balans saqlandi ✅ |
+| **v0.0.16** | Shifo gʻori: yaradorlarni oʻt evaziga tez davolash, toʻlqinlar, taymer ✅ |
 | v0.4 | Tanishtiruv (20 qadam), kundalik vazifalar |
 | v0.5 | Botlarga hujum, razvedka, jang hisoblagichi, jarohat va davolash |
 | v0.6 | PvP (7–10 daraja), ov guruhlari, bildirishnomalar → **MVP** |

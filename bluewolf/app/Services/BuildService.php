@@ -153,9 +153,16 @@ class BuildService
         $left = max(0, $queue->ends_at->getTimestampMs() - $now->getTimestampMs()) / 1000;
         $cut = (int) ceil(min($left, GameConfig::value('tutorial_speedup_min', 60) * 60));
 
-        $queue->ends_at = $queue->ends_at->subSeconds($cut);
-        $queue->speeded_sec += $cut;
-        $queue->save();
+        // Shifo gʻoridagi muolaja — bitta umumiy taymer: hamma qatorlari birga tezlashadi
+        $group = $queue->kind === 'heal' && $queue->building_type === 'hospital'
+            ? $player->queues()->where(['kind' => 'heal', 'state' => 'running', 'building_type' => 'hospital'])->get()
+            : collect([$queue]);
+        foreach ($group as $item) {
+            $item->ends_at = $item->ends_at->subSeconds($cut);
+            $item->speeded_sec += $cut;
+            $item->save();
+        }
+        $queue->refresh();
         $player->decrement('free_speedups');
 
         return $queue;

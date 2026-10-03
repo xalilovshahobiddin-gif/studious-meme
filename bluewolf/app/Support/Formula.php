@@ -143,6 +143,64 @@ class Formula
         return $minutes * 60;
     }
 
+    /* ---- Shifo gʻori (GDD bo'lim 5 “Shifo gʻori”). Klient: public/js/game.js — natija bir xil. ---- */
+
+    /** Bir vaqtda davolanadigan boʻrilar (askar birligining shu bino darajasigacha eng kattasi bilan); 0 — qurilmagan. */
+    public static function hospitalCap(array $cfg, int $buildingLevel): int
+    {
+        if ($buildingLevel < 1) {
+            return 0;
+        }
+
+        return max(1, (int) self::jsRound(($cfg['hospital_cap_base'] + $cfg['hospital_cap_growth'] * ($buildingLevel - 1)) * self::unitPeak($cfg, $buildingLevel)));
+    }
+
+    /** Askar birligining shu darajagacha eng kattasi — sigʻim kuchaytirishda hech qachon kamaymasligi uchun. */
+    public static function unitPeak(array $cfg, int $level): float
+    {
+        $peak = 1.0;
+        for ($l = 1; $l <= $level; $l++) {
+            $peak = max($peak, self::unitScale($cfg, $l));
+        }
+
+        return $peak;
+    }
+
+    /** Bitta boʻrini davolash vaqti, daqiqa. */
+    public static function healMinutes(array $cfg, int $buildingLevel): float
+    {
+        return $cfg['heal_time_min'] / (1 + $cfg['heal_speed_growth'] * (max(1, $buildingLevel) - 1));
+    }
+
+    /** Bitta boʻrini davolash narxi, shifobaxsh oʻt (askar birligiga boʻlinadi). */
+    public static function healHerb(array $cfg, int $tier, int $level): float
+    {
+        return self::round2($cfg['heal_herb_per_tier'] * $tier / self::unitScale($cfg, $level));
+    }
+
+    /**
+     * Davolash rejasi: jami boʻri, oʻt, vaqt (daqiqa) va toʻlqinlar soni.
+     * Boʻrilar sigʻim boʻyicha toʻlqin-toʻlqin davolanadi: vaqt = toʻlqinlar × bitta boʻri vaqti.
+     *
+     * @param  array<string, array<int|string, int>>  $troops  rol → [tier => soni]
+     * @return array{qty: int, herb: float, minutes: float, waves: int, cap: int}
+     */
+    public static function healPlan(array $cfg, int $buildingLevel, int $level, array $troops): array
+    {
+        $qty = 0;
+        $herb = 0.0;
+        foreach ($troops as $tiers) {
+            foreach ($tiers as $tier => $n) {
+                $qty += (int) $n;
+                $herb += (int) $n * self::healHerb($cfg, (int) $tier, $level);
+            }
+        }
+        $cap = self::hospitalCap($cfg, $buildingLevel);
+        $waves = $cap > 0 ? (int) ceil($qty / $cap) : 0;
+
+        return ['qty' => $qty, 'herb' => self::round2($herb), 'minutes' => self::round2($waves * self::healMinutes($cfg, $buildingLevel)), 'waves' => $waves, 'cap' => $cap];
+    }
+
     /* ---- Ov xaritasi (GDD bo'lim 4 “Ov xaritasi”). Klient: public/js/game.js — natija bir xil. ---- */
 
     /** 32-bit butun koʻpaytma (JS Math.imul) — natija 0..2^32-1. */
