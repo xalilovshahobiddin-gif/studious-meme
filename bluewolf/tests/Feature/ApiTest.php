@@ -37,7 +37,7 @@ class ApiTest extends TestCase
         $this->getJson('/api/v1/ping')
             ->assertOk()
             ->assertJsonPath('ok', true)
-            ->assertJsonPath('data.version', '0.0.3');
+            ->assertJsonPath('data.version', '0.0.4');
     }
 
     public function test_state_requires_valid_init_data(): void

@@ -13,14 +13,15 @@ class Player extends Model
     /** last_seen_at / last_tick_at — DATETIME(3), millisekundlar resurs hisobi uchun kerak. */
     protected $dateFormat = 'Y-m-d H:i:s.v';
 
-    protected $fillable = ['tg_id', 'tg_username', 'display_name', 'lang', 'level', 'xp', 'tutorial_step', 'status', 'last_seen_at', 'free_speedups', 'second_queue_early'];
+    protected $fillable = ['tg_id', 'tg_username', 'display_name', 'lang', 'level', 'xp', 'tutorial_step', 'status', 'last_seen_at', 'free_speedups', 'second_queue_early', 'solo_hunt_at'];
 
     protected function casts(): array
     {
         return [
             'tg_id' => 'integer',
             'level' => 'integer',
-            'xp' => 'integer',
+            'xp' => 'float',
+            'solo_hunt_at' => 'immutable_datetime',
             'tutorial_step' => 'integer',
             'free_speedups' => 'integer',
             'second_queue_early' => 'boolean',
@@ -37,6 +38,16 @@ class Player extends Model
     public function buildings(): HasMany
     {
         return $this->hasMany(Building::class);
+    }
+
+    public function army(): HasMany
+    {
+        return $this->hasMany(Army::class);
+    }
+
+    public function marches(): HasMany
+    {
+        return $this->hasMany(March::class);
     }
 
     public function queues(): HasMany

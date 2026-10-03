@@ -139,6 +139,62 @@
   /** Ustaxonaning jami ishlab chiqarishi, birlik/soat (0 — qurilmagan). */
   function workshopPerHour(cfg, wsLevel) { return wsLevel > 0 ? cfg.prod_base * Math.pow(cfg.prod_growth, wsLevel - 1) : 0; }
 
+  // Excel “Oziqlanish”: daraja → asosiy oʻlja [nomi, kg] (server: App\Support\Formula::PREY)
+  var PREY = [null, ["Kemiruvchi", 0.5], ["Qush", 1], ["Quyon", 2], ["Sugʻur", 8], ["Jayron", 25], ["Jayron", 25],
+    ["Yovvoyi choʻchqa", 50], ["Yovvoyi choʻchqa", 50], ["Kiyik", 60], ["Kiyik", 60], ["Bugʻu", 100], ["Bugʻu", 100],
+    ["Arxar", 120], ["Arxar", 120], ["Yovvoyi ot", 250], ["Yovvoyi ot", 250], ["Los", 300], ["Los", 300], ["Bizon", 500],
+    ["Mamont bolasi", 800], ["Mamont", 1200], ["Ruh oʻljasi", 400], ["Ruh oʻljasi", 400], ["Ruh oʻljasi", 400], ["Ruh oʻljasi", 400]];
+
+  // GDD bo'lim 1: boʻri turlari
+  var WOLVES = [null, "Honsyu boʻrisi", "Efiopiya boʻrisi", "Arab boʻrisi", "Hind boʻrisi", "Qizil boʻri", "Italyan boʻrisi",
+    "Meksika boʻrisi", "Sharqiy boʻri", "Iberiya boʻrisi", "Dasht boʻrisi", "Himolay boʻrisi", "Ezo boʻrisi", "Tibet boʻrisi",
+    "Arktika boʻrisi", "Buyuk tekislik boʻrisi", "Yevroosiyo kulrang boʻrisi", "Tundra boʻrisi", "Alyaska ichki boʻrisi",
+    "Makkenzi vodiysi boʻrisi", "Beringiya boʻrisi", "Dahshatli boʻri", "Amarok", "Geri va Freki", "Fenrir", "Koʻk Boʻri"];
+
+  // GDD bo'lim 2: ochilish jadvali (MVP qismi)
+  var UNLOCKS = {
+    2: ["Oziq gʻori", "Ustaxona qoyasi"], 3: ["Ov soʻqmogʻi", "Birinchi ovchi", "Quyon ovi"],
+    4: ["Toʻda — qoʻshin 10 askar", "Jang maydoni, Razvedka qoyasi, Himoya devori", "Yolgʻiz ov yopiladi — endi toʻda bilan ov"],
+    5: ["Yirik oʻlja — jayron (kamida 2 boʻri)"], 6: ["Shifo gʻori"], 7: ["Haqiqiy oʻyinchilarga hujum"], 8: ["2-tier askarlar"],
+    9: ["Bozor"], 10: ["Ikkinchi qurilish navbati"], 12: ["3-tier askarlar"], 16: ["4-tier askarlar"], 20: ["5-tier askarlar", "Oy nuri"], 24: ["6-tier askarlar"]
+  };
+
+  /** Rol binosining askar sigʻimi. */
+  function roleCap(cfg, L) { return cfg.role_cap_base * Math.pow(cfg.role_cap_growth, L - 1); }
+
+  /** Bitta yangi askar narxi {meat, bone}: har tierda × tier_coef². */
+  function trainCost(cfg, tier) {
+    var m = Math.pow(cfg.tier_coef, 2 * (tier - 1));
+    return { meat: Math.round(cfg.train_meat_base * m), bone: Math.round(cfg.train_bone_base * m) };
+  }
+
+  /** Bitta askar mashqi, soniya: tier vaqti × MIN(5, bino jazosi × toʻlganlik) ÷ (mashq tezligi × In koeff.) */
+  function trainSeconds(cfg, tier, L, bLevel, armyTotal, roleTotal) {
+    var cap = armyCap(cfg, L), fill = cap > 0 ? armyTotal / cap : 1;
+    var occupancy = Math.max(0.5, Math.pow(fill / 0.6, cfg.occupancy_exp));
+    var penalty = Math.min(cfg.role_cap_penalty_max, Math.max(1, Math.pow(roleTotal / roleCap(cfg, bLevel), cfg.role_cap_penalty_exp)));
+    var speed = (1 + cfg.train_speed_per_level * (bLevel - 1)) * (1 + cfg.den_speed_coef * (L - 1));
+    return cfg.train_time_min * Math.pow(cfg.tier_coef, tier - 1) * Math.min(cfg.train_coef_max, penalty * occupancy) / speed * 60;
+  }
+
+  function round2(x) { return Math.round(x * 100) / 100; }
+
+  /** Ov natijasi. payload: {rol: {tier: soni}} */
+  function huntResult(cfg, L, payload) {
+    var kg = 0, sent = 0;
+    Object.keys(payload).forEach(function (role) {
+      Object.keys(payload[role]).forEach(function (tier) {
+        var q = payload[role][tier];
+        sent += q;
+        if (role === "hunter") kg += q * hunterYield(cfg, L, +tier) * cfg.hunt_duration_min / 60;
+      });
+    });
+    var minPack = Math.max(1, Math.ceil(PREY[L][1] / cfg.prey_kg_per_wolf));
+    var penalty = sent < minPack;
+    if (penalty) kg *= cfg.hunt_small_party_penalty;
+    return { meat: round2(kg), herb: round2(kg * cfg.hunt_herb_share), xp: round2(kg * cfg.xp_hunt_coef), min_pack: minPack, sent: sent, penalty: penalty };
+  }
+
   var BUILD = ["stone", "wood", "hide", "bone"];
 
   /** Ustaxona buferi sigʻimi: soatlik × workshop_buffer_h × ulush (oflaynda × offline_store_mult). */
@@ -246,7 +302,8 @@
     stage: stage, levelCost: levelCost, totalXp: totalXp, xpProgress: xpProgress,
     buildingCost: buildingCost, buildingTime: buildingTime, maxTier: maxTier, armyCap: armyCap,
     need: need, hunterYield: hunterYield, caveCap: caveCap, waterPerHour: waterPerHour, waterNeed: waterNeed,
-    workshopPerHour: workshopPerHour, bufferCap: bufferCap, advance: advance, collect: collect, validAlloc: validAlloc,
+    workshopPerHour: workshopPerHour, PREY: PREY, WOLVES: WOLVES, UNLOCKS: UNLOCKS, roleCap: roleCap,
+    trainCost: trainCost, trainSeconds: trainSeconds, huntResult: huntResult, bufferCap: bufferCap, advance: advance, collect: collect, validAlloc: validAlloc,
     BUILD: BUILD, fmt: fmt, fmtShort: fmtShort, fmtMinutes: fmtMinutes
   };
 
