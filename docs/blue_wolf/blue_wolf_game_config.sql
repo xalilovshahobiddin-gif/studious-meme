@@ -290,6 +290,16 @@ INSERT INTO game_config (config_key, config_value, unit, note) VALUES
   ('hunt_mid_death', 0.01, 'ehtimol', 'Har bir yuborilgan boʻri uchun'),
   ('hunt_far_death', 0.04, 'ehtimol', 'Har bir yuborilgan boʻri uchun'),
   ('hunt_herd_min', 0.7, 'x', 'Poda = tavsiya etilgan ovchilar unumi × shu…'),
-  ('hunt_herd_spread', 0.9, 'x', '… + tasodifiy 0–shu (kartaga qarab)')
+  ('hunt_herd_spread', 0.9, 'x', '… + tasodifiy 0–shu (kartaga qarab)'),
+  ('quest_monthly_count', 3, 'ta', 'Har oy (kalendar oy) 3 ta vazifa'),
+  ('quest_monthly_cap', 0.6, 'ulush', 'Oylik vazifalar jami = kunlik ishlab chiqarish × shu'),
+  ('quest_daily_chest', 0.05, 'ulush', 'Kunning hamma vazifasi bajarilganda (× kombo koeff.)'),
+  ('quest_combo_step', 0.1, 'ulush/kun', 'Ketma-ket har kun uchun sandiq +shu'),
+  ('quest_combo_max_days', 7, 'kun', 'Shundan keyin oʻsmaydi (maks ×1.6)'),
+  ('quest_weekly_chest', 0.1, 'ulush', 'Haftaning hamma vazifasi bajarilganda'),
+  ('quest_monthly_chest', 0.3, 'ulush', 'Oyning hamma vazifasi bajarilganda'),
+  ('login_gift_step', 0.01, 'ulush/kun', '7 kunlik taqvim: n-kun = shu × n'),
+  ('quest_meat_ratio', 2, 'x', 'Goʻsht mukofoti = ulush × shu × toʻdaning kunlik goʻsht ehtiyoji'),
+  ('quest_tz_offset_h', 5, 'soat', 'Kun/hafta/oy chegarasi: UTC+shu (Toshkent)')
 AS new ON DUPLICATE KEY UPDATE
   config_value = new.config_value, unit = new.unit, note = new.note;

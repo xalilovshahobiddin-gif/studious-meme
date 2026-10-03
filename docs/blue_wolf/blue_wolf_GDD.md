@@ -924,16 +924,45 @@ Xavfsiz chegara = 60%
 | 15 | 7,767 | 1,165 | 291 | 3,107 | 21% ✅ |
 | 25 | 56,738 | 8,511 | 2,128 | 22,695 | 21% ✅ |
 
-### Kundalik (4+1)
-Ovchi (3 ov) · Quruvchi (1 bino) · Murabbiy (1 askar) · Jangchi (1 hujum, botlar ham hisoblanadi) · Kirish bonusi
+### Tuzilma (Vazifalar tabi)
 
-### Haftalik (4)
-Katta ov (20 ov) · Sayohatchi (3 lager; MVP da — 3 razvedka) · Tajovuzkor (10 hujum, botlar ham hisoblanadi) · Uzoq ov (3 ta uzoq kartadagi ov)
+Vazifalar tabida subtablar: **‹ Orqaga** (oldingi tabga qaytadi) · **Kundalik** · **Haftalik** · **Oylik**. Har subtabda — yangilanishgacha qolgan vaqt, vazifalar, davr sandigʻi va “Hammasini olish”. Davr chegarasi — **Toshkent vaqti** (UTC+5): kun 00:00, hafta dushanba 00:00, oy 1-sanada.
+
+| Davr | Vazifalar | Bitta vazifa | Sandiq (hammasi bajarilsa) | Kuniga oʻrtacha |
+|---|---|---|---|---|
+| Kundalik | 4 ta | 3.75% | 5% × kun kombosi (×1.0 … ×1.6) | 15% + 5–8% |
+| Haftalik | 4 ta | 10% | 10% | 7.1% |
+| Oylik | 3 ta | 20% | 30% | 3% |
+| Kirish taqvimi | 7 kun | — | n-kun: 1% × n | 4% |
+
+Ulush — **kunlik ishlab chiqarish** (Ustaxona = oʻyinchi darajasi, soatlik × 24) dan. Jami kuniga **≤ 37%** — xavfsiz chegara (60%) ichida (`tools/blue_wolf_config.py` tekshiradi).
+
+**Vazifa turlari** (har davrga oʻyinchi ID + davr urugʻi bilan aralashtirib tanlanadi; daraja yetmaganlari chiqmaydi):
+
+| Vazifa | Sanaladi | Kundalik | Haftalik | Oylik | Daraja |
+|---|---|---|---|---|---|
+| Ovchi | ov (yolgʻiz ham) | 3 | 20 | 70 | 1+ |
+| Goʻsht zaxirasi | ovdan keltirilgan kg | 0.5 × kunlik ehtiyoj | 3 × | 12 × | 1+ |
+| Quruvchi | bino kuchaytirish | 1 | 4 | 12 | 2+ |
+| Yigʻuvchi | Ustaxona buferini yigʻish | 2 | 10 | 35 | 2+ |
+| Uzoq yoʻl | oʻrta/uzoq kartadagi ov | 1 | 5 | 15 | 3+ |
+| Murabbiy | tayyorlangan askar | 10% sigʻim | 50% | 150% | 4+ |
+| Sodiq boʻri | kirilgan kun | — | 5 | 20 | 1+ |
+
+**Kun kombosi.** Kundalik vazifalarning hammasi bajarilib, **Kun sandigʻi** ochilgan har ketma-ket kun kombo +1; sandiq ×(1 + 0.1 × (kombo − 1)), 7 kunda maks ×1.6. Bir kun oʻtkazilsa kombo yonib, 1 dan boshlanadi.
+
+**Kirish taqvimi.** Kuniga bir marta sovgʻa: 1-kun 1% … 7-kun 7%; 7 kundan keyin yana 1-kun. Kun oʻtkazilsa 1-kundan.
+
+**Mukofot — faqat resurs.** Qurilish resurslari (tosh 40% · shox-shabba 30% · teri 15% · suyak 15%) + goʻsht = ulush × 2 × toʻdaning kunlik goʻsht ehtiyoji (Oziq gʻori sigʻimigacha, ortigʻi chiriydi). Vazifalar goʻshti kunlik ehtiyojning ≤ 75% i — ov kerakligicha qoladi. **Askar, XP, tezlashtirish, oy toshi berilmaydi.** Mukofot miqdori davr boshlangandagi daraja bilan qotadi.
+
+Parametrlar: `Sozlamalar` → “Vazifalar: oylik va mukofotlar” (`quest_*`, `login_gift_step`).
 
 ### Bosqichli (10 yoʻnalish)
 Quruvchi (5·15·40·80·150) · Toʻda alfasi (5·10·15·20·25 askar) · Murabbiy (birinchi 2/4/6-tier) · Ovchi (50·200·1000) · Toʻplovchi (10k·100k·1mln) · Jangchi (10·50·200) · Gʻolib (5·25·100) · Razvedkachi (20·100) · Egallovchi (1·3 oazis) · Sodiq (7·30·100 kun)
 
 ### Mukofot turlari
+
+MVP da vazifalar faqat resurs beradi; quyidagi jadval — kelajakdagi (bosqichli, mavsum) mukofotlar uchun chegara.
 
 | ✅ Beriladi | ❌ Hech qachon |
 |---|---|
@@ -945,7 +974,7 @@ Quruvchi (5·15·40·80·150) · Toʻda alfasi (5·10·15·20·25 askar) · Mura
 | Mavsum ballari | Oy toshi |
 | Bozor soligʻini vaqtincha kamaytirish | Oʻlja koeffitsienti |
 
-**Qoida:** mukofot **vaqt** tejaydi, **kuch** bermaydi.
+**Qoida:** mukofot **vaqt** tejaydi, **kuch** bermaydi. Askar hech qachon mukofot sifatida berilmaydi.
 
 ---
 
@@ -1150,7 +1179,7 @@ uz (asosiy), ru, en; barcha matn `locales` jadvalida, kodda faqat kalit. Batafsi
 
 - **DB:** MySQL 8, 30 jadval — `blue_wolf_schema.sql`
 - **Balans:** Excel `blue_wolf_darajalar.xlsx` — `Sozlamalar` varagʻidagi nomlangan kataklar (masalan `xp_base`) va ularga tayangan formulalar. `game_config` jadvali shu varaqdan `tools/blue_wolf_config.py` bilan generatsiya qilinadi (`blue_wolf_game_config.sql`); kalitlar Excel nomlari bilan bir xil. Kodda birorta balans raqami qattiq yozilmaydi
-- **API:** 67 endpoint — `blue_wolf_api.md`
+- **API:** 68 endpoint — `blue_wolf_api.md`
 - **Server mantiqi, cron, xavfsizlik:** `blue_wolf_texnik_spec.md`, 4-boʻlim
 
 ---

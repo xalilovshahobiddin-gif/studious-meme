@@ -1,4 +1,4 @@
-/* Blue Wolf — demo maʼlumotlar (v0.0.7).
+/* Blue Wolf — demo maʼlumotlar (v0.0.8).
    Server topilmaganda (GitHub Pages, oddiy brauzer) ilova shu bilan ochiladi.
    Raqamlar GDD dagi 5-darajali oʻyinchiga mos namuna.
    v0.0.2: resurslar qurilmada vaqt boʻyicha hisoblanadi (localStorage "bw.demo.econ"). */
@@ -27,20 +27,5 @@ window.BW_DEMO = {
     { slot: 8, bot: true, name: "Kumush tuyoq", level: 6, band: "even", km: 26 },
     { slot: 9, bot: true, name: "Oydin soy", level: 6, band: "weak", km: 34 }
   ],
-  quests: {
-    daily: [
-      { key: "hunter", title: "Ovchi", desc: "3 marta ov qil", progress: 2, target: 3, reward: "40 kg goʻsht" },
-      { key: "builder", title: "Quruvchi", desc: "1 ta binoni kuchaytir", progress: 1, target: 1, reward: "Tosh + shox-shabba", done: true },
-      { key: "trainer", title: "Murabbiy", desc: "1 ta askar tayyorla", progress: 0, target: 1, reward: "Suyak" },
-      { key: "fighter", title: "Jangchi", desc: "1 ta hujum (botlar ham)", progress: 0, target: 1, reward: "10 daqiqa tezlashtirish" },
-      { key: "login", title: "Kirish bonusi", desc: "Oʻyinga kir", progress: 1, target: 1, reward: "Kichik goʻsht paketi", done: true }
-    ],
-    weekly: [
-      { key: "big_hunt", title: "Katta ov", desc: "20 marta ov qil", progress: 7, target: 20, reward: "Haftalik byudjetning 40%" },
-      { key: "traveler", title: "Sayohatchi", desc: "3 ta razvedka (MVP)", progress: 1, target: 3, reward: "Aralash resurs paketi" },
-      { key: "raider", title: "Tajovuzkor", desc: "10 ta hujum", progress: 2, target: 10, reward: "30 daqiqa tezlashtirish" },
-      { key: "pack", title: "Toʻda aʼzosi", desc: "3 ta guruh ovi", progress: 0, target: 3, reward: "Goʻsht paketi" }
-    ]
-  },
   battles: []
 };

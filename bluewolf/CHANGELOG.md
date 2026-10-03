@@ -1,5 +1,19 @@
 # Blue Wolf — oʻzgarishlar tarixi
 
+## v0.0.8 — vazifalar
+- **Vazifalar tabi** subtablar bilan: **‹ Orqaga** (oldingi tabga) · **Kundalik** · **Haftalik** · **Oylik**; har birida yangilanishgacha taymer,
+  vazifalar (progress, mukofot, “Olish”), **sandiq** va “Hammasini olish”. Tabda — olish mumkin boʻlganlar soni.
+- **Kundalik** 4 · **haftalik** 4 · **oylik** 3 vazifa: Ovchi, Goʻsht zaxirasi, Quruvchi, Yigʻuvchi, Uzoq yoʻl, Murabbiy, Sodiq boʻri —
+  daraja boʻyicha ochiladi, har oʻyinchiga oʻz urugʻi bilan tanlanadi. Davr chegarasi — Toshkent vaqti.
+- **Kun kombosi:** kundalikning hammasi bajarilgan har ketma-ket kun kun sandigʻi +10% (7 kunda ×1.6); kun oʻtkazilsa — 1 dan.
+- **Kirish taqvimi:** 7 kunlik sovgʻa (1%…7% kunlik ishlab chiqarish); kun oʻtkazilsa 1-kundan.
+- **Balans:** mukofot faqat resurs (qurilish resurslari + goʻsht, gʻor sigʻimigacha) — askar, XP, tezlashtirish berilmaydi. Jami kuniga ≤ 37% kunlik
+  ishlab chiqarish (xavfsiz chegara 60%), goʻsht toʻdani toʻliq boqmaydi — `tools/blue_wolf_config.py` tekshiradi.
+- Server: `player_quests` jadvali, `QuestService`, `QuestFormula`; `GET /quests`, `POST /quests/claim`, `/quests/login`; harakatlar
+  (ov, goʻsht, qurilish, mashq, yigʻish, kirish) avtomatik sanaladi.
+- GDD bo'lim 14, Excel `Sozlamalar` (+10 parametr), API (68 endpoint), sxema (`player_quests`) yangilandi.
+- Testlar: PHP 44 ta, JS 13 ta; umumiy `tests/fixtures/quest_cases.json` (PHP = JS).
+
 ## v0.0.7 — ov xaritasi
 - **Ov xaritasi:** Ov tabida 3 × 3 = 9 ta ov kartasi. Yuqori chapdan pastki oʻngga — eng qisqa va eng kam oʻljadan eng uzoq va
   eng koʻp oʻljaga. Kartada: oʻlja, taxminiy goʻsht (boʻsh ovchilaringiz bilan), masofa, vaqt, xavf darajasi.

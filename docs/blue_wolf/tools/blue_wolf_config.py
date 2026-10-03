@@ -274,6 +274,16 @@ KEYS = {
     "Ov: uzoq masofa halokat": "hunt_far_death",
     "Ov: poda hajmi (min)": "hunt_herd_min",
     "Ov: poda hajmi (tarqoqlik)": "hunt_herd_spread",
+    "Oylik vazifa soni": "quest_monthly_count",
+    "Oylik mukofot chegarasi": "quest_monthly_cap",
+    "Kun kombosi sandigʻi": "quest_daily_chest",
+    "Kombo qadami": "quest_combo_step",
+    "Kombo maksimal kuni": "quest_combo_max_days",
+    "Haftalik sandiq": "quest_weekly_chest",
+    "Oylik sandiq": "quest_monthly_chest",
+    "Kirish sovgʻasi qadami": "login_gift_step",
+    "Vazifa goʻshti koeffitsienti": "quest_meat_ratio",
+    "Vazifalar vaqt mintaqasi": "quest_tz_offset_h",
     "Ovdan shifobaxsh oʻt": "hunt_herb_share",
     "Oy nuri ehtiyoj darajasi": "moonlight_need_level",
     "Oy nuri passiv ishlab chiqarishi": "moonlight_passive_base",
@@ -455,6 +465,14 @@ def run_checks(b, wb):
         loot = stock * (1 - b.cave_protect(cave_L)) * b.raid_coef
         cons = b.need(L) * b.army(L)
         check(loot <= b.loot_cap_ratio * cons + 0.5, f"L{L}: oʻlja {loot:.0f} > {b.loot_cap_ratio:.0%} × {cons:.0f}")
+
+    # 6b. Vazifalar (GDD bo'lim 14): kunlik oʻrtacha mukofot xavfsiz chegaradan oshmaydi,
+    #     goʻsht mukofoti toʻdani toʻliq boqmaydi (ov kerakligicha qoladi)
+    combo_max = 1 + b.quest_combo_step * (b.quest_combo_max_days - 1)
+    per_day = (b.quest_daily_cap + b.quest_daily_chest * combo_max + b.login_gift_step * 4
+               + (b.quest_weekly_cap + b.quest_weekly_chest) / 7 + (b.quest_monthly_cap + b.quest_monthly_chest) / 30)
+    check(per_day <= b.quest_safe_cap, f"vazifalar kuniga {per_day:.0%} > xavfsiz chegara {b.quest_safe_cap:.0%}")
+    check(per_day * b.quest_meat_ratio < 1, f"vazifalar goʻshti kunlik ehtiyojning {per_day * b.quest_meat_ratio:.0%} i — ov kerak boʻlmay qoladi")
 
     # 7. Tanishtiruv XP: daraja ustuni qadam XP si bilan mos
     ws = wb["Tanishtiruv"]

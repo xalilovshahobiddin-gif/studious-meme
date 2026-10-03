@@ -5,7 +5,7 @@
 (function () {
   "use strict";
 
-  var VERSION = "0.0.7";
+  var VERSION = "0.0.8";
   var tg = window.Telegram && window.Telegram.WebApp;
   var initData = tg && tg.initData ? tg.initData : "";
 
@@ -58,7 +58,7 @@
       return Promise.all([request("state"), request("config")]).then(function (res) {
         var st = res[0].data;
         return { mode: "live", config: res[1].data.params, serverTime: res[0].state.server_time,
-          state: Object.assign({ targets: [], quests: { daily: [], weekly: [] }, battles: [] }, st) };
+          state: Object.assign({ targets: [], battles: [] }, st) };
       });
     }, function () {
       return loadLocalConfig().then(function (cfg) { return demoState(cfg, "no-server"); });

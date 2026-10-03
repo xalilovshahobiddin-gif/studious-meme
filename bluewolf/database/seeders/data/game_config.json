@@ -1714,5 +1714,65 @@
   "config_value": 0.9,
   "unit": "x",
   "note": "… + tasodifiy 0–shu (kartaga qarab)"
+ },
+ {
+  "config_key": "quest_monthly_count",
+  "config_value": 3.0,
+  "unit": "ta",
+  "note": "Har oy (kalendar oy) 3 ta vazifa"
+ },
+ {
+  "config_key": "quest_monthly_cap",
+  "config_value": 0.6,
+  "unit": "ulush",
+  "note": "Oylik vazifalar jami = kunlik ishlab chiqarish × shu"
+ },
+ {
+  "config_key": "quest_daily_chest",
+  "config_value": 0.05,
+  "unit": "ulush",
+  "note": "Kunning hamma vazifasi bajarilganda (× kombo koeff.)"
+ },
+ {
+  "config_key": "quest_combo_step",
+  "config_value": 0.1,
+  "unit": "ulush/kun",
+  "note": "Ketma-ket har kun uchun sandiq +shu"
+ },
+ {
+  "config_key": "quest_combo_max_days",
+  "config_value": 7.0,
+  "unit": "kun",
+  "note": "Shundan keyin oʻsmaydi (maks ×1.6)"
+ },
+ {
+  "config_key": "quest_weekly_chest",
+  "config_value": 0.1,
+  "unit": "ulush",
+  "note": "Haftaning hamma vazifasi bajarilganda"
+ },
+ {
+  "config_key": "quest_monthly_chest",
+  "config_value": 0.3,
+  "unit": "ulush",
+  "note": "Oyning hamma vazifasi bajarilganda"
+ },
+ {
+  "config_key": "login_gift_step",
+  "config_value": 0.01,
+  "unit": "ulush/kun",
+  "note": "7 kunlik taqvim: n-kun = shu × n"
+ },
+ {
+  "config_key": "quest_meat_ratio",
+  "config_value": 2.0,
+  "unit": "x",
+  "note": "Goʻsht mukofoti = ulush × shu × toʻdaning kunlik goʻsht ehtiyoji"
+ },
+ {
+  "config_key": "quest_tz_offset_h",
+  "config_value": 5.0,
+  "unit": "soat",
+  "note": "Kun/hafta/oy chegarasi: UTC+shu (Toshkent)"
  }
 ]

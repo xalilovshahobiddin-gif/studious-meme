@@ -117,7 +117,7 @@ class EconomyService
                     $after['army'] -= $cas['dead'];
                     $xp = $loot['xp'];
                     $finished[] = ['kind' => 'hunt', 'meat' => $loot['meat'], 'herb' => $loot['herb'], 'xp' => $xp, 'lost' => round($lost, 2),
-                        'prey' => $loot['prey'] ?? null, 'injured' => $cas['injured'], 'dead' => $cas['dead']];
+                        'prey' => $loot['prey'] ?? null, 'band' => $loot['band'] ?? 0, 'injured' => $cas['injured'], 'dead' => $cas['dead']];
                 } elseif ($item->kind === 'build') {
                     $player->buildings()->where('type', $item->building_type)->update(['level' => $item->target_level]);
                     if ($item->building_type === 'food_cave') {

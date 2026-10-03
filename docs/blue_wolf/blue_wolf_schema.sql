@@ -43,8 +43,11 @@ CREATE TABLE players (
   second_queue_early TINYINT(1)     NOT NULL DEFAULT 0 COMMENT '2-navbat 4–9 darajada sotib olingan; 10-darajadan hammaga bepul',
   auto_collect      TINYINT(1)      NOT NULL DEFAULT 0,
   offline_store_plus TINYINT(1)     NOT NULL DEFAULT 0 COMMENT 'Oflayn koeff. 2.0 -> 2.5',
-  login_streak      SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-  last_login_date   DATE            NULL,
+  login_day_key     INT UNSIGNED    NULL COMMENT 'Oxirgi kirish kuni (login vazifasi uchun)',
+  login_claimed_key INT UNSIGNED    NULL COMMENT 'Kirish sovgʻasi olingan oxirgi kun',
+  login_streak      TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Kirish taqvimi 1..7 (kun oʻtkazilsa 1)',
+  combo_day_key     INT UNSIGNED    NULL COMMENT 'Kun sandigʻi olingan oxirgi kun',
+  combo_streak      SMALLINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Kun kombosi: ketma-ket kunlar',
   device_hash       CHAR(64)        NULL COMMENT 'Anti-cheat: qurilma barmoq izi',
   ip_hash           CHAR(64)        NULL,
   status            ENUM('active','banned','deleted') NOT NULL DEFAULT 'active',
@@ -421,19 +424,21 @@ CREATE TABLE clan_war_contributions (
 -- 10. VAZIFALAR VA MAVSUM
 -- =====================================================================
 
-CREATE TABLE quests (
+-- Kundalik / haftalik / oylik vazifalar va davr sandigʻi (quest_key = 'chest'), GDD bo'lim 14.
+-- Davr vazifalari birinchi murojaatda yaratiladi (oʻyinchi ID + davr urugʻi, daraja shu paytda qotadi).
+CREATE TABLE player_quests (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   player_id     BIGINT UNSIGNED NOT NULL,
-  quest_key     VARCHAR(48) NOT NULL COMMENT 'locales kalitiga mos',
-  kind          ENUM('daily','weekly','milestone') NOT NULL,
-  progress      BIGINT UNSIGNED NOT NULL DEFAULT 0,
-  target        BIGINT UNSIGNED NOT NULL,
-  stage         TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Bosqichli vazifalar uchun',
-  claimed_at    DATETIME NULL,
-  resets_at     DATETIME NULL,
+  period        ENUM('d','w','m','milestone') NOT NULL COMMENT 'd kundalik · w haftalik · m oylik · bosqichli',
+  period_key    INT UNSIGNED NOT NULL COMMENT 'Kun/hafta/oy raqami (UTC + quest_tz_offset_h); bosqichli uchun 0',
+  quest_key     VARCHAR(24) NOT NULL COMMENT 'locales kalitiga mos; chest — davr sandigʻi',
+  metric        VARCHAR(24) NOT NULL COMMENT 'hunt, hunt_far, meat, build, train, collect, login, chest',
+  progress      DECIMAL(14,2) NOT NULL DEFAULT 0 COMMENT 'Kasr ham boʻladi (goʻsht kg)',
+  target        INT UNSIGNED NOT NULL,
+  reward        JSON NULL COMMENT 'Faqat resurslar {stone,wood,hide,bone,meat}; sandiqda — olinganda',
+  claimed_at    DATETIME(3) NULL,
   PRIMARY KEY (id),
-  UNIQUE KEY uq_quest (player_id, quest_key, kind),
-  KEY ix_quest_reset (kind, resets_at),
+  UNIQUE KEY ux_player_quest (player_id, period, period_key, quest_key),
   CONSTRAINT fk_quest_player FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 

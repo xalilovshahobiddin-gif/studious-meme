@@ -147,3 +147,40 @@
 .level-up .bw-resinfo__list { text-align: left; }
 @keyframes bw-levelup { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .level-up__num { animation: none; } }
+
+/* Vazifalar: subtablar (← Orqaga · Kundalik · Haftalik · Oylik) */
+.subtabs { grid-template-columns: auto repeat(3, 1fr); }
+.subtabs .bw-seg__btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; }
+.subtabs__back { padding: 0 10px; color: var(--bw-text-3); }
+.subtabs__back .bw-icon { transform: rotate(180deg); }
+.subtabs .bw-badge { position: static; min-width: 16px; height: 16px; font-size: 9.5px; }
+
+/* Vazifa kartasi */
+.quest.is-ready { border-color: rgba(52, 182, 116, .45); }
+.quest.is-claimed { opacity: .6; }
+.reward-chip .bw-icon { color: var(--bw-rc); }
+
+/* Sandiq */
+.chest { display: flex; gap: 12px; align-items: flex-start; }
+.chest__icon { width: 48px; height: 48px; flex: none; border-radius: 14px; display: grid; place-items: center; color: var(--bw-accent); background: rgba(255, 181, 71, .14); }
+.chest.is-ready { border-color: rgba(255, 181, 71, .55); box-shadow: 0 0 0 3px rgba(255, 181, 71, .12); }
+.chest.is-ready .chest__icon { animation: bw-chest 1.4s var(--bw-ease) infinite; }
+.chest.is-claimed { opacity: .6; }
+@keyframes bw-chest { 0%, 100% { transform: none; } 20% { transform: rotate(-8deg) scale(1.06); } 40% { transform: rotate(8deg) scale(1.06); } 60% { transform: none; } }
+
+/* Kirish taqvimi */
+.login-cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; margin-top: 12px; }
+.login-cal__day { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 2px; border-radius: 10px; background: var(--bw-surface-2); border: 1px solid var(--bw-border); color: var(--bw-text-3); }
+.login-cal__n { font-size: 9.5px; font-weight: 700; }
+.login-cal__v { font: 700 11px/1 var(--bw-font-num); color: var(--bw-text-2); }
+.login-cal__day .bw-icon { width: 16px; height: 16px; }
+.login-cal__day.is-got { color: var(--bw-success); border-color: rgba(52, 182, 116, .35); }
+.login-cal__day.is-today { color: var(--bw-accent); border-color: var(--bw-accent); box-shadow: 0 0 0 2px rgba(255, 181, 71, .18); }
+
+/* Kun kombosi */
+.combo { display: flex; gap: 12px; align-items: flex-start; }
+.combo__flame { width: 48px; height: 48px; flex: none; border-radius: 14px; display: grid; place-items: center; color: #ff8a3d; background: rgba(255, 138, 61, .14); }
+.combo__dots { display: flex; gap: 5px; margin: 8px 0; }
+.combo__dot { flex: 1; height: 6px; border-radius: 3px; background: var(--bw-surface-2); }
+.combo__dot.is-on { background: linear-gradient(90deg, #ffb547, #ff6b3d); }
+@media (prefers-reduced-motion: reduce) { .chest.is-ready .chest__icon { animation: none; } }

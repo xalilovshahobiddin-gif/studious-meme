@@ -1,0 +1,484 @@
+{
+ "_note": "QuestFormula (PHP) va BWGame (JS) vazifalar formulalari uchun umumiy holatlar.",
+ "periods": [
+  {
+   "now": 1791021600000,
+   "period": "d",
+   "result": {
+    "key": 20729,
+    "ends_at": 1791054000000
+   }
+  },
+  {
+   "now": 1791021600000,
+   "period": "w",
+   "result": {
+    "key": 2961,
+    "ends_at": 1791140400000
+   }
+  },
+  {
+   "now": 1791021600000,
+   "period": "m",
+   "result": {
+    "key": 24321,
+    "ends_at": 1793473200000
+   }
+  },
+  {
+   "now": 1798749000000,
+   "period": "d",
+   "result": {
+    "key": 20819,
+    "ends_at": 1798830000000
+   }
+  },
+  {
+   "now": 1798749000000,
+   "period": "w",
+   "result": {
+    "key": 2974,
+    "ends_at": 1799002800000
+   }
+  },
+  {
+   "now": 1798749000000,
+   "period": "m",
+   "result": {
+    "key": 24324,
+    "ends_at": 1801422000000
+   }
+  },
+  {
+   "now": 1803841199000,
+   "period": "d",
+   "result": {
+    "key": 20877,
+    "ends_at": 1803841200000
+   }
+  },
+  {
+   "now": 1803841199000,
+   "period": "w",
+   "result": {
+    "key": 2982,
+    "ends_at": 1803841200000
+   }
+  },
+  {
+   "now": 1803841199000,
+   "period": "m",
+   "result": {
+    "key": 24325,
+    "ends_at": 1803841200000
+   }
+  },
+  {
+   "now": 1803841200000,
+   "period": "d",
+   "result": {
+    "key": 20878,
+    "ends_at": 1803927600000
+   }
+  },
+  {
+   "now": 1803841200000,
+   "period": "w",
+   "result": {
+    "key": 2983,
+    "ends_at": 1804446000000
+   }
+  },
+  {
+   "now": 1803841200000,
+   "period": "m",
+   "result": {
+    "key": 24326,
+    "ends_at": 1806519600000
+   }
+  }
+ ],
+ "quests": [
+  {
+   "player": 0,
+   "level": 1,
+   "period": "d",
+   "key": 20729,
+   "quests": [
+    {
+     "key": "hunt",
+     "metric": "hunt",
+     "title": "Ovchi",
+     "desc": "3 marta ovga chiq",
+     "target": 3,
+     "reward": {
+      "stone": 7,
+      "wood": 5,
+      "hide": 3,
+      "bone": 3
+     }
+    },
+    {
+     "key": "meat",
+     "metric": "meat",
+     "title": "Goʻsht zaxirasi",
+     "desc": "Ovdan 1 kg goʻsht keltir",
+     "target": 1,
+     "reward": {
+      "stone": 7,
+      "wood": 5,
+      "hide": 3,
+      "bone": 3
+     }
+    }
+   ]
+  },
+  {
+   "player": 42,
+   "level": 5,
+   "period": "d",
+   "key": 20729,
+   "quests": [
+    {
+     "key": "hunt",
+     "metric": "hunt",
+     "title": "Ovchi",
+     "desc": "3 marta ovga chiq",
+     "target": 3,
+     "reward": {
+      "stone": 16,
+      "wood": 12,
+      "hide": 6,
+      "bone": 6,
+      "meat": 1
+     }
+    },
+    {
+     "key": "meat",
+     "metric": "meat",
+     "title": "Goʻsht zaxirasi",
+     "desc": "Ovdan 6 kg goʻsht keltir",
+     "target": 6,
+     "reward": {
+      "stone": 16,
+      "wood": 12,
+      "hide": 6,
+      "bone": 6,
+      "meat": 1
+     }
+    },
+    {
+     "key": "far",
+     "metric": "hunt_far",
+     "title": "Uzoq yoʻl",
+     "desc": "Oʻrta yoki uzoq kartada 1 marta ovla",
+     "target": 1,
+     "reward": {
+      "stone": 16,
+      "wood": 12,
+      "hide": 6,
+      "bone": 6,
+      "meat": 1
+     }
+    },
+    {
+     "key": "train",
+     "metric": "train",
+     "title": "Murabbiy",
+     "desc": "1 ta askar tayyorla",
+     "target": 1,
+     "reward": {
+      "stone": 16,
+      "wood": 12,
+      "hide": 6,
+      "bone": 6,
+      "meat": 1
+     }
+    }
+   ]
+  },
+  {
+   "player": 42,
+   "level": 5,
+   "period": "w",
+   "key": 2961,
+   "quests": [
+    {
+     "key": "build",
+     "metric": "build",
+     "title": "Quruvchi",
+     "desc": "4 marta binoni kuchaytir",
+     "target": 4,
+     "reward": {
+      "stone": 43,
+      "wood": 32,
+      "hide": 16,
+      "bone": 16,
+      "meat": 2
+     }
+    },
+    {
+     "key": "collect",
+     "metric": "collect",
+     "title": "Yigʻuvchi",
+     "desc": "Ustaxona buferini 10 marta yigʻ",
+     "target": 10,
+     "reward": {
+      "stone": 43,
+      "wood": 32,
+      "hide": 16,
+      "bone": 16,
+      "meat": 2
+     }
+    },
+    {
+     "key": "far",
+     "metric": "hunt_far",
+     "title": "Uzoq yoʻl",
+     "desc": "Oʻrta yoki uzoq kartada 5 marta ovla",
+     "target": 5,
+     "reward": {
+      "stone": 43,
+      "wood": 32,
+      "hide": 16,
+      "bone": 16,
+      "meat": 2
+     }
+    },
+    {
+     "key": "login",
+     "metric": "login",
+     "title": "Sodiq boʻri",
+     "desc": "5 kun oʻyinga kir",
+     "target": 5,
+     "reward": {
+      "stone": 43,
+      "wood": 32,
+      "hide": 16,
+      "bone": 16,
+      "meat": 2
+     }
+    }
+   ]
+  },
+  {
+   "player": 42,
+   "level": 10,
+   "period": "m",
+   "key": 24321,
+   "quests": [
+    {
+     "key": "hunt",
+     "metric": "hunt",
+     "title": "Ovchi",
+     "desc": "70 marta ovga chiq",
+     "target": 70,
+     "reward": {
+      "stone": 230,
+      "wood": 172,
+      "hide": 86,
+      "bone": 86,
+      "meat": 18
+     }
+    },
+    {
+     "key": "far",
+     "metric": "hunt_far",
+     "title": "Uzoq yoʻl",
+     "desc": "Oʻrta yoki uzoq kartada 15 marta ovla",
+     "target": 15,
+     "reward": {
+      "stone": 230,
+      "wood": 172,
+      "hide": 86,
+      "bone": 86,
+      "meat": 18
+     }
+    },
+    {
+     "key": "login",
+     "metric": "login",
+     "title": "Sodiq boʻri",
+     "desc": "20 kun oʻyinga kir",
+     "target": 20,
+     "reward": {
+      "stone": 230,
+      "wood": 172,
+      "hide": 86,
+      "bone": 86,
+      "meat": 18
+     }
+    }
+   ]
+  },
+  {
+   "player": 7,
+   "level": 25,
+   "period": "d",
+   "key": 20000,
+   "quests": [
+    {
+     "key": "hunt",
+     "metric": "hunt",
+     "title": "Ovchi",
+     "desc": "3 marta ovga chiq",
+     "target": 3,
+     "reward": {
+      "stone": 851,
+      "wood": 638,
+      "hide": 319,
+      "bone": 319,
+      "meat": 104
+     }
+    },
+    {
+     "key": "meat",
+     "metric": "meat",
+     "title": "Goʻsht zaxirasi",
+     "desc": "Ovdan 691 kg goʻsht keltir",
+     "target": 691,
+     "reward": {
+      "stone": 851,
+      "wood": 638,
+      "hide": 319,
+      "bone": 319,
+      "meat": 104
+     }
+    },
+    {
+     "key": "collect",
+     "metric": "collect",
+     "title": "Yigʻuvchi",
+     "desc": "Ustaxona buferini 2 marta yigʻ",
+     "target": 2,
+     "reward": {
+      "stone": 851,
+      "wood": 638,
+      "hide": 319,
+      "bone": 319,
+      "meat": 104
+     }
+    },
+    {
+     "key": "far",
+     "metric": "hunt_far",
+     "title": "Uzoq yoʻl",
+     "desc": "Oʻrta yoki uzoq kartada 1 marta ovla",
+     "target": 1,
+     "reward": {
+      "stone": 851,
+      "wood": 638,
+      "hide": 319,
+      "bone": 319,
+      "meat": 104
+     }
+    }
+   ]
+  },
+  {
+   "player": 123,
+   "level": 3,
+   "period": "w",
+   "key": 3000,
+   "quests": [
+    {
+     "key": "hunt",
+     "metric": "hunt",
+     "title": "Ovchi",
+     "desc": "20 marta ovga chiq",
+     "target": 20,
+     "reward": {
+      "stone": 29,
+      "wood": 21,
+      "hide": 11,
+      "bone": 11
+     }
+    },
+    {
+     "key": "meat",
+     "metric": "meat",
+     "title": "Goʻsht zaxirasi",
+     "desc": "Ovdan 3 kg goʻsht keltir",
+     "target": 3,
+     "reward": {
+      "stone": 29,
+      "wood": 21,
+      "hide": 11,
+      "bone": 11
+     }
+    },
+    {
+     "key": "build",
+     "metric": "build",
+     "title": "Quruvchi",
+     "desc": "4 marta binoni kuchaytir",
+     "target": 4,
+     "reward": {
+      "stone": 29,
+      "wood": 21,
+      "hide": 11,
+      "bone": 11
+     }
+    },
+    {
+     "key": "far",
+     "metric": "hunt_far",
+     "title": "Uzoq yoʻl",
+     "desc": "Oʻrta yoki uzoq kartada 5 marta ovla",
+     "target": 5,
+     "reward": {
+      "stone": 29,
+      "wood": 21,
+      "hide": 11,
+      "bone": 11
+     }
+    }
+   ]
+  }
+ ],
+ "rewards": [
+  {
+   "level": 1,
+   "share": 0.0375,
+   "reward": {
+    "stone": 7,
+    "wood": 5,
+    "hide": 3,
+    "bone": 3
+   }
+  },
+  {
+   "level": 5,
+   "share": 0.0375,
+   "reward": {
+    "stone": 16,
+    "wood": 12,
+    "hide": 6,
+    "bone": 6,
+    "meat": 1
+   }
+  },
+  {
+   "level": 10,
+   "share": 0.2,
+   "reward": {
+    "stone": 230,
+    "wood": 172,
+    "hide": 86,
+    "bone": 86,
+    "meat": 18
+   }
+  },
+  {
+   "level": 25,
+   "share": 0.08,
+   "reward": {
+    "stone": 1816,
+    "wood": 1362,
+    "hide": 681,
+    "bone": 681,
+    "meat": 221
+   }
+  }
+ ]
+}

@@ -129,6 +129,7 @@ class HuntService
             'loot' => Formula::huntResult($cfg, $player->level, $card, $clean) + [
                 'prey' => $card['prey'],
                 'km' => $card['km'],
+                'band' => $card['band'],
                 'casualties' => $this->casualties($clean, $card['injury'], $card['death']),
             ],
             'departs_at' => $now,
