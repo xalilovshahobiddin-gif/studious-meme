@@ -1,5 +1,12 @@
 # Blue Wolf — oʻzgarishlar tarixi
 
+## v0.0.11 — menyu tutqichi va ixcham taymerlar
+- **Menyu tutqichi:** yuqoridagi ☰ oʻrniga ekran oʻrtasida chap chetda yarmi koʻrinadigan tugma. Bosilganda menyu chiqadi,
+  tutqich menyu ramkasiga ulangan holda u bilan birga suriladi (› → ‹); qayta bosilsa birga yopiladi.
+- **Taymerlar** resurs kataklariga oʻxshash: faqat ikonka + vaqt, kichik shrift; ikonka atrofida toʻlib boradigan halqa,
+  yumaloq uzuq chiziqli ramka; qurilish — qahrabo, mashq — binafsha. Kelajakdagi taymerlar shu qatorga qoʻshiladi.
+- GDD bo'lim 18, texnik spec yangilandi.
+
 ## v0.0.10 — interfeys: taymerlar, menyu, resurs animatsiyasi
 - **Yangi ikonkalar:** Toʻda tabi — ikki boʻri boshi (toʻda), Profil — doira ichidagi boʻri boshi (oʻyinchi nishoni).
 - **Taymerlar paneli** resurslar ostida — faqat taymer bor paytda chiqadi. Qurilish (qahrabo, bolgʻa, “QURILISH”) va mashq

@@ -12,8 +12,8 @@ Oʻyin dizayni (formulalar, jadvallar, MVP doirasi) — `blue_wolf_GDD.md`; bu h
 Pastda **6 ta asosiy tab** (In · Ov · Jang · Toʻda · Vazifalar · Profil). Qolgan hamma narsa shularning ichida.
 
 ### Yuqori panel (hamma tabda)
-- **☰ Menyu** tugmasi → chap yondan suzib chiqadigan panel (`#drawer`, kengligi `min(78vw, 320px)`), fon xiralashadi; yopish: ✕, fon, chapga surish, Telegram BackButton, Esc. Bandlari keyin qoʻshiladi
-- Resurs paneli ostida **taymerlar paneli** (`#timer-bar`): faqat navbat bor paytda; qurilish — qahrabo + bolgʻa, mashq — binafsha + rol ikonkasi; bosilsa bino oynasi
+- **Menyu tutqichi** (`#menu-btn`, ekran oʻrtasida chap chetda yarmi koʻrinadi) → chap yondan suzib chiqadigan panel (`#drawer`, kengligi `min(78vw, 320px)`); tutqich ramkaga ulangan holda birga chiqadi va kiradi; yopish: tutqich, ✕, fon, chapga surish, Telegram BackButton, Esc. Bandlari keyin qoʻshiladi
+- Resurs paneli ostida **taymerlar paneli** (`#timer-bar`): faqat navbat bor paytda; har taymer — ikonka (progress halqasi) + vaqt; qurilish — qahrabo + bolgʻa, mashq — binafsha + rol ikonkasi; bosilsa bino oynasi
 - Mukofot olinganda “+N” belgilari resurs kataklariga uchadi (`flyGain`); `prefers-reduced-motion` da oʻchadi
 
 ### 🏔 In (asosiy ekran)
