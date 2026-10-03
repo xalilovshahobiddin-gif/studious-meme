@@ -266,8 +266,14 @@ Yakuniy hisob, yoʻqotishlar (oʻlim/kasalxona), aʼzo mukofotlari (15% shiftdan
 ## 11. Vazifalar va mavsum
 
 ### `GET /quests`
-Kundalik, haftalik, bosqichli.
-### `POST /quests/:id/claim`
+`{ d, w, m, login, combo }` — har davr: `key`, `ends_at`, `quests: [{ id, key, title, desc, target, progress, reward, claimed }]`,
+`chest: { id, target, progress, claimed, reward }`. `login: { day, claimed_today, gifts[7] }`, `combo: { streak, next, mult, max_days }`.
+Vazifalar har oʻyinchiga oʻz urugʻi bilan tanlanadi (GDD bo'lim 14). `/state` va har javob `state` ida ham bor.
+### `POST /quests/claim`
+`{ "id": 123 }` — bajarilgan vazifa yoki davr sandigʻi (hamma vazifa mukofoti olingach). Kun sandigʻi kun kombosi koeffitsienti bilan.
+Javob: `{ reward, lost }` (`lost` — Oziq gʻoriga sigʻmagan goʻsht). Xatolar: `VALIDATION` (bajarilmagan), `QUEUE_BUSY` (olingan), `NOT_FOUND` (davri oʻtgan).
+### `POST /quests/login`
+7 kunlik kirish sovgʻasi: kuniga bir marta; kun oʻtkazilsa 1-kundan. Javob: `{ day, reward, lost }`.
 ### `GET /season`
 Joriy mavsum, shaxsiy ball, reyting, liga, fond.
 ### `GET /season/leaderboard?scope=global|clan&limit=100`
@@ -345,6 +351,6 @@ Oshsa → `429` va `Retry-After` sarlavhasi.
 
 ---
 
-**Jami: 67 endpoint.**
+**Jami: 68 endpoint.**
 
-**MVP uchun 36 tasi:** `/state`, `/profile`, `/profile/settings`, `/profile/allocation` · `/buildings`, `/buildings/upgrade`, `/buildings/collect`, `/hospital/heal` · `/army`, `/army/train`, `/army/promote`, `/army/promote/preview`, `/queue/cancel`, `/queue/speedup` (faqat bepul tezlashtirish) · `/hunt/board`, `/hunt/solo`, `/hunt` · `/pvp/targets`, `/pvp/targets/refresh`, `/pvp/scout`, `/pvp/scout/:slot`, `/pvp/attack`, `/march/:id`, `/march/:id/recall`, `/battles`, `/battles/:id` · `/quests`, `/quests/:id/claim` · `/tutorial/step`, `/tutorial/skip` · `/notifications`, `/notifications/settings`, `/events`, `/config`, `/locales/:lang`, `/bot/webhook`.
+**MVP uchun 37 tasi:** `/state`, `/profile`, `/profile/settings`, `/profile/allocation` · `/buildings`, `/buildings/upgrade`, `/buildings/collect`, `/hospital/heal` · `/army`, `/army/train`, `/army/promote`, `/army/promote/preview`, `/queue/cancel`, `/queue/speedup` (faqat bepul tezlashtirish) · `/hunt/board`, `/hunt/solo`, `/hunt` · `/pvp/targets`, `/pvp/targets/refresh`, `/pvp/scout`, `/pvp/scout/:slot`, `/pvp/attack`, `/march/:id`, `/march/:id/recall`, `/battles`, `/battles/:id` · `/quests`, `/quests/claim`, `/quests/login` · `/tutorial/step`, `/tutorial/skip` · `/notifications`, `/notifications/settings`, `/events`, `/config`, `/locales/:lang`, `/bot/webhook`.

@@ -1,4 +1,4 @@
-/* Blue Wolf Mini App — v0.0.7 (iqtisodiyot, qurilish, askarlar va ov)
+/* Blue Wolf Mini App — v0.0.8 (iqtisodiyot, qurilish, askarlar va ov)
    6 ta tab (In · Ov · Jang · Toʻda · Vazifalar · Profil), hash-router, Telegram WebApp integratsiyasi.
    Resurslar vaqt boʻyicha hisoblanadi (BWGame.advance — server bilan bir xil formula), Ustaxona buferi
    va taqsimoti, qurilish, askar mashqi va ov ishlaydi. Qolgan amallar (hujum, razvedka…) keyingi bosqichlarda ulanadi. */
@@ -10,7 +10,7 @@
   var icon = function (name, cls) { return window.BWIcons.svg(name, cls); };
   var $ = function (sel) { return document.querySelector(sel); };
 
-  var app = { mode: "demo", config: {}, state: null, econ: null, offset: 0, tab: "in", seg: { jang: "targets" } };
+  var app = { mode: "demo", config: {}, state: null, econ: null, offset: 0, tab: "in", prevTab: "in", seg: { jang: "targets", vazifalar: "d" } };
 
   var ROADMAP = "Bu amal keyingi bosqichda ulanadi";
 
@@ -98,11 +98,7 @@
       banner.hidden = true;
     }
 
-    var daily = (app.state.quests && app.state.quests.daily) || [];
-    var ready = daily.filter(function (q) { return q.progress >= q.target && !q.done; }).length;
-    var badge = $("#quest-badge");
-    badge.hidden = !ready;
-    badge.textContent = ready;
+    updateQuestBadge();
   }
 
   /* ---------------------------------------------------------------- Resurslar */
@@ -519,27 +515,240 @@
   }
 
   /* ---------------------------------------------------------------- 📋 Vazifalar */
+  var PERIOD_NAME = { d: "Kundalik", w: "Haftalik", m: "Oylik" };
+  var CHEST_NAME = { d: "Kun sandigʻi", w: "Hafta sandigʻi", m: "Oy sandigʻi" };
+
+  /** Vazifalar holati (live — serverdan, demo — qurilmada, server bilan bir xil formulalar). */
+  function questState() {
+    if (app.mode === "live") return app.state.quests;
+    demoQuestEnsure(now());
+    var q = app.state.qd, cfg = app.config, today = q.sets.d.key, out = {};
+    var comboNow = (q.combo_day_key === today || q.combo_day_key === today - 1) ? q.combo_streak : 0;
+    var comboNext = q.combo_day_key === today ? q.combo_streak : comboNow + 1;
+    ["d", "w", "m"].forEach(function (p) {
+      var set = q.sets[p], chestShare = { d: cfg.quest_daily_chest, w: cfg.quest_weekly_chest, m: cfg.quest_monthly_chest }[p] * (p === "d" ? G.comboMult(cfg, comboNext) : 1);
+      out[p] = { key: set.key, ends_at: G.questPeriod(cfg, p, now()).ends_at,
+        quests: set.rows.map(function (r) { return Object.assign({}, r, { progress: Math.floor(r.progress) }); }),
+        chest: Object.assign({}, set.chest, { reward: set.chest.claimed ? set.chest.reward : G.questReward(cfg, set.level, chestShare) }) };
+    });
+    out.login = { day: q.login_claimed_key === today ? q.login_streak : (q.login_claimed_key === today - 1 ? q.login_streak % 7 + 1 : 1),
+      claimed_today: q.login_claimed_key === today,
+      gifts: [1, 2, 3, 4, 5, 6, 7].map(function (n) { return G.questReward(cfg, app.state.player.level, cfg.login_gift_step * n); }) };
+    out.combo = { streak: comboNow, next: comboNext, mult: G.comboMult(cfg, comboNext), max_days: cfg.quest_combo_max_days };
+    return out;
+  }
+
+  /** Demo: joriy davr vazifalari boʻlmasa — yaratadi (server QuestService::ensure bilan bir xil). */
+  function demoQuestEnsure(t) {
+    var cfg = app.config, p = app.state.player;
+    if (!app.state.qd) app.state.qd = { sets: {}, login_day_key: null, login_claimed_key: null, login_streak: 0, combo_day_key: null, combo_streak: 0, seq: 1 };
+    var q = app.state.qd;
+    ["d", "w", "m"].forEach(function (per) {
+      var key = G.questPeriod(cfg, per, t).key;
+      if (q.sets[per] && q.sets[per].key === key) return;
+      var rows = G.questsFor(cfg, p.id || 0, p.level, per, key).map(function (x) {
+        return { id: q.seq++, key: x.key, metric: x.metric, title: x.title, desc: x.desc, target: x.target, progress: 0, reward: x.reward, claimed: false };
+      });
+      q.sets[per] = { key: key, level: p.level, rows: rows, chest: { id: q.seq++, target: rows.length, progress: 0, claimed: false } };
+    });
+    var today = q.sets.d.key;
+    if (q.login_day_key !== today) { q.login_day_key = today; questTrack("login", 1); }
+  }
+
+  /** Harakatni sanash (demo; jonli rejimda server oʻzi sanaydi). */
+  function questTrack(metric, amount) {
+    if (app.mode === "live" || !(amount > 0)) return;
+    demoQuestEnsure(now());
+    ["d", "w", "m"].forEach(function (per) {
+      app.state.qd.sets[per].rows.forEach(function (r) {
+        if (r.metric === metric && !r.claimed) r.progress = Math.min(r.target, Math.round((r.progress + amount) * 100) / 100);
+      });
+    });
+  }
+
+  /** Olish mumkin boʻlganlar soni (tab belgisi uchun). */
+  function questReadyCount(st) {
+    st = st || questState();
+    if (!st) return 0;
+    var n = st.login && !st.login.claimed_today ? 1 : 0;
+    ["d", "w", "m"].forEach(function (p) {
+      if (!st[p]) return;
+      n += st[p].quests.filter(function (q) { return !q.claimed && q.progress >= q.target; }).length;
+      if (!st[p].chest.claimed && st[p].chest.target > 0 && st[p].chest.progress >= st[p].chest.target) n++;
+    });
+    return n;
+  }
+
+  function updateQuestBadge() {
+    var badge = $("#quest-badge"), n = app.config && app.state ? questReadyCount() : 0;
+    badge.hidden = !n;
+    badge.textContent = n;
+  }
+
+  function rewardChips(reward) {
+    return Object.keys(reward || {}).map(function (k) {
+      return '<span class="bw-chip reward-chip" style="--bw-rc: var(--bw-res-' + k + ')">' + icon(resMeta(k).icon, "bw-icon--sm") + " " + G.fmtShort(reward[k]) + "</span>";
+    }).join("");
+  }
+
+  function rewardText(reward) {
+    return Object.keys(reward || {}).map(function (k) { return "+" + G.fmt(reward[k]) + " " + resMeta(k).short.toLowerCase(); }).join(", ");
+  }
+
   function questCard(q) {
-    var ratio = Math.min(1, q.progress / q.target);
-    var ready = q.progress >= q.target && !q.done;
-    return '<div class="bw-card bw-card--flat"><div class="bw-between"><div class="bw-grow"><div class="bw-row__title">' + esc(q.title) +
-      (q.done ? ' <span class="bw-chip bw-chip--success" style="margin-left:4px">' + icon("check", "bw-icon--sm") + " olindi</span>" : "") +
+    var ratio = Math.min(1, q.progress / q.target), ready = q.progress >= q.target && !q.claimed;
+    return '<div class="bw-card bw-card--flat quest' + (q.claimed ? " is-claimed" : ready ? " is-ready" : "") + '">' +
+      '<div class="bw-between"><div class="bw-grow"><div class="bw-row__title">' + esc(q.title) +
+      (q.claimed ? ' <span class="bw-chip bw-chip--success" style="margin-left:4px">' + icon("check", "bw-icon--sm") + " olindi</span>" : "") +
       '</div><div class="bw-row__sub">' + esc(q.desc) + '</div></div><span class="bw-num bw-muted">' + Math.min(q.progress, q.target) + "/" + q.target + "</span></div>" +
       '<div class="bw-progress ' + (ratio >= 1 ? "bw-progress--success" : "") + '" style="margin:10px 0 8px"><div class="bw-progress__bar" style="width:' +
-      Math.round(ratio * 100) + '%"></div></div><div class="bw-between"><span class="bw-chip bw-chip--accent">' + icon("gift", "bw-icon--sm") + " " +
-      esc(q.reward) + "</span>" + (ready ? '<button class="bw-btn bw-btn--sm" data-action="claim">Olish</button>' : "") + "</div></div>";
+      Math.round(ratio * 100) + '%"></div></div><div class="bw-between"><span class="cost-row">' + rewardChips(q.reward) + "</span>" +
+      (ready ? '<button class="bw-btn bw-btn--accent bw-btn--sm" data-action="quest-claim" data-q="' + q.id + '">' + icon("gift", "bw-icon--sm") + " Olish</button>" : "") + "</div></div>";
+  }
+
+  function chestCard(p, chest, combo) {
+    var ready = !chest.claimed && chest.target > 0 && chest.progress >= chest.target;
+    return '<div class="bw-card chest' + (ready ? " is-ready" : chest.claimed ? " is-claimed" : "") + '"><span class="chest__icon">' + icon("gift", "bw-icon--lg") + "</span>" +
+      '<div class="bw-grow"><div class="bw-between"><span class="bw-h3">' + CHEST_NAME[p] + "</span>" +
+      (p === "d" && combo && combo.mult > 1 ? '<span class="bw-chip bw-chip--accent">×' + combo.mult.toFixed(1).replace(".", ",") + "</span>" : "") + "</div>" +
+      '<div class="bw-muted" style="font-size:12px;margin:2px 0 8px">' + (chest.claimed ? "Ochildi" : "Hamma vazifa mukofotini oling: " + chest.progress + " / " + chest.target) + "</div>" +
+      '<div class="bw-between"><span class="cost-row">' + rewardChips(chest.reward) + "</span>" +
+      (ready ? '<button class="bw-btn bw-btn--accent bw-btn--sm" data-action="quest-claim" data-q="' + chest.id + '">Ochish</button>' : "") + "</div></div></div>";
+  }
+
+  function loginCalendar(login) {
+    var html = '<div class="bw-card"><div class="bw-between"><span class="bw-h3">Kirish taqvimi</span><span class="bw-faint" style="font-size:12px">kun oʻtkazilsa — 1-kundan</span></div>' +
+      '<div class="login-cal">';
+    login.gifts.forEach(function (g, i) {
+      var n = i + 1, got = login.claimed_today ? n <= login.day : n < login.day, today = n === login.day && !login.claimed_today;
+      var sum = (g.stone || 0) + (g.wood || 0) + (g.hide || 0) + (g.bone || 0);
+      html += '<div class="login-cal__day' + (got ? " is-got" : "") + (today ? " is-today" : "") + '"><span class="login-cal__n">' + n + "-kun</span>" +
+        (got ? icon("check", "bw-icon--sm") : icon("gift", "bw-icon--sm")) + '<span class="login-cal__v">' + G.fmtShort(sum) + "</span></div>";
+    });
+    html += "</div>";
+    if (!login.claimed_today) html += '<button class="bw-btn bw-btn--accent bw-btn--block" style="margin-top:12px" data-action="login-gift">' + icon("gift", "bw-icon--sm") +
+      " " + login.day + "-kun sovgʻasini olish</button>";
+    return html + "</div>";
+  }
+
+  function comboCard(combo) {
+    var dots = "";
+    for (var i = 1; i <= combo.max_days; i++) dots += '<span class="combo__dot' + (i <= combo.streak ? " is-on" : "") + '"></span>';
+    return '<div class="bw-card combo"><span class="combo__flame">' + icon("bolt", "bw-icon--lg") + '</span><div class="bw-grow">' +
+      '<div class="bw-between"><span class="bw-h3">Kun kombosi: ' + combo.streak + " kun</span>" + '<span class="bw-chip bw-chip--accent">sandiq ×' +
+      combo.mult.toFixed(1).replace(".", ",") + "</span></div>" +
+      '<div class="combo__dots">' + dots + "</div>" +
+      '<div class="bw-faint" style="font-size:12px">Har kuni hamma kundalik vazifani bajaring — kun sandigʻi har ketma-ket kun +' +
+      Math.round(app.config.quest_combo_step * 100) + "% (" + combo.max_days + " kungacha). Kun oʻtkazilsa — kombo yonadi.</div></div></div>";
   }
 
   function screenVazifalar() {
-    var q = app.state.quests || { daily: [], weekly: [] };
-    var html = '<div class="screen-title"><h1 class="bw-h2">Vazifalar</h1><span class="bw-faint" style="font-size:12px">Mukofot vaqt tejaydi, kuch bermaydi</span></div>';
-    html += sectionTitle("Kundalik", '<span class="bw-chip">' + icon("clock", "bw-icon--sm") + " 00:00 da yangilanadi</span>");
-    html += q.daily.length ? '<div class="bw-stack">' + q.daily.map(questCard).join("") + "</div>" : lockedCard("quest", "Vazifalar tez orada", "Kundalik va haftalik vazifalar keyingi bosqichda ulanadi.");
-    if (q.weekly.length) {
-      html += sectionTitle("Haftalik", '<span class="bw-chip">Dushanba</span>');
-      html += '<div class="bw-stack">' + q.weekly.map(questCard).join("") + "</div>";
+    var st = questState(), seg = app.seg.vazifalar || "d";
+    var html = '<div class="screen-title"><h1 class="bw-h2">Vazifalar</h1><span class="bw-faint" style="font-size:12px">Mukofot — faqat resurs</span></div>';
+    var counts = { d: 0, w: 0, m: 0 };
+    ["d", "w", "m"].forEach(function (p) {
+      counts[p] = st[p].quests.filter(function (q) { return !q.claimed && q.progress >= q.target; }).length +
+        (!st[p].chest.claimed && st[p].chest.target > 0 && st[p].chest.progress >= st[p].chest.target ? 1 : 0) + (p === "d" && !st.login.claimed_today ? 1 : 0);
+    });
+    html += '<div class="bw-seg subtabs" role="tablist"><button class="bw-seg__btn subtabs__back" data-action="back" aria-label="Orqaga">' + icon("chevron", "bw-icon--sm") + " Orqaga</button>" +
+      ["d", "w", "m"].map(function (p) {
+        return '<button class="bw-seg__btn" role="tab" data-seg="' + p + '" aria-selected="' + (seg === p) + '">' + PERIOD_NAME[p] +
+          (counts[p] ? ' <span class="bw-badge">' + counts[p] + "</span>" : "") + "</button>";
+      }).join("") + "</div>";
+
+    var set = st[seg];
+    html += '<div class="bw-between" style="margin-top:12px"><span class="bw-faint" style="font-size:12px">' + icon("clock", "bw-icon--sm") +
+      ' Yangilanishiga: <b class="bw-num" data-live="quest-reset">' + timeLeft({ ends_at: set.ends_at }) + "</b></span>" +
+      (counts[seg] - (seg === "d" && !st.login.claimed_today ? 1 : 0) > 1 ? '<button class="bw-btn bw-btn--soft bw-btn--sm" data-action="quest-claim-all">Hammasini olish</button>' : "") + "</div>";
+
+    if (seg === "d") {
+      html += loginCalendar(st.login);
+      html += comboCard(st.combo);
     }
+    html += sectionTitle(PERIOD_NAME[seg] + " vazifalar", '<span class="bw-chip">' + set.quests.filter(function (q) { return q.claimed; }).length + " / " + set.quests.length + "</span>");
+    html += set.quests.length ? '<div class="bw-stack">' + set.quests.map(questCard).join("") + "</div>"
+      : lockedCard("quest", "Vazifa yoʻq", "Darajangiz oshgach yangi vazifalar ochiladi.");
+    html += sectionTitle("Sandiq");
+    html += chestCard(seg, set.chest, st.combo);
+    html += '<p class="bw-faint" style="font-size:12px;margin:12px 0 0">Mukofotlar faqat resurs: tosh, shox-shabba, teri, suyak va goʻsht (Oziq gʻori sigʻimigacha). ' +
+      "Askar, XP yoki doimiy kuch berilmaydi — vazifa vaqt tejaydi, kuch bermaydi.</p>";
     return html;
+  }
+
+  /** Mukofotni olish: vazifa yoki sandiq. */
+  function questClaim(id, quiet) {
+    var done = function (d) { if (!quiet) { haptic("medium"); toast("Mukofot: " + rewardText(d.reward) + (d.lost > 0.05 ? " · gʻorga sigʻmadi: " + fmtRate(d.lost) + " kg" : ""), "gift"); } };
+    if (app.mode === "live") {
+      return window.BWApi.request("quests/claim", { method: "POST", body: { id: id } }).then(function (res) { applySnapshot(res); done(res.data); return res.data; },
+        function (err) { toast(err.message || "Xato", "info"); });
+    }
+    var st = app.state.qd, cfg = app.config, row = null, set = null, per = null;
+    ["d", "w", "m"].forEach(function (p) {
+      var s2 = st.sets[p];
+      s2.rows.concat([s2.chest]).forEach(function (r) { if (r.id === id) { row = r; set = s2; per = p; } });
+    });
+    if (!row || row.claimed) return Promise.resolve();
+    var isChest = row === set.chest;
+    if (isChest) {
+      if (row.progress < row.target) return Promise.resolve();
+      var share = { d: cfg.quest_daily_chest, w: cfg.quest_weekly_chest, m: cfg.quest_monthly_chest }[per];
+      if (per === "d") {
+        st.combo_streak = st.combo_day_key === set.key - 1 ? st.combo_streak + 1 : 1;
+        st.combo_day_key = set.key;
+        share *= G.comboMult(cfg, st.combo_streak);
+      }
+      row.reward = G.questReward(cfg, app.state.player.level, share);
+    } else if (row.progress < row.target) return Promise.resolve();
+    row.claimed = true;
+    if (!isChest) set.chest.progress++;
+    var lost = grantDemo(row.reward);
+    saveDemo(); syncResources(); render();
+    done({ reward: row.reward, lost: lost });
+    return Promise.resolve({ reward: row.reward });
+  }
+
+  /** Demo: mukofot — qurilish resurslari omborga, goʻsht gʻor sigʻimigacha. */
+  function grantDemo(reward) {
+    app.econ = G.advance(app.config, app.econ, now());
+    var lost = 0;
+    Object.keys(reward).forEach(function (k) {
+      if (k === "meat") lost += addFood("meat", reward[k], false);
+      else app.econ.res[k] = (app.econ.res[k] || 0) + reward[k];
+    });
+    return lost;
+  }
+
+  function claimAll() {
+    var st = questState(), seg = app.seg.vazifalar || "d", set = st[seg];
+    var ids = set.quests.filter(function (q) { return !q.claimed && q.progress >= q.target; }).map(function (q) { return q.id; });
+    var total = {};
+    var chain = Promise.resolve();
+    ids.forEach(function (id) {
+      chain = chain.then(function () { return questClaim(id, true); }).then(function (d) {
+        if (d && d.reward) Object.keys(d.reward).forEach(function (k) { total[k] = (total[k] || 0) + d.reward[k]; });
+      });
+    });
+    chain.then(function () {
+      var s2 = questState()[seg];
+      if (!s2.chest.claimed && s2.chest.progress >= s2.chest.target && s2.chest.target > 0) {
+        return questClaim(s2.chest.id, true).then(function (d) { if (d && d.reward) Object.keys(d.reward).forEach(function (k) { total[k] = (total[k] || 0) + d.reward[k]; }); });
+      }
+    }).then(function () { haptic("medium"); if (Object.keys(total).length) toast("Olindi: " + rewardText(total), "gift"); });
+  }
+
+  function loginGift() {
+    var done = function (d) { haptic("medium"); toast(d.day + "-kun sovgʻasi: " + rewardText(d.reward), "gift"); };
+    if (app.mode === "live") { post("quests/login", {}, done); return; }
+    var q = app.state.qd, cfg = app.config;
+    demoQuestEnsure(now());
+    var today = q.sets.d.key;
+    if (q.login_claimed_key === today) return;
+    var day = q.login_claimed_key === today - 1 ? q.login_streak % 7 + 1 : 1;
+    q.login_claimed_key = today; q.login_streak = day;
+    var reward = G.questReward(cfg, app.state.player.level, cfg.login_gift_step * day);
+    grantDemo(reward);
+    saveDemo(); syncResources(); render();
+    done({ day: day, reward: reward });
   }
 
   /* ---------------------------------------------------------------- 👤 Profil */
@@ -844,7 +1053,7 @@
         }
       });
     });
-    r.prey = card.prey; r.km = card.km; r.casualties = cas;
+    r.prey = card.prey; r.km = card.km; r.band = card.band; r.casualties = cas;
     app.state.marches = (app.state.marches || []).concat([{ id: t, kind: "hunt", board_window: huntBoard().window, board_slot: card.slot,
       payload: payload, loot: r, departs_at: t, returns_at: t + card.minutes * 60000 }]);
     saveDemo(); render(); started();
@@ -862,6 +1071,8 @@
     app.econ = G.advance(cfg, app.econ, t);
     var lost = addFood("meat", kg, false) ; addFood("herb", kg * cfg.hunt_herb_share, false);
     p.solo_hunt_at = t;
+    questTrack("hunt", 1);
+    questTrack("meat", kg);
     var levels = addXp(kg * cfg.xp_hunt_coef);
     saveDemo(); syncResources(); render();
     done({ meat: kg, xp: kg * cfg.xp_hunt_coef, lost: lost });
@@ -955,6 +1166,7 @@
     app.econ.res.meat -= cost.meat; app.econ.res.bone -= cost.bone;
     app.state.queues = (app.state.queues || []).concat([{ id: t, kind: "train", role: sel.role, tier: sel.tier, qty: sel.qty, cost: cost,
       started_at: t, ends_at: t + Math.round(secs * 1000) }]);
+    questTrack("train", sel.qty);
     saveDemo(); syncResources(); render(); started();
   }
 
@@ -1093,6 +1305,7 @@
       id: t, kind: "build", slot: used.indexOf(1) === -1 ? 1 : 2, building_type: type, target_level: b.level + 1, cost: check.cost,
       started_at: t, ends_at: t + Math.round(G.buildingTime(app.config, type, b.level + 1) * 60) * 1000
     }]);
+    questTrack("build", 1);
     saveDemo(); syncResources(); render(); started();
   }
 
@@ -1232,6 +1445,9 @@
       hd.slots.push(m.board_slot);
       app.state.hunt_done = hd;
       var lost = addFood("meat", m.loot.meat, offline) + addFood("herb", m.loot.herb, offline);
+      questTrack("hunt", 1);
+      questTrack("meat", m.loot.meat);
+      if (m.loot.band > 0) questTrack("hunt_far", 1);
       xp = m.loot.xp;
       out.push({ kind: "hunt", meat: m.loot.meat, herb: m.loot.herb, xp: xp, lost: lost, prey: m.loot.prey, injured: hurtN, dead: deadN });
     } else if (ev.q.kind === "heal") {
@@ -1270,7 +1486,7 @@
     try {
       var p = app.state.player;
       localStorage.setItem(DEMO_KEY, JSON.stringify({ v: 4, econ: app.econ, queues: app.state.queues || [], marches: app.state.marches || [],
-        buildings: levels, army: app.state.army, army_away: app.state.army_away, army_injured: app.state.army_injured, hunt_done: app.state.hunt_done || null,
+        buildings: levels, army: app.state.army, army_away: app.state.army_away, army_injured: app.state.army_injured, hunt_done: app.state.hunt_done || null, qd: app.state.qd || null,
         player: { level: p.level, xp: p.xp, free_speedups: p.free_speedups, solo_hunt_at: p.solo_hunt_at } }));
     } catch (e) { /* xususiy rejim */ }
   }
@@ -1286,6 +1502,7 @@
         app.state.army_away = saved.army_away;
         app.state.army_injured = saved.army_injured;
         app.state.hunt_done = saved.hunt_done;
+        app.state.qd = saved.qd;
         Object.assign(app.state.player, saved.player);
         (app.state.buildings || []).forEach(function (b) { if (saved.buildings[b.type] != null) b.level = saved.buildings[b.type]; });
         return saved.econ;
@@ -1320,6 +1537,7 @@
     if (st.army_away) app.state.army_away = st.army_away;
     if (st.army_injured) app.state.army_injured = st.army_injured;
     if (st.hunt_board) app.state.hunt_board = st.hunt_board;
+    if (st.quests) app.state.quests = st.quests;
     if (st.player) Object.assign(app.state.player, st.player);
     if (st.free_speedups != null) app.state.player.free_speedups = st.free_speedups;
     if (st.buildings) {
@@ -1378,6 +1596,7 @@
     if (app.mode === "demo") {
       var r = G.collect(G.advance(app.config, app.econ, now()));
       app.econ = r.econ;
+      questTrack("collect", 1);
       saveDemo();
       syncResources();
       render();
@@ -1415,6 +1634,16 @@
     tickQueues(t);
     var hb = $("#hunt-badge");
     if (hb) hb.hidden = !huntIdle();
+    var qs = questState();
+    if (qs) {
+      var qr = document.querySelector('[data-live="quest-reset"]'), seg = app.seg.vazifalar || "d";
+      if (qr) qr.textContent = timeLeft({ ends_at: qs[seg].ends_at });
+      if (t >= qs.d.ends_at) {
+        if (app.mode === "live") { if (!finishing) { finishing = true; resync().then(function () { finishing = false; }); } }
+        else { demoQuestEnsure(t); saveDemo(); render(); }
+      }
+      updateQuestBadge();
+    }
     var sig = RES_KEYS.map(function (k) { return app.state.resources[k]; }).join() + "|" + bufferTotal() + "|" + bufferStatus();
     if (sig === lastSig) return;
     lastSig = sig;
@@ -1473,7 +1702,7 @@
   function route() {
     var tab = (location.hash.replace(/^#\/?/, "").split("/")[0]) || "in";
     if (!SCREENS[tab]) tab = "in";
-    if (tab !== app.tab) haptic("select");
+    if (tab !== app.tab) { haptic("select"); app.prevTab = app.tab; }
     app.tab = tab;
     document.querySelectorAll(".bw-tab").forEach(function (a) {
       if (a.getAttribute("data-tab") === tab) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
@@ -1503,7 +1732,10 @@
     "q-open": function (el) { buildingSheet(el.getAttribute("data-type")); },
     scout: function () { toast("Razvedka — " + ROADMAP, "eye"); },
     attack: function () { toast("Hujum — " + ROADMAP, "sword"); },
-    claim: function () { toast("Mukofot olish — " + ROADMAP, "gift"); },
+    "quest-claim": function (el) { questClaim(+el.getAttribute("data-q")); },
+    "quest-claim-all": claimAll,
+    "login-gift": loginGift,
+    back: function () { location.hash = "#/" + (app.prevTab && app.prevTab !== "vazifalar" ? app.prevTab : "in"); },
     vacation: function () { toast("Taʼtil rejimi — " + ROADMAP, "moon"); },
     shop: function () { toast("Doʻkon — " + ROADMAP, "moonstone"); },
     collect: collect,

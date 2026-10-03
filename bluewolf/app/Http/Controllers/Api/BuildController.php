@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Services\BuildService;
 use App\Services\PlayerService;
+use App\Services\QuestService;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,6 +17,7 @@ class BuildController extends Controller
     public function __construct(
         private readonly PlayerService $players,
         private readonly BuildService $builds,
+        private readonly QuestService $quests,
     ) {}
 
     /** POST /api/v1/buildings/upgrade — { type } */
@@ -24,6 +26,7 @@ class BuildController extends Controller
         return DB::transaction(function () use ($request) {
             [$player, $sync] = $this->players->enter($request->attributes->get('tg_user'));
             $queue = $this->builds->upgrade($player, (string) $request->input('type'));
+            $this->quests->track($player, 'build');
 
             return ApiResponse::ok(['queue' => $queue->toClient(), 'finished' => $sync['finished']], $this->players->snapshot($player));
         });

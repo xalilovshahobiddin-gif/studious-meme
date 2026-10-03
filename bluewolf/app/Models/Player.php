@@ -13,7 +13,8 @@ class Player extends Model
     /** last_seen_at / last_tick_at — DATETIME(3), millisekundlar resurs hisobi uchun kerak. */
     protected $dateFormat = 'Y-m-d H:i:s.v';
 
-    protected $fillable = ['tg_id', 'tg_username', 'display_name', 'lang', 'level', 'xp', 'tutorial_step', 'status', 'last_seen_at', 'free_speedups', 'second_queue_early', 'solo_hunt_at'];
+    protected $fillable = ['tg_id', 'tg_username', 'display_name', 'lang', 'level', 'xp', 'tutorial_step', 'status', 'last_seen_at', 'free_speedups', 'second_queue_early', 'solo_hunt_at',
+        'login_day_key', 'login_claimed_key', 'login_streak', 'combo_day_key', 'combo_streak'];
 
     protected function casts(): array
     {
@@ -22,6 +23,11 @@ class Player extends Model
             'level' => 'integer',
             'xp' => 'float',
             'solo_hunt_at' => 'immutable_datetime',
+            'login_day_key' => 'integer',
+            'login_claimed_key' => 'integer',
+            'login_streak' => 'integer',
+            'combo_day_key' => 'integer',
+            'combo_streak' => 'integer',
             'tutorial_step' => 'integer',
             'free_speedups' => 'integer',
             'second_queue_early' => 'boolean',
@@ -48,6 +54,11 @@ class Player extends Model
     public function marches(): HasMany
     {
         return $this->hasMany(March::class);
+    }
+
+    public function quests(): HasMany
+    {
+        return $this->hasMany(PlayerQuest::class);
     }
 
     public function queues(): HasMany

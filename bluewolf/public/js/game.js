@@ -251,6 +251,63 @@
     return { meat: round2(kg), herb: round2(kg * cfg.hunt_herb_share), xp: round2(kg * cfg.xp_hunt_coef), min_pack: card.min_pack, sent: sent, penalty: penalty };
   }
 
+  /* ---- Vazifalar (GDD bo'lim 14). Server: App\Support\QuestFormula — natija bir xil. ---- */
+
+  // metric — qaysi harakat sanaladi; t — davr boʻyicha maqsad (d kundalik, w haftalik, m oylik)
+  var QUESTS = [
+    { key: "hunt", metric: "hunt", minL: 1, title: "Ovchi", desc: "{n} marta ovga chiq", t: function () { return { d: 3, w: 20, m: 70 }; } },
+    { key: "meat", metric: "meat", minL: 1, title: "Goʻsht zaxirasi", desc: "Ovdan {n} kg goʻsht keltir",
+      t: function (cfg, L) { var D = dailyMeat(cfg, L); return { d: Math.ceil(D * 0.5), w: Math.ceil(D * 3), m: Math.ceil(D * 12) }; } },
+    { key: "build", metric: "build", minL: 2, title: "Quruvchi", desc: "{n} marta binoni kuchaytir", t: function () { return { d: 1, w: 4, m: 12 }; } },
+    { key: "collect", metric: "collect", minL: 2, title: "Yigʻuvchi", desc: "Ustaxona buferini {n} marta yigʻ", t: function () { return { d: 2, w: 10, m: 35 }; } },
+    { key: "far", metric: "hunt_far", minL: 3, title: "Uzoq yoʻl", desc: "Oʻrta yoki uzoq kartada {n} marta ovla", t: function () { return { d: 1, w: 5, m: 15 }; } },
+    { key: "train", metric: "train", minL: 4, title: "Murabbiy", desc: "{n} ta askar tayyorla",
+      t: function (cfg, L) { var c = armyCap(cfg, L); return { d: Math.max(1, Math.round(c * 0.1)), w: Math.max(2, Math.round(c * 0.5)), m: Math.max(5, Math.round(c * 1.5)) }; } },
+    { key: "login", metric: "login", minL: 1, title: "Sodiq boʻri", desc: "{n} kun oʻyinga kir", t: function () { return { w: 5, m: 20 }; } }
+  ];
+  var PERIOD_SALT = { d: 1, w: 2, m: 3 };
+
+  /** Toʻdaning kunlik goʻsht ehtiyoji (toʻliq qoʻshin bilan). */
+  function dailyMeat(cfg, L) { return need(cfg, L) * armyCap(cfg, L); }
+
+  /** Kunlik ishlab chiqarish (Ustaxona = oʻyinchi darajasi) — mukofot byudjeti asosi. */
+  function dailyProd(cfg, L) { return workshopPerHour(cfg, L) * 24; }
+
+  /** Davr kalitlari va tugash vaqti (UTC + quest_tz_offset_h). d — kun, w — hafta (dushanbadan), m — oy. */
+  function questPeriod(cfg, period, nowMs) {
+    var off = cfg.quest_tz_offset_h * 3600000, day = Math.floor((nowMs + off) / 86400000);
+    if (period === "d") return { key: day, ends_at: (day + 1) * 86400000 - off };
+    if (period === "w") { var w = Math.floor((day + 3) / 7); return { key: w, ends_at: ((w + 1) * 7 - 3) * 86400000 - off }; }
+    var d = new Date(nowMs + off), y = d.getUTCFullYear(), mo = d.getUTCMonth();
+    return { key: y * 12 + mo, ends_at: Date.UTC(y, mo + 1, 1) - off };
+  }
+
+  /** Mukofot: ulush × kunlik ishlab chiqarish (qurilish resurslari 40/30/15/15) + goʻsht. Faqat resurs. */
+  function questReward(cfg, L, share) {
+    var P = dailyProd(cfg, L) * share, out = {};
+    var parts = { stone: 0.4, wood: 0.3, hide: 0.15, bone: 0.15 };
+    Object.keys(parts).forEach(function (k) { var v = Math.round(P * parts[k]); if (v > 0) out[k] = v; });
+    var meat = Math.round(share * cfg.quest_meat_ratio * dailyMeat(cfg, L));
+    if (meat > 0) out.meat = meat;
+    return out;
+  }
+
+  /** Davr vazifalari: daraja boʻyicha ochiqlaridan oʻyinchi + davr urugʻi bilan tanlanadi. */
+  function questsFor(cfg, playerId, L, period, key) {
+    var count = { d: cfg.quest_daily_count, w: cfg.quest_weekly_count, m: cfg.quest_monthly_count }[period];
+    var cap = { d: cfg.quest_daily_cap, w: cfg.quest_weekly_cap, m: cfg.quest_monthly_cap }[period];
+    var pool = QUESTS.filter(function (q) { return L >= q.minL && q.t(cfg, L)[period] != null; });
+    var r = rng((imul(playerId + 1, 2246822519 | 0) ^ imul(key * 4 + PERIOD_SALT[period], 3266489917 | 0)) >>> 0);
+    for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)), tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp; }
+    return pool.slice(0, count).sort(function (a, b) { return QUESTS.indexOf(a) - QUESTS.indexOf(b); }).map(function (q) {
+      var n = q.t(cfg, L)[period];
+      return { key: q.key, metric: q.metric, title: q.title, desc: q.desc.replace("{n}", n), target: n, reward: questReward(cfg, L, cap / count) };
+    });
+  }
+
+  /** Kun kombosi koeffitsienti: ketma-ket n-kun → 1 + qadam × (min(n, maks) − 1). */
+  function comboMult(cfg, streak) { return 1 + cfg.quest_combo_step * (Math.min(Math.max(streak, 1), cfg.quest_combo_max_days) - 1); }
+
   var BUILD = ["stone", "wood", "hide", "bone"];
 
   /** Ustaxona buferi sigʻimi: soatlik × workshop_buffer_h × ulush (oflaynda × offline_store_mult). */
@@ -360,7 +417,8 @@
     need: need, hunterYield: hunterYield, caveCap: caveCap, waterPerHour: waterPerHour, waterNeed: waterNeed,
     workshopPerHour: workshopPerHour, PREY: PREY, WOLVES: WOLVES, UNLOCKS: UNLOCKS, roleCap: roleCap,
     trainCost: trainCost, trainSeconds: trainSeconds, huntResult: huntResult, huntBoard: huntBoard, huntWindow: huntWindow,
-    huntSeed: huntSeed, huntersRec: huntersRec, rng: rng, bufferCap: bufferCap, advance: advance, collect: collect, validAlloc: validAlloc,
+    huntSeed: huntSeed, huntersRec: huntersRec, rng: rng, QUESTS: QUESTS, questsFor: questsFor, questReward: questReward,
+    questPeriod: questPeriod, comboMult: comboMult, dailyProd: dailyProd, dailyMeat: dailyMeat, bufferCap: bufferCap, advance: advance, collect: collect, validAlloc: validAlloc,
     BUILD: BUILD, fmt: fmt, fmtShort: fmtShort, fmtMinutes: fmtMinutes
   };
 

@@ -4,13 +4,14 @@ use App\Http\Controllers\Api\ArmyController;
 use App\Http\Controllers\Api\BuildController;
 use App\Http\Controllers\Api\EconomyController;
 use App\Http\Controllers\Api\MetaController;
+use App\Http\Controllers\Api\QuestController;
 use App\Http\Controllers\Api\StateController;
 use App\Http\Middleware\TelegramAuth;
 use Illuminate\Support\Facades\Route;
 
 /*
 | Blue Wolf API v1 — docs/blue_wolf/blue_wolf_api.md
-| v0.0.7: holat, Ustaxona, qurilish, askarlar mashqi, ov xaritasi. Qolganlari bosqichma-bosqich qoʻshiladi.
+| v0.0.8: holat, Ustaxona, qurilish, askarlar mashqi, ov xaritasi, vazifalar. Qolganlari bosqichma-bosqich qoʻshiladi.
 */
 Route::prefix('v1')->group(function () {
     Route::get('ping', [MetaController::class, 'ping']);
@@ -26,6 +27,9 @@ Route::prefix('v1')->group(function () {
         Route::get('hunt/board', [ArmyController::class, 'board']);
         Route::post('hunt/solo', [ArmyController::class, 'solo']);
         Route::post('hunt', [ArmyController::class, 'hunt']);
+        Route::get('quests', [QuestController::class, 'index']);
+        Route::post('quests/claim', [QuestController::class, 'claim']);
+        Route::post('quests/login', [QuestController::class, 'login']);
         Route::post('profile/allocation', [EconomyController::class, 'allocation']);
     });
 });

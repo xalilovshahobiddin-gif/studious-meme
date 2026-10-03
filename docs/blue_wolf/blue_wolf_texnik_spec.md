@@ -200,7 +200,7 @@ Texnik jihatdan MVP uchun:
 | 4 | Ekran xaritasi | ✅ Shu hujjatda |
 | 5 | Bildirishnomalar | ✅ Shu hujjatda |
 | 6 | Lokalizatsiya rejasi | ✅ Shu hujjatda |
-| 7 | API endpointlari | ✅ `blue_wolf_api.md` (67 endpoint, MVP — 36) |
+| 7 | API endpointlari | ✅ `blue_wolf_api.md` (68 endpoint, MVP — 37) |
 | 8 | Art yoʻnalishi | ⏳ Oddiy: bitta boʻri silueti + rol rangi + tier ramkasi |
 | 9 | Locales kalitlari (~600) | ⏳ |
 | 10 | Mini App frontend | ⏳ Repodagi hozirgi `index.html`/`js/game.js` — Phaser “Blue Wolf Run” yuguruvchi oʻyini; bu dizaynga mos emas. Undan faqat splash ekran va Telegram WebApp init qismi qayta ishlatiladi |

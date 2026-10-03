@@ -1,4 +1,4 @@
-# Blue Wolf — Telegram Mini App · v0.0.7
+# Blue Wolf — Telegram Mini App · v0.0.8
 
 Strategiya / omon qolish oʻyini: ov qil, in qur, toʻda yigʻ va Koʻk Boʻriga aylan.
 Dizayn hujjatlari: [`docs/blue_wolf/`](../docs/blue_wolf/) (GDD, API, sxema, balans jadvali). Oʻzgarishlar: [CHANGELOG.md](CHANGELOG.md).
@@ -29,7 +29,7 @@ bluewolf/
 │   └── Support/                TelegramInitData (imzo), ApiResponse (javob konverti)
 ├── config/bluewolf.php         versiya, bot tokeni, initData muddati, dev_auth
 ├── database/
-│   ├── migrations/             players, player_resources, buildings, game_config, queues, army, marches
+│   ├── migrations/             players, player_resources, buildings, game_config, queues, army, marches, player_quests
 │   └── seeders/data/           game_config.json — 273 balans parametri (avtomatik yaratiladi)
 ├── public/
 │   ├── index.html              ilova qobigʻi (6 tab: In · Ov · Jang · Toʻda · Vazifalar · Profil)
@@ -123,6 +123,14 @@ vendor/bin/pint --test        # kod uslubi
   yangi binolar ochiladi, “Yangi daraja!” oynasi chiqadi.
 - Voqealar (qurilish, mashq, ovdan qaytish) server tomonda vaqt tartibida yopiladi — resurs hisobi har biridan keyin yangi holat bilan davom etadi.
 
+## Vazifalar (v0.0.8)
+
+Vazifalar tabi: **‹ Orqaga · Kundalik · Haftalik · Oylik** subtablari (GDD bo'lim 14).
+- Kundalik 4 ta, haftalik 4 ta, oylik 3 ta vazifa — har oʻyinchiga urugʻ bilan tanlanadi (ov, goʻsht, qurilish, yigʻish, uzoq ov, mashq, kirish).
+  Har davrda **sandiq** (hammasi bajarilsa), kundalikda — **kun kombosi** (ketma-ket kunlar, sandiq ×1.6 gacha) va **7 kunlik kirish taqvimi**.
+- Mukofot **faqat resurs** (qurilish resurslari + goʻsht), kunlik ishlab chiqarishning ulushi; jami kuniga ≤ 37% (xavfsiz chegara 60%).
+- `App\Support\QuestFormula` = `BWGame.questsFor/questReward/questPeriod` (umumiy test: `tests/fixtures/quest_cases.json`); `QuestService` sanaydi va beradi.
+
 ## API (v0.0.4)
 
 Javob konverti: `{ ok: true, data, state }` yoki `{ ok: false, error: { code, message, details } }`.
@@ -140,9 +148,12 @@ Javob konverti: `{ ok: true, data, state }` yoki `{ ok: false, error: { code, me
 | `POST /api/v1/army/train` | `X-Init-Data` | `{ role, tier, qty }` → mashq navbati; `TIER_LOCKED`, `CAPACITY_FULL`, `QUEUE_BUSY` |
 | `POST /api/v1/hunt/solo` | `X-Init-Data` | Yolgʻiz ov (1–3 daraja) → `{ loot }`; `COOLDOWN` |
 | `GET /api/v1/hunt/board` | `X-Init-Data` | Ov xaritasi: 9 karta, `refresh_at` |
+| `GET /api/v1/quests` | `X-Init-Data` | Vazifalar: `d`, `w`, `m`, `login`, `combo` |
+| `POST /api/v1/quests/claim` | `X-Init-Data` | `{ id }` — vazifa yoki sandiq mukofoti |
+| `POST /api/v1/quests/login` | `X-Init-Data` | Kirish sovgʻasi (kuniga bir marta) |
 | `POST /api/v1/hunt` | `X-Init-Data` | `{ slot, payload: { rol: { tier: soni } } }` → kartadagi ov `{ march }` |
 
-Toʻliq rejadagi API (67 endpoint): [`docs/blue_wolf/blue_wolf_api.md`](../docs/blue_wolf/blue_wolf_api.md).
+Toʻliq rejadagi API (68 endpoint): [`docs/blue_wolf/blue_wolf_api.md`](../docs/blue_wolf/blue_wolf_api.md).
 
 ## Balans parametrlari
 
@@ -166,7 +177,8 @@ Skript `database/seeders/data/game_config.json` va `public/data/game_config.json
 | v0.0.4 | Askar mashqi, ov (yolgʻiz, toʻda), oziqlanish, XP va daraja koʻtarilishi ✅ |
 | v0.0.5 | Son tanlash: hamma joyda “− slayder +” (ov, mashq, Ustaxona taqsimoti) ✅ |
 | v0.0.6 | Alohida **Ov** tabi: ovga oid hamma narsa bir joyda ✅ |
-| **v0.0.7** | Ov xaritasi: 9 karta, har 4 soatda yangilanadi, xavf — yarador va halok; ov guruhlari olib tashlandi ✅ |
+| v0.0.7 | Ov xaritasi: 9 karta, har 4 soatda yangilanadi, xavf — yarador va halok; ov guruhlari olib tashlandi ✅ |
+| **v0.0.8** | Vazifalar: kundalik, haftalik, oylik, sandiqlar, kun kombosi, kirish taqvimi — faqat resurs mukofot ✅ |
 | v0.4 | Tanishtiruv (20 qadam), kundalik vazifalar |
 | v0.5 | Botlarga hujum, razvedka, jang hisoblagichi, jarohat va davolash |
 | v0.6 | PvP (7–10 daraja), ov guruhlari, bildirishnomalar → **MVP** |

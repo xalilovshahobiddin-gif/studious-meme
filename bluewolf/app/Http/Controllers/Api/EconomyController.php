@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Services\EconomyService;
 use App\Services\PlayerService;
+use App\Services\QuestService;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,6 +17,7 @@ class EconomyController extends Controller
     public function __construct(
         private readonly PlayerService $players,
         private readonly EconomyService $economy,
+        private readonly QuestService $quests,
     ) {}
 
     /** POST /api/v1/buildings/collect — buf_* → ombor. */
@@ -28,6 +30,9 @@ class EconomyController extends Controller
                 return ApiResponse::error('BUILDING_LOCKED', 'Ustaxona qoyasi hali ochilmagan', 400);
             }
             $got = $this->economy->collect($player->resources);
+            if (array_sum($got) > 0) {
+                $this->quests->track($player, 'collect');
+            }
 
             return ApiResponse::ok(['collected' => $got], $this->players->snapshot($player));
         });

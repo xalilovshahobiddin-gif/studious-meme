@@ -19,6 +19,7 @@ class PlayerService
         private readonly ArmyService $army,
         private readonly ProgressService $progress,
         private readonly HuntService $hunts,
+        private readonly QuestService $quests,
     ) {}
 
     /**
@@ -32,6 +33,18 @@ class PlayerService
     {
         $player = $this->forTelegramUser($tgUser);
         $sync = $this->economy->sync($player);
+
+        // Vazifalar: kunning birinchi kirishi va ovdan qaytishlar
+        $this->quests->trackLogin($player);
+        foreach ($sync['finished'] as $f) {
+            if ($f['kind'] === 'hunt') {
+                $this->quests->track($player, 'hunt');
+                $this->quests->track($player, 'meat', $f['meat']);
+                if (($f['band'] ?? 0) > 0) {
+                    $this->quests->track($player, 'hunt_far');
+                }
+            }
+        }
 
         return [$player, $sync];
     }
@@ -95,6 +108,7 @@ class PlayerService
             'queues' => $this->queues($player),
             'marches' => $this->marches($player),
             'hunt_board' => $this->hunts->board($player),
+            'quests' => $this->quests->state($player),
             'shield_until' => null,
             'hunger' => false,
         ];
@@ -117,6 +131,7 @@ class PlayerService
             'army_away' => $this->army->summary($player)['away'],
             'army_injured' => $this->army->summary($player)['injured'],
             'hunt_board' => $this->hunts->board($player),
+            'quests' => $this->quests->state($player),
             'player' => $this->progressState($player),
             'free_speedups' => $player->free_speedups,
             'server_time' => now()->format('Y-m-d\\TH:i:s.v\\Z'),

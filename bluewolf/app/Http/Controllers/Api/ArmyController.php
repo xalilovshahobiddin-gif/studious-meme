@@ -8,6 +8,7 @@ use App\Services\EconomyService;
 use App\Services\HuntService;
 use App\Services\PlayerService;
 use App\Services\ProgressService;
+use App\Services\QuestService;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,6 +23,7 @@ class ArmyController extends Controller
         private readonly HuntService $hunts,
         private readonly EconomyService $economy,
         private readonly ProgressService $progress,
+        private readonly QuestService $quests,
     ) {}
 
     /** POST /api/v1/army/train — { role, tier, qty } */
@@ -30,6 +32,7 @@ class ArmyController extends Controller
         return DB::transaction(function () use ($request) {
             [$player, $sync] = $this->players->enter($request->attributes->get('tg_user'));
             $queue = $this->army->train($player, (string) $request->input('role'), (int) $request->input('tier', 1), (int) $request->input('qty'));
+            $this->quests->track($player, 'train', $queue->qty);
 
             return ApiResponse::ok(['queue' => $queue->toClient(), 'finished' => $sync['finished']], $this->players->snapshot($player));
         });
@@ -51,6 +54,8 @@ class ArmyController extends Controller
         return DB::transaction(function () use ($request) {
             [$player, $sync] = $this->players->enter($request->attributes->get('tg_user'));
             $loot = $this->hunts->solo($player);
+            $this->quests->track($player, 'hunt');
+            $this->quests->track($player, 'meat', $loot['meat']);
             $lost = $this->economy->addFoodNow($player, 'meat', $loot['meat']);
             $this->economy->addFoodNow($player, 'herb', $loot['herb']);
             $finished = $sync['finished'];

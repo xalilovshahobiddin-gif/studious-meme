@@ -238,7 +238,7 @@ class Formula
     }
 
     /** JS Math.round bilan bir xil (yarim — yuqoriga). */
-    private static function jsRound(float $x): float
+    public static function jsRound(float $x): float
     {
         return floor($x + 0.5);
     }

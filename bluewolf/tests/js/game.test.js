@@ -134,4 +134,20 @@ test("ov xaritasi: PHP bilan bir xil, tartiblangan, shaxsiy, yangilanadi", () =>
   assert.equal(G.huntResult(cfg, 10, Object.assign({}, a[0], { herd_kg: 2 }), { hunter: { 1: 50 } }).meat, 2);
 });
 
+test("vazifalar: PHP bilan bir xil, faqat resurs, byudjet ichida", () => {
+  const fx = require(path.join(__dirname, "../fixtures/quest_cases.json"));
+  for (const c of fx.periods) assert.deepEqual(G.questPeriod(cfg, c.period, c.now), c.result);
+  for (const c of fx.quests) assert.deepEqual(G.questsFor(cfg, c.player, c.level, c.period, c.key), c.quests);
+  for (const c of fx.rewards) assert.deepEqual(G.questReward(cfg, c.level, c.share), c.reward);
+  for (const L of [1, 5, 10, 25]) for (const p of ["d", "w", "m"]) for (const q of G.questsFor(cfg, 3, L, p, 77)) {
+    assert.ok(Object.keys(q.reward).every((k) => ["stone", "wood", "hide", "bone", "meat"].includes(k)), "faqat resurs");
+  }
+  const r = G.questReward(cfg, 5, cfg.quest_daily_cap / cfg.quest_daily_count);
+  assert.equal(r.stone + r.wood + r.hide + r.bone, 40); // GDD bo'lim 14
+  assert.equal(G.comboMult(cfg, 1), 1);
+  assert.ok(Math.abs(G.comboMult(cfg, 30) - 1.6) < 1e-9);
+  // Hafta dushanba 00:00 Toshkentdan boshlanadi
+  assert.equal(new Date(G.questPeriod(cfg, "w", Date.UTC(2026, 9, 3)).ends_at).toISOString(), "2026-10-04T19:00:00.000Z");
+});
+
 console.log(`\n${passed} ta test oʻtdi`);
