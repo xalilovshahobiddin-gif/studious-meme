@@ -45,6 +45,100 @@ class ArmyService
             ->update(['injured' => DB::raw('injured - '.$qty), 'alive' => DB::raw('alive + '.$qty)]);
     }
 
+    /**
+     * Shifo gʻorida davolash (GDD bo'lim 5): yaradorlar tabiiy tuzalish navbatidan olinadi,
+     * oʻt yechiladi, bitta umumiy muolaja (rol × tier boʻyicha qatorlar, bir xil tugash vaqti) boshlanadi.
+     * Chaqiruvchi: tranzaksiya ichida, sync() qilingan.
+     *
+     * @param  array<string, array<int|string, int>>  $troops  rol → [tier => soni]
+     * @return array{queues: list<Queue>, plan: array<string, mixed>}
+     *
+     * @throws GameException
+     */
+    public function hospitalHeal(Player $player, array $troops, ?CarbonImmutable $now = null): array
+    {
+        $now ??= CarbonImmutable::now();
+        $cfg = GameConfig::allValues();
+        $hospital = (int) ($player->buildings()->where('type', 'hospital')->value('level') ?? 0);
+        if ($hospital < 1) {
+            throw new GameException('LEVEL_TOO_LOW', 'Shifo gʻori hali qurilmagan', 400);
+        }
+        if ($player->queues()->where('kind', 'heal')->where('state', 'running')->where('building_type', 'hospital')->exists()) {
+            throw new GameException('QUEUE_BUSY', 'Shifo gʻori band — joriy muolaja tugashini kuting', 409);
+        }
+
+        // Tozalash va tekshirish: faqat tabiiy tuzalayotgan yaradorlar yuboriladi
+        $clean = [];
+        foreach ($troops as $role => $tiers) {
+            if (! in_array($role, Army::ROLES, true) || ! is_array($tiers)) {
+                throw new GameException('VALIDATION', 'Rol notoʻgʻri', 422);
+            }
+            foreach ($tiers as $tier => $qty) {
+                $tier = (int) $tier;
+                $qty = (int) $qty;
+                if ($qty === 0) {
+                    continue;
+                }
+                if ($tier < 1 || $tier > 6 || $qty < 0) {
+                    throw new GameException('VALIDATION', 'Tier yoki son notoʻgʻri', 422);
+                }
+                $waiting = (int) $player->queues()->where(['kind' => 'heal', 'state' => 'running', 'role' => $role, 'tier' => $tier])
+                    ->whereNull('building_type')->sum('qty');
+                if ($qty > $waiting) {
+                    throw new GameException('NOT_ENOUGH_TROOPS', 'Buncha yarador yoʻq', 400, ['role' => $role, 'tier' => $tier, 'available' => $waiting]);
+                }
+                $clean[$role][$tier] = $qty;
+            }
+        }
+        if ($clean === []) {
+            throw new GameException('VALIDATION', 'Davolash uchun boʻri tanlanmagan', 422);
+        }
+
+        $plan = Formula::healPlan($cfg, $hospital, $player->level, $clean);
+        $res = $player->resources;
+        if ((float) $res->herb + 1e-9 < $plan['herb']) {
+            throw new GameException('NOT_ENOUGH_RESOURCES', 'Shifobaxsh oʻt yetmaydi', 400, ['missing' => ['herb' => round($plan['herb'] - (float) $res->herb, 2)]]);
+        }
+        $res->herb = (float) $res->herb - $plan['herb'];
+        $res->save();
+
+        $endsAt = $now->addMilliseconds((int) round($plan['minutes'] * 60000));
+        $queues = [];
+        foreach ($clean as $role => $tiers) {
+            foreach ($tiers as $tier => $qty) {
+                // Tabiiy navbatdan eng kech tugaydiganlaridan boshlab olinadi
+                $left = $qty;
+                $rows = $player->queues()->where(['kind' => 'heal', 'state' => 'running', 'role' => $role, 'tier' => $tier])
+                    ->whereNull('building_type')->orderByDesc('ends_at')->lockForUpdate()->get();
+                foreach ($rows as $row) {
+                    if ($left <= 0) {
+                        break;
+                    }
+                    $take = min($left, $row->qty);
+                    $left -= $take;
+                    if ($take === $row->qty) {
+                        $row->state = 'cancelled';
+                    } else {
+                        $row->qty -= $take;
+                    }
+                    $row->save();
+                }
+                $queues[] = $player->queues()->create([
+                    'kind' => 'heal', 'building_type' => 'hospital', 'role' => $role, 'tier' => $tier, 'qty' => $qty,
+                    'cost' => ['herb' => self::round2($qty * Formula::healHerb($cfg, $tier, $player->level))],
+                    'started_at' => $now, 'ends_at' => $endsAt,
+                ]);
+            }
+        }
+
+        return ['queues' => $queues, 'plan' => $plan];
+    }
+
+    private static function round2(float $x): float
+    {
+        return floor($x * 100 + 0.5) / 100;
+    }
+
     public function add(Player $player, string $role, int $tier, int $qty, string $column = 'alive'): void
     {
         Army::query()->firstOrCreate(['player_id' => $player->id, 'role' => $role, 'tier' => $tier]);

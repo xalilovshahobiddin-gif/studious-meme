@@ -14,7 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-/** Askarlar mashqi va ov (docs/blue_wolf/blue_wolf_api.md, 5–6-boʻlimlar). */
+/** Askarlar mashqi, Shifo gʻori va ov (docs/blue_wolf/blue_wolf_api.md, 5–6-boʻlimlar). */
 class ArmyController extends Controller
 {
     public function __construct(
@@ -35,6 +35,25 @@ class ArmyController extends Controller
             $this->quests->track($player, 'train', $queue->qty);
 
             return ApiResponse::ok(['queue' => $queue->toClient(), 'finished' => $sync['finished']], $this->players->snapshot($player));
+        });
+    }
+
+    /**
+     * POST /api/v1/hospital/heal — { troops: { rol: { tier: soni } } } yoki { role, tier, qty } → Shifo gʻorida davolash.
+     */
+    public function heal(Request $request): JsonResponse
+    {
+        return DB::transaction(function () use ($request) {
+            [$player, $sync] = $this->players->enter($request->attributes->get('tg_user'));
+            $troops = $request->has('troops') ? (array) $request->input('troops')
+                : [(string) $request->input('role') => [(int) $request->input('tier', 1) => (int) $request->input('qty')]];
+            $out = $this->army->hospitalHeal($player, $troops);
+
+            return ApiResponse::ok([
+                'queues' => array_map(fn ($q) => $q->toClient(), $out['queues']),
+                'plan' => $out['plan'],
+                'finished' => $sync['finished'],
+            ], $this->players->snapshot($player->refresh()));
         });
     }
 

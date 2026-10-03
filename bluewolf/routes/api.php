@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 | Blue Wolf API v1 — docs/blue_wolf/blue_wolf_api.md
-| v0.0.15: holat, Ustaxona, qurilish, askarlar mashqi, ov xaritasi, vazifalar, tanishtiruv. Qolganlari bosqichma-bosqich qoʻshiladi.
+| v0.0.16: holat, Ustaxona, qurilish, askarlar mashqi, Shifo gʻori, ov xaritasi, vazifalar, tanishtiruv. Qolganlari bosqichma-bosqich qoʻshiladi.
 */
 Route::prefix('v1')->group(function () {
     Route::get('ping', [MetaController::class, 'ping']);
@@ -25,6 +25,7 @@ Route::prefix('v1')->group(function () {
         Route::post('queue/cancel', [BuildController::class, 'cancel']);
         Route::post('queue/speedup', [BuildController::class, 'speedup']);
         Route::post('army/train', [ArmyController::class, 'train']);
+        Route::post('hospital/heal', [ArmyController::class, 'heal']);
         Route::get('hunt/board', [ArmyController::class, 'board']);
         Route::post('hunt/solo', [ArmyController::class, 'solo']);
         Route::post('hunt', [ArmyController::class, 'hunt']);

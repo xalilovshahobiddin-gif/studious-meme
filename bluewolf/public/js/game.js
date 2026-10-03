@@ -190,6 +190,33 @@
 
   function round2(x) { return Math.round(x * 100) / 100; }
 
+  /* ---- Shifo gʻori (GDD bo'lim 5). Server: App\Support\Formula — natija bir xil. ---- */
+
+  /** Askar birligining shu darajagacha eng kattasi — sigʻim kuchaytirishda hech qachon kamaymasligi uchun. */
+  function unitPeak(cfg, L) { var peak = 1; for (var l = 1; l <= L; l++) peak = Math.max(peak, unitScale(cfg, l)); return peak; }
+
+  /** Bir vaqtda davolanadigan boʻrilar (askar birligining shu bino darajasigacha eng kattasi bilan); 0 — qurilmagan. */
+  function hospitalCap(cfg, b) {
+    if (b < 1) return 0;
+    return Math.max(1, Math.round((cfg.hospital_cap_base + cfg.hospital_cap_growth * (b - 1)) * unitPeak(cfg, b)));
+  }
+
+  /** Bitta boʻrini davolash vaqti, daqiqa. */
+  function healMinutes(cfg, b) { return cfg.heal_time_min / (1 + cfg.heal_speed_growth * (Math.max(1, b) - 1)); }
+
+  /** Bitta boʻrini davolash narxi, shifobaxsh oʻt (askar birligiga boʻlinadi). */
+  function healHerb(cfg, tier, L) { return round2(cfg.heal_herb_per_tier * tier / unitScale(cfg, L)); }
+
+  /** Davolash rejasi {qty, herb, minutes, waves, cap}: sigʻim boʻyicha toʻlqin-toʻlqin, vaqt = toʻlqinlar × bitta boʻri vaqti. */
+  function healPlan(cfg, b, L, troops) {
+    var qty = 0, herb = 0;
+    Object.keys(troops || {}).forEach(function (role) {
+      Object.keys(troops[role]).forEach(function (tier) { var n = troops[role][tier] | 0; qty += n; herb += n * healHerb(cfg, +tier, L); });
+    });
+    var cap = hospitalCap(cfg, b), waves = cap > 0 ? Math.ceil(qty / cap) : 0;
+    return { qty: qty, herb: round2(herb), minutes: round2(waves * healMinutes(cfg, b)), waves: waves, cap: cap };
+  }
+
   /* ---- Ov xaritasi (GDD bo'lim 4 “Ov xaritasi”). Server: App\Support\Formula — natija bir xil. ---- */
 
   /** 32-bit butun koʻpaytma (Math.imul) — PHP bilan bir xil. */
@@ -426,7 +453,7 @@
     RESOURCES: RESOURCES, BUILDINGS: BUILDINGS, BUILDING_ORDER: BUILDING_ORDER, ROLES: ROLES, TIERS: TIERS,
     stage: stage, levelCost: levelCost, totalXp: totalXp, xpProgress: xpProgress,
     buildingCost: buildingCost, buildingTime: buildingTime, maxTier: maxTier, armyCap: armyCap,
-    need: need, unitScale: unitScale, minPack: minPack, hunterYield: hunterYield, caveCap: caveCap, waterPerHour: waterPerHour, waterNeed: waterNeed,
+    need: need, unitScale: unitScale, minPack: minPack, hospitalCap: hospitalCap, healMinutes: healMinutes, healHerb: healHerb, healPlan: healPlan, hunterYield: hunterYield, caveCap: caveCap, waterPerHour: waterPerHour, waterNeed: waterNeed,
     workshopPerHour: workshopPerHour, PREY: PREY, WOLVES: WOLVES, UNLOCKS: UNLOCKS, roleCap: roleCap,
     trainCost: trainCost, trainSeconds: trainSeconds, huntResult: huntResult, huntBoard: huntBoard, huntWindow: huntWindow,
     huntSeed: huntSeed, huntersRec: huntersRec, rng: rng, QUESTS: QUESTS, questsFor: questsFor, questReward: questReward,

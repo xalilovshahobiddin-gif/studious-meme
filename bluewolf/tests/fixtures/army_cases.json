@@ -61,5 +61,116 @@
    },
    "seconds": 24.137408
   }
+ ],
+ "heal": [
+  {
+   "building": 1,
+   "level": 6,
+   "tier": 1,
+   "cap": 2,
+   "minutes": 60,
+   "herb": 0.95,
+   "troops": {
+    "hunter": {
+     "1": 3
+    }
+   },
+   "plan": {
+    "qty": 3,
+    "herb": 2.85,
+    "minutes": 120,
+    "waves": 2,
+    "cap": 2
+   }
+  },
+  {
+   "building": 3,
+   "level": 10,
+   "tier": 1,
+   "cap": 3,
+   "minutes": 54.545455,
+   "herb": 0.49,
+   "troops": {
+    "hunter": {
+     "1": 7
+    }
+   },
+   "plan": {
+    "qty": 7,
+    "herb": 3.43,
+    "minutes": 163.64,
+    "waves": 3,
+    "cap": 3
+   }
+  },
+  {
+   "building": 6,
+   "level": 12,
+   "tier": 2,
+   "cap": 8,
+   "minutes": 48,
+   "herb": 0.89,
+   "troops": {
+    "hunter": {
+     "1": 30
+    },
+    "attacker": {
+     "2": 20
+    }
+   },
+   "plan": {
+    "qty": 50,
+    "herb": 31.3,
+    "minutes": 336,
+    "waves": 7,
+    "cap": 8
+   }
+  },
+  {
+   "building": 10,
+   "level": 15,
+   "tier": 3,
+   "cap": 23,
+   "minutes": 41.37931,
+   "herb": 1.35,
+   "troops": {
+    "scout": {
+     "3": 40
+    },
+    "defender": {
+     "1": 5
+    }
+   },
+   "plan": {
+    "qty": 45,
+    "herb": 56.25,
+    "minutes": 82.76,
+    "waves": 2,
+    "cap": 23
+   }
+  },
+  {
+   "building": 25,
+   "level": 25,
+   "tier": 6,
+   "cap": 53,
+   "minutes": 27.272727,
+   "herb": 5.2,
+   "troops": {
+    "attacker": {
+     "6": 100
+    },
+    "hunter": {
+     "5": 12
+    }
+   },
+   "plan": {
+    "qty": 112,
+    "herb": 571.96,
+    "minutes": 81.82,
+    "waves": 3,
+    "cap": 53
+   }
+  }
  ]
 }

@@ -517,6 +517,14 @@ def run_checks(b, wb):
         check(b.unit(L) >= 1, f"L{L}: askar birligi {b.unit(L):.2f} < 1")
     check(b.army(25) >= 1000, f"25-darajada toʻda {b.army(25)} < 1000")
 
+    # 7c. Shifo gʻori: sigʻim kuchaytirishda kamaymaydi; bitta toʻlqin tabiiy tuzalishdan (3 soat) tez
+    def hospital_cap(L):
+        peak = max(b.unit(l) for l in range(1, L + 1))
+        return max(1, math.floor((b.hospital_cap_base + b.hospital_cap_growth * (L - 1)) * peak + 0.5))
+    for L in range(2, 26):
+        check(hospital_cap(L) >= hospital_cap(L - 1), f"Shifo gʻori L{L}: sigʻim kamaydi ({hospital_cap(L - 1)} → {hospital_cap(L)})")
+    check(b.heal_time_min < b.heal_no_hospital_min, "Shifo gʻorida bitta toʻlqin tabiiy tuzalishdan uzoq")
+
     # 8. Lager ulushi tavan bilan
     check(0 < b.camp_yield_share_max <= 0.6, "Lager tavani 0–60% oraligʻida boʻlishi kerak")
 

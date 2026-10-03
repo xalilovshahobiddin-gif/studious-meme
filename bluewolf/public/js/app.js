@@ -1,4 +1,4 @@
-/* Blue Wolf Mini App — v0.0.15 (iqtisodiyot, qurilish, askarlar, ov, vazifalar, tanishtiruv, interfeys)
+/* Blue Wolf Mini App — v0.0.16 (iqtisodiyot, qurilish, askarlar, ov, vazifalar, tanishtiruv, interfeys)
    6 ta tab (In · Ov · Jang · Toʻda · Vazifalar · Profil), hash-router, Telegram WebApp integratsiyasi.
    Resurslar vaqt boʻyicha hisoblanadi (BWGame.advance — server bilan bir xil formula), Ustaxona buferi
    va taqsimoti, qurilish, askar mashqi va ov ishlaydi. Qolgan amallar (hujum, razvedka…) keyingi bosqichlarda ulanadi. */
@@ -152,7 +152,9 @@
   /** Resurslar ostida: qurilish va mashq taymerlari; boʻsh boʻlsa panel yashirinadi. */
   function renderTimers() {
     var bar = $("#timer-bar");
+    var nat = naturalHeals().sort(function (a, b) { return a.ends_at - b.ends_at; })[0], hosp = hospitalQueues()[0];
     var list = (app.state.queues || []).filter(function (q) { return q.kind === "build" || q.kind === "train"; })
+      .concat(hosp ? [hosp] : []).concat(nat ? [nat] : [])
       .map(function (q) { return { t: q.ends_at, q: q }; })
       .concat((app.state.marches || []).filter(function (m) { return m.kind === "hunt"; }).map(function (m) { return { t: m.returns_at, m: m }; }))
       .sort(function (a, b) { return a.t - b.t; });
@@ -165,6 +167,13 @@
         cls = "hunt"; ic = "paw"; action = 'data-action="hunt"';
         label = "Ov: " + (loot.prey || "toʻda ovda") + (sent ? " · " + sent + " boʻri" : "") + " — qaytishiga";
         ring = "mring-" + m.id; live = "m-" + m.id; ratio = marchRatio(m); left = timeLeft({ ends_at: m.returns_at });
+      } else if (it.q.kind === "heal") {
+        var hq = it.q, inH = hq.building_type === "hospital";
+        var group = inH ? hospitalQueues() : naturalHeals(), n = group.reduce(function (s2, x) { return s2 + x.qty; }, 0);
+        cls = inH ? "heal" : "heal timer--natural"; ic = inH ? "hospital" : "herb";
+        action = inH ? 'data-action="q-open" data-type="hospital"' : 'data-action="hunt"';
+        label = inH ? "Shifo gʻorida: " + n + " boʻri" : "Yaradorlar oʻzi tuzalmoqda: " + n + " boʻri (birinchilari)";
+        ring = "qring-" + hq.id; live = "q-" + hq.id; ratio = queueRatio(hq); left = timeLeft(hq);
       } else {
         var q = it.q, build = q.kind === "build", role = build ? null : roleMeta(q.role), type = build ? q.building_type : role.building;
         cls = q.kind; ic = build ? "hammer" : role.icon; action = 'data-action="q-open" data-type="' + type + '"';
@@ -320,7 +329,7 @@
         stat((net >= 0 ? "+" : "") + fmtRate(net), "Kunlik balans"), stat(G.fmt(f.cap), "Sigʻim")];
       if (net < 0) note = "Suv yetishmayapti — yurish tezligi −20%. Oziq gʻorini kuchaytiring.";
     } else if (key === "herb") {
-      stats = [stat(Math.round(cfg.hunt_herb_share * 100) + "%", "Ovdan keladi"), stat(cfg.heal_herb_per_tier + " × tier", "Davolash (1 boʻri)")];
+      stats = [stat(Math.round(cfg.hunt_herb_share * 100) + "%", "Ovdan keladi"), stat(fmtRate(G.healHerb(cfg, 1, app.state.player.level)) + " × tier", "Davolash (1 boʻri)")];
     } else if (key === "moonlight") {
       stats = [stat("+" + fmtRate(f.perHour) + "/soat", "Passiv"), stat(fmtRate(f.perDay), "Kunlik ehtiyoj")];
     } else if (r.group === "build") {
@@ -412,6 +421,8 @@
         '<span class="bw-building__icon">' + icon(b.meta.icon, "bw-icon--lg") + '</span>' +
         '<span class="bw-building__name">' + esc(b.meta.name) + "</span>" +
         (!b.locked && !b.queue && upgradeCheck(b).ok ? '<span class="bw-building__up" title="Kuchaytirish mumkin">' + icon("plus", "bw-icon--sm") + "</span>" : "") +
+        (b.type === "hospital" && !b.locked && !hospitalQueues().length && naturalHeals().length
+          ? '<span class="bw-building__hurt" title="Davolash kutayotgan yaradorlar">' + naturalHeals().reduce(function (n, q) { return n + q.qty; }, 0) + "</span>" : "") +
         '<span class="bw-building__lvl">' + (b.locked
           ? '<span class="bw-faint" style="font-size:11px">' + b.meta.unlock + "-darajada</span>"
           : b.queue
@@ -562,6 +573,7 @@
       }
       var role = G.ROLES.filter(function (r) { return r.building === type; })[0];
       if (role) html += trainPanel(role, b);
+      if (type === "hospital") html += hospitalPanel(b);
       if (!b.queue) {
         html += '<button class="bw-btn bw-btn--block" style="margin-top:18px" data-action="upgrade" data-type="' + type + '"' + (check.ok ? "" : " disabled") + ">" +
           icon("plus", "bw-icon--sm") + " Kuchaytirish</button>";
@@ -569,6 +581,123 @@
       }
     }
     openSheet(html, function () { buildingSheet(type); });
+  }
+
+  /* ---------------------------------------------------------------- 🏥 Shifo gʻori */
+  function hospitalQueues() { return (app.state.queues || []).filter(function (q) { return q.kind === "heal" && q.building_type === "hospital"; }); }
+  function naturalHeals() { return (app.state.queues || []).filter(function (q) { return q.kind === "heal" && q.building_type !== "hospital"; }); }
+
+  /** Tabiiy tuzalayotgan yaradorlar: “rol:tier” → {role, tier, qty, ends: [{t, qty}] (kechidan erta tomon)}. */
+  function waitingGroups() {
+    var out = {};
+    naturalHeals().forEach(function (q) {
+      var k = q.role + ":" + q.tier, g = out[k] || (out[k] = { key: k, role: q.role, tier: q.tier, qty: 0, ends: [] });
+      g.qty += q.qty; g.ends.push({ t: q.ends_at, qty: q.qty });
+    });
+    Object.keys(out).forEach(function (k) { out[k].ends.sort(function (a, b) { return b.t - a.t; }); });
+    return out;
+  }
+
+  /** Tanlangan boʻrilar oʻzi qachon tuzalardi (eng kech tugaydiganlaridan olinadi). */
+  function naturalEnd(groups, sel) {
+    var end = 0;
+    Object.keys(sel).forEach(function (k) {
+      var left = sel[k], g = groups[k];
+      if (!g || left <= 0) return;
+      g.ends.forEach(function (e) { if (left > 0) { end = Math.max(end, e.t); left -= e.qty; } });
+    });
+    return end;
+  }
+
+  function healTroops(sel) {
+    var out = {};
+    Object.keys(sel || {}).forEach(function (k) {
+      if (!(sel[k] > 0)) return;
+      var rt = k.split(":"); (out[rt[0]] = out[rt[0]] || {})[rt[1]] = sel[k];
+    });
+    return out;
+  }
+
+  /** Joriy muolaja kartasi (bitta umumiy taymer, guruhlar, tezlashtirish). */
+  function hospitalCard() {
+    var hq = hospitalQueues(), q = hq[0], n = hq.reduce(function (s2, x) { return s2 + x.qty; }, 0), free = app.state.player.free_speedups || 0;
+    return '<div class="bw-card bw-card--flat heal-card" style="margin-top:14px"><div class="bw-between"><span class="bw-row__title">' + icon("hospital", "bw-icon--sm") +
+      " Shifo gʻorida: " + n + ' boʻri</span><b class="bw-num" data-live="q-' + q.id + '">' + timeLeft(q) + "</b></div>" +
+      '<div class="bw-progress bw-progress--sm" style="margin:8px 0"><div class="bw-progress__bar heal-bar" data-live="qbar-' + q.id + '" style="width:' + Math.round(queueRatio(q) * 100) + '%"></div></div>' +
+      '<div class="heal-groups">' + hq.map(function (x) { return '<span class="bw-role bw-role--' + x.role + '"><span class="bw-role__dot"></span>' + x.qty + " × " + esc(roleMeta(x.role).name.toLowerCase()) + " · T" + x.tier + "</span>"; }).join("") + "</div>" +
+      '<button class="bw-btn bw-btn--accent bw-btn--sm" style="margin-top:10px" data-action="q-speedup" data-q="' + q.id + '"' + (free ? "" : " disabled") + ">" +
+      icon("bolt", "bw-icon--sm") + " Tezlash · " + free + "</button></div>";
+  }
+
+  /** Shifo gʻori oynasi: sigʻim, vaqt, narx; joriy muolaja yoki yaradorlarni tanlash (slayderlar). */
+  function hospitalPanel(b) {
+    var cfg = app.config, p = app.state.player;
+    var html = '<div class="bw-grid-3" style="margin-top:14px">' + stat(G.hospitalCap(cfg, b.level), "Bir vaqtda") +
+      stat(Math.round(G.healMinutes(cfg, b.level)) + " daq", "1 toʻlqin") + stat(fmtRate(G.healHerb(cfg, 1, p.level)), "Oʻt / T1 boʻri") + "</div>";
+    if (hospitalQueues().length) return html + hospitalCard();
+    var groups = waitingGroups(), keys = Object.keys(groups).sort();
+    if (!keys.length) {
+      return html + '<div class="bw-banner" style="margin-top:14px">' + icon("info", "bw-icon--sm") + "<span>Yarador boʻri yoʻq. Ov xaritasidagi oʻrta va uzoq kartalardan qaytgan yaradorlar shu yerda tezroq davolanadi.</span></div>";
+    }
+    if (!app.healSel) { app.healSel = {}; keys.forEach(function (k) { app.healSel[k] = groups[k].qty; }); }
+    keys.forEach(function (k) { app.healSel[k] = Math.min(app.healSel[k] == null ? groups[k].qty : app.healSel[k], groups[k].qty); });
+    Object.keys(app.healSel).forEach(function (k) { if (!groups[k]) delete app.healSel[k]; });
+    html += '<div class="bw-between" style="margin:16px 0 6px"><span class="bw-eyebrow">Yaradorlar</span><button class="bw-btn bw-btn--ghost bw-btn--sm" data-action="heal-all">Hammasi</button></div>';
+    html += '<div class="bw-card bw-card--flat" style="padding:0 14px">' + keys.map(function (k) {
+      var g = groups[k], meta = roleMeta(g.role);
+      return '<div class="slider-row"><div class="bw-between"><span class="bw-role bw-role--' + g.role + '"><span class="bw-role__dot"></span>' + esc(meta.name) + " · T" + g.tier +
+        '</span><span class="bw-faint" style="font-size:12px">' + g.qty + " yarador · oʻzi " + timeLeft({ ends_at: g.ends[0].t }) + "</span></div>" + slider("heal", k, app.healSel[k], g.qty) + "</div>";
+    }).join("") + "</div>";
+    html += '<div id="sheet-preview">' + healPreview(b) + "</div>";
+    return html;
+  }
+
+  /** Muolaja natijasi (slayder surilganda faqat shu yangilanadi). */
+  function healPreview(b) {
+    var cfg = app.config, p = app.state.player, b2 = b || buildingList().filter(function (x) { return x.type === "hospital"; })[0];
+    var troops = healTroops(app.healSel), plan = G.healPlan(cfg, b2.level, p.level, troops);
+    var nat = naturalEnd(waitingGroups(), app.healSel), herb = app.state.resources.herb || 0;
+    var hospitalEnd = now() + plan.minutes * 60000, faster = plan.qty > 0 && hospitalEnd < nat;
+    var html = '<div class="bw-grid-3" style="margin-top:12px">' + stat(plan.qty, "Boʻri") + stat(fmtRate(plan.herb), "Oʻt (bor: " + fmtRate(herb) + ")") +
+      stat(G.fmtMinutes(plan.minutes), plan.waves + " toʻlqin") + "</div>";
+    if (plan.qty > 0) {
+      html += '<div class="heal-compare"><span>' + icon("clock", "bw-icon--sm") + " Oʻzi tuzaladi: <b>" + timeLeft({ ends_at: nat }) + "</b></span><span>" +
+        icon("hospital", "bw-icon--sm") + " Shifo gʻorida: <b>" + timeLeft({ ends_at: hospitalEnd }) + "</b></span></div>";
+      if (!faster) html += '<div class="bw-banner" style="margin-top:10px">' + icon("info", "bw-icon--sm") + "<span>Bu safar boʻrilar oʻzi tezroq tuzaladi — kamroq boʻri tanlang yoki Shifo gʻorini kuchaytiring.</span></div>";
+      else if (herb + 1e-9 < plan.herb) html += '<div class="bw-banner" style="margin-top:10px">' + icon("herb", "bw-icon--sm") + "<span>Shifobaxsh oʻt yetmaydi: yana " + fmtRate(plan.herb - herb) + " kerak. Oʻt ovdan keladi (natijaning " + Math.round(cfg.hunt_herb_share * 100) + "%).</span></div>";
+    }
+    html += '<button class="bw-btn bw-btn--accent bw-btn--block" style="margin-top:14px" data-action="heal-go"' + (faster && herb + 1e-9 >= plan.herb ? "" : " disabled") + ">" +
+      icon("hospital", "bw-icon--sm") + " Davolashni boshlash</button>";
+    return html;
+  }
+
+  function startHeal() {
+    var cfg = app.config, p = app.state.player, troops = healTroops(app.healSel);
+    var b = buildingList().filter(function (x) { return x.type === "hospital"; })[0];
+    var plan = G.healPlan(cfg, b.level, p.level, troops);
+    if (!plan.qty) return;
+    var started = function () {
+      haptic("medium"); app.healSel = null;
+      toast(plan.qty + " ta boʻri Shifo gʻorida · tuzalishiga " + G.fmtMinutes(plan.minutes), "hospital");
+    };
+    if (app.mode === "live") { post("hospital/heal", { troops: troops }, started); return; }
+    var t = now();
+    app.econ = G.advance(cfg, app.econ, t);
+    if ((app.econ.res.herb || 0) + 1e-9 < plan.herb) { toast("Shifobaxsh oʻt yetmaydi", "herb"); return; }
+    app.econ.res.herb -= plan.herb;
+    var ends = t + Math.round(plan.minutes * 60000);
+    Object.keys(troops).forEach(function (role) {
+      Object.keys(troops[role]).forEach(function (tier) {
+        var qty = troops[role][tier], left = qty;
+        naturalHeals().filter(function (q) { return q.role === role && q.tier === +tier; })
+          .sort(function (a, b2) { return b2.ends_at - a.ends_at; })
+          .forEach(function (q) { if (left <= 0) return; var take = Math.min(left, q.qty); left -= take; q.qty -= take; });
+        app.state.queues = app.state.queues.filter(function (q) { return !(q.kind === "heal" && q.building_type !== "hospital" && q.qty <= 0); });
+        app.state.queues.push({ id: t + Math.random(), kind: "heal", building_type: "hospital", role: role, tier: +tier, qty: qty,
+          cost: { herb: Math.round(qty * G.healHerb(cfg, +tier, p.level) * 100) / 100 }, started_at: t, ends_at: ends });
+      });
+    });
+    saveDemo(); syncResources(); render(); started();
   }
 
   /* ---------------------------------------------------------------- ⚔️ Jang */
@@ -1040,8 +1169,15 @@
 
     var heals = (app.state.queues || []).filter(function (q) { return q.kind === "heal"; });
     if (heals.length) {
+      var hb = buildingList().filter(function (x) { return x.type === "hospital"; })[0], inHospital = hospitalQueues(), waiting = naturalHeals();
       html += sectionTitle("Yaradorlar tuzalmoqda", '<span class="bw-chip bw-chip--danger">' + heals.reduce(function (s, q) { return s + q.qty; }, 0) + "</span>");
-      html += '<div class="bw-stack">' + heals.map(function (q) { return queueCard(q, true); }).join("") + "</div>";
+      html += (inHospital.length ? hospitalCard() : "") + '<div class="bw-stack"' + (inHospital.length ? ' style="margin-top:10px"' : "") + ">" +
+        waiting.map(function (q) { return queueCard(q, true); }).join("") + "</div>";
+      if (waiting.length) {
+        html += hb.locked
+          ? '<div class="bw-banner" style="margin-top:10px">' + icon("hospital", "bw-icon--sm") + "<span>Shifo gʻori " + hb.meta.unlock + "-darajada ochiladi — yaradorlarni oʻt evaziga tezroq davolaydi.</span></div>"
+          : inHospital.length ? "" : '<button class="bw-btn bw-btn--accent bw-btn--block" style="margin-top:10px" data-action="hospital">' + icon("hospital", "bw-icon--sm") + " Shifo gʻorida davolash</button>";
+      }
     }
 
     html += sectionTitle("Ov xaritasi", '<span class="bw-faint" style="font-size:12px">yaqindan → uzoqqa</span>');
@@ -1114,7 +1250,7 @@
     if (card.band) {
       html += '<div class="bw-banner" style="margin-top:12px">' + icon("info", "bw-icon--sm") + "<span>Uzoq yoʻl: oʻlja +" + Math.round(card.bonus * 100) +
         "%, lekin har bir boʻri " + Math.round(card.injury * 100) + "% ehtimol bilan yarador" + (card.death ? ", " + Math.round(card.death * 100) + "% ehtimol bilan halok" : "") +
-        " boʻladi. Yaradorlar " + Math.round(cfg.heal_no_hospital_min / 60) + " soatda tuzaladi.</span></div>";
+        " boʻladi. Yaradorlar " + Math.round(cfg.heal_no_hospital_min / 60) + " soatda oʻzi tuzaladi (Shifo gʻorida tezroq).</span></div>";
     }
     html += '<p class="bw-muted" style="margin:12px 0 4px;font-size:13px">Kamida <b>' + card.min_pack + "</b> boʻri kerak. Goʻshtni faqat ovchilar keltiradi; boshqa askarlar toʻdani toʻldiradi.</p>";
     var avail = ["hunter", "attacker", "defender", "scout"].filter(function (role) { return armyCount(role) > 0; });
@@ -1178,6 +1314,12 @@
       max: function (key) { return armyCount(key); },
       set: function (key, v) { app.huntSel[key] = v; },
       preview: function () { var el = $("#sheet-preview"); if (el) el.innerHTML = huntPreview(); }
+    },
+    heal: {
+      get: function (key) { return (app.healSel || {})[key] || 0; },
+      max: function (key) { var g = waitingGroups()[key]; return g ? g.qty : 0; },
+      set: function (key, v) { app.healSel = app.healSel || {}; app.healSel[key] = v; },
+      preview: function () { var el = $("#sheet-preview"); if (el) el.innerHTML = healPreview(); }
     },
     train: {
       get: function () { return app.trainSel.qty; },
@@ -1514,9 +1656,11 @@
       row("Passiv suv, /soat", fmtRate(G.waterPerHour(cfg, from)), fmtRate(G.waterPerHour(cfg, to)));
     else if (G.ROLES.some(function (r) { return r.building === type; })) {
       var p = app.state.player;
-      html = row("Askar sigʻimi", G.fmt(cfg.role_cap_base * Math.pow(cfg.role_cap_growth, from - 1)), G.fmt(cfg.role_cap_base * Math.pow(cfg.role_cap_growth, to - 1))) +
+      html = row("Askar sigʻimi", G.fmt(G.roleCap(cfg, from)), G.fmt(G.roleCap(cfg, to))) +
         row("Maks tier", G.maxTier(cfg, p.level, from), G.maxTier(cfg, p.level, to));
     }
+    else if (type === "hospital") html = row("Bir vaqtda davolash", G.hospitalCap(cfg, from), G.hospitalCap(cfg, to)) +
+      row("1 toʻlqin, daqiqa", Math.round(G.healMinutes(cfg, from)), Math.round(G.healMinutes(cfg, to)));
     return html ? '<div class="bw-card bw-card--flat" style="margin-top:12px;padding:10px 14px">' + html + "</div>" : "";
   }
 
@@ -1534,8 +1678,8 @@
   /** Navbatdagi qurilish kartasi (In ekrani va bino oynasi uchun). */
   function queueCard(q, inSheet) {
     var free = app.state.player.free_speedups || 0, heal = q.kind === "heal", train = q.kind === "train" || heal;
-    var type = train ? roleMeta(q.role).building : q.building_type, meta = G.BUILDINGS[type];
-    var title = heal ? "Yarador: " + q.qty + " × " + roleMeta(q.role).name.toLowerCase() + " · T" + q.tier
+    var type = heal && q.building_type === "hospital" ? "hospital" : train ? roleMeta(q.role).building : q.building_type, meta = G.BUILDINGS[type];
+    var title = heal ? (q.building_type === "hospital" ? "Shifo gʻorida: " : "Yarador: ") + q.qty + " × " + roleMeta(q.role).name.toLowerCase() + " · T" + q.tier
       : train ? q.qty + " × " + roleMeta(q.role).name.toLowerCase() + " · T" + q.tier : meta.name + " → " + q.target_level;
     return '<div class="bw-card bw-card--flat queue-slot queue-slot--busy"' + (inSheet ? "" : ' data-action="q-open" data-type="' + type + '"') + ">" +
       '<span class="queue-slot__icon">' + icon(train ? roleMeta(q.role).icon : meta.icon) + '</span><div class="bw-grow">' +
@@ -1590,7 +1734,8 @@
     if (!q || !(app.state.player.free_speedups > 0)) { toast("Bepul tezlashtirish qolmadi", "info"); return; }
     var done = function () { haptic("medium"); toast("Tezlashtirildi: −" + app.config.tutorial_speedup_min + " daqiqa", "bolt"); };
     if (app.mode === "live") { post("queue/speedup", { queue_id: id, use_free: true }, done); return; }
-    q.ends_at = Math.max(now(), q.ends_at - app.config.tutorial_speedup_min * 60000);
+    var group = q.kind === "heal" && q.building_type === "hospital" ? hospitalQueues() : [q];
+    group.forEach(function (x) { x.ends_at = Math.max(now(), x.ends_at - app.config.tutorial_speedup_min * 60000); });
     app.state.player.free_speedups--;
     done();
     tickQueues(now());
@@ -1635,7 +1780,7 @@
         }
         return;
       }
-      if (f.kind === "heal") { toast(f.qty + " ta " + roleMeta(f.role).name.toLowerCase() + " tuzaldi", "check"); return; }
+      if (f.kind === "heal") { toast(f.qty + " ta " + roleMeta(f.role).name.toLowerCase() + (f.hospital ? " Shifo gʻorida davolandi" : " tuzaldi"), f.hospital ? "hospital" : "check"); return; }
       toast(G.BUILDINGS[f.type].name + " " + f.level + "-darajaga koʻtarildi!", "check");
     });
     if (level) setTimeout(function () { levelSheet(level); }, 400);
@@ -1731,7 +1876,7 @@
       var hq = ev.q;
       app.state.army_injured[hq.role][hq.tier - 1] -= hq.qty;
       app.state.army[hq.role][hq.tier - 1] += hq.qty;
-      out.push({ kind: "heal", role: hq.role, tier: hq.tier, qty: hq.qty });
+      out.push({ kind: "heal", role: hq.role, tier: hq.tier, qty: hq.qty, hospital: hq.building_type === "hospital" });
     } else if (ev.q.kind === "train") {
       var q = ev.q;
       app.state.army[q.role][q.tier - 1] += q.qty;
@@ -2005,6 +2150,9 @@
     "solo-hunt": soloHunt,
     "train-tier": function (el) { app.trainSel.tier = +el.getAttribute("data-key"); app.sheetRefresh(); },
     "train-go": train,
+    "heal-go": startHeal,
+    "heal-all": function () { app.healSel = null; if (app.sheetRefresh) app.sheetRefresh(); },
+    hospital: function () { closeSheet(); setTimeout(function () { buildingSheet("hospital"); }, 200); },
     "close-sheet": closeSheet,
     "menu-close": closeDrawer,
     "menu-toggle": function () { if (drawerOpen()) closeDrawer(); else openDrawer(); },
