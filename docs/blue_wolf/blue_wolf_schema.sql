@@ -193,34 +193,10 @@ CREATE TABLE queues (
 ) ENGINE=InnoDB;
 
 -- =====================================================================
--- 5. OV GURUHLARI (MVP: rasmiy klansiz vaqtinchalik guruh, 2–4 oʻyinchi)
+-- 5. OV XARITASI — alohida jadval yoʻq (GDD bo'lim 4 “Ov xaritasi”)
+-- 9 ta karta oʻyinchi ID + davr raqamidan deterministik hisoblanadi (server va klientda bir xil);
+-- ovlangan / ovdagi kartalar marches.board_window + marches.board_slot orqali aniqlanadi.
 -- =====================================================================
-
-CREATE TABLE hunt_parties (
-  id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  leader_id     BIGINT UNSIGNED NOT NULL,
-  prey_level    TINYINT UNSIGNED NOT NULL COMMENT 'Oʻlja qaysi daraja jadvalidan',
-  max_members   TINYINT UNSIGNED NOT NULL DEFAULT 4,
-  departs_at    DATETIME NOT NULL COMMENT 'Yigʻilish tugaydi, ov boshlanadi',
-  state         ENUM('open','hunting','done','cancelled') NOT NULL DEFAULT 'open',
-  created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  KEY ix_party_state (state, departs_at),
-  CONSTRAINT fk_party_leader FOREIGN KEY (leader_id) REFERENCES players(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
-CREATE TABLE hunt_party_members (
-  party_id      BIGINT UNSIGNED NOT NULL,
-  player_id     BIGINT UNSIGNED NOT NULL,
-  march_id      BIGINT UNSIGNED NULL,
-  hunt_power    DECIMAL(14,4) NOT NULL DEFAULT 0 COMMENT 'Yuborilgan ovchi unumi, kg/soat — oʻljani boʻlish uchun',
-  meat_share    DECIMAL(14,4) NULL,
-  joined_at     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (party_id, player_id),
-  KEY ix_hpm_player (player_id),
-  CONSTRAINT fk_hpm_party FOREIGN KEY (party_id) REFERENCES hunt_parties(id) ON DELETE CASCADE,
-  CONSTRAINT fk_hpm_player FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
 
 -- =====================================================================
 -- 6. YURISHLAR — ov, hujum, razvedka, lager, oazis, urush
@@ -233,7 +209,8 @@ CREATE TABLE marches (
   target_player  BIGINT UNSIGNED NULL COMMENT 'PvP uchun',
   target_bot     JSON NULL COMMENT 'Yovvoyi toʻda: {level, ep, stock, seed}',
   target_oasis   BIGINT UNSIGNED NULL,
-  party_id       BIGINT UNSIGNED NULL COMMENT 'Ov guruhi',
+  board_window   INT UNSIGNED NULL COMMENT 'Ov xaritasi davri (kind = hunt)',
+  board_slot     TINYINT UNSIGNED NULL COMMENT 'Ov kartasi 0..8 (kind = hunt)',
   war_id         BIGINT UNSIGNED NULL,
   offer_slot     TINYINT UNSIGNED NULL COMMENT 'Server taklifidan (mavsum jangi) boʻlsa 1..9',
   payload        JSON NOT NULL COMMENT '[{role,tier,qty}, ...]',
@@ -248,6 +225,7 @@ CREATE TABLE marches (
                  NOT NULL DEFAULT 'outbound',
   PRIMARY KEY (id),
   KEY ix_march_player (player_id, state),
+  KEY ix_march_board (player_id, board_window),
   KEY ix_march_target (target_player, state),
   KEY ix_march_arrive (state, arrives_at),
   KEY ix_march_return (state, returns_at),

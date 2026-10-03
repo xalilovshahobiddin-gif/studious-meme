@@ -8,6 +8,7 @@ use App\Models\Player;
 use App\Models\Queue;
 use App\Support\Formula;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 
 /** Askarlar va mashq (GDD bo'lim 6, API 5-boʻlim). */
 class ArmyService
@@ -15,15 +16,16 @@ class ArmyService
     /**
      * Rol → tier boʻyicha sanoq: alive (inda), away (yurishda), injured.
      *
-     * @return array{alive: array<string, list<int>>, away: array<string, list<int>>, total: int}
+     * @return array{alive: array<string, list<int>>, away: array<string, list<int>>, injured: array<string, list<int>>, total: int}
      */
     public function summary(Player $player): array
     {
         $empty = array_fill_keys(Army::ROLES, array_fill(0, 6, 0));
-        $out = ['alive' => $empty, 'away' => $empty, 'total' => 0];
+        $out = ['alive' => $empty, 'away' => $empty, 'injured' => $empty, 'total' => 0];
         foreach ($player->army()->get() as $row) {
             $out['alive'][$row->role][$row->tier - 1] = $row->alive;
             $out['away'][$row->role][$row->tier - 1] = $row->on_march;
+            $out['injured'][$row->role][$row->tier - 1] = $row->injured;
             $out['total'] += $row->alive + $row->on_march + $row->injured;
         }
 
@@ -34,6 +36,13 @@ class ArmyService
     public function total(Player $player): int
     {
         return (int) $player->army()->selectRaw('COALESCE(SUM(alive + on_march + injured), 0) AS n')->value('n');
+    }
+
+    /** Yaradorlar tuzaldi: injured → alive. */
+    public function heal(Player $player, string $role, int $tier, int $qty): void
+    {
+        Army::query()->where(['player_id' => $player->id, 'role' => $role, 'tier' => $tier])
+            ->update(['injured' => DB::raw('injured - '.$qty), 'alive' => DB::raw('alive + '.$qty)]);
     }
 
     public function add(Player $player, string $role, int $tier, int $qty, string $column = 'alive'): void

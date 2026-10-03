@@ -1,5 +1,19 @@
 # Blue Wolf — oʻzgarishlar tarixi
 
+## v0.0.7 — ov xaritasi
+- **Ov xaritasi:** Ov tabida 3 × 3 = 9 ta ov kartasi. Yuqori chapdan pastki oʻngga — eng qisqa va eng kam oʻljadan eng uzoq va
+  eng koʻp oʻljaga. Kartada: oʻlja, taxminiy goʻsht (boʻsh ovchilaringiz bilan), masofa, vaqt, xavf darajasi.
+- Kartaga bosilganda: oʻlja va poda, masofa, ov vaqti, xavf ehtimollari, askar tanlash (slayderlar), kutilgan natija, “Ovga chiqish”.
+- Kartalar **har 4 soatda yangilanadi** va **har oʻyinchida har xil** (oʻyinchi ID + davr urugʻi; server va klient bir xil hisoblaydi).
+  Har karta davr ichida bir marta ovlanadi; bir vaqtda bir nechta kartaga borish mumkin.
+- **Ov vaqti qisqa:** 16–85 daqiqa (10 daqiqa + borib-kelish yoʻli).
+- **Xavf:** oʻrta masofada 8% yarador / 1% halok, uzoqda 15% / 4% (har bir boʻri uchun); evaziga oʻlja +20% / +50%.
+  Yaradorlar 3 soatda tuzaladi (Ov tabida “Yaradorlar tuzalmoqda”), halok boʻlganlar qoʻshindan ketadi.
+- **Ov guruhlari olib tashlandi** (UI, demo, GDD, API, sxema).
+- GDD bo'lim 4 ga “Ov xaritasi” qoʻshildi; Excel `Sozlamalar` → “Ov xaritasi” (15 parametr, `hunt_party_*` oʻrniga); API: `GET /hunt/board`,
+  `POST /hunt { slot, payload }`; sxema: `marches.board_window/board_slot`, `hunt_parties` jadvallari olib tashlandi (30 jadval).
+- Testlar: PHP 38 ta, JS 12 ta; ov xaritasi uchun umumiy `tests/fixtures/hunt_board_cases.json` (PHP = JS).
+
 ## v0.0.6 — Ov tabi
 - Pastki menyuga **Ov** tabi qoʻshildi (In bilan Jang orasida). Ovga oid hamma narsa shu yerda:
   yurishdagi ov (taymer), yolgʻiz ov, toʻda ovi — rollar boʻyicha slayderlar va kutilgan natija bilan (alohida oyna emas),

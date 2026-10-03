@@ -179,20 +179,76 @@
 
   function round2(x) { return Math.round(x * 100) / 100; }
 
-  /** Ov natijasi. payload: {rol: {tier: soni}} */
-  function huntResult(cfg, L, payload) {
+  /* ---- Ov xaritasi (GDD bo'lim 4 “Ov xaritasi”). Server: App\Support\Formula — natija bir xil. ---- */
+
+  /** 32-bit butun koʻpaytma (Math.imul) — PHP bilan bir xil. */
+  var imul = Math.imul;
+
+  /** mulberry32: tez, deterministik tasodifiy sonlar [0, 1). */
+  function rng(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      var t = imul(a ^ (a >>> 15), 1 | a) >>> 0;
+      t = ((t + imul(t ^ (t >>> 7), 61 | t)) ^ t) >>> 0;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /** Ov xaritasi davri: har hunt_board_refresh_h soatda yangisi. */
+  function huntWindow(cfg, nowMs) { return Math.floor(nowMs / (cfg.hunt_board_refresh_h * 3600000)); }
+
+  /** Oʻyinchi + davr → urugʻ (har oʻyinchida har xil kartalar). */
+  function huntSeed(playerId, window) { return (imul(playerId + 1, 2654435761 | 0) ^ imul(window + 7, 40503)) >>> 0; }
+
+  /** Tavsiya etilgan ovchilar soni (GDD bo'lim 6: qoʻshinning 15%, kamida 1). */
+  function huntersRec(cfg, L) { return Math.max(1, Math.round(armyCap(cfg, L) * cfg.share_hunter)); }
+
+  function round1(x) { return Math.round(x * 10) / 10; }
+
+  /**
+   * 9 ta ov kartasi: 3 yaqin (xavfsiz), 3 oʻrta, 3 uzoq (xavfli, oʻlja koʻproq).
+   * Vaqt boʻyicha (keyin poda hajmi boʻyicha) oʻsish tartibida; slot = tartib raqami.
+   */
+  function huntBoard(cfg, playerId, L, window) {
+    var r = rng(huntSeed(playerId, window)), cards = [];
+    var bands = [[cfg.hunt_km_min, cfg.hunt_km_near_max], [cfg.hunt_km_near_max, cfg.hunt_km_mid_max], [cfg.hunt_km_mid_max, cfg.hunt_km_far_max]];
+    var bonus = [0, cfg.hunt_mid_bonus, cfg.hunt_far_bonus];
+    var injury = [0, cfg.hunt_mid_injury, cfg.hunt_far_injury];
+    var death = [0, cfg.hunt_mid_death, cfg.hunt_far_death];
+    for (var i = 0; i < 9; i++) {
+      var band = Math.floor(i / 3), km = round1(bands[band][0] + r() * (bands[band][1] - bands[band][0]));
+      var minutes = Math.round(cfg.hunt_base_min + 2 * km / cfg.hunt_speed_kmh * 60);
+      var preyLevel = Math.max(1, Math.min(25, L - 1 + band)), prey = PREY[preyLevel];
+      var base = huntersRec(cfg, L) * hunterYield(cfg, L, 1) * minutes / 60 * (1 + bonus[band]);
+      var count = Math.max(1, Math.round(base * (cfg.hunt_herd_min + r() * cfg.hunt_herd_spread) / prey[1]));
+      cards.push({ band: band, prey: prey[0], prey_kg: prey[1], count: count, herd_kg: round2(count * prey[1]), km: km, minutes: minutes,
+        bonus: bonus[band], injury: injury[band], death: death[band], min_pack: Math.max(1, Math.ceil(prey[1] / cfg.prey_kg_per_wolf)) });
+    }
+    cards.sort(function (a, b) { return a.minutes - b.minutes || a.herd_kg - b.herd_kg || a.km - b.km; });
+    cards.forEach(function (c, i) {
+      c.slot = i;
+      // Kam → koʻp: keyingi kartadagi poda oldingisidan kichik boʻlmaydi
+      var prev = cards[i - 1];
+      if (prev && c.herd_kg < prev.herd_kg) { c.count = Math.ceil(prev.herd_kg / c.prey_kg - 1e-9); c.herd_kg = round2(c.count * c.prey_kg); }
+    });
+    return cards;
+  }
+
+  /** Kartadagi ov natijasi. payload: {rol: {tier: soni}}. Goʻsht podadan oshmaydi. */
+  function huntResult(cfg, L, card, payload) {
     var kg = 0, sent = 0;
     Object.keys(payload).forEach(function (role) {
       Object.keys(payload[role]).forEach(function (tier) {
         var q = payload[role][tier];
         sent += q;
-        if (role === "hunter") kg += q * hunterYield(cfg, L, +tier) * cfg.hunt_duration_min / 60;
+        if (role === "hunter") kg += q * hunterYield(cfg, L, +tier) * card.minutes / 60 * (1 + card.bonus);
       });
     });
-    var minPack = Math.max(1, Math.ceil(PREY[L][1] / cfg.prey_kg_per_wolf));
-    var penalty = sent < minPack;
+    var penalty = sent < card.min_pack;
     if (penalty) kg *= cfg.hunt_small_party_penalty;
-    return { meat: round2(kg), herb: round2(kg * cfg.hunt_herb_share), xp: round2(kg * cfg.xp_hunt_coef), min_pack: minPack, sent: sent, penalty: penalty };
+    kg = Math.min(kg, card.herd_kg);
+    return { meat: round2(kg), herb: round2(kg * cfg.hunt_herb_share), xp: round2(kg * cfg.xp_hunt_coef), min_pack: card.min_pack, sent: sent, penalty: penalty };
   }
 
   var BUILD = ["stone", "wood", "hide", "bone"];
@@ -303,7 +359,8 @@
     buildingCost: buildingCost, buildingTime: buildingTime, maxTier: maxTier, armyCap: armyCap,
     need: need, hunterYield: hunterYield, caveCap: caveCap, waterPerHour: waterPerHour, waterNeed: waterNeed,
     workshopPerHour: workshopPerHour, PREY: PREY, WOLVES: WOLVES, UNLOCKS: UNLOCKS, roleCap: roleCap,
-    trainCost: trainCost, trainSeconds: trainSeconds, huntResult: huntResult, bufferCap: bufferCap, advance: advance, collect: collect, validAlloc: validAlloc,
+    trainCost: trainCost, trainSeconds: trainSeconds, huntResult: huntResult, huntBoard: huntBoard, huntWindow: huntWindow,
+    huntSeed: huntSeed, huntersRec: huntersRec, rng: rng, bufferCap: bufferCap, advance: advance, collect: collect, validAlloc: validAlloc,
     BUILD: BUILD, fmt: fmt, fmtShort: fmtShort, fmtMinutes: fmtMinutes
   };
 

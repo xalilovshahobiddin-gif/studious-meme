@@ -1,4 +1,4 @@
-/* Blue Wolf — demo maʼlumotlar (v0.0.4).
+/* Blue Wolf — demo maʼlumotlar (v0.0.7).
    Server topilmaganda (GitHub Pages, oddiy brauzer) ilova shu bilan ochiladi.
    Raqamlar GDD dagi 5-darajali oʻyinchiga mos namuna.
    v0.0.2: resurslar qurilmada vaqt boʻyicha hisoblanadi (localStorage "bw.demo.econ"). */
@@ -13,6 +13,7 @@ window.BW_DEMO = {
   // rol → tier boʻyicha sogʻlom askarlar soni
   army: { scout: [2, 0, 0, 0, 0, 0], attacker: [4, 0, 0, 0, 0, 0], defender: [2, 0, 0, 0, 0, 0], hunter: [2, 0, 0, 0, 0, 0] },
   army_away: { scout: [0, 0, 0, 0, 0, 0], attacker: [0, 0, 0, 0, 0, 0], defender: [0, 0, 0, 0, 0, 0], hunter: [0, 0, 0, 0, 0, 0] },
+  army_injured: { scout: [0, 0, 0, 0, 0, 0], attacker: [0, 0, 0, 0, 0, 0], defender: [0, 0, 0, 0, 0, 0], hunter: [0, 0, 0, 0, 0, 0] },
   marches: [],
   queues: [],
   targets: [
@@ -25,10 +26,6 @@ window.BW_DEMO = {
     { slot: 7, bot: true, name: "Shamol toʻdasi", level: 6, band: "strong", km: 30 },
     { slot: 8, bot: true, name: "Kumush tuyoq", level: 6, band: "even", km: 26 },
     { slot: 9, bot: true, name: "Oydin soy", level: 6, band: "weak", km: 34 }
-  ],
-  parties: [
-    { id: 1, leader: "Bahodir", prey: "Jayron", members: 2, max: 4, departs_min: 6 },
-    { id: 2, leader: "Nigora", prey: "Jayron", members: 3, max: 4, departs_min: 2 }
   ],
   quests: {
     daily: [

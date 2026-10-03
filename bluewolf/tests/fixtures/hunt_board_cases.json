@@ -1,0 +1,663 @@
+{
+ "_note": "Ov xaritasi: Formula::huntBoard/huntResult (PHP) va BWGame (JS) uchun umumiy holatlar.",
+ "boards": [
+  {
+   "player": 0,
+   "level": 3,
+   "window": 1,
+   "cards": [
+    {
+     "band": 0,
+     "prey": "Qush",
+     "prey_kg": 1,
+     "count": 1,
+     "herd_kg": 1,
+     "km": 3,
+     "minutes": 19,
+     "bonus": 0,
+     "injury": 0,
+     "death": 0,
+     "min_pack": 1,
+     "slot": 0
+    },
+    {
+     "band": 0,
+     "prey": "Qush",
+     "prey_kg": 1,
+     "count": 2,
+     "herd_kg": 2,
+     "km": 3.7,
+     "minutes": 21,
+     "bonus": 0,
+     "injury": 0,
+     "death": 0,
+     "min_pack": 1,
+     "slot": 1
+    },
+    {
+     "band": 0,
+     "prey": "Qush",
+     "prey_kg": 1,
+     "count": 2,
+     "herd_kg": 2,
+     "km": 6.6,
+     "minutes": 30,
+     "bonus": 0,
+     "injury": 0,
+     "death": 0,
+     "min_pack": 1,
+     "slot": 2
+    },
+    {
+     "band": 1,
+     "prey": "Quyon",
+     "prey_kg": 2,
+     "count": 2,
+     "herd_kg": 4,
+     "km": 7.4,
+     "minutes": 32,
+     "bonus": 0.2,
+     "injury": 0.08,
+     "death": 0.01,
+     "min_pack": 1,
+     "slot": 3
+    },
+    {
+     "band": 1,
+     "prey": "Quyon",
+     "prey_kg": 2,
+     "count": 2,
+     "herd_kg": 4,
+     "km": 8,
+     "minutes": 34,
+     "bonus": 0.2,
+     "injury": 0.08,
+     "death": 0.01,
+     "min_pack": 1,
+     "slot": 4
+    },
+    {
+     "band": 1,
+     "prey": "Quyon",
+     "prey_kg": 2,
+     "count": 2,
+     "herd_kg": 4,
+     "km": 8.6,
+     "minutes": 36,
+     "bonus": 0.2,
+     "injury": 0.08,
+     "death": 0.01,
+     "min_pack": 1,
+     "slot": 5
+    },
+    {
+     "band": 2,
+     "prey": "Sugʻur",
+     "prey_kg": 8,
+     "count": 1,
+     "herd_kg": 8,
+     "km": 17.9,
+     "minutes": 64,
+     "bonus": 0.5,
+     "injury": 0.15,
+     "death": 0.04,
+     "min_pack": 1,
+     "slot": 6
+    },
+    {
+     "band": 2,
+     "prey": "Sugʻur",
+     "prey_kg": 8,
+     "count": 1,
+     "herd_kg": 8,
+     "km": 21.1,
+     "minutes": 73,
+     "bonus": 0.5,
+     "injury": 0.15,
+     "death": 0.04,
+     "min_pack": 1,
+     "slot": 7
+    },
+    {
+     "band": 2,
+     "prey": "Sugʻur",
+     "prey_kg": 8,
+     "count": 1,
+     "herd_kg": 8,
+     "km": 24.8,
+     "minutes": 84,
+     "bonus": 0.5,
+     "injury": 0.15,
+     "death": 0.04,
+     "min_pack": 1,
+     "slot": 8
+    }
+   ]
+  },
+  {
+   "player": 42,
+   "level": 5,
+   "window": 123456,
+   "cards": [
+    {
+     "band": 0,
+     "prey": "Sugʻur",
+     "prey_kg": 8,
+     "count": 1,
+     "herd_kg": 8,
+     "km": 2.5,
+     "minutes": 18,
+     "bonus": 0,
+     "injury": 0,
+     "death": 0,
+     "min_pack": 1,
+     "slot": 0
+    },
+    {
+     "band": 0,
+     "prey": "Sugʻur",
+     "prey_kg": 8,
+     "count": 1,
+     "herd_kg": 8,
+     "km": 4.1,
+     "minutes": 22,
+     "bonus": 0,
+     "injury": 0,
+     "death": 0,
+     "min_pack": 1,
+     "slot": 1
+    },
+    {
+     "band": 0,
+     "prey": "Sugʻur",
+     "prey_kg": 8,
+     "count": 1,
+     "herd_kg": 8,
+     "km": 6.5,
+     "minutes": 30,
+     "bonus": 0,
+     "injury": 0,
+     "death": 0,
+     "min_pack": 1,
+     "slot": 2
+    },
+    {
+     "band": 1,
+     "prey": "Jayron",
+     "prey_kg": 25,
+     "count": 1,
+     "herd_kg": 25,
+     "km": 8.2,
+     "minutes": 35,
+     "bonus": 0.2,
+     "injury": 0.08,
+     "death": 0.01,
+     "min_pack": 2,
+     "slot": 3
+    },
+    {
+     "band": 1,
+     "prey": "Jayron",
+     "prey_kg": 25,
+     "count": 1,
+     "herd_kg": 25,
+     "km": 12.4,
+     "minutes": 47,
+     "bonus": 0.2,
+     "injury": 0.08,
+     "death": 0.01,
+     "min_pack": 2,
+     "slot": 4
+    },
+    {
+     "band": 1,
+     "prey": "Jayron",
+     "prey_kg": 25,
+     "count": 1,
+     "herd_kg": 25,
+     "km": 13,
+     "minutes": 49,
+     "bonus": 0.2,
+     "injury": 0.08,
+     "death": 0.01,
+     "min_pack": 2,
+     "slot": 5
+    },
+    {
+     "band": 2,
+     "prey": "Jayron",
+     "prey_kg": 25,
+     "count": 1,
+     "herd_kg": 25,
+     "km": 18.4,
+     "minutes": 65,
+     "bonus": 0.5,
+     "injury": 0.15,
+     "death": 0.04,
+     "min_pack": 2,
+     "slot": 6
+    },
+    {
+     "band": 2,
+     "prey": "Jayron",
+     "prey_kg": 25,
+     "count": 1,
+     "herd_kg": 25,
+     "km": 20.4,
+     "minutes": 71,
+     "bonus": 0.5,
+     "injury": 0.15,
+     "death": 0.04,
+     "min_pack": 2,
+     "slot": 7
+    },
+    {
+     "band": 2,
+     "prey": "Jayron",
+     "prey_kg": 25,
+     "count": 1,
+     "herd_kg": 25,
+     "km": 23.4,
+     "minutes": 80,
+     "bonus": 0.5,
+     "injury": 0.15,
+     "death": 0.04,
+     "min_pack": 2,
+     "slot": 8
+    }
+   ]
+  },
+  {
+   "player": 7,
+   "level": 10,
+   "window": 99,
+   "cards": [
+    {
+     "band": 0,
+     "prey": "Kiyik",
+     "prey_kg": 60,
+     "count": 1,
+     "herd_kg": 60,
+     "km": 3.7,
+     "minutes": 21,
+     "bonus": 0,
+     "injury": 0,
+     "death": 0,
+     "min_pack": 3,
+     "slot": 0
+    },
+    {
+     "band": 0,
+     "prey": "Kiyik",
+     "prey_kg": 60,
+     "count": 1,
+     "herd_kg": 60,
+     "km": 4.3,
+     "minutes": 23,
+     "bonus": 0,
+     "injury": 0,
+     "death": 0,
+     "min_pack": 3,
+     "slot": 1
+    },
+    {
+     "band": 0,
+     "prey": "Kiyik",
+     "prey_kg": 60,
+     "count": 1,
+     "herd_kg": 60,
+     "km": 4.8,
+     "minutes": 24,
+     "bonus": 0,
+     "injury": 0,
+     "death": 0,
+     "min_pack": 3,
+     "slot": 2
+    },
+    {
+     "band": 1,
+     "prey": "Kiyik",
+     "prey_kg": 60,
+     "count": 1,
+     "herd_kg": 60,
+     "km": 8.6,
+     "minutes": 36,
+     "bonus": 0.2,
+     "injury": 0.08,
+     "death": 0.01,
+     "min_pack": 3,
+     "slot": 3
+    },
+    {
+     "band": 1,
+     "prey": "Kiyik",
+     "prey_kg": 60,
+     "count": 1,
+     "herd_kg": 60,
+     "km": 13.3,
+     "minutes": 50,
+     "bonus": 0.2,
+     "injury": 0.08,
+     "death": 0.01,
+     "min_pack": 3,
+     "slot": 4
+    },
+    {
+     "band": 1,
+     "prey": "Kiyik",
+     "prey_kg": 60,
+     "count": 1,
+     "herd_kg": 60,
+     "km": 14.2,
+     "minutes": 53,
+     "bonus": 0.2,
+     "injury": 0.08,
+     "death": 0.01,
+     "min_pack": 3,
+     "slot": 5
+    },
+    {
+     "band": 2,
+     "prey": "Bugʻu",
+     "prey_kg": 100,
+     "count": 1,
+     "herd_kg": 100,
+     "km": 15.4,
+     "minutes": 56,
+     "bonus": 0.5,
+     "injury": 0.15,
+     "death": 0.04,
+     "min_pack": 5,
+     "slot": 6
+    },
+    {
+     "band": 2,
+     "prey": "Bugʻu",
+     "prey_kg": 100,
+     "count": 1,
+     "herd_kg": 100,
+     "km": 17.2,
+     "minutes": 62,
+     "bonus": 0.5,
+     "injury": 0.15,
+     "death": 0.04,
+     "min_pack": 5,
+     "slot": 7
+    },
+    {
+     "band": 2,
+     "prey": "Bugʻu",
+     "prey_kg": 100,
+     "count": 1,
+     "herd_kg": 100,
+     "km": 17.4,
+     "minutes": 62,
+     "bonus": 0.5,
+     "injury": 0.15,
+     "death": 0.04,
+     "min_pack": 5,
+     "slot": 8
+    }
+   ]
+  },
+  {
+   "player": 123456,
+   "level": 25,
+   "window": 500000,
+   "cards": [
+    {
+     "band": 0,
+     "prey": "Ruh oʻljasi",
+     "prey_kg": 400,
+     "count": 1,
+     "herd_kg": 400,
+     "km": 2.4,
+     "minutes": 17,
+     "bonus": 0,
+     "injury": 0,
+     "death": 0,
+     "min_pack": 20,
+     "slot": 0
+    },
+    {
+     "band": 0,
+     "prey": "Ruh oʻljasi",
+     "prey_kg": 400,
+     "count": 1,
+     "herd_kg": 400,
+     "km": 4.8,
+     "minutes": 24,
+     "bonus": 0,
+     "injury": 0,
+     "death": 0,
+     "min_pack": 20,
+     "slot": 1
+    },
+    {
+     "band": 0,
+     "prey": "Ruh oʻljasi",
+     "prey_kg": 400,
+     "count": 2,
+     "herd_kg": 800,
+     "km": 6.3,
+     "minutes": 29,
+     "bonus": 0,
+     "injury": 0,
+     "death": 0,
+     "min_pack": 20,
+     "slot": 2
+    },
+    {
+     "band": 1,
+     "prey": "Ruh oʻljasi",
+     "prey_kg": 400,
+     "count": 2,
+     "herd_kg": 800,
+     "km": 7.2,
+     "minutes": 32,
+     "bonus": 0.2,
+     "injury": 0.08,
+     "death": 0.01,
+     "min_pack": 20,
+     "slot": 3
+    },
+    {
+     "band": 1,
+     "prey": "Ruh oʻljasi",
+     "prey_kg": 400,
+     "count": 2,
+     "herd_kg": 800,
+     "km": 7.9,
+     "minutes": 34,
+     "bonus": 0.2,
+     "injury": 0.08,
+     "death": 0.01,
+     "min_pack": 20,
+     "slot": 4
+    },
+    {
+     "band": 1,
+     "prey": "Ruh oʻljasi",
+     "prey_kg": 400,
+     "count": 3,
+     "herd_kg": 1200,
+     "km": 13.2,
+     "minutes": 50,
+     "bonus": 0.2,
+     "injury": 0.08,
+     "death": 0.01,
+     "min_pack": 20,
+     "slot": 5
+    },
+    {
+     "band": 2,
+     "prey": "Ruh oʻljasi",
+     "prey_kg": 400,
+     "count": 6,
+     "herd_kg": 2400,
+     "km": 16.2,
+     "minutes": 59,
+     "bonus": 0.5,
+     "injury": 0.15,
+     "death": 0.04,
+     "min_pack": 20,
+     "slot": 6
+    },
+    {
+     "band": 2,
+     "prey": "Ruh oʻljasi",
+     "prey_kg": 400,
+     "count": 6,
+     "herd_kg": 2400,
+     "km": 21.3,
+     "minutes": 74,
+     "bonus": 0.5,
+     "injury": 0.15,
+     "death": 0.04,
+     "min_pack": 20,
+     "slot": 7
+    },
+    {
+     "band": 2,
+     "prey": "Ruh oʻljasi",
+     "prey_kg": 400,
+     "count": 7,
+     "herd_kg": 2800,
+     "km": 23.2,
+     "minutes": 80,
+     "bonus": 0.5,
+     "injury": 0.15,
+     "death": 0.04,
+     "min_pack": 20,
+     "slot": 8
+    }
+   ]
+  }
+ ],
+ "results": [
+  {
+   "level": 5,
+   "card": {
+    "band": 0,
+    "prey": "Sugʻur",
+    "prey_kg": 8,
+    "count": 1,
+    "herd_kg": 8,
+    "km": 2.5,
+    "minutes": 18,
+    "bonus": 0,
+    "injury": 0,
+    "death": 0,
+    "min_pack": 1,
+    "slot": 0
+   },
+   "payload": {
+    "hunter": {
+     "1": 2
+    }
+   },
+   "result": {
+    "meat": 3,
+    "herb": 0.3,
+    "xp": 1.5,
+    "min_pack": 1,
+    "sent": 2,
+    "penalty": false
+   }
+  },
+  {
+   "level": 5,
+   "card": {
+    "band": 1,
+    "prey": "Jayron",
+    "prey_kg": 25,
+    "count": 1,
+    "herd_kg": 25,
+    "km": 12.4,
+    "minutes": 47,
+    "bonus": 0.2,
+    "injury": 0.08,
+    "death": 0.01,
+    "min_pack": 2,
+    "slot": 4
+   },
+   "payload": {
+    "hunter": {
+     "1": 1
+    }
+   },
+   "result": {
+    "meat": 1.41,
+    "herb": 0.14,
+    "xp": 0.7,
+    "min_pack": 2,
+    "sent": 1,
+    "penalty": true
+   }
+  },
+  {
+   "level": 5,
+   "card": {
+    "band": 1,
+    "prey": "Jayron",
+    "prey_kg": 25,
+    "count": 1,
+    "herd_kg": 25,
+    "km": 12.4,
+    "minutes": 47,
+    "bonus": 0.2,
+    "injury": 0.08,
+    "death": 0.01,
+    "min_pack": 2,
+    "slot": 4
+   },
+   "payload": {
+    "hunter": {
+     "1": 2
+    },
+    "attacker": {
+     "1": 1
+    }
+   },
+   "result": {
+    "meat": 9.4,
+    "herb": 0.94,
+    "xp": 4.7,
+    "min_pack": 2,
+    "sent": 3,
+    "penalty": false
+   }
+  },
+  {
+   "level": 5,
+   "card": {
+    "band": 2,
+    "prey": "Jayron",
+    "prey_kg": 25,
+    "count": 1,
+    "herd_kg": 25,
+    "km": 23.4,
+    "minutes": 80,
+    "bonus": 0.5,
+    "injury": 0.15,
+    "death": 0.04,
+    "min_pack": 2,
+    "slot": 8
+   },
+   "payload": {
+    "hunter": {
+     "1": 4,
+     "2": 1
+    }
+   },
+   "result": {
+    "meat": 25,
+    "herb": 2.5,
+    "xp": 12.5,
+    "min_pack": 2,
+    "sent": 5,
+    "penalty": false
+   }
+  }
+ ]
+}

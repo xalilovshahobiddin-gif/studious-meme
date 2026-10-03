@@ -1,4 +1,4 @@
-# Blue Wolf — Telegram Mini App · v0.0.6
+# Blue Wolf — Telegram Mini App · v0.0.7
 
 Strategiya / omon qolish oʻyini: ov qil, in qur, toʻda yigʻ va Koʻk Boʻriga aylan.
 Dizayn hujjatlari: [`docs/blue_wolf/`](../docs/blue_wolf/) (GDD, API, sxema, balans jadvali). Oʻzgarishlar: [CHANGELOG.md](CHANGELOG.md).
@@ -108,19 +108,20 @@ vendor/bin/pint --test        # kod uslubi
 - Bekor qilish — yechilgan resursning 80% i qaytadi. Bepul tezlashtirish — har biri 60 daqiqagacha; hozircha yangi oʻyinchiga 5 ta beriladi
   (v0.4 da tanishtiruv yakuniga koʻchadi). Oy toshi bilan tezlashtirish keyinroq.
 
-## Askarlar va ov (v0.0.4)
+## Askarlar va ov (v0.0.4 – v0.0.7)
 
 - **Mashq** (GDD bo'lim 6): rol binosida, 1 askar = 20 kg goʻsht + 8 suyak (har tierda ×2.1), vaqt — 4 daqiqa × tier,
   qoʻshin toʻlganligi va bino sigʻimiga qarab (boʻsh qoʻshinda ×0.5, toʻlganda sekinlashadi). Maks tier — daraja va bino ÷ 4.
   Har rolda bir vaqtda bitta mashq; qoʻshin sigʻimidan oshmaydi (`CAPACITY_FULL`).
 - **Askarlar ovqat yeydi:** goʻsht, suv (20+ darajada oy nuri) qoʻshin hajmiga qarab sarflanadi; goʻsht tugasa — ochlik.
 - **Yolgʻiz ov** (1–3 daraja): alfa oʻzi ovlaydi — darajaning asosiy oʻljasi (0.5 / 1 / 2 kg), 2 daqiqa kutish.
-- **Toʻda ovi** (3+ daraja, ovchi bilan): 1 soat. Goʻsht = Σ ovchi unumi; toʻda oʻljaning minimal hajmidan kichik boʻlsa ×0.3;
-  +10% shifobaxsh oʻt. Ortiqcha goʻsht Oziq gʻori sigʻimidan oshsa chiriydi.
+- **Ov xaritasi** (3+ daraja, ovchi bilan, v0.0.7): har oʻyinchiga 9 ta karta, har 4 soatda yangilanadi. Kartalar yaqindan uzoqqa:
+  2–25 km, 16–85 daqiqa; uzoqda oʻlja +20/+50%, lekin har bir boʻri yarador (8/15%) yoki halok (1/4%) boʻlishi mumkin —
+  yaradorlar 3 soatda tuzaladi. Goʻsht = MIN(poda, Σ ovchi unumi × vaqt × bonus); kichik toʻda ×0.3; +10% shifobaxsh oʻt.
+  Kartalar `Formula::huntBoard` = `BWGame.huntBoard` (deterministik, umumiy test: `tests/fixtures/hunt_board_cases.json`).
 - **XP:** ov — oʻlja kg × 0.5; qurilish va mashq — sarflangan tosh/shox/teri/suyak × 0.02. Chegaradan oshganda daraja koʻtariladi,
   yangi binolar ochiladi, “Yangi daraja!” oynasi chiqadi.
 - Voqealar (qurilish, mashq, ovdan qaytish) server tomonda vaqt tartibida yopiladi — resurs hisobi har biridan keyin yangi holat bilan davom etadi.
-- Ov guruhlari (bir necha oʻyinchi) keyingi bosqichda.
 
 ## API (v0.0.4)
 
@@ -138,9 +139,10 @@ Javob konverti: `{ ok: true, data, state }` yoki `{ ok: false, error: { code, me
 | `POST /api/v1/queue/speedup` | `X-Init-Data` | `{ queue_id, use_free: true }` — bepul tezlashtirish (qurilish va mashq) |
 | `POST /api/v1/army/train` | `X-Init-Data` | `{ role, tier, qty }` → mashq navbati; `TIER_LOCKED`, `CAPACITY_FULL`, `QUEUE_BUSY` |
 | `POST /api/v1/hunt/solo` | `X-Init-Data` | Yolgʻiz ov (1–3 daraja) → `{ loot }`; `COOLDOWN` |
-| `POST /api/v1/hunt` | `X-Init-Data` | `{ payload: { rol: { tier: soni } } }` → 1 soatlik ov `{ march }` |
+| `GET /api/v1/hunt/board` | `X-Init-Data` | Ov xaritasi: 9 karta, `refresh_at` |
+| `POST /api/v1/hunt` | `X-Init-Data` | `{ slot, payload: { rol: { tier: soni } } }` → kartadagi ov `{ march }` |
 
-Toʻliq rejadagi API (70 endpoint): [`docs/blue_wolf/blue_wolf_api.md`](../docs/blue_wolf/blue_wolf_api.md).
+Toʻliq rejadagi API (67 endpoint): [`docs/blue_wolf/blue_wolf_api.md`](../docs/blue_wolf/blue_wolf_api.md).
 
 ## Balans parametrlari
 
@@ -163,7 +165,8 @@ Skript `database/seeders/data/game_config.json` va `public/data/game_config.json
 | v0.0.3 | Qurilish: bino kuchaytirish, qurilish navbati, bekor qilish, bepul tezlashtirish ✅ |
 | v0.0.4 | Askar mashqi, ov (yolgʻiz, toʻda), oziqlanish, XP va daraja koʻtarilishi ✅ |
 | v0.0.5 | Son tanlash: hamma joyda “− slayder +” (ov, mashq, Ustaxona taqsimoti) ✅ |
-| **v0.0.6** | Alohida **Ov** tabi: ovga oid hamma narsa bir joyda ✅ |
+| v0.0.6 | Alohida **Ov** tabi: ovga oid hamma narsa bir joyda ✅ |
+| **v0.0.7** | Ov xaritasi: 9 karta, har 4 soatda yangilanadi, xavf — yarador va halok; ov guruhlari olib tashlandi ✅ |
 | v0.4 | Tanishtiruv (20 qadam), kundalik vazifalar |
 | v0.5 | Botlarga hujum, razvedka, jang hisoblagichi, jarohat va davolash |
 | v0.6 | PvP (7–10 daraja), ov guruhlari, bildirishnomalar → **MVP** |

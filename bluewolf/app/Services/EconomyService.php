@@ -97,51 +97,49 @@ class EconomyService
         $after = $before;
         $finished = [];
 
-        $events = [];
-        $cut = $now->format('Y-m-d H:i:s.v');
-        foreach ($player->queues()->where('state', 'running')->where('ends_at', '<=', $cut)->get() as $queue) {
-            $events[] = [(float) $queue->ends_at->getTimestampMs(), $queue];
-        }
-        foreach ($player->marches()->where('state', 'gathering')->where('returns_at', '<=', $cut)->get() as $march) {
-            $events[] = [(float) $march->returns_at->getTimestampMs(), $march];
-        }
-        usort($events, fn ($a, $b) => $a[0] <=> $b[0]);
-
-        foreach ($events as [$t, $item]) {
-            $closed = $item instanceof Queue
-                ? Queue::query()->whereKey($item->id)->where('state', 'running')->update(['state' => 'done'])
-                : March::query()->whereKey($item->id)->where('state', 'gathering')->update(['state' => 'done']);
-            if ($closed !== 1) {
-                continue;
-            }
-            $after = self::advance($cfg, $after, max($after['last_tick'], $t));
-            $xp = 0.0;
-            if ($item instanceof March) {
-                $this->hunts->finish($item);
-                $offline = $t >= $before['last_seen'] + $cfg['offline_after_min'] * 60000;
-                $cap = self::caveCap($cfg, $after['cave']) * ($offline ? $cfg['offline_store_mult'] : 1);
-                $loot = $item->loot;
-                $lost = self::addFood($after, 'meat', $loot['meat'], $cap) + self::addFood($after, 'herb', $loot['herb'], $cap);
-                $xp = $loot['xp'];
-                $finished[] = ['kind' => 'hunt', 'meat' => $loot['meat'], 'herb' => $loot['herb'], 'xp' => $xp, 'lost' => round($lost, 2), 'prey' => $loot['prey'] ?? null];
-            } elseif ($item->kind === 'build') {
-                $player->buildings()->where('type', $item->building_type)->update(['level' => $item->target_level]);
-                if ($item->building_type === 'food_cave') {
-                    $after['cave'] = $item->target_level;
-                } elseif ($item->building_type === 'workshop') {
-                    $after['workshop'] = $item->target_level;
+        // Voqea yangi voqea tugʻdirishi mumkin (ovdan yarador → tuzalish navbati) — boʻsh qolguncha takrorlanadi
+        while ($events = $this->dueEvents($player, $now)) {
+            foreach ($events as [$t, $item]) {
+                $closed = $item instanceof Queue
+                    ? Queue::query()->whereKey($item->id)->where('state', 'running')->update(['state' => 'done'])
+                    : March::query()->whereKey($item->id)->where('state', 'gathering')->update(['state' => 'done']);
+                if ($closed !== 1) {
+                    continue;
                 }
-                $xp = array_sum(array_intersect_key($item->cost, array_flip(self::BUILD))) * $cfg['xp_build_coef'];
-                $finished[] = ['kind' => 'build', 'type' => $item->building_type, 'level' => $item->target_level];
-            } elseif ($item->kind === 'train') {
-                $this->army->add($player, $item->role, $item->tier, $item->qty);
-                $after['army'] += $item->qty;
-                $xp = array_sum(array_intersect_key($item->cost, array_flip(self::BUILD))) * $cfg['xp_build_coef'];
-                $finished[] = ['kind' => 'train', 'role' => $item->role, 'tier' => $item->tier, 'qty' => $item->qty];
-            }
-            foreach ($this->progress->addXp($player, $xp) as $level) {
-                $after['level'] = $level;
-                $finished[] = ['kind' => 'level', 'level' => $level];
+                $after = self::advance($cfg, $after, max($after['last_tick'], $t));
+                $xp = 0.0;
+                if ($item instanceof March) {
+                    $cas = $this->hunts->finish($item);
+                    $offline = $t >= $before['last_seen'] + $cfg['offline_after_min'] * 60000;
+                    $cap = self::caveCap($cfg, $after['cave']) * ($offline ? $cfg['offline_store_mult'] : 1);
+                    $loot = $item->loot;
+                    $lost = self::addFood($after, 'meat', $loot['meat'], $cap) + self::addFood($after, 'herb', $loot['herb'], $cap);
+                    $after['army'] -= $cas['dead'];
+                    $xp = $loot['xp'];
+                    $finished[] = ['kind' => 'hunt', 'meat' => $loot['meat'], 'herb' => $loot['herb'], 'xp' => $xp, 'lost' => round($lost, 2),
+                        'prey' => $loot['prey'] ?? null, 'injured' => $cas['injured'], 'dead' => $cas['dead']];
+                } elseif ($item->kind === 'build') {
+                    $player->buildings()->where('type', $item->building_type)->update(['level' => $item->target_level]);
+                    if ($item->building_type === 'food_cave') {
+                        $after['cave'] = $item->target_level;
+                    } elseif ($item->building_type === 'workshop') {
+                        $after['workshop'] = $item->target_level;
+                    }
+                    $xp = array_sum(array_intersect_key($item->cost, array_flip(self::BUILD))) * $cfg['xp_build_coef'];
+                    $finished[] = ['kind' => 'build', 'type' => $item->building_type, 'level' => $item->target_level];
+                } elseif ($item->kind === 'train') {
+                    $this->army->add($player, $item->role, $item->tier, $item->qty);
+                    $after['army'] += $item->qty;
+                    $xp = array_sum(array_intersect_key($item->cost, array_flip(self::BUILD))) * $cfg['xp_build_coef'];
+                    $finished[] = ['kind' => 'train', 'role' => $item->role, 'tier' => $item->tier, 'qty' => $item->qty];
+                } elseif ($item->kind === 'heal') {
+                    $this->army->heal($player, $item->role, $item->tier, $item->qty);
+                    $finished[] = ['kind' => 'heal', 'role' => $item->role, 'tier' => $item->tier, 'qty' => $item->qty];
+                }
+                foreach ($this->progress->addXp($player, $xp) as $level) {
+                    $after['level'] = $level;
+                    $finished[] = ['kind' => 'level', 'level' => $level];
+                }
             }
         }
         $after = self::advance($cfg, $after, $nowMs);
@@ -163,6 +161,26 @@ class EconomyService
         }
 
         return ['away' => ['seconds' => (int) $away, 'gained' => array_filter($gained, fn ($v) => $v > 0)], 'finished' => $finished];
+    }
+
+    /**
+     * Muddati yetgan navbatlar va ovdan qaytishlar, vaqt tartibida.
+     *
+     * @return list<array{0: float, 1: Queue|March}>
+     */
+    private function dueEvents(Player $player, CarbonImmutable $now): array
+    {
+        $events = [];
+        $cut = $now->format('Y-m-d H:i:s.v');
+        foreach ($player->queues()->where('state', 'running')->where('ends_at', '<=', $cut)->get() as $queue) {
+            $events[] = [(float) $queue->ends_at->getTimestampMs(), $queue];
+        }
+        foreach ($player->marches()->where('state', 'gathering')->where('returns_at', '<=', $cut)->get() as $march) {
+            $events[] = [(float) $march->returns_at->getTimestampMs(), $march];
+        }
+        usort($events, fn ($a, $b) => $a[0] <=> $b[0]);
+
+        return $events;
     }
 
     /**

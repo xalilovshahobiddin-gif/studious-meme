@@ -112,13 +112,104 @@ class Formula
         return $minutes * 60;
     }
 
+    /* ---- Ov xaritasi (GDD bo'lim 4 “Ov xaritasi”). Klient: public/js/game.js — natija bir xil. ---- */
+
+    /** 32-bit butun koʻpaytma (JS Math.imul) — natija 0..2^32-1. */
+    public static function imul(int $a, int $b): int
+    {
+        $a &= 0xFFFFFFFF;
+        $b &= 0xFFFFFFFF;
+        $lo = ($a & 0xFFFF) * ($b & 0xFFFF);
+        $mid = ((($a >> 16) * ($b & 0xFFFF)) + (($a & 0xFFFF) * ($b >> 16))) & 0xFFFF;
+
+        return ($lo + ($mid << 16)) & 0xFFFFFFFF;
+    }
+
     /**
-     * Ov natijasi (GDD bo'lim 4).
+     * mulberry32 tasodifiy sonlar generatori [0, 1).
      *
+     * @return \Closure(): float
+     */
+    public static function rng(int $seed): \Closure
+    {
+        $a = $seed & 0xFFFFFFFF;
+
+        return function () use (&$a): float {
+            $a = ($a + 0x6D2B79F5) & 0xFFFFFFFF;
+            $t = self::imul($a ^ ($a >> 15), 1 | $a);
+            $t = (($t + self::imul($t ^ ($t >> 7), 61 | $t)) & 0xFFFFFFFF) ^ $t;
+
+            return (($t ^ ($t >> 14)) & 0xFFFFFFFF) / 4294967296;
+        };
+    }
+
+    /** Ov xaritasi davri: har hunt_board_refresh_h soatda yangisi. */
+    public static function huntWindow(array $cfg, float $nowMs): int
+    {
+        return (int) floor($nowMs / ($cfg['hunt_board_refresh_h'] * 3600000));
+    }
+
+    /** Oʻyinchi + davr → urugʻ (har oʻyinchida har xil kartalar). */
+    public static function huntSeed(int $playerId, int $window): int
+    {
+        return self::imul($playerId + 1, 2654435761) ^ self::imul($window + 7, 40503);
+    }
+
+    /** Tavsiya etilgan ovchilar soni (qoʻshinning share_hunter qismi, kamida 1). */
+    public static function huntersRec(array $cfg, int $level): int
+    {
+        return max(1, (int) round(self::armyCap($cfg, $level) * $cfg['share_hunter']));
+    }
+
+    /**
+     * 9 ta ov kartasi: 3 yaqin (xavfsiz), 3 oʻrta, 3 uzoq (xavfli, oʻlja koʻproq);
+     * vaqt boʻyicha (keyin poda hajmi) oʻsish tartibida, slot = tartib raqami.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function huntBoard(array $cfg, int $playerId, int $level, int $window): array
+    {
+        $r = self::rng(self::huntSeed($playerId, $window));
+        $bands = [[$cfg['hunt_km_min'], $cfg['hunt_km_near_max']], [$cfg['hunt_km_near_max'], $cfg['hunt_km_mid_max']], [$cfg['hunt_km_mid_max'], $cfg['hunt_km_far_max']]];
+        $bonus = [0, $cfg['hunt_mid_bonus'], $cfg['hunt_far_bonus']];
+        $injury = [0, $cfg['hunt_mid_injury'], $cfg['hunt_far_injury']];
+        $death = [0, $cfg['hunt_mid_death'], $cfg['hunt_far_death']];
+        $cards = [];
+        for ($i = 0; $i < 9; $i++) {
+            $band = intdiv($i, 3);
+            $km = self::round1($bands[$band][0] + $r() * ($bands[$band][1] - $bands[$band][0]));
+            $minutes = (int) self::jsRound($cfg['hunt_base_min'] + 2 * $km / $cfg['hunt_speed_kmh'] * 60);
+            [$prey, $preyKg] = self::PREY[max(1, min(25, $level - 1 + $band))];
+            $base = self::huntersRec($cfg, $level) * self::hunterYield($cfg, $level, 1) * $minutes / 60 * (1 + $bonus[$band]);
+            $count = max(1, (int) self::jsRound($base * ($cfg['hunt_herd_min'] + $r() * $cfg['hunt_herd_spread']) / $preyKg));
+            $cards[] = [
+                'band' => $band, 'prey' => $prey, 'prey_kg' => $preyKg, 'count' => $count, 'herd_kg' => self::round2($count * $preyKg),
+                'km' => $km, 'minutes' => $minutes, 'bonus' => $bonus[$band], 'injury' => $injury[$band], 'death' => $death[$band],
+                'min_pack' => max(1, (int) ceil($preyKg / $cfg['prey_kg_per_wolf'])),
+            ];
+        }
+        usort($cards, fn ($a, $b) => [$a['minutes'], $a['herd_kg'], $a['km']] <=> [$b['minutes'], $b['herd_kg'], $b['km']]);
+        foreach ($cards as $i => &$card) {
+            $card['slot'] = $i;
+            // Kam → koʻp: keyingi kartadagi poda oldingisidan kichik boʻlmaydi
+            if ($i > 0 && $card['herd_kg'] < $cards[$i - 1]['herd_kg']) {
+                $card['count'] = (int) ceil($cards[$i - 1]['herd_kg'] / $card['prey_kg'] - 1e-9);
+                $card['herd_kg'] = self::round2($card['count'] * $card['prey_kg']);
+            }
+        }
+        unset($card);
+
+        return $cards;
+    }
+
+    /**
+     * Kartadagi ov natijasi. Goʻsht podadan oshmaydi.
+     *
+     * @param  array<string, mixed>  $card
      * @param  array<string, array<int, int>>  $payload  rol → [tier => soni]
      * @return array{meat: float, herb: float, xp: float, min_pack: int, sent: int, penalty: bool}
      */
-    public static function huntResult(array $cfg, int $level, array $payload): array
+    public static function huntResult(array $cfg, int $level, array $card, array $payload): array
     {
         $kg = 0.0;
         $sent = 0;
@@ -126,23 +217,39 @@ class Formula
             foreach ($tiers as $tier => $qty) {
                 $sent += $qty;
                 if ($role === 'hunter') {
-                    $kg += $qty * self::hunterYield($cfg, $level, (int) $tier) * $cfg['hunt_duration_min'] / 60;
+                    $kg += $qty * self::hunterYield($cfg, $level, (int) $tier) * $card['minutes'] / 60 * (1 + $card['bonus']);
                 }
             }
         }
-        $minPack = max(1, (int) ceil(self::PREY[$level][1] / $cfg['prey_kg_per_wolf']));
-        $penalty = $sent < $minPack;
+        $penalty = $sent < $card['min_pack'];
         if ($penalty) {
             $kg *= $cfg['hunt_small_party_penalty'];
         }
+        $kg = min($kg, $card['herd_kg']);
 
         return [
-            'meat' => round($kg, 2),
-            'herb' => round($kg * $cfg['hunt_herb_share'], 2),
-            'xp' => round($kg * $cfg['xp_hunt_coef'], 2),
-            'min_pack' => $minPack,
+            'meat' => self::round2($kg),
+            'herb' => self::round2($kg * $cfg['hunt_herb_share']),
+            'xp' => self::round2($kg * $cfg['xp_hunt_coef']),
+            'min_pack' => $card['min_pack'],
             'sent' => $sent,
             'penalty' => $penalty,
         ];
+    }
+
+    /** JS Math.round bilan bir xil (yarim — yuqoriga). */
+    private static function jsRound(float $x): float
+    {
+        return floor($x + 0.5);
+    }
+
+    private static function round1(float $x): float
+    {
+        return self::jsRound($x * 10) / 10;
+    }
+
+    private static function round2(float $x): float
+    {
+        return self::jsRound($x * 100) / 100;
     }
 }

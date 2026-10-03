@@ -4,8 +4,8 @@
 |---|---|
 | `blue_wolf_GDD.md` | Oʻyin dizayni: formulalar, jadvallar, MVP doirasi |
 | `blue_wolf_texnik_spec.md` | Texnik spetsifikatsiya: ekranlar, bildirishnomalar, server mantiqi, cron |
-| `blue_wolf_api.md` | API (70 endpoint, MVP — 39) |
-| `blue_wolf_schema.sql` | MySQL 8.0 sxemasi (32 jadval) |
+| `blue_wolf_api.md` | API (67 endpoint, MVP — 36) |
+| `blue_wolf_schema.sql` | MySQL 8.0 sxemasi (30 jadval) |
 | `blue_wolf_darajalar.xlsx` | Balans jadvali (formulalar bilan); **kiritish — `Sozlamalar` varagʻi** |
 | `blue_wolf_game_config.sql` | `game_config` qiymatlari — **avtomatik yaratiladi** |
 | `tools/blue_wolf_config.py` | `Sozlamalar` → SQL, `bluewolf/` ilovasi uchun JSON (seeder va demo) + balans tekshiruvlari |

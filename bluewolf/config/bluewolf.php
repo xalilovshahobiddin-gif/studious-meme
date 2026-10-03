@@ -5,7 +5,7 @@ return [
     /*
     | Ilova versiyasi. Klient X-Client-Version bilan solishtiradi.
     */
-    'version' => '0.0.6',
+    'version' => '0.0.7',
 
     /*
     | Telegram bot tokeni (@BotFather). initData imzosi shu bilan tekshiriladi.

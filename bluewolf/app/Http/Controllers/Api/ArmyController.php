@@ -35,6 +35,16 @@ class ArmyController extends Controller
         });
     }
 
+    /** GET /api/v1/hunt/board — joriy 9 ta ov kartasi. */
+    public function board(Request $request): JsonResponse
+    {
+        return DB::transaction(function () use ($request) {
+            [$player] = $this->players->enter($request->attributes->get('tg_user'));
+
+            return ApiResponse::ok($this->hunts->board($player), $this->players->snapshot($player));
+        });
+    }
+
     /** POST /api/v1/hunt/solo — yolgʻiz ov (1–3 daraja). */
     public function solo(Request $request): JsonResponse
     {
@@ -52,12 +62,12 @@ class ArmyController extends Controller
         });
     }
 
-    /** POST /api/v1/hunt — { payload: { rol: { tier: soni } } } → 1 soatlik ov. */
+    /** POST /api/v1/hunt — { slot: 0..8, payload: { rol: { tier: soni } } } → ov xaritasidagi kartaga ov. */
     public function hunt(Request $request): JsonResponse
     {
         return DB::transaction(function () use ($request) {
             [$player, $sync] = $this->players->enter($request->attributes->get('tg_user'));
-            $march = $this->hunts->start($player, (array) $request->input('payload', []));
+            $march = $this->hunts->start($player, (int) $request->input('slot', -1), (array) $request->input('payload', []));
 
             return ApiResponse::ok(['march' => $march->toClient(), 'finished' => $sync['finished']], $this->players->snapshot($player));
         });

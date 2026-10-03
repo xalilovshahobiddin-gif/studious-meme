@@ -1329,7 +1329,7 @@
   "config_key": "hunt_duration_min",
   "config_value": 60.0,
   "unit": "daqiqa",
-  "note": "Bitta ov yurishi"
+  "note": "Balans hisobi: ovchi kuniga 4 marta shuncha vaqt ovda (ov xaritasi kartalari 16–85 daqiqa)"
  },
  {
   "config_key": "hunter_yield_mult",
@@ -1356,16 +1356,16 @@
   "note": "Toʻda yetmasa ov natijasi × shu"
  },
  {
-  "config_key": "hunt_party_bonus",
-  "config_value": 0.1,
-  "unit": "ulush/oʻyinchi",
-  "note": "Har qoʻshimcha oʻyinchi uchun"
+  "config_key": "hunt_board_refresh_h",
+  "config_value": 4.0,
+  "unit": "soat",
+  "note": "9 ta ov kartasi shu oraliqda yangilanadi (har oʻyinchida har xil)"
  },
  {
-  "config_key": "hunt_party_max",
-  "config_value": 4.0,
-  "unit": "oʻyinchi",
-  "note": "2–4 oʻyinchi"
+  "config_key": "hunt_base_min",
+  "config_value": 10.0,
+  "unit": "daqiqa",
+  "note": "Ov vaqti = shu + borib-kelish yoʻli"
  },
  {
   "config_key": "hunt_herb_share",
@@ -1636,5 +1636,83 @@
   "config_value": 0.25,
   "unit": "ulush",
   "note": "22-darajadan, 22:00–06:00"
+ },
+ {
+  "config_key": "hunt_speed_kmh",
+  "config_value": 40.0,
+  "unit": "km/soat",
+  "note": "Borib-kelish: 2 × masofa ÷ shu"
+ },
+ {
+  "config_key": "hunt_km_min",
+  "config_value": 2.0,
+  "unit": "km",
+  "note": "Yaqin kartalar (xavfsiz) shundan boshlanadi"
+ },
+ {
+  "config_key": "hunt_km_near_max",
+  "config_value": 7.0,
+  "unit": "km",
+  "note": "1–3-kartalar: 2–7 km, xavf yoʻq"
+ },
+ {
+  "config_key": "hunt_km_mid_max",
+  "config_value": 15.0,
+  "unit": "km",
+  "note": "4–6-kartalar: 7–15 km"
+ },
+ {
+  "config_key": "hunt_km_far_max",
+  "config_value": 25.0,
+  "unit": "km",
+  "note": "7–9-kartalar: 15–25 km (eng uzoq ov ~85 daqiqa)"
+ },
+ {
+  "config_key": "hunt_mid_bonus",
+  "config_value": 0.2,
+  "unit": "ulush",
+  "note": "Oʻrta masofada oʻlja koʻproq — xavf evaziga"
+ },
+ {
+  "config_key": "hunt_far_bonus",
+  "config_value": 0.5,
+  "unit": "ulush",
+  "note": "Uzoq masofada"
+ },
+ {
+  "config_key": "hunt_mid_injury",
+  "config_value": 0.08,
+  "unit": "ehtimol",
+  "note": "Har bir yuborilgan boʻri uchun"
+ },
+ {
+  "config_key": "hunt_far_injury",
+  "config_value": 0.15,
+  "unit": "ehtimol",
+  "note": "Har bir yuborilgan boʻri uchun"
+ },
+ {
+  "config_key": "hunt_mid_death",
+  "config_value": 0.01,
+  "unit": "ehtimol",
+  "note": "Har bir yuborilgan boʻri uchun"
+ },
+ {
+  "config_key": "hunt_far_death",
+  "config_value": 0.04,
+  "unit": "ehtimol",
+  "note": "Har bir yuborilgan boʻri uchun"
+ },
+ {
+  "config_key": "hunt_herd_min",
+  "config_value": 0.7,
+  "unit": "x",
+  "note": "Poda = tavsiya etilgan ovchilar unumi × shu…"
+ },
+ {
+  "config_key": "hunt_herd_spread",
+  "config_value": 0.9,
+  "unit": "x",
+  "note": "… + tasodifiy 0–shu (kartaga qarab)"
  }
 ]
