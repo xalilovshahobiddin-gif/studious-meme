@@ -139,6 +139,84 @@
   /** Ustaxonaning jami ishlab chiqarishi, birlik/soat (0 — qurilmagan). */
   function workshopPerHour(cfg, wsLevel) { return wsLevel > 0 ? cfg.prod_base * Math.pow(cfg.prod_growth, wsLevel - 1) : 0; }
 
+  var BUILD = ["stone", "wood", "hide", "bone"];
+
+  /** Ustaxona buferi sigʻimi: soatlik × workshop_buffer_h × ulush (oflaynda × offline_store_mult). */
+  function bufferCap(cfg, wsLevel, share, offline) {
+    return workshopPerHour(cfg, wsLevel) * cfg.workshop_buffer_h * share / 100 * (offline ? cfg.offline_store_mult : 1);
+  }
+
+  // Oʻsish sigʻimgacha; sigʻimdan oshib qolgan qiymat (masalan oflayn 2× bufer) kesilmaydi
+  function grow(v, d, cap) {
+    if (d >= 0) return v >= cap ? v : Math.min(cap, v + d);
+    return Math.max(0, v + d);
+  }
+
+  /**
+   * Resurs hisobi (texnik spec 4.1, timestamp accrual) — server EconomyService bilan bir xil.
+   * e: { res:{meat,water,moonlight,…}, buf:{stone,wood,hide,bone}, alloc:{…}, level, cave, workshop, army,
+   *      last_tick, last_seen } (vaqtlar — ms). t1 gacha hisoblangan yangi nusxani qaytaradi.
+   * Oraliqlar: onlayn → oflayn (last_seen + offline_after_min), goʻsht tugagan payt (ochlik).
+   */
+  function advance(cfg, e, t1) {
+    var o = JSON.parse(JSON.stringify(e));
+    var t = o.last_tick;
+    if (!(t1 > t)) return o;
+    var L = o.level, army = o.army || 0;
+    var offAt = o.last_seen + cfg.offline_after_min * 60000;
+    var meatH = need(cfg, L) * army / 24;
+    var waterNetH = waterPerHour(cfg, o.cave) - waterNeed(cfg, L) * army / 24;
+    var moonOn = L >= cfg.moonlight_need_level;
+    var moonNetH = moonOn ? (o.cave > 0 ? cfg.moonlight_passive_base * army : 0) - cfg.moonlight_need * army / 24 : 0;
+    var prodH = workshopPerHour(cfg, o.workshop);
+
+    for (var guard = 0; t < t1 && guard < 8; guard++) {
+      var offline = t >= offAt;
+      var end = offline ? t1 : Math.min(t1, offAt);
+      var starve = false;
+      if (o.res.meat > 0 && meatH > 0) {
+        var tz = t + o.res.meat / meatH * 3600000;
+        if (tz <= end) { end = tz; starve = true; }
+      }
+      var h = (end - t) / 3600000;
+      var hungry = army > 0 && o.res.meat <= 0;
+      var rate = prodH * (offline ? cfg.offline_prod_rate : 1) * (hungry ? 1 - cfg.hunger_prod_penalty : 1);
+      BUILD.forEach(function (k) {
+        var share = o.alloc[k] || 0;
+        o.buf[k] = grow(o.buf[k] || 0, rate * share / 100 * h, bufferCap(cfg, o.workshop, share, offline));
+      });
+      o.res.meat = starve ? 0 : Math.max(0, o.res.meat - meatH * h);
+      var cap = caveCap(cfg, o.cave) * (offline ? cfg.offline_store_mult : 1);
+      o.res.water = grow(o.res.water || 0, waterNetH * h, cap);
+      if (moonOn) o.res.moonlight = grow(o.res.moonlight || 0, moonNetH * h, cap);
+      t = end;
+    }
+    o.last_tick = t1;
+    return o;
+  }
+
+  /** Ustaxona buferini omborga oʻtkazish. Qaytaradi: {econ, got:{stone,…}} */
+  function collect(e) {
+    var o = JSON.parse(JSON.stringify(e)), got = {};
+    BUILD.forEach(function (k) {
+      got[k] = Math.floor(o.buf[k] || 0);
+      o.res[k] = (o.res[k] || 0) + got[k];
+      o.buf[k] = (o.buf[k] || 0) - got[k];
+    });
+    return { econ: o, got: got };
+  }
+
+  /** Taqsimot toʻgʻrimi: 4 ta butun son 0..100, yigʻindisi 100. */
+  function validAlloc(a) {
+    var sum = 0;
+    for (var i = 0; i < BUILD.length; i++) {
+      var v = a[BUILD[i]];
+      if (typeof v !== "number" || v % 1 !== 0 || v < 0 || v > 100) return false;
+      sum += v;
+    }
+    return sum === 100;
+  }
+
   /** Ixcham raqam: 950 · 12,4K · 1,2M */
   function fmtShort(n) {
     if (n == null || isNaN(n)) return "—";
@@ -168,7 +246,8 @@
     stage: stage, levelCost: levelCost, totalXp: totalXp, xpProgress: xpProgress,
     buildingCost: buildingCost, buildingTime: buildingTime, maxTier: maxTier, armyCap: armyCap,
     need: need, hunterYield: hunterYield, caveCap: caveCap, waterPerHour: waterPerHour, waterNeed: waterNeed,
-    workshopPerHour: workshopPerHour, fmt: fmt, fmtShort: fmtShort, fmtMinutes: fmtMinutes
+    workshopPerHour: workshopPerHour, bufferCap: bufferCap, advance: advance, collect: collect, validAlloc: validAlloc,
+    BUILD: BUILD, fmt: fmt, fmtShort: fmtShort, fmtMinutes: fmtMinutes
   };
 
   if (typeof module !== "undefined" && module.exports) module.exports = api;

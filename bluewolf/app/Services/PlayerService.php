@@ -9,10 +9,27 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Oʻyinchini Telegram foydalanuvchisidan topish/yaratish va holat snapshotini yigʻish.
- * v0.0.x: resurs hisobi (accrual), navbatlar va yurishlar hali yoʻq — faqat skelet.
+ * v0.0.2: resurs hisobi (EconomyService) bor; navbatlar va yurishlar hali yoʻq.
  */
 class PlayerService
 {
+    public function __construct(private readonly EconomyService $economy) {}
+
+    /**
+     * Har autentifikatsiyalangan soʻrovning boshi: oʻyinchini topish va resurslarni hozirgacha hisoblash.
+     * Chaqiruvchi DB::transaction ichida boʻlishi kerak (resurs qatori qulflanadi).
+     *
+     * @param  array<string, mixed>  $tgUser
+     * @return array{0: Player, 1: array{seconds: int, gained: array<string, int>}|null}
+     */
+    public function enter(array $tgUser): array
+    {
+        $player = $this->forTelegramUser($tgUser);
+        $away = $this->economy->sync($player);
+
+        return [$player, $away];
+    }
+
     /**
      * @param  array<string, mixed>  $tgUser
      */
@@ -31,12 +48,9 @@ class PlayerService
                 $player->refresh(); // bazadagi standart qiymatlar (level = 1 va h.k.)
             }
 
-            $player->forceFill([
-                'tg_username' => $tgUser['username'] ?? null,
-                'last_seen_at' => now(),
-            ])->save();
+            $player->forceFill(['tg_username' => $tgUser['username'] ?? null])->save();
 
-            PlayerResource::query()->firstOrCreate(['player_id' => $player->id]);
+            PlayerResource::query()->firstOrCreate(['player_id' => $player->id], ['last_tick_at' => now()]);
             $this->syncBuildings($player);
 
             return $player->refresh();
@@ -85,6 +99,7 @@ class PlayerService
                 'unlock_level' => $unlock,
                 'locked' => $player->level < $unlock,
             ])->values()->all(),
+            'economy' => $this->economy->clientState($player),
             'army' => [],
             'queues' => [],
             'marches' => [],
@@ -102,8 +117,9 @@ class PlayerService
     {
         return [
             'resources' => $player->resources->toClient(),
+            'economy' => $this->economy->clientState($player),
             'queues' => [],
-            'server_time' => now()->toIso8601ZuluString(),
+            'server_time' => now()->format('Y-m-d\\TH:i:s.v\\Z'),
         ];
     }
 }

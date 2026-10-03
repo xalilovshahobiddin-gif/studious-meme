@@ -7,16 +7,22 @@ use App\Services\PlayerService;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StateController extends Controller
 {
     public function __construct(private readonly PlayerService $players) {}
 
-    /** GET /api/v1/state — toʻliq oʻyin holati (kirishda bir marta). */
+    /** GET /api/v1/state — toʻliq oʻyin holati (kirishda va klient qayta sinxronlashda). */
     public function show(Request $request): JsonResponse
     {
-        $player = $this->players->forTelegramUser($request->attributes->get('tg_user'));
+        return DB::transaction(function () use ($request) {
+            [$player, $away] = $this->players->enter($request->attributes->get('tg_user'));
 
-        return ApiResponse::ok($this->players->fullState($player), $this->players->snapshot($player));
+            return ApiResponse::ok(
+                $this->players->fullState($player) + ['away' => $away],
+                $this->players->snapshot($player),
+            );
+        });
     }
 }

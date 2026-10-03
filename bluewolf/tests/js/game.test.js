@@ -75,4 +75,30 @@ test("ixcham raqamlar", () => {
   assert.equal(G.fmtShort(25000000), "25M");
 });
 
+test("resurs hisobi: umumiy holatlar (PHP bilan bir xil)", () => {
+  const { cases } = require(path.join(__dirname, "../fixtures/economy_cases.json"));
+  for (const c of cases) {
+    const out = G.advance(cfg, c.input, c.t1);
+    for (const group of ["res", "buf"]) {
+      for (const [k, v] of Object.entries(c.expect[group] || {})) {
+        assert.ok(Math.abs(out[group][k] - v) < 1e-6, `${c.name}: ${group}.${k} = ${out[group][k]}, kutilgan ${v}`);
+      }
+    }
+    assert.equal(out.last_tick, c.t1);
+  }
+});
+
+test("bufer yigʻish va taqsimot tekshiruvi", () => {
+  const e = { res: { stone: 10, wood: 0, hide: 0, bone: 0 }, buf: { stone: 5.75, wood: 2, hide: 0.4, bone: 0 } };
+  const { econ, got } = G.collect(e);
+  assert.deepEqual(got, { stone: 5, wood: 2, hide: 0, bone: 0 });
+  assert.equal(econ.res.stone, 15);
+  assert.ok(Math.abs(econ.buf.stone - 0.75) < 1e-9);
+  assert.equal(e.res.stone, 10); // asl nusxa oʻzgarmaydi
+  assert.ok(G.validAlloc({ stone: 40, wood: 30, hide: 15, bone: 15 }));
+  assert.ok(!G.validAlloc({ stone: 40, wood: 30, hide: 15, bone: 10 }));
+  assert.ok(!G.validAlloc({ stone: 40.5, wood: 29.5, hide: 15, bone: 15 }));
+  assert.ok(!G.validAlloc({ stone: 110, wood: -10, hide: 0, bone: 0 }));
+});
+
 console.log(`\n${passed} ta test oʻtdi`);

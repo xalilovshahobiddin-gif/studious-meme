@@ -1,6 +1,7 @@
-/* Blue Wolf Mini App — v0.0.1 (skelet / demo koʻrinish)
+/* Blue Wolf Mini App — v0.0.2 (tirik iqtisodiyot)
    5 ta tab (In · Jang · Toʻda · Vazifalar · Profil), hash-router, Telegram WebApp integratsiyasi.
-   Amallar (qurish, ov, hujum…) hali ishlamaydi — keyingi bosqichlarda ulanadi. */
+   Resurslar vaqt boʻyicha hisoblanadi (BWGame.advance — server bilan bir xil formula), Ustaxona buferi
+   va taqsimoti ishlaydi. Qolgan amallar (qurish, ov, hujum…) keyingi bosqichlarda ulanadi. */
 (function () {
   "use strict";
 
@@ -9,7 +10,7 @@
   var icon = function (name, cls) { return window.BWIcons.svg(name, cls); };
   var $ = function (sel) { return document.querySelector(sel); };
 
-  var app = { mode: "demo", config: {}, state: null, tab: "in", seg: { jang: "targets" } };
+  var app = { mode: "demo", config: {}, state: null, econ: null, offset: 0, tab: "in", seg: { jang: "targets" } };
 
   var ROADMAP = "Bu amal keyingi bosqichda ulanadi";
 
@@ -110,7 +111,7 @@
   }
 
   function allocation() {
-    return app.state.allocation || prefs().alloc || { stone: 40, wood: 30, hide: 15, bone: 15 };
+    return app.econ.alloc;
   }
 
   function totalArmy() {
@@ -145,7 +146,9 @@
       var ws = buildingLevel("workshop");
       f.share = allocation()[key] || 0;
       f.perHour = G.workshopPerHour(cfg, ws) * f.share / 100;
-      f.buffer = f.perHour * cfg.workshop_buffer_h;
+      f.buf = app.econ.buf[key] || 0;
+      f.bufCap = G.bufferCap(cfg, ws, f.share, false);
+      f.bufFill = f.bufCap > 0 ? Math.min(1, f.buf / f.bufCap) : 0;
       f.workshop = ws;
     }
     return f;
@@ -165,6 +168,7 @@
       var cls = "bw-rescell bw-rescell--" + r.key + (wide ? " bw-rescell--wide" : "");
       if (f.fill != null && f.fill >= 1) cls += " is-full";
       if (r.key === "meat" && f.days != null && f.days < 1) cls += " is-low";
+      if (f.bufFill >= 0.9) cls += " is-ready";
       return '<button class="' + cls + '" type="button" data-res="' + r.key + '" aria-label="' + esc(r.name) + ": " + G.fmt(f.amount) + '">' +
         icon(r.icon) + '<span class="bw-rescell__val">' + G.fmtShort(f.amount) + "</span>" +
         (f.fill != null ? '<i class="bw-rescell__fill" style="--fill:' + f.fill.toFixed(3) + '"></i>' : "") + "</button>";
@@ -213,9 +217,10 @@
     } else if (key === "moonlight") {
       stats = [stat("+" + fmtRate(f.perHour) + "/soat", "Passiv"), stat(fmtRate(f.perDay), "Kunlik ehtiyoj")];
     } else if (r.group === "build") {
-      stats = [stat(f.share + "%", "Taqsimotdagi ulush"), stat(fmtRate(f.perHour) + "/soat", "Ishlab chiqarish"),
-        stat(G.fmt(f.perHour * 24), "Kuniga"), stat(G.fmt(f.buffer), "Bufer (" + cfg.workshop_buffer_h + " soat)")];
+      stats = [stat('<span data-live="buf-' + key + '">' + G.fmt(f.buf) + "</span> / " + G.fmt(f.bufCap), "Buferda"),
+        stat(f.share + "%", "Taqsimotdagi ulush"), stat(fmtRate(f.perHour) + "/soat", "Ishlab chiqarish"), stat(G.fmt(f.perHour * 24), "Kuniga")];
       if (!f.workshop) note = "Ustaxona qoyasi 2-darajada ochiladi.";
+      else if (f.bufFill >= 1) note = "Bufer toʻla — " + r.name.toLowerCase() + " ishlab chiqarilmayapti. Yigʻib oling.";
     } else if (key === "moonstone") {
       stats = [stat(G.fmt(cfg.moonstone_per_usd) + " = $1", "Kurs"), stat("≤ " + Math.round(24 * cfg.speedup_daily_cap) + " soat", "Kunlik tezlashtirish")];
     }
@@ -227,6 +232,9 @@
     html += '<div class="bw-eyebrow" style="margin-top:14px">Nimaga kerak</div><ul class="bw-resinfo__list">' +
       r.use.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
 
+    if (r.group === "build" && f.workshop) {
+      html += '<button class="bw-btn bw-btn--accent bw-btn--block" style="margin-top:18px" data-action="collect">' + icon("download", "bw-icon--sm") + " Yigʻib olish</button>";
+    }
     var action = { meat: ["hunt", "paw", "Ovga chiqish"], herb: ["hunt", "paw", "Ovga chiqish"], moonstone: ["shop", "moonstone", "Doʻkon"] }[key] ||
       (r.group === "build" ? ["goto-alloc", "workshop", "Ustaxona taqsimoti"] : r.group === "food" ? ["goto-cave", "cave", "Oziq gʻori"] : null);
     if (action) html += '<button class="bw-btn bw-btn--soft bw-btn--block" style="margin-top:18px" data-action="' + action[0] + '">' + icon(action[1], "bw-icon--sm") + " " + action[2] + "</button>";
@@ -309,49 +317,112 @@
           : '<span class="bw-chip bw-chip--primary">' + b.level + "-daraja</span>") + "</span></button>";
     }).join("") + "</div>";
 
-    var alloc = prefs().alloc || { stone: 40, wood: 30, hide: 15, bone: 15 };
-    var ws = buildingList().filter(function (b) { return b.type === "workshop"; })[0];
-    var prodHour = ws.level ? cfg.prod_base * Math.pow(cfg.prod_growth, ws.level - 1) : 0;
-    html += sectionTitle("Ustaxona taqsimoti", '<span class="bw-chip">' + G.fmt(prodHour) + "/soat</span>");
-    html += '<div class="bw-card bw-stack" id="alloc">' + ["stone", "wood", "hide", "bone"].map(function (k) {
-      var r = G.RESOURCES.filter(function (x) { return x.key === k; })[0];
-      return '<label class="bw-stack" style="gap:4px"><span class="bw-between"><span class="bw-res bw-res--' + k + '" style="height:26px">' +
-        '<span class="bw-res__dot">' + icon(r.icon) + "</span>" + esc(r.name) + '</span><span class="bw-num" data-alloc-out="' + k + '">' +
-        alloc[k] + "% · " + G.fmt(prodHour * alloc[k] / 100) + "/soat</span></span>" +
-        '<input class="bw-range" type="range" min="0" max="100" step="5" value="' + alloc[k] + '" data-alloc="' + k + '" ' + (ws.level ? "" : "disabled") + "></label>";
-    }).join("") + '<p class="bw-faint" style="margin:0;font-size:12px">Yigʻindi 100% boʻlishi shart. Hozircha faqat qurilmada saqlanadi.</p></div>';
-
+    html += workshopSection();
     return html;
   }
 
+  /* ---------------------------------------------------------------- Ustaxona: bufer va taqsimot */
+  function workshopSection() {
+    var cfg = app.config, ws = buildingLevel("workshop");
+    var prodHour = G.workshopPerHour(cfg, ws), alloc = allocation();
+    var html = sectionTitle("Ustaxona qoyasi", '<span class="bw-chip">' + (ws ? G.fmt(prodHour) + "/soat" : "2-darajada") + "</span>");
+    if (!ws) return html + lockedCard("workshop", "Ustaxona hali yoʻq", "2-darajada Ustaxona qoyasi ochiladi: tosh, shox-shabba, teri va suyak oʻzi yigʻiladi.");
+
+    html += '<div class="bw-card workshop" id="workshop">';
+    html += G.BUILD.map(function (k) {
+      var f = resourceFacts(k), r = f.meta;
+      return '<div class="buf-row" style="--bw-rc: var(--bw-res-' + k + ')"><span class="buf-row__icon">' + icon(r.icon) + "</span>" +
+        '<div class="bw-grow"><div class="bw-between"><span class="buf-row__name">' + esc(r.name) + '</span><span class="bw-num buf-row__val"><b data-live="buf-' + k + '">' +
+        G.fmt(f.buf) + '</b><span class="bw-faint"> / ' + G.fmt(f.bufCap) + '</span></span></div><div class="bw-progress bw-progress--sm"><div class="bw-progress__bar" data-live="bar-' + k +
+        '" style="width:' + Math.round(f.bufFill * 100) + '%;background:var(--bw-rc)"></div></div></div></div>';
+    }).join("");
+    html += '<div class="workshop__foot"><span class="bw-faint" data-live="buf-status">' + esc(bufferStatus()) + "</span>" +
+      '<button class="bw-btn bw-btn--accent bw-btn--sm" data-action="collect" data-live="collect">' + collectLabel() + "</button></div></div>";
+
+    html += sectionTitle("Taqsimot", '<span class="bw-faint" style="font-size:12px">' + (app.mode === "live" ? "serverda saqlanadi" : "demo: qurilmada") + "</span>");
+    html += '<div class="bw-card bw-stack" id="alloc">' + G.BUILD.map(function (k) {
+      var r = resMeta(k);
+      return '<label class="bw-stack" style="gap:4px"><span class="bw-between"><span class="bw-res bw-res--' + k + '" style="height:26px">' +
+        '<span class="bw-res__dot">' + icon(r.icon) + "</span>" + esc(r.name) + '</span><span class="bw-num" data-alloc-out="' + k + '">' +
+        alloc[k] + "% · " + G.fmt(prodHour * alloc[k] / 100) + "/soat</span></span>" +
+        '<input class="bw-range" type="range" min="0" max="100" step="5" value="' + alloc[k] + '" data-alloc="' + k + '"></label>';
+    }).join("") + '<p class="bw-faint" style="margin:0;font-size:12px">Yigʻindi har doim 100%. Bufer sigʻimi ulushga bogʻliq: ' + cfg.workshop_buffer_h +
+      " soatlik ishlab chiqarish (oflaynda ×" + cfg.offline_store_mult + ").</p></div>";
+    return html;
+  }
+
+  function bufferTotal() {
+    return G.BUILD.reduce(function (sum, k) { return sum + Math.floor(app.econ.buf[k] || 0); }, 0);
+  }
+
+  function collectLabel() {
+    var n = bufferTotal();
+    return icon("download", "bw-icon--sm") + " Yigʻish" + (n ? " +" + G.fmtShort(n) : "");
+  }
+
+  /** Bufer holati: qaysi resurs toʻla yoki qachon toʻladi. */
+  function bufferStatus() {
+    var cfg = app.config, ws = buildingLevel("workshop"), prodHour = G.workshopPerHour(cfg, ws);
+    var full = [], soonest = null;
+    G.BUILD.forEach(function (k) {
+      var share = app.econ.alloc[k] || 0;
+      if (!share) return;
+      var cap = G.bufferCap(cfg, ws, share, false), buf = app.econ.buf[k] || 0;
+      if (buf >= cap - 1e-6) { full.push(resMeta(k).short); return; }
+      var hours = (cap - buf) / (prodHour * share / 100);
+      if (soonest == null || hours < soonest.h) soonest = { h: hours, name: resMeta(k).short };
+    });
+    if (full.length === G.BUILD.length || (full.length && !soonest)) return "Bufer toʻla — ishlab chiqarish toʻxtadi";
+    if (full.length) return full.join(", ") + " toʻla — yigʻib oling";
+    return soonest ? soonest.name + " toʻlishiga: " + G.fmtMinutes(soonest.h * 60) : "";
+  }
+
+  var allocTimer = null;
   function bindAlloc() {
     var box = $("#alloc");
     if (!box) return;
     box.addEventListener("input", function (e) {
       var k = e.target.getAttribute("data-alloc");
       if (!k) return;
-      var p = prefs();
-      var alloc = p.alloc || { stone: 40, wood: 30, hide: 15, bone: 15 };
+      var alloc = Object.assign({}, allocation());
       alloc[k] = +e.target.value;
       // Qolganlarini mutanosib moslab, yigʻindini 100 ga keltirish
       var others = Object.keys(alloc).filter(function (x) { return x !== k; });
       var rest = 100 - alloc[k];
-      var sum = others.reduce(function (s, x) { return s + alloc[x]; }, 0) || 1;
+      var sum = others.reduce(function (s, x) { return s + alloc[x]; }, 0);
       var acc = 0;
       others.forEach(function (x, i) {
-        alloc[x] = i === others.length - 1 ? rest - acc : Math.round(alloc[x] / sum * rest / 5) * 5;
+        var part = sum ? alloc[x] / sum * rest : rest / others.length;
+        alloc[x] = i === others.length - 1 ? rest - acc : Math.round(part / 5) * 5;
         if (i < others.length - 1) acc += alloc[x];
       });
-      p.alloc = alloc;
-      savePrefs(p);
-      renderResources();
-      var ws = buildingList().filter(function (b) { return b.type === "workshop"; })[0];
-      var prodHour = ws.level ? app.config.prod_base * Math.pow(app.config.prod_growth, ws.level - 1) : 0;
+      if (!G.validAlloc(alloc)) return;
+      setAllocation(alloc);
+      var prodHour = G.workshopPerHour(app.config, buildingLevel("workshop"));
       Object.keys(alloc).forEach(function (x) {
         box.querySelector('[data-alloc="' + x + '"]').value = alloc[x];
         box.querySelector('[data-alloc-out="' + x + '"]').textContent = alloc[x] + "% · " + G.fmt(prodHour * alloc[x] / 100) + "/soat";
       });
     });
+    box.addEventListener("change", function () {
+      // Slayder qoʻyib yuborilganda: bufer sigʻimlari yangi ulushga moslanadi
+      var w = $("#workshop");
+      if (w && w.parentNode) render();
+    });
+  }
+
+  /** Yangi taqsimot shu paytdan amal qiladi: avval eskisi boʻyicha hisob yopiladi. */
+  function setAllocation(alloc) {
+    app.econ = G.advance(app.config, app.econ, now());
+    app.econ.alloc = alloc;
+    if (app.mode === "demo") { saveDemo(); return; }
+    clearTimeout(allocTimer);
+    allocTimer = setTimeout(function () {
+      window.BWApi.request("profile/allocation", { method: "POST", body: alloc }).then(applySnapshot, function (err) {
+        toast("Taqsimot saqlanmadi: " + (err.message || "xato"), "info");
+        resync();
+      });
+    }, 700);
   }
 
   function buildingSheet(type) {
@@ -375,6 +446,11 @@
         html += '<div class="bw-eyebrow" style="margin-bottom:8px">' + next + "-darajaga koʻtarish</div>";
         html += '<div class="cost-row">' + costChips(G.buildingCost(cfg, type, next)) +
           '<span class="bw-chip">' + icon("clock", "bw-icon--sm") + " " + G.fmtMinutes(G.buildingTime(cfg, type, next)) + "</span></div>";
+      }
+      if (type === "workshop") {
+        html += '<div class="bw-grid-2" style="margin-top:14px">' + stat(G.fmt(G.workshopPerHour(cfg, b.level)) + "/soat", "Ishlab chiqarish") +
+          stat('<span data-live="buf-total">' + G.fmt(bufferTotal()) + "</span>", "Buferda") + "</div>" +
+          '<button class="bw-btn bw-btn--accent bw-btn--block" style="margin-top:12px" data-action="collect">' + icon("download", "bw-icon--sm") + " Yigʻib olish</button>";
       }
       var role = G.ROLES.filter(function (r) { return r.building === type; })[0];
       if (role) {
@@ -511,9 +587,188 @@
       '<div class="bw-row">' + icon("info") + '<div class="bw-row__main"><div class="bw-row__title">Versiya</div><div class="bw-row__sub">v' + window.BWApi.VERSION + " · " +
       (app.mode === "live" ? "server bilan" : "demo rejim") + "</div></div></div>" +
       '<a class="bw-row" href="ui/" style="color:inherit;text-decoration:none">' + icon("palette") + '<div class="bw-row__main"><div class="bw-row__title">BlueWolf UI</div><div class="bw-row__sub">Dizayn tizimi koʻrgazmasi</div></div>' + icon("chevron", "bw-icon--sm") + "</a>" +
+      (app.mode === "demo" ? '<div class="bw-row bw-row--tap" data-action="demo-reset">' + icon("clock") + '<div class="bw-row__main"><div class="bw-row__title">Demoni qaytadan boshlash</div><div class="bw-row__sub">Resurslar boshlangʻich holatga qaytadi</div></div></div>' : "") +
       (installPrompt ? '<div class="bw-row bw-row--tap" data-action="install">' + icon("download") + '<div class="bw-row__main"><div class="bw-row__title">Ilovani oʻrnatish</div><div class="bw-row__sub">Bosh ekranga qoʻshish (PWA)</div></div></div>' : "") +
       "</div>";
     return html;
+  }
+
+  /* ---------------------------------------------------------------- Tirik iqtisodiyot */
+  var DEMO_KEY = "bw.demo.econ";
+  var RES_KEYS = ["meat", "water", "herb", "moonlight", "stone", "wood", "hide", "bone"];
+
+  /** Server vaqti (live) yoki qurilma vaqti (demo), ms. */
+  function now() { return Date.now() + app.offset; }
+
+  function saveDemo() {
+    try { localStorage.setItem(DEMO_KEY, JSON.stringify({ v: 1, econ: app.econ })); } catch (e) { /* xususiy rejim */ }
+  }
+
+  /** Demo: saqlangan holat yoki BW_DEMO dan yangi (2 soat oldin “chiqib ketgan” — bufer va qaytish oynasini koʻrsatish uchun). */
+  function demoEconomy() {
+    try {
+      var saved = JSON.parse(localStorage.getItem(DEMO_KEY) || "null");
+      if (saved && saved.v === 1 && saved.econ && saved.econ.res) return saved.econ;
+    } catch (e) { /* buzilgan — yangisini yaratamiz */ }
+    var t = Date.now() - 2 * 3600000, res = {};
+    RES_KEYS.forEach(function (k) { res[k] = app.state.resources[k] || 0; });
+    var alloc = prefs().alloc;
+    return {
+      res: res, buf: { stone: 0, wood: 0, hide: 0, bone: 0 },
+      alloc: alloc && G.validAlloc(alloc) ? alloc : { stone: 40, wood: 30, hide: 15, bone: 15 },
+      level: app.state.player.level, cave: buildingLevel("food_cave"), workshop: buildingLevel("workshop"),
+      army: totalArmy(), last_tick: t, last_seen: t
+    };
+  }
+
+  /** Hisoblangan qiymatlarni panel koʻrsatadigan app.state.resources ga koʻchirish. */
+  function syncResources() {
+    RES_KEYS.forEach(function (k) { app.state.resources[k] = Math.floor(app.econ.res[k] || 0); });
+  }
+
+  /** Server javobidagi state (snapshot) ni qabul qilish. */
+  function applySnapshot(body) {
+    var st = body && body.state;
+    if (!st || !st.economy) return body;
+    if (st.server_time) app.offset = Date.parse(st.server_time) - Date.now();
+    app.econ = st.economy;
+    app.state.resources = Object.assign(app.state.resources, st.resources);
+    syncResources();
+    render();
+    return body;
+  }
+
+  /** Live: serverdan qayta oʻqish (heartbeat ham — oʻyinchi onlayn hisoblanadi). */
+  function resync() {
+    if (app.mode !== "live") return Promise.resolve();
+    return window.BWApi.request("state").then(function (body) {
+      Object.assign(app.state, body.data);
+      applySnapshot(body);
+      if (body.data.away) awaySheet(body.data.away);
+    }, function () { /* tarmoq yoʻq — keyingi urinishda */ });
+  }
+
+  function gainChips(gained) {
+    return Object.keys(gained).filter(function (k) { return gained[k] > 0; }).map(function (k) {
+      var r = resMeta(k);
+      return '<span class="bw-chip" style="--bw-rc: var(--bw-res-' + k + ')">' + icon(r.icon, "bw-icon--sm") + " +" + G.fmt(gained[k]) + " " + esc(r.short.toLowerCase()) + "</span>";
+    }).join("");
+  }
+
+  /** “Siz yoʻqligingizda” oynasi. away: {seconds, gained} */
+  function awaySheet(away) {
+    var chips = gainChips(away.gained || {});
+    if (!chips) return;
+    var cfg = app.config;
+    openSheet('<div class="bw-eyebrow">Xush kelibsiz</div><div class="bw-h2" style="margin-top:4px">Siz yoʻqligingizda</div>' +
+      '<p class="bw-muted" style="margin:6px 0 14px">' + G.fmtMinutes(away.seconds / 60) + " ichida toʻda ishladi:</p>" +
+      '<div class="cost-row gain-row">' + chips + "</div>" +
+      '<div class="bw-banner" style="margin-top:14px">' + icon("info", "bw-icon--sm") + "<span>Oflaynda Ustaxona " + Math.round(cfg.offline_prod_rate * 100) +
+      "% tezlikda ishlaydi, bufer va Oziq gʻori sigʻimi esa ×" + cfg.offline_store_mult + " kengayadi.</span></div>" +
+      (bufferTotal() ? '<button class="bw-btn bw-btn--accent bw-btn--block" style="margin-top:16px" data-action="collect">' + icon("download", "bw-icon--sm") +
+        " Buferni yigʻib olish +" + G.fmt(bufferTotal()) + "</button>" : ""));
+  }
+
+  var collecting = false;
+  function collect() {
+    if (collecting) return;
+    if (!buildingLevel("workshop")) { toast("Ustaxona qoyasi 2-darajada ochiladi", "lock"); return; }
+    if (!bufferTotal()) { toast("Bufer hali boʻsh", "info"); return; }
+    var done = function (got) {
+      haptic("medium");
+      closeSheet();
+      toast("Omborga olindi: " + G.BUILD.filter(function (k) { return got[k] > 0; }).map(function (k) {
+        return "+" + G.fmt(got[k]) + " " + resMeta(k).short.toLowerCase();
+      }).join(", "), "download");
+      flash();
+    };
+    if (app.mode === "demo") {
+      var r = G.collect(G.advance(app.config, app.econ, now()));
+      app.econ = r.econ;
+      saveDemo();
+      syncResources();
+      render();
+      done(r.got);
+      return;
+    }
+    collecting = true;
+    window.BWApi.request("buildings/collect", { method: "POST" }).then(function (body) {
+      applySnapshot(body);
+      done(body.data.collected || {});
+    }, function (err) {
+      toast("Yigʻib boʻlmadi: " + (err.message || "xato"), "info");
+    }).then(function () { collecting = false; });
+  }
+
+  /** Yigʻilgan resurs kataklari bir lahza yonadi. */
+  function flash() {
+    G.BUILD.forEach(function (k) {
+      var el = document.querySelector('.bw-rescell[data-res="' + k + '"]');
+      if (el) { el.classList.remove("is-flash"); void el.offsetWidth; el.classList.add("is-flash"); }
+    });
+  }
+
+  var lastSig = "", lastSave = 0;
+  /** Har soniyada: hisobni oldinga surish va faqat oʻzgargan raqamlarni yangilash. */
+  function tick() {
+    if (!app.econ) return;
+    var t = now(), visible = document.visibilityState !== "hidden";
+    app.econ = G.advance(app.config, app.econ, t);
+    if (app.mode === "demo" && visible) {
+      app.econ.last_seen = t; // ilova ochiq — onlayn
+      if (t - lastSave > 5000) { saveDemo(); lastSave = t; }
+    }
+    syncResources();
+    var sig = RES_KEYS.map(function (k) { return app.state.resources[k]; }).join() + "|" + bufferTotal() + "|" + bufferStatus();
+    if (sig === lastSig) return;
+    lastSig = sig;
+    renderResources();
+    G.BUILD.forEach(function (k) {
+      var f = resourceFacts(k);
+      document.querySelectorAll('[data-live="buf-' + k + '"]').forEach(function (el) { el.textContent = G.fmt(f.buf); });
+      var bar = document.querySelector('[data-live="bar-' + k + '"]');
+      if (bar) bar.style.width = Math.round(f.bufFill * 100) + "%";
+    });
+    document.querySelectorAll('[data-live="buf-total"]').forEach(function (el) { el.textContent = G.fmt(bufferTotal()); });
+    var st = document.querySelector('[data-live="buf-status"]');
+    if (st) st.textContent = bufferStatus();
+    var btn = document.querySelector('[data-live="collect"]');
+    if (btn) btn.innerHTML = collectLabel();
+  }
+
+  /** Ishga tushganda: hisobni boshlash va kerak boʻlsa “siz yoʻqligingizda” oynasi. */
+  function startEconomy(res) {
+    var away = null;
+    if (app.mode === "live") {
+      app.offset = res.serverTime ? Date.parse(res.serverTime) - Date.now() : 0;
+      app.econ = app.state.economy;
+      away = app.state.away;
+      setInterval(function () { if (document.visibilityState !== "hidden") resync(); }, 120000);
+    } else {
+      app.econ = demoEconomy();
+      var before = app.econ, t = now();
+      if (t - before.last_seen > app.config.offline_after_min * 60000) {
+        var after = G.advance(app.config, before, t), gained = {};
+        RES_KEYS.forEach(function (k) { gained[k] = Math.floor(after.res[k]) - Math.floor(before.res[k]); });
+        G.BUILD.forEach(function (k) { gained[k] = (gained[k] || 0) + Math.floor(after.buf[k]) - Math.floor(before.buf[k]); });
+        away = { seconds: (t - before.last_seen) / 1000, gained: gained };
+      }
+    }
+    tick();
+    setInterval(tick, 1000);
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState !== "visible") return;
+      if (app.mode === "live") { resync(); return; }
+      var t = now(), before = app.econ;
+      tick();
+      if (t - before.last_seen > app.config.offline_after_min * 60000) {
+        var gained = {};
+        G.BUILD.forEach(function (k) { gained[k] = Math.floor(app.econ.buf[k]) - Math.floor(before.buf[k]); });
+        ["water", "moonlight"].forEach(function (k) { gained[k] = Math.floor(app.econ.res[k]) - Math.floor(before.res[k]); });
+        awaySheet({ seconds: (t - before.last_seen) / 1000, gained: gained });
+      }
+    });
+    return away;
   }
 
   /* ---------------------------------------------------------------- Router */
@@ -548,6 +803,11 @@
     claim: function () { toast("Mukofot olish — " + ROADMAP, "gift"); },
     vacation: function () { toast("Taʼtil rejimi — " + ROADMAP, "moon"); },
     shop: function () { toast("Doʻkon — " + ROADMAP, "moonstone"); },
+    collect: collect,
+    "demo-reset": function () {
+      try { localStorage.removeItem(DEMO_KEY); } catch (e) { /* ignore */ }
+      location.reload();
+    },
     "goto-alloc": function () {
       closeSheet();
       if (app.tab !== "in") location.hash = "#/in";
@@ -624,9 +884,11 @@
       app.reason = res.reason;
       app.config = res.config;
       app.state = res.state;
+      var away = startEconomy(res);
       setProgress(100);
       $("#app").hidden = false;
       route();
+      if (away) setTimeout(function () { awaySheet(away); }, 450);
       setTimeout(function () { $("#splash").classList.add("is-hidden"); }, 250);
     }).catch(function (err) {
       $("#splash .splash__sub").textContent = "Yuklab boʻlmadi: " + (err && err.message ? err.message : "nomaʼlum xato");

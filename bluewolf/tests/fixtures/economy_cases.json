@@ -1,0 +1,334 @@
+{
+ "_note": "EconomyService::advance (PHP) va BWGame.advance (JS) uchun umumiy test holatlari. Vaqtlar — ms.",
+ "cases": [
+  {
+   "name": "5 daqiqa onlayn, keyin oflayn (×0.7)",
+   "input": {
+    "res": {
+     "meat": 0,
+     "water": 0,
+     "herb": 0,
+     "moonlight": 0,
+     "stone": 0,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "buf": {
+     "stone": 0,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "alloc": {
+     "stone": 40,
+     "wood": 30,
+     "hide": 15,
+     "bone": 15
+    },
+    "level": 2,
+    "cave": 0,
+    "workshop": 1,
+    "army": 0,
+    "last_tick": 0,
+    "last_seen": 0
+   },
+   "t1": 3600000,
+   "expect": {
+    "buf": {
+     "stone": 5.8,
+     "wood": 4.35,
+     "hide": 2.175,
+     "bone": 2.175
+    }
+   }
+  },
+  {
+   "name": "onlayn bufer sigʻimi (10 soat)",
+   "input": {
+    "res": {
+     "meat": 0,
+     "water": 0,
+     "herb": 0,
+     "moonlight": 0,
+     "stone": 0,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "buf": {
+     "stone": 0,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "alloc": {
+     "stone": 40,
+     "wood": 30,
+     "hide": 15,
+     "bone": 15
+    },
+    "level": 2,
+    "cave": 0,
+    "workshop": 2,
+    "army": 0,
+    "last_tick": 0,
+    "last_seen": 3600000000
+   },
+   "t1": 72000000,
+   "expect": {
+    "buf": {
+     "stone": 97.6,
+     "wood": 73.2,
+     "hide": 36.6,
+     "bone": 36.6
+    }
+   }
+  },
+  {
+   "name": "oflaynda bufer 2×",
+   "input": {
+    "res": {
+     "meat": 0,
+     "water": 0,
+     "herb": 0,
+     "moonlight": 0,
+     "stone": 0,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "buf": {
+     "stone": 0,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "alloc": {
+     "stone": 40,
+     "wood": 30,
+     "hide": 15,
+     "bone": 15
+    },
+    "level": 2,
+    "cave": 0,
+    "workshop": 2,
+    "army": 0,
+    "last_tick": 0,
+    "last_seen": 0
+   },
+   "t1": 172800000,
+   "expect": {
+    "buf": {
+     "stone": 195.2,
+     "wood": 146.4,
+     "hide": 73.2,
+     "bone": 73.2
+    }
+   }
+  },
+  {
+   "name": "onlaynga qaytganda ortiqcha bufer kesilmaydi",
+   "input": {
+    "res": {
+     "meat": 0,
+     "water": 0,
+     "herb": 0,
+     "moonlight": 0,
+     "stone": 0,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "buf": {
+     "stone": 195.2,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "alloc": {
+     "stone": 40,
+     "wood": 30,
+     "hide": 15,
+     "bone": 15
+    },
+    "level": 2,
+    "cave": 0,
+    "workshop": 2,
+    "army": 0,
+    "last_tick": 0,
+    "last_seen": 3600000000
+   },
+   "t1": 3600000,
+   "expect": {
+    "buf": {
+     "stone": 195.2,
+     "wood": 7.32
+    }
+   }
+  },
+  {
+   "name": "suv: passiv yigʻim gʻor sigʻimigacha",
+   "input": {
+    "res": {
+     "meat": 0,
+     "water": 0,
+     "herb": 0,
+     "moonlight": 0,
+     "stone": 0,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "buf": {
+     "stone": 0,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "alloc": {
+     "stone": 40,
+     "wood": 30,
+     "hide": 15,
+     "bone": 15
+    },
+    "level": 3,
+    "cave": 3,
+    "workshop": 1,
+    "army": 0,
+    "last_tick": 0,
+    "last_seen": 3600000000
+   },
+   "t1": 3600000000,
+   "expect": {
+    "res": {
+     "water": 59.536
+    }
+   }
+  },
+  {
+   "name": "suv: oflaynda sigʻim 2×",
+   "input": {
+    "res": {
+     "meat": 0,
+     "water": 0,
+     "herb": 0,
+     "moonlight": 0,
+     "stone": 0,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "buf": {
+     "stone": 0,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "alloc": {
+     "stone": 40,
+     "wood": 30,
+     "hide": 15,
+     "bone": 15
+    },
+    "level": 3,
+    "cave": 3,
+    "workshop": 1,
+    "army": 0,
+    "last_tick": 0,
+    "last_seen": 0
+   },
+   "t1": 3600000000,
+   "expect": {
+    "res": {
+     "water": 119.072
+    }
+   }
+  },
+  {
+   "name": "goʻsht tugaydi → ochlik, ishlab chiqarish −50%",
+   "input": {
+    "res": {
+     "meat": 3,
+     "water": 1,
+     "herb": 0,
+     "moonlight": 0,
+     "stone": 0,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "buf": {
+     "stone": 0,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "alloc": {
+     "stone": 100,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "level": 5,
+    "cave": 0,
+    "workshop": 1,
+    "army": 12,
+    "last_tick": 0,
+    "last_seen": 3600000000
+   },
+   "t1": 36000000,
+   "expect": {
+    "res": {
+     "meat": 0,
+     "water": 0
+    },
+    "buf": {
+     "stone": 160,
+     "wood": 0
+    }
+   }
+  },
+  {
+   "name": "20+ daraja: oy nuri, suv va goʻsht sarfi",
+   "input": {
+    "res": {
+     "meat": 1000,
+     "water": 100,
+     "herb": 0,
+     "moonlight": 5,
+     "stone": 0,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "buf": {
+     "stone": 0,
+     "wood": 0,
+     "hide": 0,
+     "bone": 0
+    },
+    "alloc": {
+     "stone": 40,
+     "wood": 30,
+     "hide": 15,
+     "bone": 15
+    },
+    "level": 20,
+    "cave": 5,
+    "workshop": 0,
+    "army": 100,
+    "last_tick": 0,
+    "last_seen": 3600000000
+   },
+   "t1": 36000000,
+   "expect": {
+    "res": {
+     "meat": 895.833333,
+     "water": 57.770182,
+     "moonlight": 2.666667
+    }
+   }
+  }
+ ]
+}
