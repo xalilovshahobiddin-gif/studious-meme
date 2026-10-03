@@ -1,4 +1,4 @@
-/* Blue Wolf Mini App — v0.0.12 (iqtisodiyot, qurilish, askarlar, ov, vazifalar, tanishtiruv, interfeys)
+/* Blue Wolf Mini App — v0.0.13 (iqtisodiyot, qurilish, askarlar, ov, vazifalar, tanishtiruv, interfeys)
    6 ta tab (In · Ov · Jang · Toʻda · Vazifalar · Profil), hash-router, Telegram WebApp integratsiyasi.
    Resurslar vaqt boʻyicha hisoblanadi (BWGame.advance — server bilan bir xil formula), Ustaxona buferi
    va taqsimoti, qurilish, askar mashqi va ov ishlaydi. Qolgan amallar (hujum, razvedka…) keyingi bosqichlarda ulanadi. */
@@ -858,10 +858,89 @@
   }
 
   /* ---------------------------------------------------------------- 👤 Profil */
+  /** Rol boʻyicha har tierdagi jami (inda + ovda + yarador). */
+  function roleTiers(role) {
+    var out = [0, 0, 0, 0, 0, 0];
+    [app.state.army, app.state.army_away, app.state.army_injured].forEach(function (src) {
+      ((src || {})[role] || []).forEach(function (n, i) { out[i] += n || 0; });
+    });
+    return out;
+  }
+
+  var ROLE_ADVICE = { hunter: "goʻsht uchun ovchi", attacker: "hujum uchun hujumchi", defender: "inni qoʻriqlash uchun himoyachi", scout: "raqibni bilish uchun razvedkachi" };
+
+  /** Qoʻshin: Kartalar · Medallar · Radar (subtablar bilan). */
+  function armySection() {
+    var p = app.state.player, cfg = app.config, tierMax = G.maxTier(cfg, p.level), seg = app.seg.profil || "cards";
+    var roles = G.ROLES.map(function (r) {
+      var t = roleTiers(r.key);
+      return { r: r, tiers: t, total: t.reduce(function (a, b) { return a + b; }, 0), unlock: G.BUILDINGS[r.building].unlock };
+    });
+    var total = roles.reduce(function (a, x) { return a + x.total; }, 0);
+    var home = 0, away = 0, hurt = 0;
+    G.ROLES.forEach(function (r) { home += armyCount(r.key); away += armyCount(r.key, "away"); hurt += armyCount(r.key, "injured"); });
+    var nextTier = tierMax < 6 ? (tierMax + 1) * cfg.tier_step_level : 0;
+    var html = sectionTitle("Qoʻshin", '<span class="bw-chip">' + total + " / " + G.armyCap(cfg, p.level) + "</span>");
+    html += '<div class="bw-seg army-seg" role="tablist">' + [["cards", "Kartalar"], ["medals", "Medallar"], ["radar", "Radar"]].map(function (x) {
+      return '<button class="bw-seg__btn" role="tab" data-seg="' + x[0] + '" aria-selected="' + (seg === x[0]) + '">' + x[1] + "</button>";
+    }).join("") + "</div>";
+
+    if (seg === "medals") {
+      html += roles.map(function (x) {
+        var locked = p.level < x.unlock;
+        return '<div class="army-medals army-r--' + x.r.key + (locked ? " is-locked" : "") + '"><div class="army-medals__head"><span class="army-ico">' + icon(x.r.icon) + "</span><b>" + esc(x.r.name) + "</b>" +
+          (locked ? '<span class="bw-faint" style="font-size:12px">' + x.unlock + "-darajada</span>" : '<span class="bw-num">' + x.total + "</span>") + '</div><div class="army-medals__row">' +
+          G.TIERS.map(function (tn, i) {
+            if (i + 1 > tierMax || locked) return '<div class="army-medal is-locked" title="T' + (i + 1) + " " + tn + " — " + (locked ? x.unlock : (i + 1) * cfg.tier_step_level) + '-darajada">' + icon("lock") + "</div>";
+            var c = x.tiers[i];
+            return '<div class="army-medal bw-tier-' + (i + 1) + (c ? "" : " is-zero") + '" title="T' + (i + 1) + " " + tn + '">' + icon(x.r.icon) + "<em>" + c + "</em></div>";
+          }).join("") + "</div></div>";
+      }).join("");
+      html += '<p class="bw-faint army-note">Ramka rangi — tier: kulrang T1–T2, kumush T3–T4, oltin T5, olov T6.' + (nextTier ? " T" + (tierMax + 1) + " " + nextTier + "-darajada ochiladi." : "") + "</p>";
+    } else if (seg === "radar") {
+      var mx = Math.max(4, roles.reduce(function (a, x) { return Math.max(a, x.total); }, 0));
+      var angs = [-Math.PI / 2, 0, Math.PI / 2, Math.PI];
+      var pt = function (v, i) { var rr = v / mx * 66; return [(100 + rr * Math.cos(angs[i])).toFixed(1), (100 + rr * Math.sin(angs[i])).toFixed(1)]; };
+      var svg = '<svg class="army-radar" viewBox="0 0 200 200" width="164" height="164" aria-hidden="true">' +
+        [0.25, 0.5, 0.75, 1].map(function (f) { return '<polygon points="' + angs.map(function (_, i) { return pt(mx * f, i).join(","); }).join(" ") + '" class="army-radar__grid"/>'; }).join("") +
+        angs.map(function (_, i) { var q = pt(mx, i); return '<line x1="100" y1="100" x2="' + q[0] + '" y2="' + q[1] + '" class="army-radar__grid"/>'; }).join("") +
+        (total ? '<polygon points="' + roles.map(function (x, i) { return pt(x.total, i).join(","); }).join(" ") + '" class="army-radar__shape"/>' : "") +
+        roles.map(function (x, i) { var q = pt(x.total, i); return '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="5" fill="var(--bw-role-' + x.r.key + ')"/>'; }).join("") +
+        roles.map(function (x, i) { var q = pt(mx * 1.3, i); return '<g transform="translate(' + (q[0] - 11) + " " + (q[1] - 11) + ')" style="color:var(--bw-role-' + x.r.key + ')"><use href="#bw-i-' + x.r.icon + '" width="22" height="22"/></g>'; }).join("") + "</svg>";
+      html += '<div class="bw-card army-radar-card"><div class="army-radar-wrap">' + svg + '<div class="army-radar-list">' + roles.map(function (x) {
+        return '<div class="army-radar-item army-r--' + x.r.key + '">' + icon(x.r.icon) + "<span>" + esc(x.r.name) + '</span><b class="bw-num">' + x.total + "</b></div>";
+      }).join("") + "</div></div>";
+      // Maslahat: qaysi rolga ogʻgan, qaysi rollar kam
+      var open = roles.filter(function (x) { return p.level >= x.unlock; }), tip;
+      if (!total) tip = "Hali askar yoʻq — Ov soʻqmogʻida birinchi ovchilarni tayyorla.";
+      else {
+        var top = open.slice().sort(function (a, b) { return b.total - a.total; })[0];
+        var few = open.filter(function (x) { return x !== top && x.total < Math.max(1, total * 0.15); });
+        tip = few.length && top.total / total > 0.4
+          ? "Toʻda <b>" + esc(top.r.name.toLowerCase()) + "larga</b> ogʻgan. Kam: " + few.map(function (x) { return ROLE_ADVICE[x.r.key]; }).join(", ") + "."
+          : "Toʻda muvozanatli — shu yoʻsinda davom et.";
+        if (open.length < roles.length) tip += " Qolgan rollar " + roles.filter(function (x) { return p.level < x.unlock; }).map(function (x) { return x.unlock; })[0] + "-darajada ochiladi.";
+      }
+      html += '<div class="army-tip">' + icon("info", "bw-icon--sm") + "<span>" + tip + "</span></div></div>";
+    } else {
+      html += '<div class="army-cards">' + roles.map(function (x) {
+        var locked = p.level < x.unlock;
+        return '<div class="army-card army-r--' + x.r.key + (locked ? " is-locked" : "") + '">' + icon(x.r.icon, "army-card__wm") +
+          '<span class="army-ico">' + icon(locked ? "lock" : x.r.icon) + '</span><div class="army-card__num">' + (locked ? "—" : x.total) + '</div><div class="army-card__name">' + esc(x.r.name) + "</div>" +
+          (locked ? '<div class="army-card__lock">' + x.unlock + "-darajada ochiladi</div>" : '<div class="army-card__tiers">' + G.TIERS.slice(0, Math.min(6, tierMax + 1)).map(function (tn, i) {
+            return i < tierMax ? '<span title="' + tn + '"><small>T' + (i + 1) + "</small>" + x.tiers[i] + "</span>"
+              : '<span class="is-locked" title="' + (i + 1) * cfg.tier_step_level + '-darajada"><small>T' + (i + 1) + "</small>" + icon("lock", "bw-icon--sm") + "</span>";
+          }).join("") + "</div>") + "</div>";
+      }).join("") + "</div>";
+    }
+    html += '<div class="army-status"><span class="army-st army-st--home"><i></i>Inda ' + home + '</span><span class="army-st army-st--away"><i></i>Ovda ' + away +
+      '</span><span class="army-st army-st--hurt"><i></i>Yarador ' + hurt + "</span></div>";
+    return html;
+  }
+
   function screenProfil() {
     var p = app.state.player, cfg = app.config;
-    var army = 0;
-    G.ROLES.forEach(function (r) { army += armyCount(r.key); });
+    var army = totalArmy();
     var tierMax = G.maxTier(cfg, p.level);
     var html = '<div class="bw-card bw-card--glow"><div class="bw-inline" style="gap:14px"><span class="bw-avatar bw-avatar--lg bw-tier-' + tierMax + '">' +
       icon("wolf", "bw-icon--xl") + '</span><div class="bw-grow"><div class="bw-h2">' + esc(p.name) + '</div><div class="bw-muted">' +
@@ -870,16 +949,7 @@
       '<div class="bw-stat"><span class="bw-stat__value">' + army + '</span><span class="bw-stat__label">Askar</span></div>' +
       '<div class="bw-stat"><span class="bw-stat__value">' + tierMax + '</span><span class="bw-stat__label">Maks tier</span></div></div></div>';
 
-    html += sectionTitle("Qoʻshin", '<span class="bw-chip">' + army + " / " + G.armyCap(cfg, p.level) + "</span>");
-    html += '<div class="bw-card" style="padding:10px 12px;overflow-x:auto"><table class="army-table"><thead><tr><th>Rol</th>' +
-      G.TIERS.map(function (t, i) { return "<th title=\"" + t + "\">T" + (i + 1) + "</th>"; }).join("") + "</tr></thead><tbody>" +
-      G.ROLES.map(function (r) {
-        var counts = (app.state.army || {})[r.key] || [];
-        return '<tr><td><span class="bw-role bw-role--' + r.key + '"><span class="bw-role__dot"></span>' + esc(r.name) + "</span></td>" +
-          G.TIERS.map(function (_, i) {
-            return i + 1 > tierMax ? '<td class="is-locked">' + icon("lock", "bw-icon--sm") + "</td>" : '<td class="bw-num">' + (counts[i] || 0) + "</td>";
-          }).join("") + "</tr>";
-      }).join("") + "</tbody></table></div>";
+    html += armySection();
 
     var pr = prefs();
     var themeName = { auto: "Telegram boʻyicha", dark: "Tungi", light: "Kunduzgi" }[pr.theme || "auto"];

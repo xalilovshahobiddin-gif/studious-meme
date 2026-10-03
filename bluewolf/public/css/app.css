@@ -81,13 +81,6 @@
 .target__actions { display: flex; gap: 6px; }
 
 /* Qoʻshin jadvali */
-.army-table { width: 100%; border-collapse: separate; border-spacing: 0 6px; font-size: var(--bw-fs-sm); }
-.army-table th { font-size: var(--bw-fs-xs); color: var(--bw-text-3); font-weight: 700; text-align: center; }
-.army-table th:first-child, .army-table td:first-child { text-align: left; }
-.army-table td { text-align: center; padding: 8px 4px; background: var(--bw-surface-2); }
-.army-table td:first-child { border-radius: 10px 0 0 10px; padding-left: 10px; }
-.army-table td:last-child { border-radius: 0 10px 10px 0; }
-.army-table .is-locked { color: var(--bw-text-3); }
 
 /* Sheet ichidagi narxlar */
 .cost-row { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -287,3 +280,76 @@ body.sheet-open:not(.drawer-open) .drawer-handle { opacity: 0; pointer-events: n
 .bw-rescell.is-hit, .bw-gem.is-hit { animation: res-hit .45s var(--bw-ease); }
 @keyframes res-hit { 0% { transform: scale(1); } 40% { transform: scale(1.14); box-shadow: 0 0 0 3px color-mix(in srgb, var(--bw-rc, #8fd8ff) 45%, transparent); } 100% { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .drawer, .drawer-backdrop, .drawer-handle, .drawer-handle .bw-icon { transition: none; } .timerbar, .bw-rescell.is-hit, .bw-gem.is-hit { animation: none; } }
+
+/* Profil → Qoʻshin: Kartalar · Medallar · Radar */
+.army-r--hunter { --rc: var(--bw-role-hunter); }
+.army-r--attacker { --rc: var(--bw-role-attacker); }
+.army-r--defender { --rc: var(--bw-role-defender); }
+.army-r--scout { --rc: var(--bw-role-scout); }
+.army-seg { margin-bottom: 12px; }
+.army-ico { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: color-mix(in srgb, var(--rc) 20%, transparent); color: var(--rc); }
+.army-ico .bw-icon { width: 20px; height: 20px; }
+
+.army-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.army-card {
+  position: relative; overflow: hidden; padding: 12px; border-radius: var(--bw-r-lg);
+  border: 1px solid color-mix(in srgb, var(--rc) 40%, transparent);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--rc) 18%, var(--bw-surface-solid)), var(--bw-surface-solid) 70%);
+}
+.army-card > :not(.army-card__wm) { position: relative; }
+.army-card__wm { position: absolute; right: -10px; bottom: -14px; width: 84px; height: 84px; color: var(--rc); opacity: .1; }
+.army-card__num { margin-top: 10px; font: 900 30px/1 var(--bw-font-num); font-variant-numeric: tabular-nums; }
+.army-card__name { margin-top: 2px; font-size: 13px; font-weight: 800; color: var(--rc); }
+.army-card__tiers { display: flex; gap: 4px; margin-top: 10px; }
+.army-card__tiers span { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px 0; border-radius: 8px; background: rgba(255, 255, 255, .06); font: 800 11px/1.1 var(--bw-font-num); }
+[data-bw-theme="light"] .army-card__tiers span { background: rgba(10, 18, 34, .06); }
+.army-card__tiers small { font-size: 9px; font-weight: 700; color: var(--bw-text-3); }
+.army-card__tiers .is-locked { opacity: .4; }
+.army-card__tiers .bw-icon { width: 12px; height: 12px; }
+.army-card__lock { margin-top: 10px; font-size: 11.5px; color: var(--bw-text-3); }
+.army-card.is-locked { filter: saturate(.3); opacity: .7; }
+
+.army-medals { padding: 12px; border-radius: var(--bw-r-lg); background: var(--bw-surface); border: 1px solid var(--bw-border); }
+.army-medals + .army-medals { margin-top: 10px; }
+.army-medals__head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.army-medals__head .army-ico { width: 30px; height: 30px; border-radius: 9px; }
+.army-medals__head .army-ico .bw-icon { width: 17px; height: 17px; }
+.army-medals__head b { flex: 1; color: var(--rc); }
+.army-medals__row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; padding-bottom: 6px; }
+.army-medal {
+  position: relative; aspect-ratio: 1; display: grid; place-items: center; border-radius: 14px;
+  border: 2px solid var(--bw-frame, #6b7a99); color: var(--rc);
+  background: color-mix(in srgb, var(--rc) 14%, var(--bw-surface-solid));
+}
+.army-medal .bw-icon { width: 20px; height: 20px; }
+.army-medal em {
+  position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); padding: 2px 5px; border-radius: 6px;
+  background: var(--bw-frame, #6b7a99); color: #0a1222; font: 900 10.5px/1 var(--bw-font-num); font-style: normal;
+}
+.army-medal.is-zero { opacity: .45; }
+.army-medal.is-locked { border: 2px dashed var(--bw-border-2); background: transparent; color: var(--bw-text-3); }
+.army-medal.is-locked .bw-icon { width: 14px; height: 14px; }
+.army-medals.is-locked .army-medals__head { opacity: .6; }
+.army-note { margin: 10px 2px 0; font-size: 11.5px; }
+
+.army-radar-card { padding: 14px; }
+.army-radar-wrap { display: flex; align-items: center; gap: 12px; }
+.army-radar { flex: none; overflow: visible; }
+.army-radar__grid { fill: none; stroke: var(--bw-border-2); stroke-width: 1; }
+.army-radar__shape { fill: rgba(47, 141, 255, .25); stroke: var(--bw-primary-2); stroke-width: 2; stroke-linejoin: round; }
+.army-radar use { fill: none; }
+.army-radar-list { flex: 1; min-width: 0; display: grid; gap: 8px; }
+.army-radar-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: var(--bw-surface-2); }
+.army-radar-item .bw-icon { width: 16px; height: 16px; color: var(--rc); }
+.army-radar-item span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 700; }
+.army-tip { display: flex; gap: 8px; align-items: flex-start; margin-top: 12px; padding: 10px 12px; border-radius: 12px; font-size: 12.5px; line-height: 1.4;
+  background: rgba(255, 181, 71, .1); border: 1px solid rgba(255, 181, 71, .35); color: var(--bw-text-2); }
+.army-tip .bw-icon { flex: none; margin-top: 1px; color: var(--bw-accent); }
+.army-tip b { color: var(--bw-accent); }
+
+.army-status { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.army-st { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--bw-surface); border: 1px solid var(--bw-border); }
+.army-st i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.army-st--home { color: #4fb6ef; }
+.army-st--away { color: var(--bw-moss-500); }
+.army-st--hurt { color: var(--bw-ember-500); }
