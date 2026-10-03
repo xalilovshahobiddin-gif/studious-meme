@@ -1,0 +1,151 @@
+{
+ "_note": "ArmyService/HuntService (PHP) va BWGame (JS) formulalari uchun umumiy holatlar. Qiymatlar GDD bo‘lim 4 va 6 bilan qoʻlda tekshirilgan.",
+ "train": [
+  {
+   "tier": 1,
+   "level": 1,
+   "building": 1,
+   "army": 0,
+   "role": 0,
+   "cost": {
+    "meat": 20,
+    "bone": 8
+   },
+   "seconds": 120
+  },
+  {
+   "tier": 1,
+   "level": 4,
+   "building": 1,
+   "army": 6,
+   "role": 2,
+   "cost": {
+    "meat": 20,
+    "bone": 8
+   },
+   "seconds": 233.009709
+  },
+  {
+   "tier": 2,
+   "level": 8,
+   "building": 8,
+   "army": 15,
+   "role": 8,
+   "cost": {
+    "meat": 42,
+    "bone": 17
+   },
+   "seconds": 347.762526
+  },
+  {
+   "tier": 3,
+   "level": 12,
+   "building": 12,
+   "army": 40,
+   "role": 30,
+   "cost": {
+    "meat": 88,
+    "bone": 35
+   },
+   "seconds": 695.111204
+  },
+  {
+   "tier": 1,
+   "level": 10,
+   "building": 4,
+   "army": 29,
+   "role": 10,
+   "cost": {
+    "meat": 20,
+    "bone": 8
+   },
+   "seconds": 463.866072
+  }
+ ],
+ "hunt": [
+  {
+   "level": 3,
+   "payload": {
+    "hunter": {
+     "1": 1
+    }
+   },
+   "result": {
+    "meat": 4,
+    "herb": 0.4,
+    "xp": 2,
+    "min_pack": 1,
+    "sent": 1,
+    "penalty": false
+   }
+  },
+  {
+   "level": 4,
+   "payload": {
+    "hunter": {
+     "1": 2
+    }
+   },
+   "result": {
+    "meat": 9,
+    "herb": 0.9,
+    "xp": 4.5,
+    "min_pack": 1,
+    "sent": 2,
+    "penalty": false
+   }
+  },
+  {
+   "level": 5,
+   "payload": {
+    "hunter": {
+     "1": 1
+    }
+   },
+   "result": {
+    "meat": 1.5,
+    "herb": 0.15,
+    "xp": 0.75,
+    "min_pack": 2,
+    "sent": 1,
+    "penalty": true
+   }
+  },
+  {
+   "level": 5,
+   "payload": {
+    "hunter": {
+     "1": 1
+    },
+    "attacker": {
+     "1": 1
+    }
+   },
+   "result": {
+    "meat": 5,
+    "herb": 0.5,
+    "xp": 2.5,
+    "min_pack": 2,
+    "sent": 2,
+    "penalty": false
+   }
+  },
+  {
+   "level": 10,
+   "payload": {
+    "hunter": {
+     "1": 3,
+     "2": 2
+    }
+   },
+   "result": {
+    "meat": 39,
+    "herb": 3.9,
+    "xp": 19.5,
+    "min_pack": 3,
+    "sent": 5,
+    "penalty": false
+   }
+  }
+ ]
+}

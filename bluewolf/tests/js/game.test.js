@@ -101,4 +101,19 @@ test("bufer yigʻish va taqsimot tekshiruvi", () => {
   assert.ok(!G.validAlloc({ stone: 110, wood: -10, hide: 0, bone: 0 }));
 });
 
+test("askar va ov formulalari (PHP bilan bir xil, GDD bo'lim 4 va 6)", () => {
+  const cases = require(path.join(__dirname, "../fixtures/army_cases.json"));
+  for (const c of cases.train) {
+    assert.deepEqual(G.trainCost(cfg, c.tier), c.cost);
+    assert.ok(Math.abs(G.trainSeconds(cfg, c.tier, c.level, c.building, c.army, c.role) - c.seconds) < 1e-5);
+  }
+  for (const c of cases.hunt) assert.deepEqual(G.huntResult(cfg, c.level, c.payload), c.result);
+  assert.deepEqual(G.trainCost(cfg, 1), { meat: 20, bone: 8 });
+  assert.equal(G.trainSeconds(cfg, 1, 1, 1, 0, 0), 120); // boʻsh qoʻshin — 0.5× chegirma
+  assert.equal(G.huntResult(cfg, 4, { hunter: { 1: 2 } }).meat, 9);
+  assert.equal(G.huntResult(cfg, 5, { hunter: { 1: 1 } }).penalty, true); // jayronga kamida 2 boʻri
+  assert.equal(G.PREY.length, 26);
+  assert.equal(G.WOLVES[25], "Koʻk Boʻri");
+});
+
 console.log(`\n${passed} ta test oʻtdi`);

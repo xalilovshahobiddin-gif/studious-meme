@@ -1,5 +1,17 @@
 # Blue Wolf — oʻzgarishlar tarixi
 
+## v0.0.4 — askarlar va ov
+- **Askar tayyorlash:** rol binosi oynasida tier (T1–T6, ochilganlari), son, narx (goʻsht + suyak) va vaqt; qoʻshin sigʻimi va
+  toʻlganlik koeffitsienti (GDD bo'lim 6). Mashq navbati In ekranida, tezlashtirish va bekor qilish bilan.
+- **Ov:** 1–3 darajada yolgʻiz ov (2 daqiqa kutish); ovchilar bilan 1 soatlik toʻda ovi — askarlarni tanlash, kutilgan goʻsht/oʻt/XP,
+  kichik toʻda jazosi (×0.3) va gʻor sigʻimi ogohlantirishi; ov kartasida taymer.
+- **Oziqlanish:** askarlar goʻsht va suv yeydi (endi Telegram rejimida ham), ochlik ishlab chiqarishni kamaytiradi.
+- **XP va daraja:** ov, qurilish va mashq XP beradi; yangi daraja oynasi (boʻri turi, qoʻshin sigʻimi, ochilgan imkoniyatlar),
+  yangi binolar avtomatik paydo boʻladi.
+- Server: `army`, `marches` jadvallari, `ArmyService`, `HuntService`, `ProgressService`, `Formula`; `POST /army/train`, `/hunt/solo`, `/hunt`.
+  `EconomyService::sync` qurilish, mashq va ovdan qaytishni vaqt tartibida yopadi.
+- Testlar: PHP 37 ta, JS 11 ta; askar va ov formulalari uchun umumiy `tests/fixtures/army_cases.json`.
+
 ## v0.0.3 — qurilish
 - **Binolarni kuchaytirish:** bino oynasida narx, vaqt va keyingi daraja nima berishi (ishlab chiqarish, sigʻim, askar sigʻimi, tier);
   yetmagan resurs yoki band navbat sababi koʻrsatiladi. Kuchaytirish mumkin boʻlgan binolarda yashil “+” belgisi.

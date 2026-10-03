@@ -10,11 +10,15 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Oʻyinchini Telegram foydalanuvchisidan topish/yaratish va holat snapshotini yigʻish.
- * v0.0.3: resurs hisobi (EconomyService) va qurilish navbati (BuildService); yurishlar hali yoʻq.
+ * v0.0.4: resurs hisobi, qurilish, askarlar va ov (EconomyService::sync voqealarni vaqt tartibida yopadi).
  */
 class PlayerService
 {
-    public function __construct(private readonly EconomyService $economy) {}
+    public function __construct(
+        private readonly EconomyService $economy,
+        private readonly ArmyService $army,
+        private readonly ProgressService $progress,
+    ) {}
 
     /**
      * Har autentifikatsiyalangan soʻrovning boshi: oʻyinchini topish va resurslarni hozirgacha hisoblash.
@@ -53,26 +57,10 @@ class PlayerService
 
             $player->forceFill(['tg_username' => $tgUser['username'] ?? null])->save();
             PlayerResource::query()->firstOrCreate(['player_id' => $player->id], ['last_tick_at' => now()]);
-            $this->syncBuildings($player);
+            $this->progress->syncBuildings($player);
 
             return $player->refresh();
         });
-    }
-
-    /**
-     * Ochilgan binolar 1-darajada bepul paydo boʻladi; In darajasi oʻyinchi darajasiga teng (GDD bo'lim 5).
-     */
-    public function syncBuildings(Player $player): void
-    {
-        foreach (Building::TYPES as $type => $unlockLevel) {
-            if ($player->level < $unlockLevel) {
-                continue;
-            }
-            $building = Building::query()->firstOrCreate(['player_id' => $player->id, 'type' => $type], ['level' => 1]);
-            if ($type === 'den' && $building->level !== $player->level) {
-                $building->update(['level' => $player->level]);
-            }
-        }
     }
 
     /**
@@ -90,12 +78,8 @@ class PlayerService
                 'name' => $player->display_name,
                 'username' => $player->tg_username,
                 'lang' => $player->lang,
-                'level' => $player->level,
-                'xp' => $player->xp,
                 'tutorial_step' => $player->tutorial_step,
-                'free_speedups' => $player->free_speedups,
-                'build_slots' => $player->buildSlots(),
-            ],
+            ] + $this->progressState($player),
             'resources' => $player->resources->toClient(),
             'buildings' => collect(Building::TYPES)->map(fn ($unlock, $type) => [
                 'type' => $type,
@@ -104,9 +88,10 @@ class PlayerService
                 'locked' => $player->level < $unlock,
             ])->values()->all(),
             'economy' => $this->economy->clientState($player),
-            'army' => [],
+            'army' => $this->army->summary($player)['alive'],
+            'army_away' => $this->army->summary($player)['away'],
             'queues' => $this->queues($player),
-            'marches' => [],
+            'marches' => $this->marches($player),
             'shield_until' => null,
             'hunger' => false,
         ];
@@ -124,9 +109,32 @@ class PlayerService
             'economy' => $this->economy->clientState($player),
             'buildings' => $player->buildings()->pluck('level', 'type'),
             'queues' => $this->queues($player),
+            'marches' => $this->marches($player),
+            'army' => $this->army->summary($player)['alive'],
+            'army_away' => $this->army->summary($player)['away'],
+            'player' => $this->progressState($player),
             'free_speedups' => $player->free_speedups,
             'server_time' => now()->format('Y-m-d\\TH:i:s.v\\Z'),
         ];
+    }
+
+    /** @return array<string, mixed> */
+    private function progressState(Player $player): array
+    {
+        return [
+            'level' => $player->level,
+            'xp' => (int) floor($player->xp),
+            'free_speedups' => $player->free_speedups,
+            'build_slots' => $player->buildSlots(),
+            'solo_hunt_at' => $player->solo_hunt_at?->getTimestampMs(),
+        ];
+    }
+
+    /** @return list<array<string, mixed>> */
+    private function marches(Player $player): array
+    {
+        return $player->marches()->whereIn('state', ['gathering', 'returning'])->orderBy('returns_at')->get()
+            ->map(fn ($m) => $m->toClient())->all();
     }
 
     /** @return list<array<string, mixed>> */

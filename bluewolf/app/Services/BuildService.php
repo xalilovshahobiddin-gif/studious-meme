@@ -6,6 +6,7 @@ use App\Models\Building;
 use App\Models\GameConfig;
 use App\Models\Player;
 use App\Models\Queue;
+use App\Support\Formula;
 use Carbon\CarbonImmutable;
 
 /**
@@ -14,17 +15,6 @@ use Carbon\CarbonImmutable;
  */
 class BuildService
 {
-    /** Bosqich koeffitsienti (GDD bo'lim 1). */
-    public static function stage(array $cfg, int $level): float
-    {
-        return match (true) {
-            $level <= 4 => $cfg['stage_early'],
-            $level <= $cfg['stage_mid_level'] => $cfg['stage_mid'],
-            $level <= $cfg['stage_late_level'] => $cfg['stage_normal'],
-            default => $cfg['stage_late'],
-        };
-    }
-
     /**
      * Binoning $level darajasi narxi. 1-daraja bepul.
      *
@@ -36,7 +26,7 @@ class BuildService
         if ($meta === null || $level <= 1) {
             return [];
         }
-        $mult = $cfg['cost_growth'] ** ($level - 2) * self::stage($cfg, $level);
+        $mult = $cfg['cost_growth'] ** ($level - 2) * Formula::stage($cfg, $level);
         if (isset($meta['role'])) {
             $coef = $cfg['cost_coef_'.$meta['role']];
             $base = ['stone' => $cfg['cost_role_stone'] * $coef, 'bone' => $cfg['cost_role_bone'] * $coef, 'hide' => $cfg['cost_role_hide'] * $coef];
@@ -54,7 +44,7 @@ class BuildService
         if ($meta === null || $level <= 1) {
             return 0;
         }
-        $minutes = $cfg['build_time_base_min'] * $cfg[$meta['time']] * $cfg['time_growth'] ** ($level - 2) * self::stage($cfg, $level);
+        $minutes = $cfg['build_time_base_min'] * $cfg[$meta['time']] * $cfg['time_growth'] ** ($level - 2) * Formula::stage($cfg, $level);
 
         return (int) round($minutes * 60);
     }
@@ -137,8 +127,11 @@ class BuildService
             throw new GameException('NOT_FOUND', 'Navbat topilmadi', 404);
         }
         $res = $player->resources;
+        $cave = (int) ($player->buildings()->where('type', 'food_cave')->value('level') ?? 0);
+        $cap = EconomyService::caveCap(GameConfig::allValues(), $cave);
         foreach ($refund as $k => $v) {
-            $res->{$k} = (float) $res->{$k} + $v;
+            // Oziq (mashq goʻshti) Oziq gʻori sigʻimidan oshmaydi
+            $res->{$k} = in_array($k, ['meat', 'herb'], true) ? max((float) $res->{$k}, min($cap, (float) $res->{$k} + $v)) : (float) $res->{$k} + $v;
         }
         $res->save();
 

@@ -105,3 +105,20 @@
 @media (min-width: 700px) {
   .bw-tabbar { left: 50%; right: auto; width: var(--app-max); margin-left: calc(var(--app-max) / -2); border-radius: 18px 18px 0 0; border-left: 1px solid var(--bw-border); border-right: 1px solid var(--bw-border); }
 }
+
+/* Son tanlash (ov, mashq) */
+.bw-stepper { display: inline-flex; align-items: center; gap: 8px; }
+.bw-stepper b { min-width: 24px; text-align: center; }
+
+/* Yangi daraja oynasi */
+.level-up { text-align: center; }
+.level-up__num {
+  margin: 6px auto 4px; width: 96px; height: 96px; border-radius: 50%; display: grid; place-items: center;
+  font: 800 44px/1 var(--bw-font-num); color: #04111f;
+  background: radial-gradient(circle at 35% 30%, #fff3d6, var(--bw-accent) 60%, #c97a12);
+  box-shadow: 0 0 0 6px rgba(255, 181, 71, .18), 0 10px 40px rgba(255, 181, 71, .35);
+  animation: bw-levelup .6s var(--bw-ease);
+}
+.level-up .bw-resinfo__list { text-align: left; }
+@keyframes bw-levelup { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .level-up__num { animation: none; } }

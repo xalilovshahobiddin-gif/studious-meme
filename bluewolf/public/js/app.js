@@ -1,7 +1,7 @@
-/* Blue Wolf Mini App — v0.0.3 (tirik iqtisodiyot + qurilish)
+/* Blue Wolf Mini App — v0.0.4 (iqtisodiyot, qurilish, askarlar va ov)
    5 ta tab (In · Jang · Toʻda · Vazifalar · Profil), hash-router, Telegram WebApp integratsiyasi.
    Resurslar vaqt boʻyicha hisoblanadi (BWGame.advance — server bilan bir xil formula), Ustaxona buferi
-   va taqsimoti, qurilish navbati ishlaydi. Qolgan amallar (ov, hujum…) keyingi bosqichlarda ulanadi. */
+   va taqsimoti, qurilish, askar mashqi va ov ishlaydi. Qolgan amallar (hujum, razvedka…) keyingi bosqichlarda ulanadi. */
 (function () {
   "use strict";
 
@@ -117,9 +117,11 @@
     return app.econ.alloc;
   }
 
+  /** Qoʻshin hajmi (inda + yurishda): oziqlanish va sigʻim shundan. */
   function totalArmy() {
+    if (app.econ) return app.econ.army || 0;
     var n = 0;
-    G.ROLES.forEach(function (r) { n += armyCount(r.key); });
+    G.ROLES.forEach(function (r) { n += armyCount(r.key) + armyCount(r.key, true); });
     return n;
   }
 
@@ -269,8 +271,9 @@
     }).join("");
   }
 
-  function armyCount(role) {
-    var a = (app.state.army || {})[role] || [];
+  /** Rol boʻyicha askarlar: inda (yoki away = true — yurishda). */
+  function armyCount(role, away) {
+    var a = ((away ? app.state.army_away : app.state.army) || {})[role] || [];
     return a.reduce(function (s, n) { return s + n; }, 0);
   }
 
@@ -286,11 +289,8 @@
   /* ---------------------------------------------------------------- 🏔 In */
   function screenIn() {
     var p = app.state.player, cfg = app.config;
-    var hunters = armyCount("hunter") || (p.level < cfg.pack_unlock_level ? 0 : 1);
-    var perHunt = hunters * G.hunterYield(cfg, p.level, 1) * (cfg.hunt_duration_min / 60);
-    var army = 0;
-    G.ROLES.forEach(function (r) { army += armyCount(r.key); });
-    var dailyNeed = G.need(cfg, p.level) * Math.max(army, 1);
+    var army = totalArmy();
+    var dailyNeed = G.need(cfg, p.level) * army;
 
     var html = "";
     html += '<section class="den-hero"><div class="den-hero__stars"></div>' +
@@ -300,10 +300,7 @@
       "</b> · kunlik goʻsht: <b class=\"bw-num\">" + G.fmt(dailyNeed) + " kg</b></p></div>" +
       '<svg class="den-hero__wolf"><use href="#bw-i-wolf"/></svg></section>';
 
-    html += '<div class="bw-card hunt-card"><span class="hunt-card__icon">' + icon("paw", "bw-icon--lg") + "</span>" +
-      '<div class="bw-grow"><div class="bw-h3">Ov</div><div class="bw-muted" style="font-size:13px">' +
-      (hunters ? hunters + " ovchi · 1 soat · ~" + G.fmt(perHunt) + " kg goʻsht" : "Yolgʻiz ov: alfa oʻzi ovlaydi") + "</div></div>" +
-      '<button class="bw-btn bw-btn--accent bw-btn--sm" data-action="hunt">' + icon("paw", "bw-icon--sm") + " Ovga</button></div>";
+    html += huntCard();
 
     html += queueSection();
 
@@ -460,11 +457,7 @@
           '<button class="bw-btn bw-btn--accent bw-btn--block" style="margin-top:12px" data-action="collect">' + icon("download", "bw-icon--sm") + " Yigʻib olish</button>";
       }
       var role = G.ROLES.filter(function (r) { return r.building === type; })[0];
-      if (role) {
-        html += '<div class="bw-grid-2" style="margin-top:14px">' +
-          '<div class="bw-stat"><span class="bw-stat__value">' + G.maxTier(cfg, p.level, b.level) + '</span><span class="bw-stat__label">Maks tier</span></div>' +
-          '<div class="bw-stat"><span class="bw-stat__value">' + G.fmt(cfg.role_cap_base * Math.pow(cfg.role_cap_growth, b.level - 1)) + '</span><span class="bw-stat__label">Askar sigʻimi</span></div></div>';
-      }
+      if (role) html += trainPanel(role, b);
       if (!b.queue) {
         html += '<button class="bw-btn bw-btn--block" style="margin-top:18px" data-action="upgrade" data-type="' + type + '"' + (check.ok ? "" : " disabled") + ">" +
           icon("plus", "bw-icon--sm") + " Kuchaytirish</button>";
@@ -603,6 +596,224 @@
     return html;
   }
 
+  /* ---------------------------------------------------------------- Askarlar va ov */
+  function roleMeta(key) { return G.ROLES.filter(function (r) { return r.key === key; })[0]; }
+  function trainQueues() { return (app.state.queues || []).filter(function (q) { return q.kind === "train"; }); }
+  function huntMarch() { return (app.state.marches || []).filter(function (m) { return m.kind === "hunt"; })[0] || null; }
+  function queuedTrain() { return trainQueues().reduce(function (s, q) { return s + q.qty; }, 0); }
+
+  /** Rol boʻyicha jami (inda + yurishda) — bino jazosi uchun. */
+  function roleTotal(role) { return armyCount(role) + armyCount(role, true); }
+
+  function soloReadyAt() {
+    var at = app.state.player.solo_hunt_at;
+    return at ? at + app.config.solo_hunt_cooldown_min * 60000 : 0;
+  }
+
+  /** In ekranidagi ov kartasi: yurishdagi ov, yolgʻiz ov yoki toʻda ovi. */
+  function huntCard() {
+    var p = app.state.player, cfg = app.config, prey = G.PREY[p.level], m = huntMarch();
+    var head = '<div class="bw-card hunt-card"><span class="hunt-card__icon">' + icon("paw", "bw-icon--lg") + '</span><div class="bw-grow">';
+    if (m) {
+      return head + '<div class="bw-between"><span class="bw-h3">Ovda · ' + esc(m.loot.prey || prey[0]) + '</span><b class="bw-num" data-live="m-' + m.id + '">' +
+        timeLeft({ ends_at: m.returns_at }) + "</b></div>" +
+        '<div class="bw-progress bw-progress--sm" style="margin:8px 0 6px"><div class="bw-progress__bar" data-live="mbar-' + m.id + '" style="width:' +
+        Math.round(marchRatio(m) * 100) + '%"></div></div><div class="bw-muted" style="font-size:13px">Kutilmoqda: ~' + G.fmt(m.loot.meat) + " kg goʻsht · " +
+        fmtRate(m.loot.herb) + " oʻt · +" + fmtRate(m.loot.xp) + " XP</div></div></div>";
+    }
+    var solo = p.level <= cfg.solo_hunt_max_level, hunters = armyCount("hunter"), html = head;
+    if (hunters) {
+      var best = G.huntResult(cfg, p.level, huntPayload(defaultHuntSel()));
+      html += '<div class="bw-h3">Ov · ' + esc(prey[0]) + '</div><div class="bw-muted" style="font-size:13px">' + hunters + " ovchi · 1 soat · ~" + G.fmt(best.meat) + " kg goʻsht</div></div>" +
+        '<button class="bw-btn bw-btn--accent bw-btn--sm" data-action="hunt">' + icon("paw", "bw-icon--sm") + " Ovga</button>";
+    } else if (solo) {
+      var wait = soloReadyAt() - now();
+      html += '<div class="bw-h3">Yolgʻiz ov · ' + esc(prey[0]) + '</div><div class="bw-muted" style="font-size:13px">Alfa oʻzi ovlaydi: ' + fmtRate(prey[1]) + " kg · +" +
+        fmtRate(prey[1] * cfg.xp_hunt_coef) + " XP</div></div>" +
+        '<button class="bw-btn bw-btn--accent bw-btn--sm" data-action="solo-hunt" data-live="solo"' + (wait > 0 ? " disabled" : "") + ">" +
+        (wait > 0 ? icon("clock", "bw-icon--sm") + " " + timeLeft({ ends_at: soloReadyAt() }) : icon("paw", "bw-icon--sm") + " Ovlash") + "</button>";
+    } else {
+      html += '<div class="bw-h3">Ov · ' + esc(prey[0]) + '</div><div class="bw-muted" style="font-size:13px">' +
+        (armyCount("hunter", true) ? "Ovchilar yoʻlda" : "Ovchi yoʻq — Ov soʻqmogʻida tayyorlang") + "</div></div>" +
+        '<button class="bw-btn bw-btn--soft bw-btn--sm" data-action="q-open" data-type="hunt_path">' + icon("track", "bw-icon--sm") + " Ovchi</button>";
+    }
+    return html + "</div>";
+  }
+
+  function marchRatio(m) { return Math.max(0, Math.min(1, (now() - m.departs_at) / Math.max(1, m.returns_at - m.departs_at))); }
+
+  /** Standart tanlov: hamma ovchilar + min toʻdagacha yordamchilar (hujumchi, keyin boshqalar). */
+  function defaultHuntSel() {
+    var p = app.state.player, sel = { hunter: armyCount("hunter"), attacker: 0, defender: 0, scout: 0 };
+    var need = Math.max(1, Math.ceil(G.PREY[p.level][1] / app.config.prey_kg_per_wolf)) - sel.hunter;
+    ["attacker", "defender", "scout"].forEach(function (r) {
+      var add = Math.max(0, Math.min(need, armyCount(r)));
+      sel[r] = add; need -= add;
+    });
+    return sel;
+  }
+
+  /** Tanlov {rol: soni} → payload {rol: {tier: soni}}: ovchilar yuqori tierdan, yordamchilar pastdan. */
+  function huntPayload(sel) {
+    var out = {};
+    Object.keys(sel).forEach(function (role) {
+      var left = sel[role], tiers = (app.state.army[role] || []).slice(), order = [0, 1, 2, 3, 4, 5];
+      if (role === "hunter") order.reverse();
+      order.forEach(function (i) {
+        var take = Math.min(left, tiers[i] || 0);
+        if (take > 0) { out[role] = out[role] || {}; out[role][i + 1] = take; left -= take; }
+      });
+    });
+    return out;
+  }
+
+  function stepper(action, key, value, max) {
+    return '<span class="bw-stepper"><button class="bw-btn bw-btn--soft bw-btn--sm bw-btn--icon" data-action="' + action + '" data-key="' + key + '" data-d="-1"' +
+      (value <= 0 ? " disabled" : "") + '>−</button><b class="bw-num">' + value + "</b>" +
+      '<button class="bw-btn bw-btn--soft bw-btn--sm bw-btn--icon" data-action="' + action + '" data-key="' + key + '" data-d="1"' + (value >= max ? " disabled" : "") + ">+</button></span>";
+  }
+
+  function huntSheet() {
+    var p = app.state.player, cfg = app.config, prey = G.PREY[p.level];
+    if (!app.huntSel) app.huntSel = defaultHuntSel();
+    var sel = app.huntSel, r = G.huntResult(cfg, p.level, huntPayload(sel));
+    var html = '<div class="bw-eyebrow">Ov · 1 soat</div><div class="bw-h2" style="margin-top:4px">' + esc(prey[0]) + " · " + fmtRate(prey[1]) + " kg</div>" +
+      '<p class="bw-muted" style="margin:6px 0 14px">Oʻljaga kamida <b>' + r.min_pack + "</b> boʻri kerak. Goʻshtni faqat ovchilar keltiradi; boshqa askarlar toʻdani toʻldiradi, lekin shu vaqt inni qoʻriqlamaydi.</p>";
+    html += '<div class="bw-card bw-card--flat bw-list" style="padding:0 14px">' + ["hunter", "attacker", "defender", "scout"].map(function (role) {
+      var meta = roleMeta(role), max = armyCount(role);
+      return '<div class="bw-row"><span class="bw-role bw-role--' + role + '"><span class="bw-role__dot"></span>' + esc(meta.name) + '</span><div class="bw-row__main"><div class="bw-row__sub">inda ' +
+        max + "</div></div>" + stepper("hunt-step", role, sel[role] || 0, max) + "</div>";
+    }).join("") + "</div>";
+    html += '<div class="bw-grid-3" style="margin-top:12px">' + stat("~" + G.fmt(r.meat) + " kg", "Goʻsht") + stat(fmtRate(r.herb), "Shifobaxsh oʻt") + stat("+" + fmtRate(r.xp), "XP") + "</div>";
+    if (r.penalty) html += '<div class="bw-banner" style="margin-top:12px">' + icon("info", "bw-icon--sm") + "<span>Toʻda kichik: " + r.sent + " / " + r.min_pack + " boʻri — natija ×" + cfg.hunt_small_party_penalty + ". Yordamchi qoʻshing.</span></div>";
+    var cap = Math.round(G.caveCap(cfg, buildingLevel("food_cave"))), room = cap - (app.state.resources.meat || 0);
+    if (r.meat > room) html += '<div class="bw-banner" style="margin-top:12px">' + icon("info", "bw-icon--sm") + "<span>Oziq gʻorida joy " + G.fmt(Math.max(0, room)) + " kg — ortigʻi chiriydi (oflaynda sigʻim ×" + cfg.offline_store_mult + ").</span></div>";
+    html += '<button class="bw-btn bw-btn--accent bw-btn--block" style="margin-top:16px" data-action="hunt-go"' + ((sel.hunter || 0) < 1 ? " disabled" : "") + ">" +
+      icon("paw", "bw-icon--sm") + " Ovga chiqish</button>";
+    openSheet(html, huntSheet);
+  }
+
+  function startHunt() {
+    var payload = huntPayload(app.huntSel || defaultHuntSel()), cfg = app.config, p = app.state.player;
+    var started = function () { haptic("medium"); closeSheet(); app.huntSel = null; toast("Toʻda ovga chiqdi — 1 soatda qaytadi", "paw"); };
+    if (app.mode === "live") { post("hunt", { payload: payload }, started); return; }
+    var r = G.huntResult(cfg, p.level, payload), t = now();
+    Object.keys(payload).forEach(function (role) {
+      Object.keys(payload[role]).forEach(function (tier) {
+        app.state.army[role][tier - 1] -= payload[role][tier];
+        app.state.army_away[role][tier - 1] += payload[role][tier];
+      });
+    });
+    r.prey = G.PREY[p.level][0];
+    app.state.marches = (app.state.marches || []).concat([{ id: t, kind: "hunt", payload: payload, loot: r, departs_at: t, returns_at: t + cfg.hunt_duration_min * 60000 }]);
+    saveDemo(); render(); started();
+  }
+
+  function soloHunt() {
+    var cfg = app.config, p = app.state.player;
+    if (soloReadyAt() > now()) return;
+    var done = function (loot) {
+      haptic("medium");
+      toast("Alfa ovladi: +" + fmtRate(loot.meat) + " kg goʻsht, +" + fmtRate(loot.xp) + " XP" + (loot.lost > 0 ? " (gʻor toʻla — " + fmtRate(loot.lost) + " kg chiridi)" : ""), "paw");
+    };
+    if (app.mode === "live") { post("hunt/solo", {}, function (d) { done(d.loot); }); return; }
+    var kg = G.PREY[p.level][1], t = now();
+    app.econ = G.advance(cfg, app.econ, t);
+    var lost = addFood("meat", kg, false) ; addFood("herb", kg * cfg.hunt_herb_share, false);
+    p.solo_hunt_at = t;
+    var levels = addXp(kg * cfg.xp_hunt_coef);
+    saveDemo(); syncResources(); render();
+    done({ meat: kg, xp: kg * cfg.xp_hunt_coef, lost: lost });
+    announceFinished(levels.map(function (l) { return { kind: "level", level: l }; }));
+  }
+
+  /** Demo: oziqni gʻor sigʻimigacha qoʻshish; ortigʻini qaytaradi. */
+  function addFood(key, amount, offline) {
+    var cap = G.caveCap(app.config, app.econ.cave) * (offline ? app.config.offline_store_mult : 1);
+    var put = Math.min(Math.max(0, cap - app.econ.res[key]), amount);
+    app.econ.res[key] += put;
+    return amount - put;
+  }
+
+  /** Demo: XP va daraja koʻtarilishi (server ProgressService bilan bir xil). */
+  function addXp(xp) {
+    var p = app.state.player, cfg = app.config, levels = [];
+    p.xp = Math.round((p.xp + xp) * 100) / 100;
+    while (p.level < 25 && p.xp >= G.totalXp(cfg, p.level + 1)) {
+      p.level++;
+      levels.push(p.level);
+    }
+    if (levels.length) {
+      app.econ.level = p.level;
+      app.state.buildings.forEach(function (b) {
+        var unlock = G.BUILDINGS[b.type].unlock;
+        if (b.type === "den") b.level = p.level;
+        else if (!b.level && p.level >= unlock) b.level = 1;
+      });
+    }
+    return levels;
+  }
+
+  /** Rol binosi oynasidagi mashq paneli. */
+  function trainPanel(role, b) {
+    var p = app.state.player, cfg = app.config, maxTier = G.maxTier(cfg, p.level, b.level);
+    var q = trainQueues().filter(function (x) { return x.role === role.key; })[0];
+    var html = '<div class="bw-grid-3" style="margin-top:14px">' + stat(armyCount(role.key) + (armyCount(role.key, true) ? " +" + armyCount(role.key, true) : ""), "Inda" + (armyCount(role.key, true) ? " + yoʻlda" : "")) +
+      stat(maxTier, "Maks tier") + stat(G.fmt(G.roleCap(cfg, b.level)), "Bino sigʻimi") + "</div>";
+    html += '<div class="bw-eyebrow" style="margin:16px 0 8px">Askar tayyorlash</div>';
+    if (q) return html + queueCard(q, true);
+    var cap = G.armyCap(cfg, p.level), free = cap - totalArmy() - queuedTrain();
+    if (free <= 0) return html + '<div class="bw-banner">' + icon("info", "bw-icon--sm") + "<span>Qoʻshin toʻla (" + cap + " / " + cap + "). Sigʻim darajangiz bilan oʻsadi.</span></div>";
+    if (!app.trainSel || app.trainSel.role !== role.key) app.trainSel = { role: role.key, tier: 1, qty: 1 };
+    var sel = app.trainSel;
+    sel.tier = Math.min(sel.tier, maxTier);
+    var unit = G.trainCost(cfg, sel.tier), res = app.state.resources;
+    var afford = Math.floor(Math.min((res.meat || 0) / unit.meat, (res.bone || 0) / unit.bone));
+    var maxQty = Math.max(0, Math.min(free, afford));
+    sel.qty = Math.max(maxQty ? 1 : 0, Math.min(sel.qty, maxQty));
+    html += '<div class="bw-seg" role="tablist" style="margin-bottom:10px">' + G.TIERS.map(function (name, i) {
+      var t = i + 1, locked = t > maxTier;
+      return '<button class="bw-seg__btn" data-action="train-tier" data-key="' + t + '" aria-selected="' + (sel.tier === t) + '"' + (locked ? " disabled" : "") + ">T" + t + "</button>";
+    }).join("") + "</div>";
+    var secs = G.trainSeconds(cfg, sel.tier, p.level, b.level, totalArmy() + queuedTrain(), roleTotal(role.key)) * Math.max(1, sel.qty);
+    html += '<div class="bw-between"><span><b>' + esc(G.TIERS[sel.tier - 1]) + " " + esc(role.name.toLowerCase()) + '</b><br><span class="bw-faint" style="font-size:12px">boʻsh joy: ' + free + "</span></span>" +
+      stepper("train-step", "qty", sel.qty, maxQty) + "</div>";
+    html += '<div class="cost-row" style="margin-top:10px">' + costChips({ meat: unit.meat * Math.max(1, sel.qty), bone: unit.bone * Math.max(1, sel.qty) }) +
+      '<span class="bw-chip">' + icon("clock", "bw-icon--sm") + " " + G.fmtMinutes(secs / 60) + "</span></div>";
+    html += '<button class="bw-btn bw-btn--accent bw-btn--block" style="margin-top:12px" data-action="train-go"' + (sel.qty < 1 ? " disabled" : "") + ">" +
+      icon("plus", "bw-icon--sm") + " Tayyorlash</button>";
+    if (!maxQty) html += '<p class="bw-faint" style="margin:8px 0 0;font-size:12px;text-align:center">Goʻsht yoki suyak yetmaydi (1 askar: ' + unit.meat + " kg goʻsht, " + unit.bone + " suyak)</p>";
+    return html;
+  }
+
+  function train() {
+    var sel = app.trainSel, cfg = app.config, p = app.state.player;
+    if (!sel || sel.qty < 1) return;
+    var meta = roleMeta(sel.role);
+    var started = function () { haptic("medium"); toast(sel.qty + " ta " + meta.name.toLowerCase() + " mashqqa kirdi", "clock"); };
+    if (app.mode === "live") { post("army/train", { role: sel.role, tier: sel.tier, qty: sel.qty }, started); return; }
+    var unit = G.trainCost(cfg, sel.tier), t = now();
+    var b = buildingList().filter(function (x) { return x.type === meta.building; })[0];
+    var secs = G.trainSeconds(cfg, sel.tier, p.level, b.level, totalArmy() + queuedTrain(), roleTotal(sel.role)) * sel.qty;
+    var cost = { meat: unit.meat * sel.qty, bone: unit.bone * sel.qty };
+    app.econ = G.advance(cfg, app.econ, t);
+    app.econ.res.meat -= cost.meat; app.econ.res.bone -= cost.bone;
+    app.state.queues = (app.state.queues || []).concat([{ id: t, kind: "train", role: sel.role, tier: sel.tier, qty: sel.qty, cost: cost,
+      started_at: t, ends_at: t + Math.round(secs * 1000) }]);
+    saveDemo(); syncResources(); render(); started();
+  }
+
+  /** “Yangi daraja!” oynasi. */
+  function levelSheet(level) {
+    var cfg = app.config, unlocks = G.UNLOCKS[level] || [];
+    openSheet('<div class="level-up"><div class="bw-eyebrow">Yangi daraja</div><div class="level-up__num">' + level + "</div>" +
+      '<div class="bw-h2">' + esc(G.WOLVES[level]) + "</div>" +
+      '<p class="bw-muted" style="margin:6px 0 0">Qoʻshin sigʻimi: ' + G.armyCap(cfg, level) + " · kunlik ehtiyoj: " + fmtRate(G.need(cfg, level)) + " kg / askar</p>" +
+      (unlocks.length ? '<div class="bw-eyebrow" style="margin-top:16px">Ochildi</div><ul class="bw-resinfo__list">' +
+        unlocks.map(function (u) { return "<li>" + esc(u) + "</li>"; }).join("") + "</ul>" : "") +
+      '<button class="bw-btn bw-btn--accent bw-btn--block" style="margin-top:18px" data-action="close-sheet">Davom etish</button></div>');
+  }
+
   /* ---------------------------------------------------------------- Qurilish navbati */
   function queues() { return (app.state.queues || []).filter(function (q) { return q.kind === "build"; }); }
   function queueFor(type) { return queues().filter(function (q) { return q.building_type === type; })[0] || null; }
@@ -659,10 +870,12 @@
 
   /** Navbatdagi qurilish kartasi (In ekrani va bino oynasi uchun). */
   function queueCard(q, inSheet) {
-    var meta = G.BUILDINGS[q.building_type], free = app.state.player.free_speedups || 0;
-    return '<div class="bw-card bw-card--flat queue-slot queue-slot--busy"' + (inSheet ? "" : ' data-action="q-open" data-type="' + q.building_type + '"') + ">" +
-      '<span class="queue-slot__icon">' + icon(meta.icon) + '</span><div class="bw-grow">' +
-      '<div class="bw-between"><span class="bw-row__title">' + esc(meta.name) + " → " + q.target_level + '</span><b class="bw-num" data-live="q-' + q.id + '">' + timeLeft(q) + "</b></div>" +
+    var free = app.state.player.free_speedups || 0, train = q.kind === "train";
+    var type = train ? roleMeta(q.role).building : q.building_type, meta = G.BUILDINGS[type];
+    var title = train ? q.qty + " × " + roleMeta(q.role).name.toLowerCase() + " · T" + q.tier : meta.name + " → " + q.target_level;
+    return '<div class="bw-card bw-card--flat queue-slot queue-slot--busy"' + (inSheet ? "" : ' data-action="q-open" data-type="' + type + '"') + ">" +
+      '<span class="queue-slot__icon">' + icon(train ? roleMeta(q.role).icon : meta.icon) + '</span><div class="bw-grow">' +
+      '<div class="bw-between"><span class="bw-row__title">' + esc(title) + '</span><b class="bw-num" data-live="q-' + q.id + '">' + timeLeft(q) + "</b></div>" +
       '<div class="bw-progress bw-progress--sm" style="margin:8px 0"><div class="bw-progress__bar" data-live="qbar-' + q.id + '" style="width:' + Math.round(queueRatio(q) * 100) + '%"></div></div>' +
       '<div class="queue-slot__actions"><button class="bw-btn bw-btn--accent bw-btn--sm" data-action="q-speedup" data-q="' + q.id + '" title="Bepul tezlashtirish: −' + app.config.tutorial_speedup_min + ' daqiqa"' + (free ? "" : " disabled") + ">" +
       icon("bolt", "bw-icon--sm") + " Tezlash · " + free + '</button><button class="bw-btn bw-btn--ghost bw-btn--sm" data-action="q-cancel" data-q="' + q.id + '">' +
@@ -680,7 +893,13 @@
     if (slots < 2) {
       html += '<div class="queue-slot queue-slot--locked">' + icon("lock", "bw-icon--sm") + "<span>2-navbat " + cfg.second_queue_free_level + "-darajada bepul ochiladi</span></div>";
     }
-    return html + "</div>";
+    html += "</div>";
+    var tq = trainQueues();
+    if (tq.length) {
+      html += sectionTitle("Mashq", '<span class="bw-chip">' + totalArmy() + " / " + G.armyCap(cfg, app.state.player.level) + " askar</span>");
+      html += '<div class="bw-stack">' + tq.map(function (q) { return queueCard(q, false); }).join("") + "</div>";
+    }
+    return html;
   }
 
   /** So‘rash: Telegram oynasi yoki brauzer confirm. */
@@ -722,7 +941,7 @@
   }
 
   function speedup(id) {
-    var q = queues().filter(function (x) { return x.id === id; })[0];
+    var q = (app.state.queues || []).filter(function (x) { return x.id === id; })[0];
     if (!q || !(app.state.player.free_speedups > 0)) { toast("Bepul tezlashtirish qolmadi", "info"); return; }
     var done = function () { haptic("medium"); toast("Tezlashtirildi: −" + app.config.tutorial_speedup_min + " daqiqa", "bolt"); };
     if (app.mode === "live") { post("queue/speedup", { queue_id: id, use_free: true }, done); return; }
@@ -734,10 +953,11 @@
   }
 
   function cancelQueue(id) {
-    var q = queues().filter(function (x) { return x.id === id; })[0];
+    var q = (app.state.queues || []).filter(function (x) { return x.id === id; })[0];
     if (!q) return;
     var pct = Math.round(app.config.queue_cancel_refund * 100);
-    confirmAsk(G.BUILDINGS[q.building_type].name + " qurilishini bekor qilasizmi? Resursning " + pct + "% i qaytadi.", function () {
+    var what = q.kind === "train" ? roleMeta(q.role).name + " mashqini" : G.BUILDINGS[q.building_type].name + " qurilishini";
+    confirmAsk(what + " bekor qilasizmi? Resursning " + pct + "% i qaytadi.", function () {
       var done = function (refund) {
         toast("Bekor qilindi. Qaytdi: " + Object.keys(refund).map(function (k) { return "+" + G.fmt(refund[k]) + " " + resMeta(k).short.toLowerCase(); }).join(", "), "close");
       };
@@ -745,48 +965,101 @@
       var refund = {};
       Object.keys(q.cost).forEach(function (k) { refund[k] = Math.floor(q.cost[k] * app.config.queue_cancel_refund); });
       app.econ = G.advance(app.config, app.econ, now());
-      Object.keys(refund).forEach(function (k) { app.econ.res[k] += refund[k]; });
+      Object.keys(refund).forEach(function (k) {
+        if (k === "meat" || k === "herb") addFood(k, refund[k], false); // server bilan bir xil: oziq gʻor sigʻimidan oshmaydi
+        else app.econ.res[k] += refund[k];
+      });
       app.state.queues = app.state.queues.filter(function (x) { return x.id !== id; });
       saveDemo(); syncResources(); render(); done(refund);
     });
   }
 
   function announceFinished(list) {
+    var level = 0;
     (list || []).forEach(function (f) {
       haptic("heavy");
+      if (f.kind === "level") { level = f.level; return; }
+      if (f.kind === "train") { toast(f.qty + " ta " + roleMeta(f.role).name.toLowerCase() + " (T" + f.tier + ") tayyor!", "check"); return; }
+      if (f.kind === "hunt") {
+        toast("Ov qaytdi: +" + fmtRate(f.meat) + " kg goʻsht, +" + fmtRate(f.herb) + " oʻt, +" + fmtRate(f.xp) + " XP" +
+          (f.lost > 0.05 ? " · gʻor toʻla, " + fmtRate(f.lost) + " kg chiridi" : ""), "paw");
+        return;
+      }
       toast(G.BUILDINGS[f.type].name + " " + f.level + "-darajaga koʻtarildi!", "check");
     });
+    if (level) setTimeout(function () { levelSheet(level); }, 400);
   }
 
   var finishing = false;
-  /** Har soniyada: taymerlar va tugagan navbatlar (demo — shu yerda, live — serverdan). */
+  /** Har soniyada: taymerlar va muddati yetgan voqealar (demo — shu yerda, live — serverdan). */
   function tickQueues(t) {
-    var due = queues().filter(function (q) { return q.ends_at <= t; }).sort(function (a, b) { return a.ends_at - b.ends_at; });
+    var due = (app.state.queues || []).filter(function (q) { return q.ends_at <= t; }).map(function (q) { return { t: q.ends_at, q: q }; })
+      .concat((app.state.marches || []).filter(function (m) { return m.returns_at <= t; }).map(function (m) { return { t: m.returns_at, m: m }; }))
+      .sort(function (a, b) { return a.t - b.t; });
     if (due.length) {
       if (app.mode === "live") {
         if (!finishing) { finishing = true; resync().then(function () { finishing = false; }); }
       } else {
         var finished = [];
-        due.forEach(function (q) {
-          // Resurs hisobi tugash paytigacha eski daraja bilan, keyin yangisi bilan (server bilan bir xil)
-          app.econ = G.advance(app.config, app.econ, Math.max(app.econ.last_tick, q.ends_at));
-          app.state.buildings.forEach(function (b) { if (b.type === q.building_type) b.level = q.target_level; });
-          if (q.building_type === "food_cave") app.econ.cave = q.target_level;
-          if (q.building_type === "workshop") app.econ.workshop = q.target_level;
-          finished.push({ type: q.building_type, level: q.target_level });
-        });
-        app.state.queues = app.state.queues.filter(function (q) { return due.indexOf(q) === -1; });
+        due.forEach(function (ev) { finished = finished.concat(demoEvent(ev)); });
+        app.state.queues = app.state.queues.filter(function (q) { return q.ends_at > t; });
+        app.state.marches = (app.state.marches || []).filter(function (m) { return m.returns_at > t; });
         app.econ = G.advance(app.config, app.econ, t);
         saveDemo(); syncResources(); render();
         announceFinished(finished);
         return;
       }
     }
-    queues().forEach(function (q) {
+    (app.state.queues || []).forEach(function (q) {
       document.querySelectorAll('[data-live="q-' + q.id + '"]').forEach(function (el) { el.textContent = timeLeft(q); });
       var bar = document.querySelector('[data-live="qbar-' + q.id + '"]');
       if (bar) bar.style.width = Math.round(queueRatio(q) * 100) + "%";
     });
+    (app.state.marches || []).forEach(function (m) {
+      var el = document.querySelector('[data-live="m-' + m.id + '"]');
+      if (el) el.textContent = timeLeft({ ends_at: m.returns_at });
+      var bar = document.querySelector('[data-live="mbar-' + m.id + '"]');
+      if (bar) bar.style.width = Math.round(marchRatio(m) * 100) + "%";
+    });
+    var solo = document.querySelector('[data-live="solo"]');
+    if (solo && solo.disabled) {
+      if (soloReadyAt() <= t) render();
+      else solo.innerHTML = icon("clock", "bw-icon--sm") + " " + timeLeft({ ends_at: soloReadyAt() });
+    }
+  }
+
+  /** Demo: bitta voqeani qoʻllash (server EconomyService::sync bilan bir xil tartib). */
+  function demoEvent(ev) {
+    var cfg = app.config, out = [], xp = 0;
+    app.econ = G.advance(cfg, app.econ, Math.max(app.econ.last_tick, ev.t));
+    var buildSum = function (cost) { return G.BUILD.reduce(function (s, k) { return s + (cost[k] || 0); }, 0); };
+    if (ev.m) {
+      var m = ev.m, offline = ev.t >= app.econ.last_seen + cfg.offline_after_min * 60000;
+      Object.keys(m.payload).forEach(function (role) {
+        Object.keys(m.payload[role]).forEach(function (tier) {
+          app.state.army[role][tier - 1] += m.payload[role][tier];
+          app.state.army_away[role][tier - 1] -= m.payload[role][tier];
+        });
+      });
+      var lost = addFood("meat", m.loot.meat, offline) + addFood("herb", m.loot.herb, offline);
+      xp = m.loot.xp;
+      out.push({ kind: "hunt", meat: m.loot.meat, herb: m.loot.herb, xp: xp, lost: lost });
+    } else if (ev.q.kind === "train") {
+      var q = ev.q;
+      app.state.army[q.role][q.tier - 1] += q.qty;
+      app.econ.army += q.qty;
+      xp = buildSum(q.cost) * cfg.xp_build_coef;
+      out.push({ kind: "train", role: q.role, tier: q.tier, qty: q.qty });
+    } else {
+      var b = ev.q;
+      app.state.buildings.forEach(function (x) { if (x.type === b.building_type) x.level = b.target_level; });
+      if (b.building_type === "food_cave") app.econ.cave = b.target_level;
+      if (b.building_type === "workshop") app.econ.workshop = b.target_level;
+      xp = buildSum(b.cost) * cfg.xp_build_coef;
+      out.push({ kind: "build", type: b.building_type, level: b.target_level });
+    }
+    addXp(xp).forEach(function (l) { out.push({ kind: "level", level: l }); });
+    return out;
   }
 
   /* ---------------------------------------------------------------- Tirik iqtisodiyot */
@@ -800,8 +1073,10 @@
     var levels = {};
     (app.state.buildings || []).forEach(function (b) { levels[b.type] = b.level; });
     try {
-      localStorage.setItem(DEMO_KEY, JSON.stringify({ v: 2, econ: app.econ, queues: app.state.queues || [], buildings: levels,
-        free_speedups: app.state.player.free_speedups }));
+      var p = app.state.player;
+      localStorage.setItem(DEMO_KEY, JSON.stringify({ v: 3, econ: app.econ, queues: app.state.queues || [], marches: app.state.marches || [],
+        buildings: levels, army: app.state.army, army_away: app.state.army_away,
+        player: { level: p.level, xp: p.xp, free_speedups: p.free_speedups, solo_hunt_at: p.solo_hunt_at } }));
     } catch (e) { /* xususiy rejim */ }
   }
 
@@ -809,9 +1084,12 @@
   function demoEconomy() {
     try {
       var saved = JSON.parse(localStorage.getItem(DEMO_KEY) || "null");
-      if (saved && saved.v === 2 && saved.econ && saved.econ.res) {
+      if (saved && saved.v === 3 && saved.econ && saved.econ.res) {
         app.state.queues = saved.queues || [];
-        app.state.player.free_speedups = saved.free_speedups;
+        app.state.marches = saved.marches || [];
+        app.state.army = saved.army;
+        app.state.army_away = saved.army_away;
+        Object.assign(app.state.player, saved.player);
         (app.state.buildings || []).forEach(function (b) { if (saved.buildings[b.type] != null) b.level = saved.buildings[b.type]; });
         return saved.econ;
       }
@@ -840,6 +1118,10 @@
     app.econ = st.economy;
     app.state.resources = Object.assign(app.state.resources, st.resources);
     if (st.queues) app.state.queues = st.queues;
+    if (st.marches) app.state.marches = st.marches;
+    if (st.army) app.state.army = st.army;
+    if (st.army_away) app.state.army_away = st.army_away;
+    if (st.player) Object.assign(app.state.player, st.player);
     if (st.free_speedups != null) app.state.player.free_speedups = st.free_speedups;
     if (st.buildings) {
       (app.state.buildings || []).forEach(function (b) { if (st.buildings[b.type] != null) b.level = st.buildings[b.type]; });
@@ -1008,7 +1290,24 @@
 
   /* ---------------------------------------------------------------- Amallar */
   var ACTIONS = {
-    hunt: function () { toast("Ov — " + ROADMAP, "paw"); },
+    hunt: function () {
+      var p = app.state.player;
+      if (huntMarch()) { closeSheet(); toast("Toʻda allaqachon ovda", "paw"); return; }
+      if (armyCount("hunter")) { app.huntSel = null; huntSheet(); return; }
+      if (p.level <= app.config.solo_hunt_max_level) { closeSheet(); soloHunt(); return; }
+      buildingSheet("hunt_path");
+    },
+    "hunt-step": function (el) {
+      var role = el.getAttribute("data-key");
+      app.huntSel[role] = Math.max(0, Math.min(armyCount(role), (app.huntSel[role] || 0) + +el.getAttribute("data-d")));
+      huntSheet();
+    },
+    "hunt-go": startHunt,
+    "solo-hunt": soloHunt,
+    "train-tier": function (el) { app.trainSel.tier = +el.getAttribute("data-key"); app.sheetRefresh(); },
+    "train-step": function (el) { app.trainSel.qty += +el.getAttribute("data-d"); app.sheetRefresh(); },
+    "train-go": train,
+    "close-sheet": closeSheet,
     upgrade: function (el) { upgrade(el.getAttribute("data-type")); },
     "q-speedup": function (el) { speedup(+el.getAttribute("data-q")); },
     "q-cancel": function (el) { cancelQueue(+el.getAttribute("data-q")); },

@@ -1,4 +1,4 @@
-# Blue Wolf — Telegram Mini App · v0.0.3
+# Blue Wolf — Telegram Mini App · v0.0.4
 
 Strategiya / omon qolish oʻyini: ov qil, in qur, toʻda yigʻ va Koʻk Boʻriga aylan.
 Dizayn hujjatlari: [`docs/blue_wolf/`](../docs/blue_wolf/) (GDD, API, sxema, balans jadvali). Oʻzgarishlar: [CHANGELOG.md](CHANGELOG.md).
@@ -6,7 +6,8 @@ Dizayn hujjatlari: [`docs/blue_wolf/`](../docs/blue_wolf/) (GDD, API, sxema, bal
 > **v0.0.x — skelet / demo koʻrinish.** Ekranlar, dizayn tizimi, Telegram integratsiyasi va backend asosi tayyor.
 > **v0.0.2 dan iqtisodiyot tirik:** resurslar vaqt boʻyicha hisoblanadi, Ustaxona buferini yigʻish va taqsimot ishlaydi.
 > **v0.0.3 dan qurilish:** binolarni kuchaytirish, qurilish navbati, bekor qilish va bepul tezlashtirish.
-> Boshqa amallar (ov, mashq, hujum…) hali ishlamaydi — tugmalar “keyingi bosqichda” xabarini koʻrsatadi.
+> **v0.0.4 dan askarlar va ov:** mashq, yolgʻiz va toʻda ovi, oziqlanish, XP va daraja koʻtarilishi.
+> Boshqa amallar (hujum, razvedka, ov guruhlari…) hali ishlamaydi — tugmalar “keyingi bosqichda” xabarini koʻrsatadi.
 
 - **Backend:** PHP 8.2+ · Laravel 12 · MySQL 8 (lokal sinov uchun SQLite)
 - **Frontend:** PWA, `public/` papkasida, build talab qilinmaydi (oddiy JS + CSS)
@@ -19,15 +20,16 @@ Dizayn hujjatlari: [`docs/blue_wolf/`](../docs/blue_wolf/) (GDD, API, sxema, bal
 bluewolf/
 ├── app/
 │   ├── Http/Controllers/Api/   StateController (GET /state), EconomyController (collect, allocation),
-│   │                           BuildController (upgrade, cancel, speedup), MetaController
+│   │                           BuildController (upgrade, cancel, speedup), ArmyController (train, hunt), MetaController
 │   ├── Http/Middleware/        TelegramAuth — initData tekshiruvi (X-Init-Data)
 │   ├── Models/                 Player, PlayerResource, Building, GameConfig
 │   ├── Services/               PlayerService — oʻyinchi va holat; EconomyService — resurs hisobi (accrual);
-│   │                           BuildService — bino narxi, vaqti va qurilish navbati
+│   │                           BuildService — qurilish; ArmyService — mashq; HuntService — ov; ProgressService — XP
+│   ├── Support/                Formula — askar, ov va daraja formulalari (= game.js)
 │   └── Support/                TelegramInitData (imzo), ApiResponse (javob konverti)
 ├── config/bluewolf.php         versiya, bot tokeni, initData muddati, dev_auth
 ├── database/
-│   ├── migrations/             players, player_resources, buildings, game_config, queues
+│   ├── migrations/             players, player_resources, buildings, game_config, queues, army, marches
 │   └── seeders/data/           game_config.json — 273 balans parametri (avtomatik yaratiladi)
 ├── public/
 │   ├── index.html              ilova qobigʻi (5 tab: In · Jang · Toʻda · Vazifalar · Profil)
@@ -106,7 +108,21 @@ vendor/bin/pint --test        # kod uslubi
 - Bekor qilish — yechilgan resursning 80% i qaytadi. Bepul tezlashtirish — har biri 60 daqiqagacha; hozircha yangi oʻyinchiga 5 ta beriladi
   (v0.4 da tanishtiruv yakuniga koʻchadi). Oy toshi bilan tezlashtirish keyinroq.
 
-## API (v0.0.3)
+## Askarlar va ov (v0.0.4)
+
+- **Mashq** (GDD bo'lim 6): rol binosida, 1 askar = 20 kg goʻsht + 8 suyak (har tierda ×2.1), vaqt — 4 daqiqa × tier,
+  qoʻshin toʻlganligi va bino sigʻimiga qarab (boʻsh qoʻshinda ×0.5, toʻlganda sekinlashadi). Maks tier — daraja va bino ÷ 4.
+  Har rolda bir vaqtda bitta mashq; qoʻshin sigʻimidan oshmaydi (`CAPACITY_FULL`).
+- **Askarlar ovqat yeydi:** goʻsht, suv (20+ darajada oy nuri) qoʻshin hajmiga qarab sarflanadi; goʻsht tugasa — ochlik.
+- **Yolgʻiz ov** (1–3 daraja): alfa oʻzi ovlaydi — darajaning asosiy oʻljasi (0.5 / 1 / 2 kg), 2 daqiqa kutish.
+- **Toʻda ovi** (3+ daraja, ovchi bilan): 1 soat. Goʻsht = Σ ovchi unumi; toʻda oʻljaning minimal hajmidan kichik boʻlsa ×0.3;
+  +10% shifobaxsh oʻt. Ortiqcha goʻsht Oziq gʻori sigʻimidan oshsa chiriydi.
+- **XP:** ov — oʻlja kg × 0.5; qurilish va mashq — sarflangan tosh/shox/teri/suyak × 0.02. Chegaradan oshganda daraja koʻtariladi,
+  yangi binolar ochiladi, “Yangi daraja!” oynasi chiqadi.
+- Voqealar (qurilish, mashq, ovdan qaytish) server tomonda vaqt tartibida yopiladi — resurs hisobi har biridan keyin yangi holat bilan davom etadi.
+- Ov guruhlari (bir necha oʻyinchi) keyingi bosqichda.
+
+## API (v0.0.4)
 
 Javob konverti: `{ ok: true, data, state }` yoki `{ ok: false, error: { code, message, details } }`.
 
@@ -119,7 +135,10 @@ Javob konverti: `{ ok: true, data, state }` yoki `{ ok: false, error: { code, me
 | `POST /api/v1/profile/allocation` | `X-Init-Data` | Taqsimot `{ stone, wood, hide, bone }` — butun sonlar, yigʻindisi 100 |
 | `POST /api/v1/buildings/upgrade` | `X-Init-Data` | `{ type }` → navbat `{ queue }`; xatolar: `NOT_ENOUGH_RESOURCES`, `QUEUE_BUSY`, `LEVEL_TOO_LOW`, `DEN_AUTO_LEVEL` |
 | `POST /api/v1/queue/cancel` | `X-Init-Data` | `{ queue_id }` → `{ refund }` (80%) |
-| `POST /api/v1/queue/speedup` | `X-Init-Data` | `{ queue_id, use_free: true }` — bepul tezlashtirish |
+| `POST /api/v1/queue/speedup` | `X-Init-Data` | `{ queue_id, use_free: true }` — bepul tezlashtirish (qurilish va mashq) |
+| `POST /api/v1/army/train` | `X-Init-Data` | `{ role, tier, qty }` → mashq navbati; `TIER_LOCKED`, `CAPACITY_FULL`, `QUEUE_BUSY` |
+| `POST /api/v1/hunt/solo` | `X-Init-Data` | Yolgʻiz ov (1–3 daraja) → `{ loot }`; `COOLDOWN` |
+| `POST /api/v1/hunt` | `X-Init-Data` | `{ payload: { rol: { tier: soni } } }` → 1 soatlik ov `{ march }` |
 
 Toʻliq rejadagi API (70 endpoint): [`docs/blue_wolf/blue_wolf_api.md`](../docs/blue_wolf/blue_wolf_api.md).
 
@@ -141,8 +160,8 @@ Skript `database/seeders/data/game_config.json` va `public/data/game_config.json
 | v0.0.0 | Skelet: ekranlar, BlueWolf UI, PWA, Telegram auth, `/state` ✅ |
 | v0.0.1 | Ixcham resurs paneli, resurs maʼlumot oynasi ✅ |
 | v0.0.2 | Tirik iqtisodiyot: resurs hisobi (timestamp accrual), Ustaxona buferi va yigʻib olish, taqsimot serverda ✅ |
-| **v0.0.3** | Qurilish: bino kuchaytirish, qurilish navbati, bekor qilish, bepul tezlashtirish ✅ |
-| v0.3 | Askar mashqi, ov (yolgʻiz, toʻda), oziqlanish va ochlik |
+| v0.0.3 | Qurilish: bino kuchaytirish, qurilish navbati, bekor qilish, bepul tezlashtirish ✅ |
+| **v0.0.4** | Askar mashqi, ov (yolgʻiz, toʻda), oziqlanish, XP va daraja koʻtarilishi ✅ |
 | v0.4 | Tanishtiruv (20 qadam), kundalik vazifalar |
 | v0.5 | Botlarga hujum, razvedka, jang hisoblagichi, jarohat va davolash |
 | v0.6 | PvP (7–10 daraja), ov guruhlari, bildirishnomalar → **MVP** |
