@@ -1,4 +1,4 @@
-/* Blue Wolf Mini App — v0.0.13 (iqtisodiyot, qurilish, askarlar, ov, vazifalar, tanishtiruv, interfeys)
+/* Blue Wolf Mini App — v0.0.14 (iqtisodiyot, qurilish, askarlar, ov, vazifalar, tanishtiruv, interfeys)
    6 ta tab (In · Ov · Jang · Toʻda · Vazifalar · Profil), hash-router, Telegram WebApp integratsiyasi.
    Resurslar vaqt boʻyicha hisoblanadi (BWGame.advance — server bilan bir xil formula), Ustaxona buferi
    va taqsimoti, qurilish, askar mashqi va ov ishlaydi. Qolgan amallar (hujum, razvedka…) keyingi bosqichlarda ulanadi. */
@@ -869,9 +869,9 @@
 
   var ROLE_ADVICE = { hunter: "goʻsht uchun ovchi", attacker: "hujum uchun hujumchi", defender: "inni qoʻriqlash uchun himoyachi", scout: "raqibni bilish uchun razvedkachi" };
 
-  /** Qoʻshin: Kartalar · Medallar · Radar (subtablar bilan). */
+  /** Qoʻshin: Rollar · Tierlar · Radar (subtablar bilan). */
   function armySection() {
-    var p = app.state.player, cfg = app.config, tierMax = G.maxTier(cfg, p.level), seg = app.seg.profil || "cards";
+    var p = app.state.player, cfg = app.config, tierMax = G.maxTier(cfg, p.level), seg = app.seg.profil || "roles";
     var roles = G.ROLES.map(function (r) {
       var t = roleTiers(r.key);
       return { r: r, tiers: t, total: t.reduce(function (a, b) { return a + b; }, 0), unlock: G.BUILDINGS[r.building].unlock };
@@ -881,11 +881,11 @@
     G.ROLES.forEach(function (r) { home += armyCount(r.key); away += armyCount(r.key, "away"); hurt += armyCount(r.key, "injured"); });
     var nextTier = tierMax < 6 ? (tierMax + 1) * cfg.tier_step_level : 0;
     var html = sectionTitle("Qoʻshin", '<span class="bw-chip">' + total + " / " + G.armyCap(cfg, p.level) + "</span>");
-    html += '<div class="bw-seg army-seg" role="tablist">' + [["cards", "Kartalar"], ["medals", "Medallar"], ["radar", "Radar"]].map(function (x) {
+    html += '<div class="bw-seg army-seg" role="tablist">' + [["roles", "Rollar"], ["tiers", "Tierlar"], ["radar", "Radar"]].map(function (x) {
       return '<button class="bw-seg__btn" role="tab" data-seg="' + x[0] + '" aria-selected="' + (seg === x[0]) + '">' + x[1] + "</button>";
     }).join("") + "</div>";
 
-    if (seg === "medals") {
+    if (seg === "tiers") {
       html += roles.map(function (x) {
         var locked = p.level < x.unlock;
         return '<div class="army-medals army-r--' + x.r.key + (locked ? " is-locked" : "") + '"><div class="army-medals__head"><span class="army-ico">' + icon(x.r.icon) + "</span><b>" + esc(x.r.name) + "</b>" +

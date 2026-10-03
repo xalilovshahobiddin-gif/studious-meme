@@ -1,4 +1,4 @@
-# Blue Wolf — Telegram Mini App · v0.0.13
+# Blue Wolf — Telegram Mini App · v0.0.14
 
 Strategiya / omon qolish oʻyini: ov qil, in qur, toʻda yigʻ va Koʻk Boʻriga aylan.
 Dizayn hujjatlari: [`docs/blue_wolf/`](../docs/blue_wolf/) (GDD, API, sxema, balans jadvali). Oʻzgarishlar: [CHANGELOG.md](CHANGELOG.md).
@@ -123,11 +123,11 @@ vendor/bin/pint --test        # kod uslubi
   yangi binolar ochiladi, “Yangi daraja!” oynasi chiqadi.
 - Voqealar (qurilish, mashq, ovdan qaytish) server tomonda vaqt tartibida yopiladi — resurs hisobi har biridan keyin yangi holat bilan davom etadi.
 
-## Interfeys (v0.0.10–v0.0.13)
+## Interfeys (v0.0.10–v0.0.14)
 
 - **Taymerlar paneli** resurslar ostida (faqat taymer boʻlsa): ixcham belgilar — ikonka (progress halqasi) + vaqt; qurilish — qahrabo + bolgʻa, mashq — binafsha + rol ikonkasi, ov — yashil + panja. In sahifasida alohida navbat boʻlimi yoʻq.
 - **Chap menyu** — ekran oʻrtasidagi yarim koʻrinadigan tutqich bilan ochiladi; tutqich menyu bilan birga suriladi; bandlari keyin.
-- **Profil → Qoʻshin:** Kartalar · Medallar · Radar subtablari (jadval oʻrniga), Inda / Ovda / Yarador belgilari.
+- **Profil → Qoʻshin:** Rollar · Tierlar · Radar subtablari (jadval oʻrniga), Inda / Ovda / Yarador belgilari.
 - **Resurs uchishi:** mukofot “+N” belgilari oʻz resurs katagiga uchadi (vazifa, sandiq, sovgʻa, yigʻish, ov, tanishtiruv).
 
 ## Tanishtiruv (v0.0.9)
@@ -200,7 +200,8 @@ Skript `database/seeders/data/game_config.json` va `public/data/game_config.json
 | v0.0.10 | Interfeys: taymerlar paneli, chap menyu, resurs uchish animatsiyasi, yangi Toʻda/Profil ikonkalari ✅ |
 | v0.0.11 | Menyu tutqichi (chap chetda, menyu bilan birga suriladi), ixcham taymerlar (ikonka + vaqt) ✅ |
 | v0.0.12 | Ov taymeri, In dan navbat boʻlimi olib tashlandi, ov slayderlari faqat bor rollar uchun ✅ |
-| **v0.0.13** | Profil → Qoʻshin: Kartalar, Medallar, Radar koʻrinishlari ✅ |
+| v0.0.13 | Profil → Qoʻshin: Kartalar, Medallar, Radar koʻrinishlari ✅ |
+| **v0.0.14** | Qoʻshin subtablari: Rollar · Tierlar · Radar ✅ |
 | v0.4 | Tanishtiruv (20 qadam), kundalik vazifalar |
 | v0.5 | Botlarga hujum, razvedka, jang hisoblagichi, jarohat va davolash |
 | v0.6 | PvP (7–10 daraja), ov guruhlari, bildirishnomalar → **MVP** |

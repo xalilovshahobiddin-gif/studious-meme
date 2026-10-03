@@ -1,5 +1,8 @@
 # Blue Wolf — oʻzgarishlar tarixi
 
+## v0.0.14 — subtab nomlari
+- Profil → Qoʻshin subtablari aniqroq nomlandi: **Kartalar → Rollar**, **Medallar → Tierlar**, Radar oʻzgarmadi.
+
 ## v0.0.13 — Profil: qoʻshin koʻrinishlari
 - Qoʻshin jadvali oʻrniga uchta koʻrinish (subtablar): **Kartalar** (2×2 rol kartalari, tierlar boʻyicha sonlar),
   **Medallar** (har rolda 6 ta tier medali, ramka rangi — tier), **Radar** (muvozanat diagrammasi va maslahat).

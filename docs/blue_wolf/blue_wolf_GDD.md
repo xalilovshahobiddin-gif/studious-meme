@@ -1180,8 +1180,8 @@ Ikkinchi qurilish navbati — erta ochish (4–9 daraja) 1,500 · Oflayn ombor +
 
 ### Profil → Qoʻshin
 Jadval oʻrniga uchta koʻrinish (subtablar): 
-- **Kartalar** — har rol uchun rangli karta: katta jami son (inda + ovda + yarador), ochiq tierlar boʻyicha sonlar va keyingi tier qulf bilan; ochilmagan rol — “N-darajada ochiladi”.
-- **Medallar** — har rolda 6 ta tier medali; ramka rangi tierni bildiradi (kulrang T1–T2, kumush T3–T4, oltin T5, olov T6), ochilmaganlari uzuq chiziqli qulf.
+- **Rollar** — har rol uchun rangli karta: katta jami son (inda + ovda + yarador), ochiq tierlar boʻyicha sonlar va keyingi tier qulf bilan; ochilmagan rol — “N-darajada ochiladi”.
+- **Tierlar** — har rolda 6 ta tier belgisi (medal); ramka rangi tierni bildiradi (kulrang T1–T2, kumush T3–T4, oltin T5, olov T6), ochilmaganlari uzuq chiziqli qulf.
 - **Radar** — 4 oʻqli muvozanat diagrammasi va maslahat: toʻda qaysi rolga ogʻgan, qaysi rollar kam (masalan, “inni qoʻriqlash uchun himoyachi”).
 Pastda holat belgilari: Inda · Ovda · Yarador.
 
