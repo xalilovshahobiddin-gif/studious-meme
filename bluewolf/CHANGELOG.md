@@ -1,5 +1,11 @@
 # Blue Wolf — oʻzgarishlar tarixi
 
+## v0.0.5 — slayderlar
+- **Son tanlash endi “− slayder +”**: ov oynasida (har rol), askar tayyorlashda va Ustaxona taqsimotida. Slayderni surish yoki
+  tugmalarni bosish — ikkalasi ham ishlaydi; natija (goʻsht, narx, vaqt) surish paytida darhol yangilanadi.
+- Tayyorlash tugmasida son koʻrinadi (“Tayyorlash · 5”).
+- BlueWolf UI: yangi `bw-slider` komponenti (koʻrgazmada ham).
+
 ## v0.0.4 — askarlar va ov
 - **Askar tayyorlash:** rol binosi oynasida tier (T1–T6, ochilganlari), son, narx (goʻsht + suyak) va vaqt; qoʻshin sigʻimi va
   toʻlganlik koeffitsienti (GDD bo'lim 6). Mashq navbati In ekranida, tezlashtirish va bekor qilish bilan.
