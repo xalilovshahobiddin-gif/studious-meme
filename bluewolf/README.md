@@ -1,4 +1,4 @@
-# Blue Wolf — Telegram Mini App · v0.0.9
+# Blue Wolf — Telegram Mini App · v0.0.10
 
 Strategiya / omon qolish oʻyini: ov qil, in qur, toʻda yigʻ va Koʻk Boʻriga aylan.
 Dizayn hujjatlari: [`docs/blue_wolf/`](../docs/blue_wolf/) (GDD, API, sxema, balans jadvali). Oʻzgarishlar: [CHANGELOG.md](CHANGELOG.md).
@@ -123,6 +123,12 @@ vendor/bin/pint --test        # kod uslubi
   yangi binolar ochiladi, “Yangi daraja!” oynasi chiqadi.
 - Voqealar (qurilish, mashq, ovdan qaytish) server tomonda vaqt tartibida yopiladi — resurs hisobi har biridan keyin yangi holat bilan davom etadi.
 
+## Interfeys (v0.0.10)
+
+- **Taymerlar paneli** resurslar ostida (faqat taymer boʻlsa): qurilish — qahrabo + bolgʻa, mashq — binafsha + rol ikonkasi.
+- **☰ Chap menyu** — chap yondan suzib chiqadi, ekranning bir qismini egallaydi; bandlari keyin.
+- **Resurs uchishi:** mukofot “+N” belgilari oʻz resurs katagiga uchadi (vazifa, sandiq, sovgʻa, yigʻish, ov, tanishtiruv).
+
 ## Tanishtiruv (v0.0.9)
 
 Yangi oʻyinchi uchun 23 qadamlik qoʻllanma (GDD bo'lim 15): har bir resurs, bino, rol, tier, ov xaritasi va xavf, oziqlanish,
@@ -189,7 +195,8 @@ Skript `database/seeders/data/game_config.json` va `public/data/game_config.json
 | v0.0.6 | Alohida **Ov** tabi: ovga oid hamma narsa bir joyda ✅ |
 | v0.0.7 | Ov xaritasi: 9 karta, har 4 soatda yangilanadi, xavf — yarador va halok; ov guruhlari olib tashlandi ✅ |
 | v0.0.8 | Vazifalar: kundalik, haftalik, oylik, sandiqlar, kun kombosi, kirish taqvimi — faqat resurs mukofot ✅ |
-| **v0.0.9** | Tanishtiruv: 23 qadam, hamma tizim tushuntiriladi, 5-darajagacha ✅ |
+| v0.0.9 | Tanishtiruv: 23 qadam, hamma tizim tushuntiriladi, 5-darajagacha ✅ |
+| **v0.0.10** | Interfeys: taymerlar paneli, chap menyu, resurs uchish animatsiyasi, yangi Toʻda/Profil ikonkalari ✅ |
 | v0.4 | Tanishtiruv (20 qadam), kundalik vazifalar |
 | v0.5 | Botlarga hujum, razvedka, jang hisoblagichi, jarohat va davolash |
 | v0.6 | PvP (7–10 daraja), ov guruhlari, bildirishnomalar → **MVP** |

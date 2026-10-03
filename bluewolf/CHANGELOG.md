@@ -1,5 +1,16 @@
 # Blue Wolf — oʻzgarishlar tarixi
 
+## v0.0.10 — interfeys: taymerlar, menyu, resurs animatsiyasi
+- **Yangi ikonkalar:** Toʻda tabi — ikki boʻri boshi (toʻda), Profil — doira ichidagi boʻri boshi (oʻyinchi nishoni).
+- **Taymerlar paneli** resurslar ostida — faqat taymer bor paytda chiqadi. Qurilish (qahrabo, bolgʻa, “QURILISH”) va mashq
+  (binafsha, rol ikonkasi, “MASHQ”) bir-biridan rangi, ikonkasi va yozuvi bilan ajraladi; qolgan vaqt va progress chizigʻi;
+  bosilsa bino oynasi ochiladi.
+- **Chap menyu:** ☰ tugmasi bilan chap yondan suzib chiqadi (ekranning ~78%, koʻpi bilan 320 px), hamma narsa ustida;
+  ✕, fonga bosish, chapga surish, Telegram “Orqaga” yoki Esc bilan chapga qaytib kiradi. Bandlari keyin qoʻshiladi.
+- **Resurs olish animatsiyasi:** vazifa, sandiq, kirish sovgʻasi, bufer yigʻish, ov (yolgʻiz va xaritadan) va tanishtiruv
+  mukofotlarida har resurs “+N” belgisi oʻz katagiga uchib boradi, katak yonadi.
+- GDD bo'lim 18 (6 tab, yuqori panel, taymerlar, animatsiya), texnik spec 1-boʻlim yangilandi.
+
 ## v0.0.9 — tanishtiruv
 - **23 qadamlik tanishtiruv** (yangi oʻyinchi, 1 → 5 daraja, ~14 daqiqa): resurslar paneli, goʻsht, suv / oʻt / oy nuri, XP va darajalar,
   In, Oziq gʻori, Ustaxona, taqsimot, yigʻish, qurilish navbati va tezlashtirish, rol binolari, 4 rol va kuch uchburchagi, askar narxi va

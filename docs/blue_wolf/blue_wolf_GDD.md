@@ -1161,9 +1161,24 @@ Ikkinchi qurilish navbati — erta ochish (4–9 daraja) 1,500 · Oflayn ombor +
 
 ---
 
-## 18. Ekranlar (5 tab)
+## 18. Ekranlar (6 tab)
 
-5 ta asosiy tab: 🏔 In · ⚔️ Jang · 🐺 Toʻda · 📋 Vazifalar · 👤 Profil. Har tabning tarkibi — `blue_wolf_texnik_spec.md`, 1-boʻlim.
+6 ta asosiy tab: 🏔 In · 🐾 Ov · ⚔️ Jang · 🐺 Toʻda · 📋 Vazifalar · 👤 Profil. Toʻda tabi ikonkasi — ikki boʻri boshi, Profil — doira ichidagi boʻri boshi (oʻyinchi nishoni). Har tabning tarkibi — `blue_wolf_texnik_spec.md`, 1-boʻlim.
+
+### Yuqori panel (hamma tabda)
+- **☰ Menyu** (chap tepada) — bosilganda chap yondan suzib chiqadigan panel: ekranning ~78% (koʻpi bilan 320 px), orqa fon xiralashadi. Yopish tugmasi, fonga bosish, chapga surish, Telegram “Orqaga” yoki Esc bilan chap yonga qaytib kiradi. Bandlari keyingi versiyalarda qoʻshiladi.
+- Avatar, ism, daraja, XP, oy toshi; **resurslar paneli**.
+- **Taymerlar paneli** — resurslar ostida, faqat taymer bor paytda koʻrinadi. Har tur oʻz rangi, ikonkasi va yozuvi bilan:
+
+| Taymer | Rang | Ikonka | Yozuv |
+|---|---|---|---|
+| Qurilish | qahrabo (sariq) | bolgʻa | QURILISH · bino → daraja |
+| Mashq | binafsha | rol ikonkasi | MASHQ · son × rol · tier |
+
+  Taymerlar tugash vaqti boʻyicha tartiblanadi; har birida qolgan vaqt va ingichka progress chizigʻi. Bosilganda tegishli bino oynasi ochiladi. Keyin ov, davolash va boshqa taymerlar ham shu panelga qoʻshiladi (har biri alohida rang).
+
+### Resurs olish animatsiyasi
+Vazifa, sandiq, kirish sovgʻasi, bufer yigʻish, ov va tanishtiruv mukofotida har bir resurs “+N” belgisi (resurs rangi va ikonkasi bilan) bosilgan joydan chiqib, yuqoridagi oʻz resurs katagiga uchib boradi; katak bir lahza yonib, kattalashadi. Ovdan qaytgan oʻlja Ov tabidan uchadi. “Harakatni kamaytirish” sozlamasi yoqilgan boʻlsa animatsiya oʻchadi.
 
 ---
 

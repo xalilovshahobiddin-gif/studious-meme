@@ -12,8 +12,8 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="ui/bluewolf-ui.css?v=0.0.9">
-  <link rel="stylesheet" href="css/app.css?v=0.0.9">
+  <link rel="stylesheet" href="ui/bluewolf-ui.css?v=0.0.10">
+  <link rel="stylesheet" href="css/app.css?v=0.0.10">
   <!-- Telegram Mini App SDK: Telegram ichida initData, mavzu, BackButton beradi; brauzerda zararsiz -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -29,6 +29,7 @@
   <div class="app" id="app" hidden>
     <header class="topbar">
       <div class="topbar__player">
+        <button class="topbar__menu" id="menu-btn" type="button" data-action="menu-open" aria-label="Menyu" aria-controls="drawer" aria-expanded="false"><svg class="bw-icon"><use href="#bw-i-menu"/></svg></button>
         <button class="bw-avatar bw-avatar--sm bw-tier-1" id="top-avatar" type="button" aria-label="Profil"></button>
         <div class="bw-grow">
           <div class="bw-between">
@@ -48,6 +49,8 @@
         </div>
       </div>
       <div class="bw-resgrid" id="res-bar" aria-label="Resurslar — batafsil maʼlumot uchun bosing"></div>
+      <!-- Taymerlar: faqat qurilish yoki mashq ketayotganda koʻrinadi -->
+      <div class="timerbar" id="timer-bar" aria-label="Taymerlar" hidden></div>
       <div class="bw-banner topbar__demo" id="demo-banner" hidden></div>
     </header>
 
@@ -57,9 +60,9 @@
       <a class="bw-tab" href="#/in" data-tab="in"><svg class="bw-icon"><use href="#bw-i-den"/></svg>In</a>
       <a class="bw-tab" href="#/ov" data-tab="ov"><svg class="bw-icon"><use href="#bw-i-paw"/></svg>Ov<span class="bw-badge bw-badge--dot" id="hunt-badge" hidden></span></a>
       <a class="bw-tab" href="#/jang" data-tab="jang"><svg class="bw-icon"><use href="#bw-i-swords"/></svg>Jang</a>
-      <a class="bw-tab" href="#/toda" data-tab="toda"><svg class="bw-icon"><use href="#bw-i-pack"/></svg>Toʻda</a>
+      <a class="bw-tab" href="#/toda" data-tab="toda"><svg class="bw-icon"><use href="#bw-i-wolfpack"/></svg>Toʻda</a>
       <a class="bw-tab" href="#/vazifalar" data-tab="vazifalar"><svg class="bw-icon"><use href="#bw-i-quest"/></svg>Vazifalar<span class="bw-badge" id="quest-badge" hidden></span></a>
-      <a class="bw-tab" href="#/profil" data-tab="profil"><svg class="bw-icon"><use href="#bw-i-user"/></svg>Profil</a>
+      <a class="bw-tab" href="#/profil" data-tab="profil"><svg class="bw-icon"><use href="#bw-i-wolfid"/></svg>Profil</a>
     </nav>
   </div>
 
@@ -68,14 +71,23 @@
     <div class="bw-sheet__grip"></div>
     <div id="sheet-body"></div>
   </section>
+  <!-- Chap menyu -->
+  <div class="drawer-backdrop" id="drawer-backdrop" data-action="menu-close"></div>
+  <nav class="drawer" id="drawer" aria-label="Menyu" aria-hidden="true" inert>
+    <div class="drawer__head">
+      <span class="drawer__brand"><svg class="bw-icon"><use href="#bw-i-wolf"/></svg>Blue Wolf</span>
+      <button class="bw-btn bw-btn--ghost bw-btn--icon bw-btn--sm drawer__close" type="button" data-action="menu-close" aria-label="Menyuni yopish"><svg class="bw-icon"><use href="#bw-i-close"/></svg></button>
+    </div>
+    <div class="drawer__body" id="drawer-body"></div>
+  </nav>
   <!-- Tanishtiruv yoʻriqchisi -->
   <aside class="coach" id="coach" aria-live="polite" hidden></aside>
   <div class="bw-toast-host" id="toasts" aria-live="polite"></div>
 
-  <script src="ui/bluewolf-icons.js?v=0.0.9"></script>
-  <script src="js/demo-data.js?v=0.0.9"></script>
-  <script src="js/game.js?v=0.0.9"></script>
-  <script src="js/api.js?v=0.0.9"></script>
-  <script src="js/app.js?v=0.0.9"></script>
+  <script src="ui/bluewolf-icons.js?v=0.0.10"></script>
+  <script src="js/demo-data.js?v=0.0.10"></script>
+  <script src="js/game.js?v=0.0.10"></script>
+  <script src="js/api.js?v=0.0.10"></script>
+  <script src="js/app.js?v=0.0.10"></script>
 </body>
 </html>

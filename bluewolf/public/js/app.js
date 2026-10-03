@@ -1,4 +1,4 @@
-/* Blue Wolf Mini App — v0.0.9 (iqtisodiyot, qurilish, askarlar va ov)
+/* Blue Wolf Mini App — v0.0.10 (iqtisodiyot, qurilish, askarlar, ov, vazifalar, tanishtiruv, interfeys)
    6 ta tab (In · Ov · Jang · Toʻda · Vazifalar · Profil), hash-router, Telegram WebApp integratsiyasi.
    Resurslar vaqt boʻyicha hisoblanadi (BWGame.advance — server bilan bir xil formula), Ustaxona buferi
    va taqsimoti, qurilish, askar mashqi va ov ishlaydi. Qolgan amallar (hujum, razvedka…) keyingi bosqichlarda ulanadi. */
@@ -79,6 +79,93 @@
     else renderCoach();
   }
 
+  /* ---------------------------------------------------------------- Chap menyu */
+  function drawerOpen() { return document.body.classList.contains("drawer-open"); }
+  function openDrawer() {
+    if (drawerOpen()) return;
+    $("#drawer-body").innerHTML = '<div class="drawer__empty">' + icon("menu") + "<span>Menyu bandlari tez orada qoʻshiladi</span></div>";
+    document.body.classList.add("drawer-open");
+    $("#drawer").removeAttribute("inert");
+    $("#drawer").setAttribute("aria-hidden", "false");
+    $("#menu-btn").setAttribute("aria-expanded", "true");
+    if (tg && tg.BackButton) tg.BackButton.show();
+    haptic("light");
+  }
+  function closeDrawer() {
+    if (!drawerOpen()) return;
+    document.body.classList.remove("drawer-open");
+    $("#drawer").setAttribute("inert", "");
+    $("#drawer").setAttribute("aria-hidden", "true");
+    $("#menu-btn").setAttribute("aria-expanded", "false");
+    if (tg && tg.BackButton && !$("#sheet").classList.contains("is-open")) tg.BackButton.hide();
+  }
+  /** Orqaga (Telegram BackButton, Esc): avval menyu, keyin oyna yopiladi. */
+  function goBack() { if (drawerOpen()) closeDrawer(); else closeSheet(); }
+
+  /* ---------------------------------------------------------------- Resurs uchishi */
+  var lastTap = null;
+  document.addEventListener("pointerdown", function (e) {
+    var el = e.target.closest && e.target.closest("button, [data-action], .bw-card");
+    if (el) lastTap = { rect: el.getBoundingClientRect(), t: Date.now() };
+  }, true);
+
+  /** Olingan resurslar: “+N” belgisi bosilgan joydan oʻz resurs katagiga uchib boradi. from: element (ixtiyoriy). */
+  function flyGain(gained, from) {
+    var keys = Object.keys(gained || {}).filter(function (k) { return gained[k] > 0 && resMeta(k); });
+    if (!keys.length || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+    var r = from ? from.getBoundingClientRect() : lastTap && Date.now() - lastTap.t < 4000 ? lastTap.rect : null;
+    var sx = r && r.width ? r.left + r.width / 2 : window.innerWidth / 2;
+    var sy = r && r.height ? r.top + r.height / 2 : window.innerHeight / 2;
+    sy = Math.max(40, Math.min(window.innerHeight - 40, sy));
+    var target = function (k) { return document.querySelector(k === "moonstone" ? "#top-gem" : '#res-bar .bw-rescell[data-res="' + k + '"]'); };
+    keys.forEach(function (k, i) {
+      var tEl = target(k);
+      if (!tEl) return;
+      var el = document.createElement("div");
+      el.className = "fly";
+      el.style.setProperty("--fc", "var(--bw-res-" + k + ")");
+      el.innerHTML = icon(resMeta(k).icon) + "+" + G.fmtShort(gained[k]);
+      document.body.appendChild(el);
+      var w = el.offsetWidth, h = el.offsetHeight;
+      var tr = tEl.getBoundingClientRect(), tx = tr.left + tr.width / 2 - w / 2, ty = tr.top + tr.height / 2 - h / 2;
+      var x0 = sx - w / 2 + (i - (keys.length - 1) / 2) * Math.min(56, w + 6), y0 = sy - h / 2;
+      var pos = function (x, y, sc) { return "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) scale(" + sc + ")"; };
+      var anim = el.animate([
+        { transform: pos(x0, y0 + 10, 0.5), opacity: 0 },
+        { transform: pos(x0, y0 - 18, 1.1), opacity: 1, offset: 0.22 },
+        { transform: pos(x0, y0 - 18, 1), opacity: 1, offset: 0.4 },
+        { transform: pos((x0 + tx) / 2 + 24, Math.min(y0, ty) - 30, 0.85), opacity: 1, offset: 0.7 },
+        { transform: pos(tx, ty, 0.45), opacity: 0.6 }
+      ], { duration: 1100, delay: i * 140, easing: "cubic-bezier(.45,.05,.55,.95)", fill: "both" });
+      anim.onfinish = function () {
+        el.remove();
+        var hit = target(k);
+        if (hit) { hit.classList.remove("is-hit"); void hit.offsetWidth; hit.classList.add("is-hit"); }
+        if (i === 0) haptic("select");
+      };
+    });
+  }
+
+  /* ---------------------------------------------------------------- Taymerlar paneli */
+  /** Resurslar ostida: qurilish va mashq taymerlari; boʻsh boʻlsa panel yashirinadi. */
+  function renderTimers() {
+    var bar = $("#timer-bar");
+    var list = (app.state.queues || []).filter(function (q) { return q.kind === "build" || q.kind === "train"; })
+      .sort(function (a, b) { return a.ends_at - b.ends_at; });
+    bar.hidden = !list.length;
+    bar.innerHTML = list.map(function (q) {
+      var build = q.kind === "build", role = build ? null : roleMeta(q.role);
+      var type = build ? q.building_type : role.building;
+      var name = build ? G.BUILDINGS[type].name + " → " + q.target_level : q.qty + " × " + role.name.toLowerCase() + " · T" + q.tier;
+      return '<button class="timer timer--' + q.kind + '" type="button" data-action="q-open" data-type="' + type + '" aria-label="' +
+        (build ? "Qurilish" : "Mashq") + ": " + esc(name) + '">' +
+        '<span class="timer__icon">' + icon(build ? "hammer" : role.icon) + "</span>" +
+        '<span class="timer__text"><span class="timer__kind">' + (build ? "Qurilish" : "Mashq") + '</span><span class="timer__name">' + esc(name) + "</span></span>" +
+        '<b class="timer__time" data-live="q-' + q.id + '">' + timeLeft(q) + "</b>" +
+        '<i class="timer__bar" data-live="qbar-' + q.id + '" style="width:' + Math.round(queueRatio(q) * 100) + '%"></i></button>';
+    }).join("");
+  }
+
   /* ---------------------------------------------------------------- Yuqori panel */
   function renderTop() {
     var p = app.state.player, cfg = app.config;
@@ -94,6 +181,7 @@
     $("#top-xp").textContent = p.level >= 25 ? "MAKS" : G.fmt(xp.into) + " / " + G.fmt(xp.need) + " XP";
 
     renderResources();
+    renderTimers();
 
     var banner = $("#demo-banner");
     if (app.mode === "demo") {
@@ -515,7 +603,7 @@
     var p = app.state.player, cfg = app.config;
     var html = '<div class="screen-title"><h1 class="bw-h2">Toʻda</h1><span class="bw-chip bw-chip--accent">Klan — v2</span></div>';
     if (p.level < cfg.pack_unlock_level) {
-      return html + lockedCard("pack", cfg.pack_unlock_level + "-darajada ochiladi", "Yolgʻiz boʻri omon qolmaydi. 4-darajada toʻdang ochiladi.");
+      return html + lockedCard("wolfpack", cfg.pack_unlock_level + "-darajada ochiladi", "Yolgʻiz boʻri omon qolmaydi. 4-darajada toʻdang ochiladi.");
     }
     html += sectionTitle("Klan");
     html += lockedCard("lock", "Rasmiy klanlar — v2", "Aʼzolik, lavozimlar, xazina, toʻda urushi va oazislar MVP dan keyin qoʻshiladi.");
@@ -685,7 +773,7 @@
 
   /** Mukofotni olish: vazifa yoki sandiq. */
   function questClaim(id, quiet) {
-    var done = function (d) { if (!quiet) { haptic("medium"); toast("Mukofot: " + rewardText(d.reward) + (d.lost > 0.05 ? " · gʻorga sigʻmadi: " + fmtRate(d.lost) + " kg" : ""), "gift"); } };
+    var done = function (d) { if (!quiet) { haptic("medium"); flyGain(d.reward); toast("Mukofot: " + rewardText(d.reward) + (d.lost > 0.05 ? " · gʻorga sigʻmadi: " + fmtRate(d.lost) + " kg" : ""), "gift"); } };
     if (app.mode === "live") {
       return window.BWApi.request("quests/claim", { method: "POST", body: { id: id } }).then(function (res) { applySnapshot(res); done(res.data); return res.data; },
         function (err) { toast(err.message || "Xato", "info"); });
@@ -741,11 +829,11 @@
       if (!s2.chest.claimed && s2.chest.progress >= s2.chest.target && s2.chest.target > 0) {
         return questClaim(s2.chest.id, true).then(function (d) { if (d && d.reward) Object.keys(d.reward).forEach(function (k) { total[k] = (total[k] || 0) + d.reward[k]; }); });
       }
-    }).then(function () { haptic("medium"); if (Object.keys(total).length) toast("Olindi: " + rewardText(total), "gift"); });
+    }).then(function () { haptic("medium"); flyGain(total); if (Object.keys(total).length) toast("Olindi: " + rewardText(total), "gift"); });
   }
 
   function loginGift() {
-    var done = function (d) { haptic("medium"); toast(d.day + "-kun sovgʻasi: " + rewardText(d.reward), "gift"); };
+    var done = function (d) { haptic("medium"); flyGain(d.reward); toast(d.day + "-kun sovgʻasi: " + rewardText(d.reward), "gift"); };
     if (app.mode === "live") { post("quests/login", {}, done); return; }
     var q = app.state.qd, cfg = app.config;
     demoQuestEnsure(now());
@@ -1074,18 +1162,19 @@
     var done = function (loot) {
       haptic("medium");
       tutEvent("solo-hunt");
+      flyGain({ meat: loot.meat - (loot.lost || 0), herb: loot.herb || 0 });
       toast("Alfa ovladi: +" + fmtRate(loot.meat) + " kg goʻsht" + (tutActive() ? "" : ", +" + fmtRate(loot.xp) + " XP") + (loot.lost > 0 ? " (gʻor toʻla — " + fmtRate(loot.lost) + " kg chiridi)" : ""), "paw");
     };
     if (app.mode === "live") { post("hunt/solo", {}, function (d) { done(d.loot); }); return; }
     var kg = G.PREY[p.level][1], t = now();
     app.econ = G.advance(cfg, app.econ, t);
-    var lost = addFood("meat", kg, false) ; addFood("herb", kg * cfg.hunt_herb_share, false);
+    var lost = addFood("meat", kg, false), herb = kg * cfg.hunt_herb_share - addFood("herb", kg * cfg.hunt_herb_share, false);
     p.solo_hunt_at = t;
     questTrack("hunt", 1);
     questTrack("meat", kg);
     var levels = addXp(kg * cfg.xp_hunt_coef);
     saveDemo(); syncResources(); render();
-    done({ meat: kg, xp: kg * cfg.xp_hunt_coef, lost: lost });
+    done({ meat: kg, herb: herb, xp: kg * cfg.xp_hunt_coef, lost: lost });
     announceFinished(levels.map(function (l) { return { kind: "level", level: l }; }));
   }
 
@@ -1212,6 +1301,9 @@
     var done = function (d) {
       haptic("medium");
       var reward = st.reward ? tutRewardText(st.reward) : "";
+      var got = {};
+      Object.keys(st.reward || {}).forEach(function (k) { if (k !== "army" && k !== "buf") got[k] = st.reward[k]; });
+      flyGain(got, $("#coach"));
       toast("Qadam " + st.id + " bajarildi: +" + st.xp + " XP" + (reward ? " · " + reward : ""), "check");
       announceFinished((d.levels || []).map(function (l) { return { kind: "level", level: l }; }));
       tutGoto();
@@ -1473,6 +1565,7 @@
       if (f.kind === "level") { level = f.level; return; }
       if (f.kind === "train") { toast(f.qty + " ta " + roleMeta(f.role).name.toLowerCase() + " (T" + f.tier + ") tayyor!", "check"); return; }
       if (f.kind === "hunt") {
+        flyGain({ meat: f.meat - (f.lost || 0), herb: f.herb }, document.querySelector('.bw-tab[data-tab="ov"]'));
         toast("Ov qaytdi" + (f.prey ? " (" + f.prey + ")" : "") + ": +" + fmtRate(f.meat) + " kg goʻsht, +" + fmtRate(f.herb) + " oʻt, +" + fmtRate(f.xp) + " XP" +
           (f.lost > 0.05 ? " · gʻor toʻla, " + fmtRate(f.lost) + " kg chiridi" : ""), "paw");
         if (f.injured || f.dead) {
@@ -1513,8 +1606,7 @@
     }
     (app.state.queues || []).forEach(function (q) {
       document.querySelectorAll('[data-live="q-' + q.id + '"]').forEach(function (el) { el.textContent = timeLeft(q); });
-      var bar = document.querySelector('[data-live="qbar-' + q.id + '"]');
-      if (bar) bar.style.width = Math.round(queueRatio(q) * 100) + "%";
+      document.querySelectorAll('[data-live="qbar-' + q.id + '"]').forEach(function (bar) { bar.style.width = Math.round(queueRatio(q) * 100) + "%"; });
     });
     (app.state.marches || []).forEach(function (m) {
       var el = document.querySelector('[data-live="m-' + m.id + '"]');
@@ -1723,7 +1815,7 @@
       toast("Omborga olindi: " + G.BUILD.filter(function (k) { return got[k] > 0; }).map(function (k) {
         return "+" + G.fmt(got[k]) + " " + resMeta(k).short.toLowerCase();
       }).join(", "), "download");
-      flash();
+      flyGain(got);
     };
     if (app.mode === "demo") {
       var r = G.collect(G.advance(app.config, app.econ, now()));
@@ -1742,14 +1834,6 @@
     }, function (err) {
       toast("Yigʻib boʻlmadi: " + (err.message || "xato"), "info");
     }).then(function () { collecting = false; });
-  }
-
-  /** Yigʻilgan resurs kataklari bir lahza yonadi. */
-  function flash() {
-    G.BUILD.forEach(function (k) {
-      var el = document.querySelector('.bw-rescell[data-res="' + k + '"]');
-      if (el) { el.classList.remove("is-flash"); void el.offsetWidth; el.classList.add("is-flash"); }
-    });
   }
 
   var lastSig = "", lastSave = 0;
@@ -1860,6 +1944,8 @@
     "train-tier": function (el) { app.trainSel.tier = +el.getAttribute("data-key"); app.sheetRefresh(); },
     "train-go": train,
     "close-sheet": closeSheet,
+    "menu-open": openDrawer,
+    "menu-close": closeDrawer,
     "tut-next": function () { tutComplete(); },
     "tut-go": function () { closeSheet(); tutGoto(); },
     "tut-skip": tutSkip,
@@ -1948,6 +2034,14 @@
     }
   });
   $("#sheet-backdrop").addEventListener("click", closeSheet);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") goBack(); });
+  // Menyuni chapga surib yopish
+  var swipeX = null;
+  $("#drawer").addEventListener("touchstart", function (e) { swipeX = e.touches[0].clientX; }, { passive: true });
+  $("#drawer").addEventListener("touchend", function (e) {
+    if (swipeX != null && e.changedTouches[0].clientX - swipeX < -60) closeDrawer();
+    swipeX = null;
+  }, { passive: true });
   window.addEventListener("hashchange", route);
 
   /* ---------------------------------------------------------------- PWA */
@@ -1967,7 +2061,7 @@
         tg.expand();
         if (tg.isVersionAtLeast && tg.isVersionAtLeast("7.7")) tg.disableVerticalSwipes();
         tg.onEvent("themeChanged", function () { applyTheme(); });
-        if (tg.BackButton) tg.BackButton.onClick(closeSheet);
+        if (tg.BackButton) tg.BackButton.onClick(goBack);
       } catch (e) { /* Telegramdan tashqarida */ }
     }
     applyTheme();
