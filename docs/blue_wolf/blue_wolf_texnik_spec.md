@@ -13,15 +13,15 @@ Pastda **6 ta asosiy tab** (In · Ov · Jang · Toʻda · Vazifalar · Profil). 
 
 ### Yuqori panel (hamma tabda)
 - **Menyu tutqichi** (`#menu-btn`, ekran oʻrtasida chap chetda yarmi koʻrinadi) → chap yondan suzib chiqadigan panel (`#drawer`, kengligi `min(78vw, 320px)`); tutqich ramkaga ulangan holda birga chiqadi va kiradi; yopish: tutqich, ✕, fon, chapga surish, Telegram BackButton, Esc. Bandlari keyin qoʻshiladi
-- Resurs paneli ostida **taymerlar paneli** (`#timer-bar`): faqat navbat bor paytda; har taymer — ikonka (progress halqasi) + vaqt; qurilish — qahrabo + bolgʻa, mashq — binafsha + rol ikonkasi; bosilsa bino oynasi
+- Resurs paneli ostida **taymerlar paneli** (`#timer-bar`): faqat navbat bor paytda; har taymer — ikonka (progress halqasi) + vaqt; qurilish — qahrabo + bolgʻa, mashq — binafsha + rol ikonkasi, ov — yashil + panja; bosilsa bino oynasi (ov — Ov tabi)
 - Mukofot olinganda “+N” belgilari resurs kataklariga uchadi (`flyGain`); `prefers-reduced-motion` da oʻchadi
 
 ### 🏔 In (asosiy ekran)
 - 9 ta bino kartasi: In (avtomatik), Oziq gʻori, Ustaxona, Razvedka qoyasi, Jang maydoni, Himoya devori, Ov soʻqmogʻi, Shifo gʻori, Bozor (ochilmaganlari qulf belgisi bilan)
 - Yuqorida resurs paneli: goʻsht, suv, shifobaxsh oʻt, tosh, shox-shabba, teri, suyak, oy toshi; 20+ darajada oy nuri
-- Qurilish navbati (1 slot; 10-darajadan yoki erta xarid bilan 2 slot)
+- Qurilish navbati (1 slot; 10-darajadan yoki erta xarid bilan 2 slot) — alohida boʻlim yoʻq: holati yuqoridagi taymerlar panelida, tezlashtirish va bekor qilish bino oynasida
 - Ustaxona: taqsimot slayderi (4 resurs) va bufer + “Yigʻib olish” tugmasi
-- **Ov (alohida tab):** ov xaritasi — 9 karta (masofa, vaqt, oʻlja, xavf), kartada askar tanlash (slayderlar), yurishdagi ovlar, yaradorlar; 1–3 darajada “Yolgʻiz ov”
+- **Ov (alohida tab):** ov xaritasi — 9 karta (masofa, vaqt, oʻlja, xavf), kartada askar tanlash (slayderlar — faqat inda bor rollar uchun), yurishdagi ovlar, yaradorlar; 1–3 darajada “Yolgʻiz ov”
 - Bozor: almashinuv oynasi
 - Shifo gʻori: davolash navbati
 

@@ -1,4 +1,4 @@
-/* Blue Wolf Mini App — v0.0.11 (iqtisodiyot, qurilish, askarlar, ov, vazifalar, tanishtiruv, interfeys)
+/* Blue Wolf Mini App — v0.0.12 (iqtisodiyot, qurilish, askarlar, ov, vazifalar, tanishtiruv, interfeys)
    6 ta tab (In · Ov · Jang · Toʻda · Vazifalar · Profil), hash-router, Telegram WebApp integratsiyasi.
    Resurslar vaqt boʻyicha hisoblanadi (BWGame.advance — server bilan bir xil formula), Ustaxona buferi
    va taqsimoti, qurilish, askar mashqi va ov ishlaydi. Qolgan amallar (hujum, razvedka…) keyingi bosqichlarda ulanadi. */
@@ -153,15 +153,27 @@
   function renderTimers() {
     var bar = $("#timer-bar");
     var list = (app.state.queues || []).filter(function (q) { return q.kind === "build" || q.kind === "train"; })
-      .sort(function (a, b) { return a.ends_at - b.ends_at; });
+      .map(function (q) { return { t: q.ends_at, q: q }; })
+      .concat((app.state.marches || []).filter(function (m) { return m.kind === "hunt"; }).map(function (m) { return { t: m.returns_at, m: m }; }))
+      .sort(function (a, b) { return a.t - b.t; });
     bar.hidden = !list.length;
-    bar.innerHTML = list.map(function (q) {
-      var build = q.kind === "build", role = build ? null : roleMeta(q.role);
-      var type = build ? q.building_type : role.building;
-      var label = (build ? "Qurilish: " + G.BUILDINGS[type].name + " → " + q.target_level : "Mashq: " + q.qty + " × " + role.name.toLowerCase() + " · T" + q.tier);
-      return '<button class="timer timer--' + q.kind + '" type="button" data-action="q-open" data-type="' + type + '" title="' + esc(label) + '" aria-label="' + esc(label) + '">' +
-        '<span class="timer__ring" data-live="qring-' + q.id + '" style="--p:' + queueRatio(q).toFixed(3) + '">' + icon(build ? "hammer" : role.icon) + "</span>" +
-        '<b class="timer__time" data-live="q-' + q.id + '">' + timeLeft(q) + "</b></button>";
+    bar.innerHTML = list.map(function (it) {
+      var cls, ic, label, ring, live, ratio, left, action;
+      if (it.m) {
+        var m = it.m, pl = m.payload || {}, loot = m.loot || {};
+        var sent = Object.keys(pl).reduce(function (s, r) { return s + Object.keys(pl[r]).reduce(function (a, t) { return a + pl[r][t]; }, 0); }, 0);
+        cls = "hunt"; ic = "paw"; action = 'data-action="hunt"';
+        label = "Ov: " + (loot.prey || "toʻda ovda") + (sent ? " · " + sent + " boʻri" : "") + " — qaytishiga";
+        ring = "mring-" + m.id; live = "m-" + m.id; ratio = marchRatio(m); left = timeLeft({ ends_at: m.returns_at });
+      } else {
+        var q = it.q, build = q.kind === "build", role = build ? null : roleMeta(q.role), type = build ? q.building_type : role.building;
+        cls = q.kind; ic = build ? "hammer" : role.icon; action = 'data-action="q-open" data-type="' + type + '"';
+        label = build ? "Qurilish: " + G.BUILDINGS[type].name + " → " + q.target_level : "Mashq: " + q.qty + " × " + role.name.toLowerCase() + " · T" + q.tier;
+        ring = "qring-" + q.id; live = "q-" + q.id; ratio = queueRatio(q); left = timeLeft(q);
+      }
+      return '<button class="timer timer--' + cls + '" type="button" ' + action + ' title="' + esc(label) + '" aria-label="' + esc(label) + '">' +
+        '<span class="timer__ring" data-live="' + ring + '" style="--p:' + ratio.toFixed(3) + '">' + icon(ic) + "</span>" +
+        '<b class="timer__time" data-live="' + live + '">' + left + "</b></button>";
     }).join("");
   }
 
@@ -392,7 +404,6 @@
       '<svg class="den-hero__wolf"><use href="#bw-i-wolf"/></svg></section>';
 
 
-    html += queueSection();
 
     html += sectionTitle("Binolar", '<span class="bw-faint" style="font-size:12px">' + buildingList().filter(function (b) { return !b.locked; }).length + " / 9</span>");
     html += '<div class="bw-grid-3 bw-grid-3--wide">' + buildingList().map(function (b) {
@@ -1036,7 +1047,8 @@
         " boʻladi. Yaradorlar " + Math.round(cfg.heal_no_hospital_min / 60) + " soatda tuzaladi.</span></div>";
     }
     html += '<p class="bw-muted" style="margin:12px 0 4px;font-size:13px">Kamida <b>' + card.min_pack + "</b> boʻri kerak. Goʻshtni faqat ovchilar keltiradi; boshqa askarlar toʻdani toʻldiradi.</p>";
-    html += '<div class="bw-card bw-card--flat" style="padding:0 14px">' + ["hunter", "attacker", "defender", "scout"].map(function (role) {
+    var avail = ["hunter", "attacker", "defender", "scout"].filter(function (role) { return armyCount(role) > 0; });
+    html += '<div class="bw-card bw-card--flat" style="padding:0 14px">' + (avail.indexOf("hunter") < 0 ? '<p class="bw-muted" style="margin:14px 0;font-size:13px">' + icon("info", "bw-icon--sm") + (avail.length ? " Inda boʻsh ovchi yoʻq" : " Inda boʻsh boʻri yoʻq") + " — ovga chiqish uchun kamida 1 ovchi kerak.</p>" : "") + avail.map(function (role) {
       var meta = roleMeta(role), max = armyCount(role);
       return '<div class="slider-row"><div class="bw-between"><span class="bw-role bw-role--' + role + '"><span class="bw-role__dot"></span>' + esc(meta.name) +
         '</span><span class="bw-faint" style="font-size:12px">inda ' + max + "</span></div>" + slider("hunt", role, sel[role] || 0, max) + "</div>";
@@ -1464,26 +1476,6 @@
       icon("close", "bw-icon--sm") + " Bekor</button>") + "</div></div></div>";
   }
 
-  function queueSection() {
-    var cfg = app.config, list = queues(), slots = buildSlots();
-    var html = sectionTitle("Qurilish navbati", '<span class="bw-chip">' + list.length + " / " + slots + " slot</span>");
-    html += '<div class="bw-stack">' + list.map(function (q) { return queueCard(q, false); }).join("");
-    for (var i = list.length; i < slots; i++) {
-      html += '<div class="bw-card bw-card--flat queue-slot"><span class="queue-slot__icon">' + icon("clock") +
-        '</span><div class="bw-grow"><div class="bw-row__title">Navbat boʻsh</div><div class="bw-row__sub">Binoni tanlang va kuchaytiring</div></div></div>';
-    }
-    if (slots < 2) {
-      html += '<div class="queue-slot queue-slot--locked">' + icon("lock", "bw-icon--sm") + "<span>2-navbat " + cfg.second_queue_free_level + "-darajada bepul ochiladi</span></div>";
-    }
-    html += "</div>";
-    var tq = trainQueues();
-    if (tq.length) {
-      html += sectionTitle("Mashq", '<span class="bw-chip">' + totalArmy() + " / " + G.armyCap(cfg, app.state.player.level) + " askar</span>");
-      html += '<div class="bw-stack">' + tq.map(function (q) { return queueCard(q, false); }).join("") + "</div>";
-    }
-    return html;
-  }
-
   /** So‘rash: Telegram oynasi yoki brauzer confirm. */
   function confirmAsk(text, cb) {
     if (tg && tg.showConfirm && tg.isVersionAtLeast && tg.isVersionAtLeast("6.2")) { tg.showConfirm(text, function (ok) { if (ok) cb(); }); return; }
@@ -1609,8 +1601,8 @@
       document.querySelectorAll('[data-live="qring-' + q.id + '"]').forEach(function (el) { el.style.setProperty("--p", queueRatio(q).toFixed(3)); });
     });
     (app.state.marches || []).forEach(function (m) {
-      var el = document.querySelector('[data-live="m-' + m.id + '"]');
-      if (el) el.textContent = timeLeft({ ends_at: m.returns_at });
+      document.querySelectorAll('[data-live="m-' + m.id + '"]').forEach(function (el) { el.textContent = timeLeft({ ends_at: m.returns_at }); });
+      document.querySelectorAll('[data-live="mring-' + m.id + '"]').forEach(function (el) { el.style.setProperty("--p", marchRatio(m).toFixed(3)); });
       var bar = document.querySelector('[data-live="mbar-' + m.id + '"]');
       if (bar) bar.style.width = Math.round(marchRatio(m) * 100) + "%";
     });
