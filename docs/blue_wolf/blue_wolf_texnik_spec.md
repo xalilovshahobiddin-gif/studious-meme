@@ -9,7 +9,12 @@ Oʻyin dizayni (formulalar, jadvallar, MVP doirasi) — `blue_wolf_GDD.md`; bu h
 
 ## 1. Ekran xaritasi
 
-Pastda **5 ta asosiy tab**. Qolgan hamma narsa shu beshtasining ichida.
+Pastda **6 ta asosiy tab** (In · Ov · Jang · Toʻda · Vazifalar · Profil). Qolgan hamma narsa shularning ichida.
+
+### Yuqori panel (hamma tabda)
+- **☰ Menyu** tugmasi → chap yondan suzib chiqadigan panel (`#drawer`, kengligi `min(78vw, 320px)`), fon xiralashadi; yopish: ✕, fon, chapga surish, Telegram BackButton, Esc. Bandlari keyin qoʻshiladi
+- Resurs paneli ostida **taymerlar paneli** (`#timer-bar`): faqat navbat bor paytda; qurilish — qahrabo + bolgʻa, mashq — binafsha + rol ikonkasi; bosilsa bino oynasi
+- Mukofot olinganda “+N” belgilari resurs kataklariga uchadi (`flyGain`); `prefers-reduced-motion` da oʻchadi
 
 ### 🏔 In (asosiy ekran)
 - 9 ta bino kartasi: In (avtomatik), Oziq gʻori, Ustaxona, Razvedka qoyasi, Jang maydoni, Himoya devori, Ov soʻqmogʻi, Shifo gʻori, Bozor (ochilmaganlari qulf belgisi bilan)

@@ -5,7 +5,7 @@
 (function () {
   "use strict";
 
-  var VERSION = "0.0.9";
+  var VERSION = "0.0.10";
   var tg = window.Telegram && window.Telegram.WebApp;
   var initData = tg && tg.initData ? tg.initData : "";
 
