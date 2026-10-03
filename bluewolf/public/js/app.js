@@ -1,4 +1,4 @@
-/* Blue Wolf Mini App — v0.0.10 (iqtisodiyot, qurilish, askarlar, ov, vazifalar, tanishtiruv, interfeys)
+/* Blue Wolf Mini App — v0.0.11 (iqtisodiyot, qurilish, askarlar, ov, vazifalar, tanishtiruv, interfeys)
    6 ta tab (In · Ov · Jang · Toʻda · Vazifalar · Profil), hash-router, Telegram WebApp integratsiyasi.
    Resurslar vaqt boʻyicha hisoblanadi (BWGame.advance — server bilan bir xil formula), Ustaxona buferi
    va taqsimoti, qurilish, askar mashqi va ov ishlaydi. Qolgan amallar (hujum, razvedka…) keyingi bosqichlarda ulanadi. */
@@ -88,6 +88,7 @@
     $("#drawer").removeAttribute("inert");
     $("#drawer").setAttribute("aria-hidden", "false");
     $("#menu-btn").setAttribute("aria-expanded", "true");
+    $("#menu-btn").setAttribute("aria-label", "Menyuni yopish");
     if (tg && tg.BackButton) tg.BackButton.show();
     haptic("light");
   }
@@ -97,6 +98,7 @@
     $("#drawer").setAttribute("inert", "");
     $("#drawer").setAttribute("aria-hidden", "true");
     $("#menu-btn").setAttribute("aria-expanded", "false");
+    $("#menu-btn").setAttribute("aria-label", "Menyu");
     if (tg && tg.BackButton && !$("#sheet").classList.contains("is-open")) tg.BackButton.hide();
   }
   /** Orqaga (Telegram BackButton, Esc): avval menyu, keyin oyna yopiladi. */
@@ -156,13 +158,10 @@
     bar.innerHTML = list.map(function (q) {
       var build = q.kind === "build", role = build ? null : roleMeta(q.role);
       var type = build ? q.building_type : role.building;
-      var name = build ? G.BUILDINGS[type].name + " → " + q.target_level : q.qty + " × " + role.name.toLowerCase() + " · T" + q.tier;
-      return '<button class="timer timer--' + q.kind + '" type="button" data-action="q-open" data-type="' + type + '" aria-label="' +
-        (build ? "Qurilish" : "Mashq") + ": " + esc(name) + '">' +
-        '<span class="timer__icon">' + icon(build ? "hammer" : role.icon) + "</span>" +
-        '<span class="timer__text"><span class="timer__kind">' + (build ? "Qurilish" : "Mashq") + '</span><span class="timer__name">' + esc(name) + "</span></span>" +
-        '<b class="timer__time" data-live="q-' + q.id + '">' + timeLeft(q) + "</b>" +
-        '<i class="timer__bar" data-live="qbar-' + q.id + '" style="width:' + Math.round(queueRatio(q) * 100) + '%"></i></button>';
+      var label = (build ? "Qurilish: " + G.BUILDINGS[type].name + " → " + q.target_level : "Mashq: " + q.qty + " × " + role.name.toLowerCase() + " · T" + q.tier);
+      return '<button class="timer timer--' + q.kind + '" type="button" data-action="q-open" data-type="' + type + '" title="' + esc(label) + '" aria-label="' + esc(label) + '">' +
+        '<span class="timer__ring" data-live="qring-' + q.id + '" style="--p:' + queueRatio(q).toFixed(3) + '">' + icon(build ? "hammer" : role.icon) + "</span>" +
+        '<b class="timer__time" data-live="q-' + q.id + '">' + timeLeft(q) + "</b></button>";
     }).join("");
   }
 
@@ -1607,6 +1606,7 @@
     (app.state.queues || []).forEach(function (q) {
       document.querySelectorAll('[data-live="q-' + q.id + '"]').forEach(function (el) { el.textContent = timeLeft(q); });
       document.querySelectorAll('[data-live="qbar-' + q.id + '"]').forEach(function (bar) { bar.style.width = Math.round(queueRatio(q) * 100) + "%"; });
+      document.querySelectorAll('[data-live="qring-' + q.id + '"]').forEach(function (el) { el.style.setProperty("--p", queueRatio(q).toFixed(3)); });
     });
     (app.state.marches || []).forEach(function (m) {
       var el = document.querySelector('[data-live="m-' + m.id + '"]');
@@ -1944,8 +1944,8 @@
     "train-tier": function (el) { app.trainSel.tier = +el.getAttribute("data-key"); app.sheetRefresh(); },
     "train-go": train,
     "close-sheet": closeSheet,
-    "menu-open": openDrawer,
     "menu-close": closeDrawer,
+    "menu-toggle": function () { if (drawerOpen()) closeDrawer(); else openDrawer(); },
     "tut-next": function () { tutComplete(); },
     "tut-go": function () { closeSheet(); tutGoto(); },
     "tut-skip": tutSkip,
