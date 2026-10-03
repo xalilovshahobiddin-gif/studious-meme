@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\BuildController;
 use App\Http\Controllers\Api\EconomyController;
 use App\Http\Controllers\Api\MetaController;
 use App\Http\Controllers\Api\StateController;
@@ -8,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 | Blue Wolf API v1 — docs/blue_wolf/blue_wolf_api.md
-| v0.0.2: holat, Ustaxona buferi va taqsimot. Qolganlari bosqichma-bosqich qoʻshiladi.
+| v0.0.3: holat, Ustaxona buferi va taqsimot, qurilish navbati. Qolganlari bosqichma-bosqich qoʻshiladi.
 */
 Route::prefix('v1')->group(function () {
     Route::get('ping', [MetaController::class, 'ping']);
@@ -17,6 +18,9 @@ Route::prefix('v1')->group(function () {
     Route::middleware(TelegramAuth::class)->group(function () {
         Route::get('state', [StateController::class, 'show']);
         Route::post('buildings/collect', [EconomyController::class, 'collect']);
+        Route::post('buildings/upgrade', [BuildController::class, 'upgrade']);
+        Route::post('queue/cancel', [BuildController::class, 'cancel']);
+        Route::post('queue/speedup', [BuildController::class, 'speedup']);
         Route::post('profile/allocation', [EconomyController::class, 'allocation']);
     });
 });

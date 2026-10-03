@@ -1,5 +1,16 @@
 # Blue Wolf — oʻzgarishlar tarixi
 
+## v0.0.3 — qurilish
+- **Binolarni kuchaytirish:** bino oynasida narx, vaqt va keyingi daraja nima berishi (ishlab chiqarish, sigʻim, askar sigʻimi, tier);
+  yetmagan resurs yoki band navbat sababi koʻrsatiladi. Kuchaytirish mumkin boʻlgan binolarda yashil “+” belgisi.
+- **Qurilish navbati:** In ekranida slotlar (1; 10-darajadan 2), har soniyada yuruvchi taymer va progress, bino kartasida ham taymer.
+  Tugaganda “… N-darajaga koʻtarildi!” xabari.
+- **Bekor qilish** (80% resurs qaytadi) va **bepul tezlashtirish** (−60 daqiqa; yangi oʻyinchiga 5 ta).
+- Server: `queues` jadvali, `BuildService`, `POST /buildings/upgrade`, `/queue/cancel`, `/queue/speedup`; navbatlar keyingi soʻrovda
+  dangasa yopiladi va resurs hisobi tugash paytida yangi bino darajasi bilan davom etadi.
+- Demo rejimda qurilish ham qurilmada simulyatsiya qilinadi va saqlanadi.
+- Testlar: PHP 32 ta (qurilish qoidalari, tugash vaqti, bekor qilish, tezlashtirish, narx formulalari klient bilan bir xil).
+
 ## v0.0.2 — tirik iqtisodiyot
 - **Resurs hisobi (timestamp accrual, texnik spec 4.1):** serverda `EconomyService`, klientda `BWGame.advance()` — bir xil formula.
   Onlayn/oflayn oraliqlari (oflaynda ishlab chiqarish ×0.7, bufer va gʻor sigʻimi ×2), Oziq gʻorining passiv suvi,

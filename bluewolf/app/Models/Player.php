@@ -13,7 +13,7 @@ class Player extends Model
     /** last_seen_at / last_tick_at — DATETIME(3), millisekundlar resurs hisobi uchun kerak. */
     protected $dateFormat = 'Y-m-d H:i:s.v';
 
-    protected $fillable = ['tg_id', 'tg_username', 'display_name', 'lang', 'level', 'xp', 'tutorial_step', 'status', 'last_seen_at'];
+    protected $fillable = ['tg_id', 'tg_username', 'display_name', 'lang', 'level', 'xp', 'tutorial_step', 'status', 'last_seen_at', 'free_speedups', 'second_queue_early'];
 
     protected function casts(): array
     {
@@ -22,6 +22,8 @@ class Player extends Model
             'level' => 'integer',
             'xp' => 'integer',
             'tutorial_step' => 'integer',
+            'free_speedups' => 'integer',
+            'second_queue_early' => 'boolean',
             'created_at' => 'datetime',
             'last_seen_at' => 'datetime',
         ];
@@ -35,5 +37,16 @@ class Player extends Model
     public function buildings(): HasMany
     {
         return $this->hasMany(Building::class);
+    }
+
+    public function queues(): HasMany
+    {
+        return $this->hasMany(Queue::class);
+    }
+
+    /** Qurilish navbati slotlari: 1, 10-darajadan (yoki erta xarid bilan) 2. */
+    public function buildSlots(): int
+    {
+        return $this->second_queue_early || $this->level >= GameConfig::value('second_queue_free_level', 10) ? 2 : 1;
     }
 }

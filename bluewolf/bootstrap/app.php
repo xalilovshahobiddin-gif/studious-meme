@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\GameException;
 use App\Support\ApiResponse;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // API xatolari ham { ok: false, error: {...} } konvertida qaytadi.
+        $exceptions->render(fn (GameException $e) => ApiResponse::error($e->errorCode, $e->getMessage(), $e->status, $e->details));
         $exceptions->render(function (HttpExceptionInterface $e, Request $request) {
             if (! $request->is('api/*')) {
                 return null;

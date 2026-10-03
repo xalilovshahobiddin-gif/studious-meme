@@ -3,13 +3,14 @@
 namespace App\Services;
 
 use App\Models\Building;
+use App\Models\GameConfig;
 use App\Models\Player;
 use App\Models\PlayerResource;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Oʻyinchini Telegram foydalanuvchisidan topish/yaratish va holat snapshotini yigʻish.
- * v0.0.2: resurs hisobi (EconomyService) bor; navbatlar va yurishlar hali yoʻq.
+ * v0.0.3: resurs hisobi (EconomyService) va qurilish navbati (BuildService); yurishlar hali yoʻq.
  */
 class PlayerService
 {
@@ -20,14 +21,14 @@ class PlayerService
      * Chaqiruvchi DB::transaction ichida boʻlishi kerak (resurs qatori qulflanadi).
      *
      * @param  array<string, mixed>  $tgUser
-     * @return array{0: Player, 1: array{seconds: int, gained: array<string, int>}|null}
+     * @return array{0: Player, 1: array{away: array<string, mixed>|null, finished: list<array<string, mixed>>}}
      */
     public function enter(array $tgUser): array
     {
         $player = $this->forTelegramUser($tgUser);
-        $away = $this->economy->sync($player);
+        $sync = $this->economy->sync($player);
 
-        return [$player, $away];
+        return [$player, $sync];
     }
 
     /**
@@ -46,10 +47,11 @@ class PlayerService
 
             if ($player->wasRecentlyCreated) {
                 $player->refresh(); // bazadagi standart qiymatlar (level = 1 va h.k.)
+                // v0.4 gacha (tanishtiruv yoʻq): bepul tezlashtirishlar birinchi kirishda beriladi
+                $player->free_speedups = (int) GameConfig::value('tutorial_free_speedups', 5);
             }
 
             $player->forceFill(['tg_username' => $tgUser['username'] ?? null])->save();
-
             PlayerResource::query()->firstOrCreate(['player_id' => $player->id], ['last_tick_at' => now()]);
             $this->syncBuildings($player);
 
@@ -91,6 +93,8 @@ class PlayerService
                 'level' => $player->level,
                 'xp' => $player->xp,
                 'tutorial_step' => $player->tutorial_step,
+                'free_speedups' => $player->free_speedups,
+                'build_slots' => $player->buildSlots(),
             ],
             'resources' => $player->resources->toClient(),
             'buildings' => collect(Building::TYPES)->map(fn ($unlock, $type) => [
@@ -101,7 +105,7 @@ class PlayerService
             ])->values()->all(),
             'economy' => $this->economy->clientState($player),
             'army' => [],
-            'queues' => [],
+            'queues' => $this->queues($player),
             'marches' => [],
             'shield_until' => null,
             'hunger' => false,
@@ -118,8 +122,17 @@ class PlayerService
         return [
             'resources' => $player->resources->toClient(),
             'economy' => $this->economy->clientState($player),
-            'queues' => [],
+            'buildings' => $player->buildings()->pluck('level', 'type'),
+            'queues' => $this->queues($player),
+            'free_speedups' => $player->free_speedups,
             'server_time' => now()->format('Y-m-d\\TH:i:s.v\\Z'),
         ];
+    }
+
+    /** @return list<array<string, mixed>> */
+    private function queues(Player $player): array
+    {
+        return $player->queues()->where('state', 'running')->orderBy('ends_at')->get()
+            ->map(fn ($q) => $q->toClient())->all();
     }
 }

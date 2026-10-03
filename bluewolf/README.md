@@ -1,11 +1,12 @@
-# Blue Wolf — Telegram Mini App · v0.0.2
+# Blue Wolf — Telegram Mini App · v0.0.3
 
 Strategiya / omon qolish oʻyini: ov qil, in qur, toʻda yigʻ va Koʻk Boʻriga aylan.
 Dizayn hujjatlari: [`docs/blue_wolf/`](../docs/blue_wolf/) (GDD, API, sxema, balans jadvali). Oʻzgarishlar: [CHANGELOG.md](CHANGELOG.md).
 
 > **v0.0.x — skelet / demo koʻrinish.** Ekranlar, dizayn tizimi, Telegram integratsiyasi va backend asosi tayyor.
 > **v0.0.2 dan iqtisodiyot tirik:** resurslar vaqt boʻyicha hisoblanadi, Ustaxona buferini yigʻish va taqsimot ishlaydi.
-> Boshqa amallar (qurish, ov, mashq, hujum…) hali ishlamaydi — tugmalar “keyingi bosqichda” xabarini koʻrsatadi.
+> **v0.0.3 dan qurilish:** binolarni kuchaytirish, qurilish navbati, bekor qilish va bepul tezlashtirish.
+> Boshqa amallar (ov, mashq, hujum…) hali ishlamaydi — tugmalar “keyingi bosqichda” xabarini koʻrsatadi.
 
 - **Backend:** PHP 8.2+ · Laravel 12 · MySQL 8 (lokal sinov uchun SQLite)
 - **Frontend:** PWA, `public/` papkasida, build talab qilinmaydi (oddiy JS + CSS)
@@ -17,14 +18,16 @@ Dizayn hujjatlari: [`docs/blue_wolf/`](../docs/blue_wolf/) (GDD, API, sxema, bal
 ```
 bluewolf/
 ├── app/
-│   ├── Http/Controllers/Api/   StateController (GET /state), EconomyController (collect, allocation), MetaController
+│   ├── Http/Controllers/Api/   StateController (GET /state), EconomyController (collect, allocation),
+│   │                           BuildController (upgrade, cancel, speedup), MetaController
 │   ├── Http/Middleware/        TelegramAuth — initData tekshiruvi (X-Init-Data)
 │   ├── Models/                 Player, PlayerResource, Building, GameConfig
-│   ├── Services/               PlayerService — oʻyinchi va holat; EconomyService — resurs hisobi (accrual)
+│   ├── Services/               PlayerService — oʻyinchi va holat; EconomyService — resurs hisobi (accrual);
+│   │                           BuildService — bino narxi, vaqti va qurilish navbati
 │   └── Support/                TelegramInitData (imzo), ApiResponse (javob konverti)
 ├── config/bluewolf.php         versiya, bot tokeni, initData muddati, dev_auth
 ├── database/
-│   ├── migrations/             players, player_resources, buildings, game_config
+│   ├── migrations/             players, player_resources, buildings, game_config, queues
 │   └── seeders/data/           game_config.json — 273 balans parametri (avtomatik yaratiladi)
 ├── public/
 │   ├── index.html              ilova qobigʻi (5 tab: In · Jang · Toʻda · Vazifalar · Profil)
@@ -93,7 +96,17 @@ vendor/bin/pint --test        # kod uslubi
 3. @BotFather → `/newapp` (yoki bot sozlamalari → Menu Button) → URL: `https://domen/`.
 4. Botni Telegram’da oching → menyu tugmasi → ilova jonli rejimda ochiladi.
 
-## API (v0.0.2)
+## Qurilish (v0.0.3)
+
+- Bino narxi va vaqti — GDD bo'lim 5 formulalari (`BuildService::cost/seconds` = `BWGame.buildingCost/buildingTime`).
+- Tekshiruvlar: bino ochilgan, yangi daraja ≤ oʻyinchi darajasi, resurs yetarli, navbatda boʻsh slot (1; 10-darajadan 2),
+  bitta bino bir vaqtda bir marta. In navbat orqali qurilmaydi (`DEN_AUTO_LEVEL`).
+- Navbat tugash vaqti bilan saqlanadi va keyingi soʻrovda “dangasa” yopiladi — resurs hisobi tugash paytida yangi daraja bilan davom etadi
+  (masalan, Ustaxona kuchaygan zahoti koʻproq ishlab chiqaradi).
+- Bekor qilish — yechilgan resursning 80% i qaytadi. Bepul tezlashtirish — har biri 60 daqiqagacha; hozircha yangi oʻyinchiga 5 ta beriladi
+  (v0.4 da tanishtiruv yakuniga koʻchadi). Oy toshi bilan tezlashtirish keyinroq.
+
+## API (v0.0.3)
 
 Javob konverti: `{ ok: true, data, state }` yoki `{ ok: false, error: { code, message, details } }`.
 
@@ -104,6 +117,9 @@ Javob konverti: `{ ok: true, data, state }` yoki `{ ok: false, error: { code, me
 | `GET /api/v1/state` | `X-Init-Data` | Oʻyinchi holati (resurslar hisoblangan, `economy`, `away`); birinchi kirishda oʻyinchi yaratiladi |
 | `POST /api/v1/buildings/collect` | `X-Init-Data` | Ustaxona buferini omborga oʻtkazish → `{ collected }` |
 | `POST /api/v1/profile/allocation` | `X-Init-Data` | Taqsimot `{ stone, wood, hide, bone }` — butun sonlar, yigʻindisi 100 |
+| `POST /api/v1/buildings/upgrade` | `X-Init-Data` | `{ type }` → navbat `{ queue }`; xatolar: `NOT_ENOUGH_RESOURCES`, `QUEUE_BUSY`, `LEVEL_TOO_LOW`, `DEN_AUTO_LEVEL` |
+| `POST /api/v1/queue/cancel` | `X-Init-Data` | `{ queue_id }` → `{ refund }` (80%) |
+| `POST /api/v1/queue/speedup` | `X-Init-Data` | `{ queue_id, use_free: true }` — bepul tezlashtirish |
 
 Toʻliq rejadagi API (70 endpoint): [`docs/blue_wolf/blue_wolf_api.md`](../docs/blue_wolf/blue_wolf_api.md).
 
@@ -124,8 +140,8 @@ Skript `database/seeders/data/game_config.json` va `public/data/game_config.json
 |---|---|
 | v0.0.0 | Skelet: ekranlar, BlueWolf UI, PWA, Telegram auth, `/state` ✅ |
 | v0.0.1 | Ixcham resurs paneli, resurs maʼlumot oynasi ✅ |
-| **v0.0.2** | Tirik iqtisodiyot: resurs hisobi (timestamp accrual), Ustaxona buferi va yigʻib olish, taqsimot serverda ✅ |
-| v0.2 | Qurilish navbati, bino kuchaytirish, bepul tezlashtirish |
+| v0.0.2 | Tirik iqtisodiyot: resurs hisobi (timestamp accrual), Ustaxona buferi va yigʻib olish, taqsimot serverda ✅ |
+| **v0.0.3** | Qurilish: bino kuchaytirish, qurilish navbati, bekor qilish, bepul tezlashtirish ✅ |
 | v0.3 | Askar mashqi, ov (yolgʻiz, toʻda), oziqlanish va ochlik |
 | v0.4 | Tanishtiruv (20 qadam), kundalik vazifalar |
 | v0.5 | Botlarga hujum, razvedka, jang hisoblagichi, jarohat va davolash |
