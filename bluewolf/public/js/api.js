@@ -5,7 +5,7 @@
 (function () {
   "use strict";
 
-  var VERSION = "0.0.8";
+  var VERSION = "0.0.9";
   var tg = window.Telegram && window.Telegram.WebApp;
   var initData = tg && tg.initData ? tg.initData : "";
 
@@ -40,17 +40,40 @@
     });
   }
 
+  /** Demo turi: "new" — yangi oʻyinchi (tanishtiruv bilan), "rich" — tayyor 5-daraja. */
+  function demoMode() {
+    var mode = null;
+    try {
+      mode = localStorage.getItem("bw.demo.mode");
+      if (!mode) {
+        mode = localStorage.getItem("bw.demo.econ") ? "rich" : "new"; // eski demo saqlanmasi — tayyor demo
+        localStorage.setItem("bw.demo.mode", mode);
+      }
+    } catch (e) { mode = "new"; }
+    return mode === "rich" ? "rich" : "new";
+  }
+
   function demoState(config, reason) {
-    var d = JSON.parse(JSON.stringify(window.BW_DEMO));
-    return { mode: "demo", reason: reason, config: config, state: d };
+    var mode = demoMode();
+    var d = JSON.parse(JSON.stringify(mode === "new" ? window.BW_DEMO_NEW : window.BW_DEMO));
+    return { mode: "demo", demoMode: mode, reason: reason, config: config, state: d };
   }
 
   function loadLocalConfig() {
     return fetch("data/game_config.json").then(function (r) { return r.json(); });
   }
 
+  /** Tanishtiruv qadamlari (server ham shu faylni oʻqiydi). */
+  function loadTutorial() {
+    return fetch("data/tutorial.json").then(function (r) { return r.json(); }).catch(function () { return null; });
+  }
+
   /** Ilovani yuklash: server bormi, Telegram initData bormi — shunga qarab rejim tanlanadi. */
   function boot() {
+    return Promise.all([bootState(), loadTutorial()]).then(function (r) { r[0].tutorial = r[1]; return r[0]; });
+  }
+
+  function bootState() {
     return request("ping", { timeout: 2500 }).then(function () {
       if (!initData) {
         return loadLocalConfig().then(function (cfg) { return demoState(cfg, "no-telegram"); });

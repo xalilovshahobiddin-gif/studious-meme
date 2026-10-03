@@ -13,11 +13,13 @@ class ProgressService
     /**
      * XP qoʻshadi; chegaradan oshsa daraja koʻtariladi, yangi binolar ochiladi, In darajasi sinxronlanadi.
      *
+     * Tanishtiruv davomida XP faqat tanishtiruv qadamlaridan keladi (GDD bo'lim 1, 15).
+     *
      * @return list<int> erishilgan yangi darajalar
      */
-    public function addXp(Player $player, float $xp): array
+    public function addXp(Player $player, float $xp, bool $fromTutorial = false): array
     {
-        if ($xp <= 0) {
+        if ($xp <= 0 || (! $fromTutorial && TutorialService::active($player))) {
             return [];
         }
         $cfg = GameConfig::allValues();

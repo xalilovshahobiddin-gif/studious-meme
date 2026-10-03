@@ -92,7 +92,6 @@ class PlayerService
                 'name' => $player->display_name,
                 'username' => $player->tg_username,
                 'lang' => $player->lang,
-                'tutorial_step' => $player->tutorial_step,
             ] + $this->progressState($player),
             'resources' => $player->resources->toClient(),
             'buildings' => collect(Building::TYPES)->map(fn ($unlock, $type) => [
@@ -147,6 +146,8 @@ class PlayerService
             'free_speedups' => $player->free_speedups,
             'build_slots' => $player->buildSlots(),
             'solo_hunt_at' => $player->solo_hunt_at?->getTimestampMs(),
+            'tutorial_step' => $player->tutorial_step,
+            'tutorial_total' => TutorialService::total(),
         ];
     }
 

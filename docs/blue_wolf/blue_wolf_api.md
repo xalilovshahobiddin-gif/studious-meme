@@ -304,23 +304,11 @@ Oy toshi bilan ichki xarid: `{ "item_key": "second_queue_early" }` (faqat 4–9 
 ## 13. Tanishtiruv va xizmat
 
 ### `POST /tutorial/step`
-`{ "step": 7 }` — progress saqlanadi, qadam mukofoti va XP si beriladi (GDD bo'lim 15). Tanishtiruv davomida navbatlar darhol tugaydi.
+`{ "step": 7 }` — navbatdagi qadam (faqat ketma-ket, aks holda `VALIDATION`). Qadam XP si va mukofoti beriladi (GDD bo'lim 15, `public/data/tutorial.json`). Javob: `{ step, xp, reward, levels }`.
+Tanishtiruv davomida qurilish/mashq navbatlari darhol tugaydi va boshqa manbalardan XP kelmaydi.
+
 ### `POST /tutorial/skip`
-Faqat 12-qadamdan keyin; qolgan qadamlarning XP si beriladi, resurs mukofotlari berilmaydi.
-### `GET /notifications?unread=1`
-### `POST /notifications/settings`
-`{ "disabled": ["build_done", "daily_quests"] }` — turlar boʻyicha oʻchirish (`player_settings.notif_disabled`).
-### `POST /events`
-Analitika `{ "event": "...", "payload": {} }` (batch, 20 tagacha).
-### `GET /config`
-Klient uchun ochiq parametrlar (narxlar, vaqtlar, matn versiyasi) — `game_config` dan.
-### `GET /locales/:lang?since=...`
-Lokalizatsiya paketi, keshlanadi.
-### `POST /bot/webhook` *(faqat Telegram)*
-Telegram bot updatelari. `X-Telegram-Bot-Api-Secret-Token` (`setWebhook` dagi `secret_token`) tekshiriladi, `initData` emas.
-- `pre_checkout_query` — mahsulot va narx tekshiriladi, **10 soniya ichida** `answerPreCheckoutQuery` bilan javob beriladi;
-- `successful_payment` — oy toshi qoʻshiladi; `telegram_payment_charge_id` → `transactions.tg_payment_id` (unikal — takror hisoblanmaydi);
-- `/start` va boshqa buyruqlar — Mini App ga havola.
+12-qadamdan keyin: qolgan qadamlarning XP si beriladi (resurs mukofotlari — yoʻq), tanishtiruv yakunlanadi. Javob: `{ xp, levels }`.
 
 ---
 

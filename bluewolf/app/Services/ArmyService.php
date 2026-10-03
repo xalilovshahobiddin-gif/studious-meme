@@ -109,7 +109,8 @@ class ArmyService
             'qty' => $qty,
             'cost' => $cost,
             'started_at' => $now,
-            'ends_at' => $now->addMilliseconds((int) round($seconds * 1000)),
+            // Tanishtiruvda mashq darhol tugaydi (GDD bo'lim 15)
+            'ends_at' => TutorialService::active($player) ? $now : $now->addMilliseconds((int) round($seconds * 1000)),
         ]);
     }
 }

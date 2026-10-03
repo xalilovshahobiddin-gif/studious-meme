@@ -1,11 +1,11 @@
-/* Blue Wolf — service worker (v0.0.8).
+/* Blue Wolf — service worker (v0.0.9).
    Ilova qobigʻi keshlanadi (oflayn ochiladi); API soʻrovlari hech qachon keshlanmaydi. */
-var CACHE = "bluewolf-v0.0.8";
+var CACHE = "bluewolf-v0.0.9";
 var SHELL = [
   "./", "index.html", "manifest.webmanifest",
-  "ui/bluewolf-ui.css?v=0.0.8", "ui/bluewolf-icons.js?v=0.0.8", "css/app.css?v=0.0.8",
-  "js/demo-data.js?v=0.0.8", "js/game.js?v=0.0.8", "js/api.js?v=0.0.8", "js/app.js?v=0.0.8",
-  "data/game_config.json", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png"
+  "ui/bluewolf-ui.css?v=0.0.9", "ui/bluewolf-icons.js?v=0.0.9", "css/app.css?v=0.0.9",
+  "js/demo-data.js?v=0.0.9", "js/game.js?v=0.0.9", "js/api.js?v=0.0.9", "js/app.js?v=0.0.9",
+  "data/game_config.json", "data/tutorial.json", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png"
 ];
 
 self.addEventListener("install", function (e) {

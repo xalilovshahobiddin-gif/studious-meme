@@ -483,11 +483,19 @@ def run_checks(b, wb):
         # Darajalar varagʻi kabi: har daraja narxi 10 ga yaxlitlanadi
         total_xp.append(total_xp[-1] + round(b.xp_base * b.xp_growth ** (L - 2) * b.stage(L), -1))
     xp = 0
-    for r in range(hdr + 1, hdr + 21):
+    r = hdr + 1
+    while isinstance(ws.cell(r, 1).value, (int, float)):
         step_level = ws.cell(r, 2).value
         reached = max(L for L in range(1, 26) if xp >= total_xp[L])
         check(reached == step_level, f"Tanishtiruv {ws.cell(r, 1).value}-qadam: daraja {step_level}, XP boʻyicha {reached}")
         xp += ws.cell(r, xp_col).value
+        r += 1
+    # Excel varagʻi ilovadagi qadamlar bilan bir xil (bluewolf/public/data/tutorial.json)
+    app_steps = json.loads((ROOT.parent.parent / "bluewolf" / "public" / "data" / "tutorial.json").read_text(encoding="utf-8"))["steps"]
+    check(r - hdr - 1 == len(app_steps), f"Tanishtiruv: Excel da {r - hdr - 1} qadam, ilovada {len(app_steps)}")
+    for i, st in enumerate(app_steps):
+        check(ws.cell(hdr + 1 + i, xp_col).value == st["xp"] and ws.cell(hdr + 1 + i, 2).value == st["level"],
+              f"Tanishtiruv {st['id']}-qadam: Excel va tutorial.json XP/daraja farq qiladi")
     check(xp >= total_xp[int(b.tutorial_end_level)],
           f"Tanishtiruv XP si {xp} — {int(b.tutorial_end_level)}-daraja uchun yetmaydi")
 

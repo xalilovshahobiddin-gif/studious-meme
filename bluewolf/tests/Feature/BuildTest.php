@@ -7,6 +7,7 @@ use App\Models\Player;
 use App\Models\PlayerResource;
 use App\Models\Queue;
 use App\Services\BuildService;
+use App\Services\TutorialService;
 use App\Support\TelegramInitData;
 use Database\Seeders\GameConfigSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -46,7 +47,7 @@ class BuildTest extends TestCase
     private function player(array $resources = ['stone' => 5000, 'wood' => 5000, 'hide' => 5000, 'bone' => 5000]): void
     {
         $this->getJson('/api/v1/state', $this->headers())->assertOk();
-        Player::query()->update(['level' => 5]);
+        Player::query()->update(['level' => 5, 'tutorial_step' => TutorialService::total()]);
         $this->getJson('/api/v1/state', $this->headers())->assertOk();
         PlayerResource::query()->update($resources);
     }

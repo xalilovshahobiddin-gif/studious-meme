@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Army;
 use App\Models\Player;
 use App\Models\PlayerResource;
+use App\Services\TutorialService;
 use App\Support\Formula;
 use App\Support\TelegramInitData;
 use Database\Seeders\GameConfigSeeder;
@@ -45,7 +46,7 @@ class ArmyTest extends TestCase
     {
         $this->getJson('/api/v1/state', $this->headers())->assertOk();
         $xp = Formula::totalXp($this->cfg(), $level);
-        Player::query()->update(['level' => $level, 'xp' => $xp]);
+        Player::query()->update(['level' => $level, 'xp' => $xp, 'tutorial_step' => TutorialService::total()]);
         $this->getJson('/api/v1/state', $this->headers())->assertOk();
         PlayerResource::query()->update($resources + ['meat' => 50, 'bone' => 500]);
 
@@ -191,6 +192,7 @@ class ArmyTest extends TestCase
     public function test_solo_hunt_with_cooldown(): void
     {
         $this->getJson('/api/v1/state', $this->headers())->assertOk();
+        Player::query()->update(['tutorial_step' => TutorialService::total()]);
         $h = $this->headers();
 
         $this->postJson('/api/v1/hunt/solo', [], $h)

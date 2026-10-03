@@ -1,9 +1,9 @@
-/* Blue Wolf — demo maʼlumotlar (v0.0.8).
+/* Blue Wolf — demo maʼlumotlar (v0.0.9).
    Server topilmaganda (GitHub Pages, oddiy brauzer) ilova shu bilan ochiladi.
    Raqamlar GDD dagi 5-darajali oʻyinchiga mos namuna.
    v0.0.2: resurslar qurilmada vaqt boʻyicha hisoblanadi (localStorage "bw.demo.econ"). */
 window.BW_DEMO = {
-  player: { id: 0, name: "Alfa", username: "demo", lang: "uz", level: 5, xp: 412, tutorial_step: 20, free_speedups: 5 },
+  player: { id: 0, name: "Alfa", username: "demo", lang: "uz", level: 5, xp: 412, tutorial_step: 99, free_speedups: 5 },
   resources: { meat: 52, water: 41, herb: 12, moonlight: 0, stone: 820, wood: 610, hide: 240, bone: 305, moonstone: 0 },
   buildings: [
     { type: "den", level: 5 }, { type: "food_cave", level: 3 }, { type: "workshop", level: 4 },
@@ -29,3 +29,14 @@ window.BW_DEMO = {
   ],
   battles: []
 };
+
+/* Yangi oʻyinchi (tanishtiruv bilan): 1-daraja, hech narsa yoʻq — server yangi oʻyinchiga beradigan holat. */
+window.BW_DEMO_NEW = (function () {
+  var d = JSON.parse(JSON.stringify(window.BW_DEMO));
+  var zero = function () { return { scout: [0, 0, 0, 0, 0, 0], attacker: [0, 0, 0, 0, 0, 0], defender: [0, 0, 0, 0, 0, 0], hunter: [0, 0, 0, 0, 0, 0] }; };
+  d.player = { id: 0, name: "Alfa", username: "demo", lang: "uz", level: 1, xp: 0, tutorial_step: 0, free_speedups: 5 };
+  d.resources = { meat: 0, water: 0, herb: 0, moonlight: 0, stone: 0, wood: 0, hide: 0, bone: 0, moonstone: 0 };
+  d.buildings.forEach(function (b) { b.level = b.type === "den" ? 1 : 0; });
+  d.army = zero(); d.army_away = zero(); d.army_injured = zero();
+  return d;
+})();
