@@ -26,10 +26,15 @@ class GameConfig extends Model
     /** @return array<string, float> */
     public static function allValues(): array
     {
-        return Cache::remember('game_config', 300, fn () => static::query()
-            ->pluck('config_value', 'config_key')
-            ->map(fn ($v) => (float) $v)
-            ->all());
+        $values = Cache::get('game_config');
+        if ($values === null) {
+            $values = static::query()->pluck('config_value', 'config_key')->map(fn ($v) => (float) $v)->all();
+            if ($values) { // boʻsh jadval (seed qilinmagan) keshlanmaydi
+                Cache::put('game_config', $values, 300);
+            }
+        }
+
+        return $values;
     }
 
     public static function value(string $key, ?float $default = null): ?float

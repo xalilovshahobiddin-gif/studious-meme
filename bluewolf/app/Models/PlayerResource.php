@@ -10,6 +10,9 @@ class PlayerResource extends Model
 
     public $timestamps = false;
 
+    /** last_seen_at / last_tick_at — DATETIME(3), millisekundlar resurs hisobi uchun kerak. */
+    protected $dateFormat = 'Y-m-d H:i:s.v';
+
     public $incrementing = false;
 
     protected $primaryKey = 'player_id';

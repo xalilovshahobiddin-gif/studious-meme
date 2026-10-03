@@ -55,6 +55,17 @@
 .hunt-card { display: flex; align-items: center; gap: 12px; }
 .hunt-card__icon { width: 44px; height: 44px; flex: none; border-radius: 14px; display: grid; place-items: center; background: rgba(255, 138, 101, .14); color: var(--bw-res-meat); }
 
+/* Ustaxona buferi */
+.workshop { display: flex; flex-direction: column; gap: 12px; }
+.buf-row { display: flex; align-items: center; gap: 10px; }
+.buf-row__icon { width: 32px; height: 32px; flex: none; border-radius: 10px; display: grid; place-items: center; color: var(--bw-rc); background: color-mix(in srgb, var(--bw-rc) 14%, transparent); }
+.buf-row__icon .bw-icon { width: 18px; height: 18px; }
+.buf-row__name { font-size: var(--bw-fs-sm); font-weight: 650; }
+.buf-row__val { font-size: var(--bw-fs-sm); }
+.buf-row .bw-progress { margin-top: 6px; }
+.workshop__foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 10px; border-top: 1px solid var(--bw-border); font-size: var(--bw-fs-xs); }
+.gain-row .bw-chip .bw-icon { color: var(--bw-rc); }
+
 /* Navbat slotlari */
 .queue-slot { display: flex; align-items: center; gap: 12px; }
 .queue-slot__icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--bw-surface-2); color: var(--bw-text-3); }

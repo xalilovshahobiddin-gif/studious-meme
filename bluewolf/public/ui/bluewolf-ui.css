@@ -1,6 +1,6 @@
 /* ==========================================================================
    BlueWolf UI — Blue Wolf oʻyini uchun dizayn tizimi
-   v0.0.1
+   v0.0.2
 
    Tuzilishi:
      1. Tokenlar (palitra, semantik ranglar, rol va tier ranglari, shrift, oraliq, radius, soya, harakat)
@@ -276,6 +276,12 @@ button { font: inherit; color: inherit; }
 .bw-rescell.is-full .bw-rescell__val { color: var(--bw-accent); }
 .bw-rescell.is-low .bw-rescell__val { color: var(--bw-ember-400); }
 [data-bw-theme="light"] .bw-rescell.is-low .bw-rescell__val { color: #b8321d; }
+/* Ustaxona buferi deyarli toʻla — yigʻish vaqti */
+.bw-rescell.is-ready::after { content: ""; position: absolute; top: 4px; right: 4px; width: 6px; height: 6px; border-radius: 50%; background: var(--bw-accent); box-shadow: 0 0 0 0 rgba(255, 181, 71, .6); animation: bw-ping 1.6s var(--bw-ease) infinite; }
+.bw-rescell.is-flash { animation: bw-flash .7s var(--bw-ease); }
+@keyframes bw-ping { 0% { box-shadow: 0 0 0 0 rgba(255, 181, 71, .55); } 80%, 100% { box-shadow: 0 0 0 6px rgba(255, 181, 71, 0); } }
+@keyframes bw-flash { 0% { background: color-mix(in srgb, var(--bw-rc) 35%, transparent); transform: scale(1.06); } 100% { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .bw-rescell.is-ready::after, .bw-rescell.is-flash { animation: none; } }
 .bw-rescell--meat { --bw-rc: var(--bw-res-meat); }
 .bw-rescell--water { --bw-rc: var(--bw-res-water); }
 .bw-rescell--herb { --bw-rc: var(--bw-res-herb); }

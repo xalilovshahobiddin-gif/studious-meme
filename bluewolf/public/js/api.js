@@ -5,7 +5,7 @@
 (function () {
   "use strict";
 
-  var VERSION = "0.0.1";
+  var VERSION = "0.0.2";
   var tg = window.Telegram && window.Telegram.WebApp;
   var initData = tg && tg.initData ? tg.initData : "";
 
@@ -57,7 +57,8 @@
       }
       return Promise.all([request("state"), request("config")]).then(function (res) {
         var st = res[0].data;
-        return { mode: "live", config: res[1].data.params, state: Object.assign({ army: {}, targets: [], parties: [], quests: { daily: [], weekly: [] }, battles: [] }, st, { army: {} }) };
+        return { mode: "live", config: res[1].data.params, serverTime: res[0].state.server_time,
+          state: Object.assign({ army: {}, targets: [], parties: [], quests: { daily: [], weekly: [] }, battles: [] }, st, { army: {} }) };
       });
     }, function () {
       return loadLocalConfig().then(function (cfg) { return demoState(cfg, "no-server"); });
