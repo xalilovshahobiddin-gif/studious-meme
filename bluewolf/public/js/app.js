@@ -1,5 +1,5 @@
-/* Blue Wolf Mini App — v0.0.5 (iqtisodiyot, qurilish, askarlar va ov)
-   5 ta tab (In · Jang · Toʻda · Vazifalar · Profil), hash-router, Telegram WebApp integratsiyasi.
+/* Blue Wolf Mini App — v0.0.6 (iqtisodiyot, qurilish, askarlar va ov)
+   6 ta tab (In · Ov · Jang · Toʻda · Vazifalar · Profil), hash-router, Telegram WebApp integratsiyasi.
    Resurslar vaqt boʻyicha hisoblanadi (BWGame.advance — server bilan bir xil formula), Ustaxona buferi
    va taqsimoti, qurilish, askar mashqi va ov ishlaydi. Qolgan amallar (hujum, razvedka…) keyingi bosqichlarda ulanadi. */
 (function () {
@@ -300,7 +300,6 @@
       "</b> · kunlik goʻsht: <b class=\"bw-num\">" + G.fmt(dailyNeed) + " kg</b></p></div>" +
       '<svg class="den-hero__wolf"><use href="#bw-i-wolf"/></svg></section>';
 
-    html += huntCard();
 
     html += queueSection();
 
@@ -511,19 +510,9 @@
     var p = app.state.player, cfg = app.config;
     var html = '<div class="screen-title"><h1 class="bw-h2">Toʻda</h1><span class="bw-chip bw-chip--accent">Klan — v2</span></div>';
     if (p.level < cfg.pack_unlock_level) {
-      return html + lockedCard("pack", cfg.pack_unlock_level + "-darajada ochiladi", "Yolgʻiz boʻri omon qolmaydi. 4-darajada toʻdang va ov guruhlari ochiladi.");
+      return html + lockedCard("pack", cfg.pack_unlock_level + "-darajada ochiladi", "Yolgʻiz boʻri omon qolmaydi. 4-darajada toʻdang ochiladi.");
     }
-    html += '<div class="bw-card"><div class="bw-card__head"><div><div class="bw-h3">Ov guruhlari</div>' +
-      '<div class="bw-muted" style="font-size:13px">2–' + cfg.hunt_party_max + " oʻyinchi bitta ovga · har qoʻshimcha oʻyinchi +" +
-      Math.round(cfg.hunt_party_bonus * 100) + '%</div></div><button class="bw-btn bw-btn--sm" data-action="party-create">' + icon("plus", "bw-icon--sm") + " Yaratish</button></div>";
-    var parties = app.state.parties || [];
-    html += parties.length ? '<div class="bw-list">' + parties.map(function (g) {
-      return '<div class="bw-row"><span class="bw-avatar bw-avatar--sm bw-tier-1">' + icon("pack") + '</span><div class="bw-row__main">' +
-        '<div class="bw-row__title">' + esc(g.leader) + " · " + esc(g.prey) + '</div><div class="bw-row__sub">' + g.members + "/" + g.max +
-        " oʻyinchi · " + g.departs_min + ' daqiqada joʻnaydi</div></div><button class="bw-btn bw-btn--soft bw-btn--sm" data-action="party-join">Qoʻshilish</button></div>';
-    }).join("") + "</div>" : '<p class="bw-muted">Hozir ochiq guruh yoʻq.</p>';
-    html += "</div>";
-
+    html += '<p class="bw-muted" style="margin:0">Ov guruhlari endi <a href="#/ov">Ov</a> boʻlimida.</p>';
     html += sectionTitle("Klan");
     html += lockedCard("lock", "Rasmiy klanlar — v2", "Aʼzolik, lavozimlar, xazina, toʻda urushi va oazislar MVP dan keyin qoʻshiladi.");
     return html;
@@ -612,34 +601,113 @@
     return at ? at + app.config.solo_hunt_cooldown_min * 60000 : 0;
   }
 
-  /** In ekranidagi ov kartasi: yurishdagi ov, yolgʻiz ov yoki toʻda ovi. */
-  function huntCard() {
+  /* ---------------------------------------------------------------- 🐾 Ov */
+  /** Ov tabi: yurishdagi ov, yolgʻiz ov, toʻda ovi (slayderlar bilan), ovchilar, zaxira, ov guruhlari, oʻlja zinapoyasi. */
+  function screenOv() {
     var p = app.state.player, cfg = app.config, prey = G.PREY[p.level], m = huntMarch();
-    var head = '<div class="bw-card hunt-card"><span class="hunt-card__icon">' + icon("paw", "bw-icon--lg") + '</span><div class="bw-grow">';
+    var html = '<div class="screen-title"><h1 class="bw-h2">Ov</h1><span class="bw-chip">' + icon("paw", "bw-icon--sm") + " " + esc(prey[0]) + " · " + fmtRate(prey[1]) + " kg</span></div>";
+
     if (m) {
-      return head + '<div class="bw-between"><span class="bw-h3">Ovda · ' + esc(m.loot.prey || prey[0]) + '</span><b class="bw-num" data-live="m-' + m.id + '">' +
+      html += '<div class="bw-card hunt-card"><span class="hunt-card__icon">' + icon("paw", "bw-icon--lg") + '</span><div class="bw-grow">' +
+        '<div class="bw-between"><span class="bw-h3">Ovda · ' + esc(m.loot.prey || prey[0]) + '</span><b class="bw-num" data-live="m-' + m.id + '">' +
         timeLeft({ ends_at: m.returns_at }) + "</b></div>" +
         '<div class="bw-progress bw-progress--sm" style="margin:8px 0 6px"><div class="bw-progress__bar" data-live="mbar-' + m.id + '" style="width:' +
         Math.round(marchRatio(m) * 100) + '%"></div></div><div class="bw-muted" style="font-size:13px">Kutilmoqda: ~' + G.fmt(m.loot.meat) + " kg goʻsht · " +
         fmtRate(m.loot.herb) + " oʻt · +" + fmtRate(m.loot.xp) + " XP</div></div></div>";
     }
-    var solo = p.level <= cfg.solo_hunt_max_level, hunters = armyCount("hunter"), html = head;
-    if (hunters) {
-      var best = G.huntResult(cfg, p.level, huntPayload(defaultHuntSel()));
-      html += '<div class="bw-h3">Ov · ' + esc(prey[0]) + '</div><div class="bw-muted" style="font-size:13px">' + hunters + " ovchi · 1 soat · ~" + G.fmt(best.meat) + " kg goʻsht</div></div>" +
-        '<button class="bw-btn bw-btn--accent bw-btn--sm" data-action="hunt">' + icon("paw", "bw-icon--sm") + " Ovga</button>";
-    } else if (solo) {
+
+    if (p.level <= cfg.solo_hunt_max_level) {
       var wait = soloReadyAt() - now();
-      html += '<div class="bw-h3">Yolgʻiz ov · ' + esc(prey[0]) + '</div><div class="bw-muted" style="font-size:13px">Alfa oʻzi ovlaydi: ' + fmtRate(prey[1]) + " kg · +" +
-        fmtRate(prey[1] * cfg.xp_hunt_coef) + " XP</div></div>" +
+      html += '<div class="bw-card hunt-card"><span class="hunt-card__icon">' + icon("wolf", "bw-icon--lg") + '</span><div class="bw-grow">' +
+        '<div class="bw-h3">Yolgʻiz ov · ' + esc(prey[0]) + '</div><div class="bw-muted" style="font-size:13px">Alfa oʻzi ovlaydi: ' + fmtRate(prey[1]) + " kg · +" +
+        fmtRate(prey[1] * cfg.xp_hunt_coef) + " XP · " + cfg.solo_hunt_cooldown_min + " daqiqa dam</div></div>" +
         '<button class="bw-btn bw-btn--accent bw-btn--sm" data-action="solo-hunt" data-live="solo"' + (wait > 0 ? " disabled" : "") + ">" +
-        (wait > 0 ? icon("clock", "bw-icon--sm") + " " + timeLeft({ ends_at: soloReadyAt() }) : icon("paw", "bw-icon--sm") + " Ovlash") + "</button>";
-    } else {
-      html += '<div class="bw-h3">Ov · ' + esc(prey[0]) + '</div><div class="bw-muted" style="font-size:13px">' +
-        (armyCount("hunter", true) ? "Ovchilar yoʻlda" : "Ovchi yoʻq — Ov soʻqmogʻida tayyorlang") + "</div></div>" +
-        '<button class="bw-btn bw-btn--soft bw-btn--sm" data-action="q-open" data-type="hunt_path">' + icon("track", "bw-icon--sm") + " Ovchi</button>";
+        (wait > 0 ? icon("clock", "bw-icon--sm") + " " + timeLeft({ ends_at: soloReadyAt() }) : icon("paw", "bw-icon--sm") + " Ovlash") + "</button></div>";
     }
-    return html + "</div>";
+
+    if (!m) html += packHuntPanel();
+
+    html += sectionTitle("Ovchilar", '<button class="bw-btn bw-btn--soft bw-btn--sm" data-action="q-open" data-type="hunt_path"' + (p.level < cfg.hunter_unlock_level ? " disabled" : "") + ">" +
+      icon("track", "bw-icon--sm") + " Ov soʻqmogʻi</button>");
+    if (p.level < cfg.hunter_unlock_level) {
+      html += lockedCard("track", cfg.hunter_unlock_level + "-darajada ochiladi", "Ov soʻqmogʻi qurilgach ovchilar tayyorlanadi va toʻda bilan ovga chiqasiz.");
+    } else {
+      var hq = trainQueues().filter(function (q) { return q.role === "hunter"; })[0];
+      html += '<div class="bw-card">' + '<div class="bw-grid-3">' + stat(armyCount("hunter"), "Inda") + stat(armyCount("hunter", true), "Ovda") +
+        stat("~" + fmtRate(G.hunterYield(cfg, p.level, 1)) + " kg", "1 ovchi / soat") + "</div>" +
+        (hq ? '<div style="margin-top:12px">' + queueCard(hq, false) + "</div>" : "") + "</div>";
+    }
+
+    html += sectionTitle("Zaxira");
+    var meat = resourceFacts("meat"), herb = resourceFacts("herb");
+    html += '<div class="bw-card"><div class="bw-grid-3">' + stat(G.fmt(meat.amount) + " / " + G.fmt(meat.cap), "Goʻsht, kg") +
+      stat(G.fmt(meat.perDay) + " kg", "Kunlik sarf") + stat(meat.days == null ? "∞" : fmtRate(meat.days) + " kun", "Yetadi") + "</div>" +
+      '<div class="bw-progress' + (meat.fill >= 1 ? " bw-progress--accent" : "") + '" style="margin-top:12px"><div class="bw-progress__bar" style="width:' +
+      Math.round(meat.fill * 100) + '%;background:var(--bw-res-meat)"></div></div>' +
+      '<div class="bw-between bw-faint" style="font-size:12px;margin-top:6px"><span>Shifobaxsh oʻt: ' + G.fmt(herb.amount) + "</span><span>Oziq gʻori " + meat.cave + "-daraja</span></div></div>";
+
+    html += sectionTitle("Ov guruhlari", '<span class="bw-chip">2–' + cfg.hunt_party_max + " oʻyinchi</span>");
+    if (p.level < cfg.pack_unlock_level) {
+      html += lockedCard("pack", cfg.pack_unlock_level + "-darajada ochiladi", "Bir necha oʻyinchi bitta ovga birlashadi — har qoʻshimcha oʻyinchi +" + Math.round(cfg.hunt_party_bonus * 100) + "%.");
+    } else {
+      html += '<div class="bw-card"><div class="bw-card__head"><div class="bw-muted" style="font-size:13px">Har qoʻshimcha oʻyinchi +' + Math.round(cfg.hunt_party_bonus * 100) +
+        '%, oʻlja ovchi unumiga qarab boʻlinadi</div><button class="bw-btn bw-btn--sm" data-action="party-create">' + icon("plus", "bw-icon--sm") + " Yaratish</button></div>";
+      var parties = app.state.parties || [];
+      html += parties.length ? '<div class="bw-list">' + parties.map(function (g) {
+        return '<div class="bw-row"><span class="bw-avatar bw-avatar--sm bw-tier-1">' + icon("pack") + '</span><div class="bw-row__main">' +
+          '<div class="bw-row__title">' + esc(g.leader) + " · " + esc(g.prey) + '</div><div class="bw-row__sub">' + g.members + "/" + g.max +
+          " oʻyinchi · " + g.departs_min + ' daqiqada joʻnaydi</div></div><button class="bw-btn bw-btn--soft bw-btn--sm" data-action="party-join">Qoʻshilish</button></div>';
+      }).join("") + "</div>" : '<p class="bw-muted" style="margin:0">Hozir ochiq guruh yoʻq.</p>';
+      html += "</div>";
+    }
+
+    html += sectionTitle("Oʻlja zinapoyasi");
+    var seen = {}, ladder = [];
+    for (var L = 1; L <= 25; L++) {
+      var key = G.PREY[L][0];
+      if (seen[key]) continue;
+      seen[key] = true;
+      ladder.push({ level: L, name: key, kg: G.PREY[L][1], pack: Math.max(1, Math.ceil(G.PREY[L][1] / cfg.prey_kg_per_wolf)) });
+    }
+    html += '<div class="bw-card bw-list" style="padding:0 16px">' + ladder.map(function (x, i) {
+      var next = ladder[i + 1], current = p.level >= x.level && (!next || p.level < next.level);
+      return '<div class="bw-row prey-row' + (current ? " is-current" : p.level < x.level ? " is-future" : "") + '"><span class="bw-chip' + (current ? " bw-chip--accent" : "") + '">' + x.level + "-d.</span>" +
+        '<div class="bw-row__main"><div class="bw-row__title">' + esc(x.name) + '</div><div class="bw-row__sub">' + fmtRate(x.kg) + " kg · kamida " + x.pack + " boʻri</div></div>" +
+        (current ? '<span class="bw-chip bw-chip--accent">hozir</span>' : "") + "</div>";
+    }).join("") + "</div>";
+    return html;
+  }
+
+  /** Toʻda ovi paneli: rollar boʻyicha slayderlar, kutilgan natija va “Ovga chiqish”. */
+  function packHuntPanel() {
+    var p = app.state.player, cfg = app.config;
+    var html = sectionTitle("Toʻda ovi", '<span class="bw-chip">' + icon("clock", "bw-icon--sm") + " " + cfg.hunt_duration_min + " daqiqa</span>");
+    if (p.level < cfg.hunter_unlock_level) return html + lockedCard("pack", cfg.hunter_unlock_level + "-darajada ochiladi", "Ovchilar bilan 1 soatlik ovga chiqasiz — goʻsht, shifobaxsh oʻt va XP.");
+    if (!armyCount("hunter")) {
+      return html + '<div class="bw-card bw-card--flat bw-empty">' + icon("track") + '<div class="bw-h3" style="color:var(--bw-text)">Ovchi yoʻq</div>' +
+        '<p class="bw-muted" style="margin:6px 0 12px">' + (armyCount("hunter", true) ? "Ovchilar yoʻlda." : "Ov soʻqmogʻida ovchi tayyorlang.") + "</p>" +
+        '<button class="bw-btn bw-btn--sm" data-action="q-open" data-type="hunt_path">' + icon("plus", "bw-icon--sm") + " Ovchi tayyorlash</button></div>";
+    }
+    if (!app.huntSel) app.huntSel = defaultHuntSel();
+    var sel = app.huntSel;
+    ["hunter", "attacker", "defender", "scout"].forEach(function (r) { sel[r] = Math.min(sel[r] || 0, armyCount(r)); });
+    var r = G.huntResult(cfg, p.level, huntPayload(sel));
+    html += '<div class="bw-card"><p class="bw-muted" style="margin:0 0 4px;font-size:13px">' + esc(G.PREY[p.level][0]) + " uchun kamida <b>" + r.min_pack +
+      "</b> boʻri kerak. Goʻshtni faqat ovchilar keltiradi; boshqa askarlar toʻdani toʻldiradi, lekin shu vaqt inni qoʻriqlamaydi.</p>";
+    html += ["hunter", "attacker", "defender", "scout"].map(function (role) {
+      var meta = roleMeta(role), max = armyCount(role);
+      return '<div class="slider-row"><div class="bw-between"><span class="bw-role bw-role--' + role + '"><span class="bw-role__dot"></span>' + esc(meta.name) +
+        '</span><span class="bw-faint" style="font-size:12px">inda ' + max + "</span></div>" + slider("hunt", role, sel[role] || 0, max) + "</div>";
+    }).join("");
+    return html + '<div id="hunt-preview">' + huntPreview() + "</div></div>";
+  }
+
+  /** Ov tabi belgisi: ovga chiqish mumkin boʻlsa (yolgʻiz ov tayyor yoki boʻsh ovchilar bor). */
+  function huntIdle() {
+    var p = app.state.player, cfg = app.config;
+    if (huntMarch()) return false;
+    if (p.level <= cfg.solo_hunt_max_level && soloReadyAt() <= now()) return true;
+    return armyCount("hunter") > 0;
   }
 
   function marchRatio(m) { return Math.max(0, Math.min(1, (now() - m.departs_at) / Math.max(1, m.returns_at - m.departs_at))); }
@@ -685,7 +753,7 @@
       get: function (key) { return app.huntSel[key] || 0; },
       max: function (key) { return armyCount(key); },
       set: function (key, v) { app.huntSel[key] = v; },
-      preview: function () { var el = $("#sheet-preview"); if (el) el.innerHTML = huntPreview(); }
+      preview: function () { var el = $("#hunt-preview"); if (el) el.innerHTML = huntPreview(); }
     },
     train: {
       get: function () { return app.trainSel.qty; },
@@ -705,22 +773,7 @@
     api.preview();
   }
 
-  function huntSheet() {
-    var p = app.state.player, cfg = app.config, prey = G.PREY[p.level];
-    if (!app.huntSel) app.huntSel = defaultHuntSel();
-    var sel = app.huntSel, r = G.huntResult(cfg, p.level, huntPayload(sel));
-    var html = '<div class="bw-eyebrow">Ov · 1 soat</div><div class="bw-h2" style="margin-top:4px">' + esc(prey[0]) + " · " + fmtRate(prey[1]) + " kg</div>" +
-      '<p class="bw-muted" style="margin:6px 0 14px">Oʻljaga kamida <b>' + r.min_pack + "</b> boʻri kerak. Goʻshtni faqat ovchilar keltiradi; boshqa askarlar toʻdani toʻldiradi, lekin shu vaqt inni qoʻriqlamaydi.</p>";
-    html += '<div class="bw-card bw-card--flat bw-list" style="padding:0 14px">' + ["hunter", "attacker", "defender", "scout"].map(function (role) {
-      var meta = roleMeta(role), max = armyCount(role);
-      return '<div class="slider-row"><div class="bw-between"><span class="bw-role bw-role--' + role + '"><span class="bw-role__dot"></span>' + esc(meta.name) +
-        '</span><span class="bw-faint" style="font-size:12px">inda ' + max + "</span></div>" + slider("hunt", role, sel[role] || 0, max) + "</div>";
-    }).join("") + "</div>";
-    html += '<div id="sheet-preview">' + huntPreview() + "</div>";
-    openSheet(html, huntSheet);
-  }
-
-  /** Ov oynasining natija qismi (slayder surilganda faqat shu yangilanadi). */
+  /** Toʻda ovi natijasi (slayder surilganda faqat shu yangilanadi). */
   function huntPreview() {
     var p = app.state.player, cfg = app.config, sel = app.huntSel, r = G.huntResult(cfg, p.level, huntPayload(sel));
     var html = '<div class="bw-grid-3" style="margin-top:12px">' + stat("~" + G.fmt(r.meat) + " kg", "Goʻsht") + stat(fmtRate(r.herb), "Shifobaxsh oʻt") + stat("+" + fmtRate(r.xp), "XP") + "</div>";
@@ -1267,6 +1320,8 @@
     }
     syncResources();
     tickQueues(t);
+    var hb = $("#hunt-badge");
+    if (hb) hb.hidden = !huntIdle();
     var sig = RES_KEYS.map(function (k) { return app.state.resources[k]; }).join() + "|" + bufferTotal() + "|" + bufferStatus();
     if (sig === lastSig) return;
     lastSig = sig;
@@ -1320,7 +1375,7 @@
   }
 
   /* ---------------------------------------------------------------- Router */
-  var SCREENS = { "in": screenIn, jang: screenJang, toda: screenToda, vazifalar: screenVazifalar, profil: screenProfil };
+  var SCREENS = { "in": screenIn, ov: screenOv, jang: screenJang, toda: screenToda, vazifalar: screenVazifalar, profil: screenProfil };
 
   function route() {
     var tab = (location.hash.replace(/^#\/?/, "").split("/")[0]) || "in";
@@ -1343,13 +1398,7 @@
 
   /* ---------------------------------------------------------------- Amallar */
   var ACTIONS = {
-    hunt: function () {
-      var p = app.state.player;
-      if (huntMarch()) { closeSheet(); toast("Toʻda allaqachon ovda", "paw"); return; }
-      if (armyCount("hunter")) { app.huntSel = null; huntSheet(); return; }
-      if (p.level <= app.config.solo_hunt_max_level) { closeSheet(); soloHunt(); return; }
-      buildingSheet("hunt_path");
-    },
+    hunt: function () { closeSheet(); location.hash = "#/ov"; },
     "hunt-go": startHunt,
     "solo-hunt": soloHunt,
     "train-tier": function (el) { app.trainSel.tier = +el.getAttribute("data-key"); app.sheetRefresh(); },

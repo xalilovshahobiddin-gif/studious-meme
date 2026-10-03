@@ -1,4 +1,4 @@
-# Blue Wolf — Telegram Mini App · v0.0.5
+# Blue Wolf — Telegram Mini App · v0.0.6
 
 Strategiya / omon qolish oʻyini: ov qil, in qur, toʻda yigʻ va Koʻk Boʻriga aylan.
 Dizayn hujjatlari: [`docs/blue_wolf/`](../docs/blue_wolf/) (GDD, API, sxema, balans jadvali). Oʻzgarishlar: [CHANGELOG.md](CHANGELOG.md).
@@ -32,7 +32,7 @@ bluewolf/
 │   ├── migrations/             players, player_resources, buildings, game_config, queues, army, marches
 │   └── seeders/data/           game_config.json — 273 balans parametri (avtomatik yaratiladi)
 ├── public/
-│   ├── index.html              ilova qobigʻi (5 tab: In · Jang · Toʻda · Vazifalar · Profil)
+│   ├── index.html              ilova qobigʻi (6 tab: In · Ov · Jang · Toʻda · Vazifalar · Profil)
 │   ├── ui/                     BlueWolf UI: bluewolf-ui.css, bluewolf-icons.js, index.html
 │   ├── css/app.css             sahifa joylashuvi
 │   ├── js/game.js              GDD formulalari (XP, bino narxi va vaqti, tier, ov) va resurs hisobi `advance()`
@@ -162,7 +162,8 @@ Skript `database/seeders/data/game_config.json` va `public/data/game_config.json
 | v0.0.2 | Tirik iqtisodiyot: resurs hisobi (timestamp accrual), Ustaxona buferi va yigʻib olish, taqsimot serverda ✅ |
 | v0.0.3 | Qurilish: bino kuchaytirish, qurilish navbati, bekor qilish, bepul tezlashtirish ✅ |
 | v0.0.4 | Askar mashqi, ov (yolgʻiz, toʻda), oziqlanish, XP va daraja koʻtarilishi ✅ |
-| **v0.0.5** | Son tanlash: hamma joyda “− slayder +” (ov, mashq, Ustaxona taqsimoti) ✅ |
+| v0.0.5 | Son tanlash: hamma joyda “− slayder +” (ov, mashq, Ustaxona taqsimoti) ✅ |
+| **v0.0.6** | Alohida **Ov** tabi: ovga oid hamma narsa bir joyda ✅ |
 | v0.4 | Tanishtiruv (20 qadam), kundalik vazifalar |
 | v0.5 | Botlarga hujum, razvedka, jang hisoblagichi, jarohat va davolash |
 | v0.6 | PvP (7–10 daraja), ov guruhlari, bildirishnomalar → **MVP** |

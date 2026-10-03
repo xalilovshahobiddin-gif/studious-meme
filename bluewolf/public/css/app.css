@@ -106,7 +106,11 @@
   .bw-tabbar { left: 50%; right: auto; width: var(--app-max); margin-left: calc(var(--app-max) / -2); border-radius: 18px 18px 0 0; border-left: 1px solid var(--bw-border); border-right: 1px solid var(--bw-border); }
 }
 
-/* Ov oynasidagi rol qatorlari */
+/* Oʻlja zinapoyasi */
+.prey-row.is-current .bw-row__title { color: var(--bw-accent); }
+.prey-row.is-future { opacity: .55; }
+
+/* Ov paneli: rol qatorlari */
 .slider-row { padding: 12px 0; }
 .slider-row + .slider-row { border-top: 1px solid var(--bw-border); }
 
