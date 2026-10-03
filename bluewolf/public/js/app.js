@@ -1,4 +1,4 @@
-/* Blue Wolf Mini App — v0.0.4 (iqtisodiyot, qurilish, askarlar va ov)
+/* Blue Wolf Mini App — v0.0.5 (iqtisodiyot, qurilish, askarlar va ov)
    5 ta tab (In · Jang · Toʻda · Vazifalar · Profil), hash-router, Telegram WebApp integratsiyasi.
    Resurslar vaqt boʻyicha hisoblanadi (BWGame.advance — server bilan bir xil formula), Ustaxona buferi
    va taqsimoti, qurilish, askar mashqi va ov ishlaydi. Qolgan amallar (hujum, razvedka…) keyingi bosqichlarda ulanadi. */
@@ -343,10 +343,12 @@
     html += sectionTitle("Taqsimot", '<span class="bw-faint" style="font-size:12px">' + (app.mode === "live" ? "serverda saqlanadi" : "demo: qurilmada") + "</span>");
     html += '<div class="bw-card bw-stack" id="alloc">' + G.BUILD.map(function (k) {
       var r = resMeta(k);
-      return '<label class="bw-stack" style="gap:4px"><span class="bw-between"><span class="bw-res bw-res--' + k + '" style="height:26px">' +
+      return '<div class="bw-stack" style="gap:4px"><span class="bw-between"><span class="bw-res bw-res--' + k + '" style="height:26px">' +
         '<span class="bw-res__dot">' + icon(r.icon) + "</span>" + esc(r.name) + '</span><span class="bw-num" data-alloc-out="' + k + '">' +
         alloc[k] + "% · " + G.fmt(prodHour * alloc[k] / 100) + "/soat</span></span>" +
-        '<input class="bw-range" type="range" min="0" max="100" step="5" value="' + alloc[k] + '" data-alloc="' + k + '"></label>';
+        '<span class="bw-slider"><button class="bw-btn bw-btn--soft bw-btn--sm bw-btn--icon" type="button" data-alloc-step="-1" aria-label="Kamaytirish">−</button>' +
+        '<input class="bw-range" type="range" min="0" max="100" step="5" value="' + alloc[k] + '" data-alloc="' + k + '">' +
+        '<button class="bw-btn bw-btn--soft bw-btn--sm bw-btn--icon" type="button" data-alloc-step="1" aria-label="Koʻpaytirish">+</button></span></div>';
     }).join("") + '<p class="bw-faint" style="margin:0;font-size:12px">Yigʻindi har doim 100%. Bufer sigʻimi ulushga bogʻliq: ' + cfg.workshop_buffer_h +
       " soatlik ishlab chiqarish (oflaynda ×" + cfg.offline_store_mult + ").</p></div>";
     return html;
@@ -667,10 +669,40 @@
     return out;
   }
 
-  function stepper(action, key, value, max) {
-    return '<span class="bw-stepper"><button class="bw-btn bw-btn--soft bw-btn--sm bw-btn--icon" data-action="' + action + '" data-key="' + key + '" data-d="-1"' +
-      (value <= 0 ? " disabled" : "") + '>−</button><b class="bw-num">' + value + "</b>" +
-      '<button class="bw-btn bw-btn--soft bw-btn--sm bw-btn--icon" data-action="' + action + '" data-key="' + key + '" data-d="1"' + (value >= max ? " disabled" : "") + ">+</button></span>";
+  /** Son tanlash: − [slayder] + — slayderni surish ham, tugmalar ham ishlaydi. */
+  function slider(name, key, value, max) {
+    var attrs = ' data-slider="' + name + '" data-key="' + key + '"';
+    return '<div class="bw-slider">' +
+      '<button class="bw-btn bw-btn--soft bw-btn--sm bw-btn--icon" type="button" data-slide-step="-1"' + attrs + (value <= 0 ? " disabled" : "") + ' aria-label="Kamaytirish">−</button>' +
+      '<input class="bw-range" type="range" min="0" max="' + max + '" step="1" value="' + value + '"' + attrs + (max <= 0 ? " disabled" : "") + ">" +
+      '<button class="bw-btn bw-btn--soft bw-btn--sm bw-btn--icon" type="button" data-slide-step="1"' + attrs + (value >= max ? " disabled" : "") + ' aria-label="Koʻpaytirish">+</button>' +
+      '<b class="bw-num bw-slider__val">' + value + "</b></div>";
+  }
+
+  /** Slayderlar: qiymatni oʻqish/yozish va sheet ichidagi natija qismini yangilash. */
+  var SLIDERS = {
+    hunt: {
+      get: function (key) { return app.huntSel[key] || 0; },
+      max: function (key) { return armyCount(key); },
+      set: function (key, v) { app.huntSel[key] = v; },
+      preview: function () { var el = $("#sheet-preview"); if (el) el.innerHTML = huntPreview(); }
+    },
+    train: {
+      get: function () { return app.trainSel.qty; },
+      max: function () { return trainCtx().maxQty; },
+      set: function (key, v) { app.trainSel.qty = v; },
+      preview: function () { var el = $("#sheet-preview"); if (el) el.innerHTML = trainPreview(); }
+    }
+  };
+
+  function slideTo(box, name, key, value) {
+    var api = SLIDERS[name], max = api.max(key), v = Math.max(0, Math.min(max, Math.round(value)));
+    api.set(key, v);
+    box.querySelector("input").value = v;
+    box.querySelector(".bw-slider__val").textContent = v;
+    box.querySelector('[data-slide-step="-1"]').disabled = v <= 0;
+    box.querySelector('[data-slide-step="1"]').disabled = v >= max;
+    api.preview();
   }
 
   function huntSheet() {
@@ -681,16 +713,23 @@
       '<p class="bw-muted" style="margin:6px 0 14px">Oʻljaga kamida <b>' + r.min_pack + "</b> boʻri kerak. Goʻshtni faqat ovchilar keltiradi; boshqa askarlar toʻdani toʻldiradi, lekin shu vaqt inni qoʻriqlamaydi.</p>";
     html += '<div class="bw-card bw-card--flat bw-list" style="padding:0 14px">' + ["hunter", "attacker", "defender", "scout"].map(function (role) {
       var meta = roleMeta(role), max = armyCount(role);
-      return '<div class="bw-row"><span class="bw-role bw-role--' + role + '"><span class="bw-role__dot"></span>' + esc(meta.name) + '</span><div class="bw-row__main"><div class="bw-row__sub">inda ' +
-        max + "</div></div>" + stepper("hunt-step", role, sel[role] || 0, max) + "</div>";
+      return '<div class="slider-row"><div class="bw-between"><span class="bw-role bw-role--' + role + '"><span class="bw-role__dot"></span>' + esc(meta.name) +
+        '</span><span class="bw-faint" style="font-size:12px">inda ' + max + "</span></div>" + slider("hunt", role, sel[role] || 0, max) + "</div>";
     }).join("") + "</div>";
-    html += '<div class="bw-grid-3" style="margin-top:12px">' + stat("~" + G.fmt(r.meat) + " kg", "Goʻsht") + stat(fmtRate(r.herb), "Shifobaxsh oʻt") + stat("+" + fmtRate(r.xp), "XP") + "</div>";
+    html += '<div id="sheet-preview">' + huntPreview() + "</div>";
+    openSheet(html, huntSheet);
+  }
+
+  /** Ov oynasining natija qismi (slayder surilganda faqat shu yangilanadi). */
+  function huntPreview() {
+    var p = app.state.player, cfg = app.config, sel = app.huntSel, r = G.huntResult(cfg, p.level, huntPayload(sel));
+    var html = '<div class="bw-grid-3" style="margin-top:12px">' + stat("~" + G.fmt(r.meat) + " kg", "Goʻsht") + stat(fmtRate(r.herb), "Shifobaxsh oʻt") + stat("+" + fmtRate(r.xp), "XP") + "</div>";
     if (r.penalty) html += '<div class="bw-banner" style="margin-top:12px">' + icon("info", "bw-icon--sm") + "<span>Toʻda kichik: " + r.sent + " / " + r.min_pack + " boʻri — natija ×" + cfg.hunt_small_party_penalty + ". Yordamchi qoʻshing.</span></div>";
     var cap = Math.round(G.caveCap(cfg, buildingLevel("food_cave"))), room = cap - (app.state.resources.meat || 0);
     if (r.meat > room) html += '<div class="bw-banner" style="margin-top:12px">' + icon("info", "bw-icon--sm") + "<span>Oziq gʻorida joy " + G.fmt(Math.max(0, room)) + " kg — ortigʻi chiriydi (oflaynda sigʻim ×" + cfg.offline_store_mult + ").</span></div>";
     html += '<button class="bw-btn bw-btn--accent bw-btn--block" style="margin-top:16px" data-action="hunt-go"' + ((sel.hunter || 0) < 1 ? " disabled" : "") + ">" +
       icon("paw", "bw-icon--sm") + " Ovga chiqish</button>";
-    openSheet(html, huntSheet);
+    return html;
   }
 
   function startHunt() {
@@ -754,6 +793,18 @@
     return levels;
   }
 
+  /** Mashq hisoblari (panel va slayder uchun). */
+  function trainCtx() {
+    var p = app.state.player, cfg = app.config, sel = app.trainSel, role = roleMeta(sel.role);
+    var b = buildingList().filter(function (x) { return x.type === role.building; })[0];
+    var maxTier = G.maxTier(cfg, p.level, b.level);
+    sel.tier = Math.min(sel.tier, maxTier);
+    var free = G.armyCap(cfg, p.level) - totalArmy() - queuedTrain();
+    var unit = G.trainCost(cfg, sel.tier), res = app.state.resources;
+    var afford = Math.floor(Math.min((res.meat || 0) / unit.meat, (res.bone || 0) / unit.bone));
+    return { p: p, cfg: cfg, sel: sel, role: role, b: b, maxTier: maxTier, free: free, unit: unit, maxQty: Math.max(0, Math.min(free, afford)) };
+  }
+
   /** Rol binosi oynasidagi mashq paneli. */
   function trainPanel(role, b) {
     var p = app.state.player, cfg = app.config, maxTier = G.maxTier(cfg, p.level, b.level);
@@ -762,27 +813,29 @@
       stat(maxTier, "Maks tier") + stat(G.fmt(G.roleCap(cfg, b.level)), "Bino sigʻimi") + "</div>";
     html += '<div class="bw-eyebrow" style="margin:16px 0 8px">Askar tayyorlash</div>';
     if (q) return html + queueCard(q, true);
-    var cap = G.armyCap(cfg, p.level), free = cap - totalArmy() - queuedTrain();
-    if (free <= 0) return html + '<div class="bw-banner">' + icon("info", "bw-icon--sm") + "<span>Qoʻshin toʻla (" + cap + " / " + cap + "). Sigʻim darajangiz bilan oʻsadi.</span></div>";
+    var cap = G.armyCap(cfg, p.level);
+    if (cap - totalArmy() - queuedTrain() <= 0) return html + '<div class="bw-banner">' + icon("info", "bw-icon--sm") + "<span>Qoʻshin toʻla (" + cap + " / " + cap + "). Sigʻim darajangiz bilan oʻsadi.</span></div>";
     if (!app.trainSel || app.trainSel.role !== role.key) app.trainSel = { role: role.key, tier: 1, qty: 1 };
-    var sel = app.trainSel;
-    sel.tier = Math.min(sel.tier, maxTier);
-    var unit = G.trainCost(cfg, sel.tier), res = app.state.resources;
-    var afford = Math.floor(Math.min((res.meat || 0) / unit.meat, (res.bone || 0) / unit.bone));
-    var maxQty = Math.max(0, Math.min(free, afford));
-    sel.qty = Math.max(maxQty ? 1 : 0, Math.min(sel.qty, maxQty));
+    var c = trainCtx(), sel = c.sel;
+    sel.qty = Math.max(c.maxQty ? 1 : 0, Math.min(sel.qty, c.maxQty));
     html += '<div class="bw-seg" role="tablist" style="margin-bottom:10px">' + G.TIERS.map(function (name, i) {
-      var t = i + 1, locked = t > maxTier;
+      var t = i + 1, locked = t > c.maxTier;
       return '<button class="bw-seg__btn" data-action="train-tier" data-key="' + t + '" aria-selected="' + (sel.tier === t) + '"' + (locked ? " disabled" : "") + ">T" + t + "</button>";
     }).join("") + "</div>";
-    var secs = G.trainSeconds(cfg, sel.tier, p.level, b.level, totalArmy() + queuedTrain(), roleTotal(role.key)) * Math.max(1, sel.qty);
-    html += '<div class="bw-between"><span><b>' + esc(G.TIERS[sel.tier - 1]) + " " + esc(role.name.toLowerCase()) + '</b><br><span class="bw-faint" style="font-size:12px">boʻsh joy: ' + free + "</span></span>" +
-      stepper("train-step", "qty", sel.qty, maxQty) + "</div>";
-    html += '<div class="cost-row" style="margin-top:10px">' + costChips({ meat: unit.meat * Math.max(1, sel.qty), bone: unit.bone * Math.max(1, sel.qty) }) +
+    html += '<div class="bw-between"><b>' + esc(G.TIERS[sel.tier - 1]) + " " + esc(role.name.toLowerCase()) + '</b><span class="bw-faint" style="font-size:12px">boʻsh joy: ' + c.free + "</span></div>" +
+      slider("train", "qty", sel.qty, c.maxQty);
+    return html + '<div id="sheet-preview">' + trainPreview() + "</div>";
+  }
+
+  /** Mashq narxi, vaqti va tugmasi (slayder surilganda faqat shu yangilanadi). */
+  function trainPreview() {
+    var c = trainCtx(), sel = c.sel, n = Math.max(1, sel.qty);
+    var secs = G.trainSeconds(c.cfg, sel.tier, c.p.level, c.b.level, totalArmy() + queuedTrain(), roleTotal(sel.role)) * n;
+    var html = '<div class="cost-row" style="margin-top:10px">' + costChips({ meat: c.unit.meat * n, bone: c.unit.bone * n }) +
       '<span class="bw-chip">' + icon("clock", "bw-icon--sm") + " " + G.fmtMinutes(secs / 60) + "</span></div>";
     html += '<button class="bw-btn bw-btn--accent bw-btn--block" style="margin-top:12px" data-action="train-go"' + (sel.qty < 1 ? " disabled" : "") + ">" +
-      icon("plus", "bw-icon--sm") + " Tayyorlash</button>";
-    if (!maxQty) html += '<p class="bw-faint" style="margin:8px 0 0;font-size:12px;text-align:center">Goʻsht yoki suyak yetmaydi (1 askar: ' + unit.meat + " kg goʻsht, " + unit.bone + " suyak)</p>";
+      icon("plus", "bw-icon--sm") + " Tayyorlash" + (sel.qty > 0 ? " · " + sel.qty : "") + "</button>";
+    if (!c.maxQty) html += '<p class="bw-faint" style="margin:8px 0 0;font-size:12px;text-align:center">Goʻsht yoki suyak yetmaydi (1 askar: ' + c.unit.meat + " kg goʻsht, " + c.unit.bone + " suyak)</p>";
     return html;
   }
 
@@ -1297,15 +1350,9 @@
       if (p.level <= app.config.solo_hunt_max_level) { closeSheet(); soloHunt(); return; }
       buildingSheet("hunt_path");
     },
-    "hunt-step": function (el) {
-      var role = el.getAttribute("data-key");
-      app.huntSel[role] = Math.max(0, Math.min(armyCount(role), (app.huntSel[role] || 0) + +el.getAttribute("data-d")));
-      huntSheet();
-    },
     "hunt-go": startHunt,
     "solo-hunt": soloHunt,
     "train-tier": function (el) { app.trainSel.tier = +el.getAttribute("data-key"); app.sheetRefresh(); },
-    "train-step": function (el) { app.trainSel.qty += +el.getAttribute("data-d"); app.sheetRefresh(); },
     "train-go": train,
     "close-sheet": closeSheet,
     upgrade: function (el) { upgrade(el.getAttribute("data-type")); },
@@ -1350,6 +1397,22 @@
   };
 
   document.addEventListener("click", function (e) {
+    var st = e.target.closest("[data-slide-step]");
+    if (st) {
+      var box = st.closest(".bw-slider"), name = st.getAttribute("data-slider"), key = st.getAttribute("data-key");
+      slideTo(box, name, key, SLIDERS[name].get(key) + +st.getAttribute("data-slide-step"));
+      haptic("select");
+      return;
+    }
+    var as = e.target.closest("[data-alloc-step]");
+    if (as) {
+      var range = as.parentNode.querySelector("input[data-alloc]");
+      range.value = +range.value + +as.getAttribute("data-alloc-step") * 5;
+      range.dispatchEvent(new Event("input", { bubbles: true }));
+      range.dispatchEvent(new Event("change", { bubbles: true }));
+      haptic("select");
+      return;
+    }
     var rc = e.target.closest("[data-res]");
     if (rc) { resourceSheet(rc.getAttribute("data-res")); return; }
     var b = e.target.closest("[data-building]");
@@ -1362,6 +1425,10 @@
       ACTIONS[a.getAttribute("data-action")](a);
     }
     if (e.target.closest("#top-avatar")) location.hash = "#/profil";
+  });
+  document.addEventListener("input", function (e) {
+    var name = e.target.getAttribute && e.target.getAttribute("data-slider");
+    if (name && e.target.type === "range") slideTo(e.target.closest(".bw-slider"), name, e.target.getAttribute("data-key"), +e.target.value);
   });
   document.addEventListener("change", function (e) {
     if (e.target.getAttribute("data-action") === "notify") {

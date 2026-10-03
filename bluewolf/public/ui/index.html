@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>BlueWolf UI — dizayn tizimi</title>
   <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="bluewolf-ui.css?v=0.0.4">
+  <link rel="stylesheet" href="bluewolf-ui.css?v=0.0.5">
   <style>
     .kit { max-width: 880px; margin: 0 auto; padding: 24px 16px 64px; }
     .kit section { margin-top: 36px; }
@@ -24,7 +24,7 @@
   <main class="kit">
     <div class="bw-between">
       <div>
-        <div class="bw-eyebrow">Blue Wolf · v0.0.4</div>
+        <div class="bw-eyebrow">Blue Wolf · v0.0.5</div>
         <h1 class="bw-h1">BlueWolf UI</h1>
         <p class="bw-muted" style="margin:6px 0 0">Tungi dasht, muz va oy nuri. Barcha klasslar <code>bw-</code> prefiksi bilan, ranglar CSS tokenlarida.</p>
       </div>
@@ -66,6 +66,14 @@
         <div class="bw-between" style="margin-bottom:10px"><strong>Alfa</strong>
           <button class="bw-gem" type="button"><svg class="bw-icon"><use href="#bw-i-moonstone"/></svg>150<span class="bw-gem__plus"><svg class="bw-icon"><use href="#bw-i-plus"/></svg></span></button></div>
         <div class="bw-resgrid" id="resgrid"></div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="bw-h3">Son tanlash: − slayder +</h2>
+      <div class="bw-card" style="margin-top:12px">
+        <div class="bw-between"><b>Ovchi</b><span class="bw-faint" style="font-size:12px">inda 12</span></div>
+        <div class="bw-slider"><button class="bw-btn bw-btn--soft bw-btn--sm bw-btn--icon" type="button">−</button><input class="bw-range" type="range" min="0" max="12" value="5"><button class="bw-btn bw-btn--soft bw-btn--sm bw-btn--icon" type="button">+</button><b class="bw-num bw-slider__val">5</b></div>
       </div>
     </section>
 
@@ -118,7 +126,7 @@
     </section>
   </main>
 
-  <script src="bluewolf-icons.js?v=0.0.4"></script>
+  <script src="bluewolf-icons.js?v=0.0.5"></script>
   <script>
     (function () {
       var sw = [
