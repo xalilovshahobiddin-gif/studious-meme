@@ -78,10 +78,10 @@ Ov XP        = oʻlja vazni (kg) × 0.50
 Qurilish/mashq tugash XP = sarflangan asosiy resurs (tosh+yogʻoch+teri+suyak yigʻindisi) × 0.02
 PvP XP       = yetkazilgan EP zarar × 0.03 × natija koeff. (gʻalaba 1.5 · durang 1.0 · magʻlubiyat 0.5)
 Kundalik vazifa XP = vazifa mukofoti byudjetining (resurs birligida) 10% i, 1 birlik = 1 XP
-Tanishtiruv XP = har qadamning qatʼiy XP mukofoti (bo'lim 15), jami 330 XP
+Tanishtiruv XP = har qadamning qatʼiy XP mukofoti (bo'lim 15), jami 330 XP, 23 qadam
 ```
 
-**Tanishtiruv davomida** (1–20 qadam) oddiy XP manbalari oʻchiriladi — XP faqat qadam mukofotidan keladi. Shunda daraja chegaralari qadamlarga aniq mos tushadi: 3-qadamdan keyin 2-daraja, 7-qadamdan keyin 3-daraja, 10-qadamdan keyin 4-daraja, 16-qadamdan keyin 5-daraja.
+**Tanishtiruv davomida** (1–20 qadam) oddiy XP manbalari oʻchiriladi — XP faqat qadam mukofotidan keladi. Shunda daraja chegaralari qadamlarga aniq mos tushadi: 5-qadamdan keyin 2-daraja, 12-dan keyin 3-daraja, 16-dan keyin 4-daraja, 22-dan keyin 5-daraja.
 
 Tanishtiruvdan keyin ov — asosiy va doimiy manba (kuniga ~4 ov × oʻlja kg × 0.5), PvP — eng tez, lekin xavfli manba. Har bir XP manbasi `game_config` da alohida koeffitsient (`xp_hunt_coef`, `xp_build_coef`, `xp_pvp_coef`, `xp_quest_share`).
 
@@ -978,46 +978,50 @@ MVP da vazifalar faqat resurs beradi; quyidagi jadval — kelajakdagi (bosqichli
 
 ---
 
-## 15. Tanishtiruv (1–5 daraja, 20 qadam, 15 daqiqa)
+## 15. Tanishtiruv (1–5 daraja, 23 qadam, ~15 daqiqa)
 
-| # | Daraja | Yoʻriqchi matni | Harakat | Mukofot | XP | Vaqt |
-|---|---|---|---|---|---|---|
-| 1 | 1 | Sen toʻdangni yoʻqotgan yolgʻiz boʻrisan. Omon qolish kerak. | Bosish | — | 5 | 0.5 |
-| 2 | 1 | Mana quyon. Ov qilib koʻr. | Quyonni bosish (yolgʻiz ov) | 5 kg goʻsht | 10 | 0.5 |
-| 3 | 1 | Yashash uchun in kerak. Mana bu joy yaxshi. | Inni qoʻyish | In 1-daraja | 15 | 1 |
-| 4 | 2 | Goʻsht buziladi. Uni saqlash uchun Oziq gʻori kerak. | Oziq gʻorini ochish | Oziq gʻori 1-daraja | 10 | 1 |
-| 5 | 2 | Ovlagan goʻshtingni gʻorga sol. | Goʻshtni saqlash | 20 kg goʻsht | 10 | 0.5 |
-| 6 | 2 | Qurilish uchun tosh kerak. Ustaxona qoyasini qur. | Ustaxonani ochish | Ustaxona 1-daraja | 10 | 1 |
-| 7 | 2 | Ustaxona resursni oʻzi yigʻadi. Qaysi biri koʻproq kerakligini tanla. | Taqsimotni sozlash | 100 tosh | 10 | 0.5 |
-| 8 | 3 | Ov qilish uchun mashq kerak. Ov soʻqmogʻini qur. | Ov soʻqmogʻini ochish | Ov soʻqmogʻi 1-daraja | 20 | 1 |
-| 9 | 3 | Birinchi ovchingni tayyorla. | Ovchi mashqi | 1 ovchi | 20 | 1 |
-| 10 | 3 | Binolarni kuchaytirsang, koʻproq sigʻadi. | Oziq gʻori L2 | — | 20 | 1 |
-| **11** | **4** | **Boʻri yolgʻiz kuchsiz. Endi toʻdang boʻladi!** | Toʻdani koʻrish | 2 ovchi | 20 | 0.5 |
-| 12 | 4 | Toʻda bilan kattaroq oʻlja ovlash mumkin. | Ovchilarni ovga yuborish (sugʻur) | 8 kg goʻsht | 25 | 1 |
-| 13 | 4 | Jang qiladigan boʻrilar kerak. | Jang maydonini ochish | Jang maydoni 1-daraja | 25 | 0.5 |
-| 14 | 4 | Birinchi hujumchingni tayyorla. | Hujumchi mashqi | 1 hujumchi | 25 | 0.5 |
-| 15 | 4 | Uzoqdagi oʻlja katta, lekin xavfli. | Oʻrta masofadagi kartaga ov | Ov +10% (24 soat) | 25 | 1 |
-| 16 | 4 | Endi birinchi jang. Qoʻrqma — bu yovvoyi toʻda. | Botga hujum | Gʻalaba + 50 tosh | 30 | 1.5 |
-| 17 | 5 | Raqibni oldindan koʻrish uchun razvedkachi kerak. | Razvedka qoyasini ochish | 1 razvedkachi | 10 | 0.5 |
-| 18 | 5 | Raqibni razvedka qilib koʻr. | Razvedka yuborish (botga) | Maʼlumot | 10 | 0.5 |
-| 19 | 5 | Ustaxona buferi toʻldi — resursni omborga ol. | Yigʻib olish | 100 shox-shabba | 10 | 0.5 |
-| 20 | 5 | **Endi siz oʻyinga tayyorsiz. Omad, alfa!** | Yakun | Boshlangʻich paket | 20 | 0.5 |
-| | | | | | **330** | **15** |
+Maqsad: yangi oʻyinchi oʻyinning **hamma qismini** tushunsin — har bir resurs nimaga kerak, har bir bino nima qiladi, rollar va tierlar, ov xaritasi va xavf, oziqlanish, vazifalar — va 15 daqiqada 5-darajaga chiqsin. Qadamlar matni va mukofotlari — `bluewolf/public/data/tutorial.json` (server va klient bir xil faylni oʻqiydi).
 
-Jami XP qadamlar boʻyicha: 3-qadamdan keyin 30 (2-daraja), 7-dan keyin 70 (3-daraja), 10-dan keyin 130 (4-daraja), 16-dan keyin 280 (5-daraja).
+| # | Daraja | Mavzu | Harakat | Mukofot | XP |
+|---|---|---|---|---|---|
+| 1 | 1 | Sen — yolgʻiz boʻrisan | “Davom” | — | 5 |
+| 2 | 1 | Resurslar paneli | “Davom” | — | 5 |
+| 3 | 1 | Goʻsht — eng muhim resurs | Goʻsht katagini bosish | — | 5 |
+| 4 | 1 | Birinchi ov | Yolgʻiz ov (Ov tabi) | 5 kg goʻsht | 5 |
+| 5 | 1 | In — sening makoning | In binosini ochish | — | 10 |
+| 6 | 2 | XP va darajalar | “Davom” | — | 5 |
+| 7 | 2 | Oziq gʻori | Oziq gʻorini ochish | — | 5 |
+| 8 | 2 | Suv va shifobaxsh oʻt | “Davom” | — | 5 |
+| 9 | 2 | Ustaxona qoyasi | Ustaxonani ochish | 100 tosh, buferga 100 resurs | 5 |
+| 10 | 2 | Taqsimot | Taqsimotni oʻzgartirish | — | 5 |
+| 11 | 2 | Buferni yigʻish | Buferni yigʻish | — | 5 |
+| 12 | 2 | Binoni kuchaytirish | Oziq gʻorini 2-darajaga koʻtarish | — | 10 |
+| 13 | 3 | Ov soʻqmogʻi | Ov soʻqmogʻini ochish | 25 kg goʻsht, 10 suyak | 15 |
+| 14 | 3 | Toʻrt rol | “Davom” | — | 10 |
+| 15 | 3 | Birinchi ovchi | Ovchi tayyorlash | — | 20 |
+| 16 | 3 | Tier va qoʻshin sigʻimi | “Davom” | — | 15 |
+| 17 | 4 | Endi sening toʻdang bor! | “Davom” | 2 ovchi | 20 |
+| 18 | 4 | Ov xaritasi | Ov xaritasida ovga chiqish | 8 kg goʻsht | 40 |
+| 19 | 4 | Xavf va yaradorlar | “Davom” | — | 20 |
+| 20 | 4 | Oziqlanish va ochlik | “Davom” | — | 20 |
+| 21 | 4 | Vazifalar | Vazifalar tabini ochish | — | 25 |
+| 22 | 4 | Oldinda nima bor | “Davom” | — | 25 |
+| 23 | 5 | Omad, alfa! | “Davom” | 60 kg goʻsht, 300 tosh, 200 shox-shabba, 100 teri, 100 suyak | 50 |
+| | | | | | **330** |
+
+Jami XP: 5-qadamdan keyin 30 (**2-daraja**), 12-dan keyin 70 (**3**), 16-dan keyin 130 (**4**), 22-dan keyin 280 (**5**). Har qadamning `level` i undan oldingi qadamlar XP si bilan albatta yetiladi (test tekshiradi).
+
+**Nimalar tushuntiriladi:** resurslar paneli (oziq va qurilish qatorlari, sigʻim chizigʻi) · goʻsht (boqish, yollash, ochlik, chirish) · suv, shifobaxsh oʻt, oy nuri · XP va darajalar (daraja — imkoniyat, kuch emas) · In · Oziq gʻori (sigʻim, passiv suv, oflayn ×2) · Ustaxona (bufer, oflayn 70%), taqsimot (har resurs qaysi binoga ketadi), yigʻish · qurilish navbati, bepul tezlashtirish, bekor qilish · rol binolari · 4 rol va kuch uchburchagi · askar narxi va mashq vaqti · tierlar va qoʻshin sigʻimi · toʻda · ov xaritasi (masofa, vaqt, minimal toʻda) · xavf, yarador va halok · oziqlanish va ochlik · vazifalar, kun kombosi, kirish taqvimi · kelajakdagi binolar va jang.
 
 ### Qoidalar
-- **Tanishtiruv davomida barcha navbatlar (qurilish, mashq) darhol tugaydi** — hech narsa kutilmaydi. Bundan tashqari keyin ishlatish uchun **5 ta bepul tezlashtirish** (har biri 1 soatgacha) beriladi
-- **Tanishtiruv davomida XP faqat qadam mukofotidan** keladi (bo'lim 1)
-- **16-qadamdagi jang bot bilan** — birinchi tajriba gʻalaba boʻlishi shart (bot EP si “kuchsiz” band, oʻyinchi askar yoʻqotmaydi)
-- **1–12 qadam qattiq qulf** — faqat koʻrsatilgan tugma ishlaydi
-- **12-qadamdan keyin "Oʻtkazib yuborish"** tugmasi chiqadi; oʻtkazib yuborilgan qadamlarning **XP si beriladi** (resurs mukofotlari berilmaydi) — oʻyinchi baribir 5-darajaga chiqadi
-- 13–15, 17–19-qadamlar “tavsiya” turida: bajarmasa ham XP si tanishtiruv yakunida beriladi
-- Yakuniy paket: Oziq gʻorini toʻliq toʻldiradigan goʻsht, 300 tosh, 200 shox-shabba, 100 teri, 100 suyak, 1 bepul tier mashqi
-- Yakunda darhol yangi maqsad: "Shifo gʻorini och — 6-daraja"
-- 60 soniya harakatsizlikda koʻrsatma qayta miltillaydi
-- **11-qadam eng muhim:** yolgʻizlikdan toʻdaga oʻtish — musiqa va animatsiya oʻzgarsin
-- **v2 da** (klan va himoyachi roli chiqqach): 15-qadam → “Klanga qoʻshilish”, 19-qadam → “Himoya devorini qur”
+- **Yoʻriqchi kartasi** pastda (oyna ochiq boʻlsa — tepada): qadam raqami va progress, matn, mukofot, “Davom” yoki “Belgilangan joyni bosing”. Kerakli element sariq ramka bilan belgilanadi va koʻrinadigan qismga suriladi; boshqa tabda boʻlsa — “Oʻtish”. Kartani yigʻib qoʻyish mumkin.
+- **Tanishtiruv davomida qurilish va mashq navbatlari darhol tugaydi**; 5 ta bepul tezlashtirish birinchi kirishda beriladi.
+- **XP faqat qadam mukofotidan** keladi (ov, qurilish, mashq XP bermaydi) — daraja chegaralari qadamlarga aniq mos tushadi.
+- Qadamlar faqat **ketma-ket** (server tekshiradi). Bloklash yumshoq: boshqa tugmalar ishlaydi, lekin qadam faqat kerakli harakat bilan oʻtadi.
+- **12-qadamdan keyin “Oʻtkazib yuborish”**: qolgan qadamlarning XP si beriladi (resurs sovgʻalari — yoʻq), oʻyinchi baribir 5-darajaga chiqadi.
+- 17-qadamdagi 2 ta ovchi — tanishtiruvning yagona askar sovgʻasi (vazifalar askar bermaydi, bo'lim 14).
+- v0.0.9 dan oldin 2-darajadan oshgan oʻyinchilar tanishtiruvni oʻtgan hisoblanadi.
+- **Keyinroq** (jang va razvedka qoʻshilganda): yovvoyi toʻdaga birinchi hujum (gʻalaba kafolatlangan) va razvedka qadamlari qoʻshiladi.
 
 ---
 

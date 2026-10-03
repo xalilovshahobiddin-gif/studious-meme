@@ -1,4 +1,4 @@
-# Blue Wolf — Telegram Mini App · v0.0.8
+# Blue Wolf — Telegram Mini App · v0.0.9
 
 Strategiya / omon qolish oʻyini: ov qil, in qur, toʻda yigʻ va Koʻk Boʻriga aylan.
 Dizayn hujjatlari: [`docs/blue_wolf/`](../docs/blue_wolf/) (GDD, API, sxema, balans jadvali). Oʻzgarishlar: [CHANGELOG.md](CHANGELOG.md).
@@ -123,6 +123,14 @@ vendor/bin/pint --test        # kod uslubi
   yangi binolar ochiladi, “Yangi daraja!” oynasi chiqadi.
 - Voqealar (qurilish, mashq, ovdan qaytish) server tomonda vaqt tartibida yopiladi — resurs hisobi har biridan keyin yangi holat bilan davom etadi.
 
+## Tanishtiruv (v0.0.9)
+
+Yangi oʻyinchi uchun 23 qadamlik qoʻllanma (GDD bo'lim 15): har bir resurs, bino, rol, tier, ov xaritasi va xavf, oziqlanish,
+vazifalar tushuntiriladi; 330 XP — oʻyinchi 5-darajaga chiqadi. Qadamlar — `public/data/tutorial.json` (server `TutorialService`
+va klient bir xil faylni oʻqiydi; Excel “Tanishtiruv” varagʻi bilan `tools/blue_wolf_config.py` solishtiradi).
+- Yoʻriqchi kartasi + belgilangan element; qadam kerakli harakat bilan oʻtadi; 12-qadamdan keyin oʻtkazib yuborish mumkin.
+- Tanishtiruvda navbatlar darhol tugaydi, XP faqat qadamlardan. Demo: Profil → “Yangi oʻyin (tanishtiruv bilan)” / “Tayyor 5-daraja demo”.
+
 ## Vazifalar (v0.0.8)
 
 Vazifalar tabi: **‹ Orqaga · Kundalik · Haftalik · Oylik** subtablari (GDD bo'lim 14).
@@ -148,6 +156,8 @@ Javob konverti: `{ ok: true, data, state }` yoki `{ ok: false, error: { code, me
 | `POST /api/v1/army/train` | `X-Init-Data` | `{ role, tier, qty }` → mashq navbati; `TIER_LOCKED`, `CAPACITY_FULL`, `QUEUE_BUSY` |
 | `POST /api/v1/hunt/solo` | `X-Init-Data` | Yolgʻiz ov (1–3 daraja) → `{ loot }`; `COOLDOWN` |
 | `GET /api/v1/hunt/board` | `X-Init-Data` | Ov xaritasi: 9 karta, `refresh_at` |
+| `POST /api/v1/tutorial/step` | `X-Init-Data` | `{ step }` — navbatdagi qadam: XP va sovgʻa |
+| `POST /api/v1/tutorial/skip` | `X-Init-Data` | 12-qadamdan keyin: qolgan XP bilan yakunlash |
 | `GET /api/v1/quests` | `X-Init-Data` | Vazifalar: `d`, `w`, `m`, `login`, `combo` |
 | `POST /api/v1/quests/claim` | `X-Init-Data` | `{ id }` — vazifa yoki sandiq mukofoti |
 | `POST /api/v1/quests/login` | `X-Init-Data` | Kirish sovgʻasi (kuniga bir marta) |
@@ -178,7 +188,8 @@ Skript `database/seeders/data/game_config.json` va `public/data/game_config.json
 | v0.0.5 | Son tanlash: hamma joyda “− slayder +” (ov, mashq, Ustaxona taqsimoti) ✅ |
 | v0.0.6 | Alohida **Ov** tabi: ovga oid hamma narsa bir joyda ✅ |
 | v0.0.7 | Ov xaritasi: 9 karta, har 4 soatda yangilanadi, xavf — yarador va halok; ov guruhlari olib tashlandi ✅ |
-| **v0.0.8** | Vazifalar: kundalik, haftalik, oylik, sandiqlar, kun kombosi, kirish taqvimi — faqat resurs mukofot ✅ |
+| v0.0.8 | Vazifalar: kundalik, haftalik, oylik, sandiqlar, kun kombosi, kirish taqvimi — faqat resurs mukofot ✅ |
+| **v0.0.9** | Tanishtiruv: 23 qadam, hamma tizim tushuntiriladi, 5-darajagacha ✅ |
 | v0.4 | Tanishtiruv (20 qadam), kundalik vazifalar |
 | v0.5 | Botlarga hujum, razvedka, jang hisoblagichi, jarohat va davolash |
 | v0.6 | PvP (7–10 daraja), ov guruhlari, bildirishnomalar → **MVP** |

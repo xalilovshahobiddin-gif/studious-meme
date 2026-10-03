@@ -1,0 +1,121 @@
+{
+ "_note": "Tanishtiruv qadamlari (GDD bo'lim 15). Server (TutorialService) va klient (app.js) shu faylni oʻqiydi. xp jami 330: 5-qadamdan keyin 30 (2-daraja), 12-dan keyin 70 (3), 16-dan keyin 130 (4), 22-dan keyin 280 (5).",
+ "skip_from": 12,
+ "steps": [
+  {
+   "id": 1, "level": 1, "xp": 5, "tab": "in", "action": "next",
+   "title": "Sen — yolgʻiz boʻrisan",
+   "text": ["Qishda toʻdang tarqalib ketdi. Endi sen yolgʻiz **alfa**san: oʻz toʻdangni qayta yigʻishing, inni kuchaytirishing va oxir-oqibat afsonaviy **Koʻk Boʻri**ga aylanishing kerak.", "Oʻyinda **25 ta daraja** bor — har biri yangi boʻri turi. Bu qisqa tanishtiruv seni 5-darajaga olib chiqadi va oʻyinning hamma qismini koʻrsatadi."]
+  },
+  {
+   "id": 2, "level": 1, "xp": 5, "tab": "in", "target": "#res-bar", "action": "next",
+   "title": "Resurslar paneli",
+   "text": ["Yuqoridagi ikki qator — sening boyliging.", "**1-qator — oziq:** goʻsht, suv, shifobaxsh oʻt (20-darajadan oy nuri). Ular **Oziq gʻorida** saqlanadi va sigʻimi cheklangan — ostidagi chiziq qanchalik toʻlganini koʻrsatadi.", "**2-qator — qurilish:** tosh, shox-shabba, teri, suyak. Ular binolar va askarlar uchun kerak, ombori cheklanmagan.", "Istalgan resurs ustiga bossang — u haqida toʻliq maʼlumot chiqadi."]
+  },
+  {
+   "id": 3, "level": 1, "xp": 5, "tab": "in", "target": ".bw-rescell[data-res=\"meat\"]", "action": "res:meat",
+   "title": "Goʻsht — eng muhim resurs",
+   "text": ["**Goʻsht** ustiga bos.", "Goʻsht ikki narsaga ketadi: **toʻdani boqish** (har bir askar kuniga yeydi) va **yangi askar tayyorlash**. Goʻsht tugasa — **ochlik**: ishlab chiqarish −50%, jang kuchi −30%.", "Goʻshtni faqat **ov** beradi. Oziq gʻoriga sigʻmagan goʻsht chiriydi."]
+  },
+  {
+   "id": 4, "level": 1, "xp": 5, "tab": "ov", "target": "[data-action=\"solo-hunt\"]", "action": "solo-hunt", "reward": { "meat": 5 },
+   "title": "Birinchi ov",
+   "text": ["Bu **Ov** boʻlimi. Hozircha toʻdang yoʻq — alfa oʻzi ovlaydi.", "**Ovlash** tugmasini bos. 1–3 darajada yolgʻiz ov darhol natija beradi, keyin alfa 2 daqiqa dam oladi.", "Ovdan goʻsht, ozgina **shifobaxsh oʻt** (jarohatni davolash uchun) va **XP** keladi."]
+  },
+  {
+   "id": 5, "level": 1, "xp": 10, "tab": "in", "target": "[data-building=\"den\"]", "action": "building:den",
+   "title": "In — sening makoning",
+   "text": ["**In** binosini bos.", "In darajasi doim sening darajangga teng — u alohida qurilmaydi. Har darajada In askar mashqini 1% tezlashtiradi.", "Bu qadamdan keyin **2-darajaga** chiqasan — yangi binolar ochiladi."]
+  },
+  {
+   "id": 6, "level": 2, "xp": 5, "tab": "in", "target": ".topbar__xp", "action": "next",
+   "title": "XP va darajalar",
+   "text": ["Ismingning ostidagi koʻk chiziq — **XP**. Toʻlganda daraja oshadi.", "XP manbalari: **ov** (oʻlja kg × 0.5), **qurilish va mashq** (sarflangan resursga qarab). Har yangi daraja: yangi boʻri turi, kattaroq qoʻshin sigʻimi va yangi imkoniyatlar.", "Muhim: daraja **kuch emas, imkoniyat** beradi — jangda kuch askarlar sonidan keladi."]
+  },
+  {
+   "id": 7, "level": 2, "xp": 5, "tab": "in", "target": "[data-building=\"food_cave\"]", "action": "building:food_cave",
+   "title": "Oziq gʻori",
+   "text": ["**Oziq gʻori**ni bos.", "Gʻor goʻsht, suv, oʻt va oy nurini **saqlaydi** — har biri uchun alohida sigʻim. Gʻor qancha baland boʻlsa, shuncha koʻp sigʻadi.", "Gʻor **passiv suv** ham beradi va oʻyindan chiqib ketganingda (oflayn) sigʻimi **2 baravar** kengayadi — toʻda bir necha kun och qolmaydi."]
+  },
+  {
+   "id": 8, "level": 2, "xp": 5, "tab": "in", "target": ".bw-rescell[data-res=\"water\"]", "action": "next",
+   "title": "Suv va shifobaxsh oʻt",
+   "text": ["**Suv** — toʻdaning ichimligi. Yetmasa yurish tezligi −20%. Uni Oziq gʻori oʻzi yigʻadi: gʻorni darajangga yaqin tut.", "**Shifobaxsh oʻt** — ovdan keladi (natijaning 10%). U yarador boʻrilarni Shifo gʻorida davolash uchun kerak (6-darajadan).", "**Oy nuri** — 20-darajadan mifologik boʻrilar uchun."]
+  },
+  {
+   "id": 9, "level": 2, "xp": 5, "tab": "in", "target": "[data-building=\"workshop\"]", "action": "building:workshop", "reward": { "stone": 100, "buf": { "stone": 40, "wood": 30, "hide": 15, "bone": 15 } },
+   "title": "Ustaxona qoyasi",
+   "text": ["**Ustaxona qoyasi**ni bos.", "Ustaxona **tosh, shox-shabba, teri va suyak**ni oʻzi ishlab chiqaradi — sen oʻyinda boʻlmasang ham (oflaynda 70% tezlikda).", "Mahsulot avval **buferga** tushadi. Bufer toʻlsa ishlab chiqarish toʻxtaydi — shuning uchun vaqti-vaqti bilan kirib yigʻib ol. Sovgʻa: 100 tosh va buferda biroz resurs."]
+  },
+  {
+   "id": 10, "level": 2, "xp": 5, "tab": "in", "target": "#alloc", "action": "alloc",
+   "title": "Taqsimot",
+   "text": ["Pastdagi **Taqsimot**da Ustaxona qaysi resursni koʻproq qilishini tanlaysan — slayderlardan birini sur yoki −/+ ni bos.", "**Tosh** — hamma binolar uchun. **Shox-shabba** — Oziq gʻori, Ustaxona, Shifo gʻori, Bozor. **Teri** — rol binolari. **Suyak** — askarlar va binolar.", "Yigʻindi har doim 100%. Hozir qaysi bino kerak boʻlsa — shu resursni oshir."]
+  },
+  {
+   "id": 11, "level": 2, "xp": 5, "tab": "in", "target": "#workshop [data-action=\"collect\"]", "action": "collect",
+   "title": "Buferni yigʻish",
+   "text": ["**Yigʻish** tugmasini bos — buferdagi resurslar omborga oʻtadi.", "Resurs katagida sariq nuqta yonsa — bufer deyarli toʻla, yigʻish vaqti keldi."]
+  },
+  {
+   "id": 12, "level": 2, "xp": 10, "tab": "in", "target": "[data-building=\"food_cave\"]", "action": "upgrade:food_cave",
+   "title": "Binoni kuchaytirish",
+   "text": ["Oziq gʻorini bos va **Kuchaytirish** tugmasini bos.", "Har kuchaytirish resurs va **vaqt** talab qiladi va **qurilish navbatiga** tushadi (1 slot, 10-darajadan 2). Bino darajasi sening darajangdan oshmaydi.", "Navbatni **bepul tezlashtirish** (5 ta, har biri −60 daqiqa) bilan qisqartirish yoki bekor qilish (80% qaytadi) mumkin. Tanishtiruvda qurilish darhol tugaydi."]
+  },
+  {
+   "id": 13, "level": 3, "xp": 15, "tab": "in", "target": "[data-building=\"hunt_path\"]", "action": "building:hunt_path", "reward": { "meat": 25, "bone": 10 },
+   "title": "Ov soʻqmogʻi",
+   "text": ["3-daraja! **Ov soʻqmogʻi** ochildi — uni bos.", "Har rol oʻz binosida tayyorlanadi: Ov soʻqmogʻi — **ovchilar**, Jang maydoni — hujumchilar, Razvedka qoyasi — razvedkachilar, Himoya devori — himoyachilar.", "Bino darajasi qancha baland boʻlsa, unda shuncha koʻp va yuqori **tier** li askar tayyorlanadi. Sovgʻa: 25 kg goʻsht va 10 suyak."]
+  },
+  {
+   "id": 14, "level": 3, "xp": 10, "tab": "in", "action": "next",
+   "title": "Toʻrt rol",
+   "text": ["🥩 **Ovchi** — ovda goʻsht keltiradi. Toʻdani boqadigan yagona rol.", "⚔️ **Hujumchi** — reyd va jangda asosiy kuch.", "🛡 **Himoyachi** — in va omborni qoʻriqlaydi.", "🔍 **Razvedkachi** — raqibni oldindan koʻradi.", "Kuch uchburchagi: himoyachi hujumchini, hujumchi razvedkachini, razvedkachi himoyachini yengadi (×1.3). Aralash toʻda — eng ishonchli."]
+  },
+  {
+   "id": 15, "level": 3, "xp": 20, "tab": "in", "target": "[data-building=\"hunt_path\"]", "action": "train:hunter",
+   "title": "Birinchi ovchi",
+   "text": ["Ov soʻqmogʻini och va **Tayyorlash** tugmasini bos.", "1 ta yosh (T1) askar = **20 kg goʻsht + 8 suyak**. Mashq vaqti qoʻshin qanchalik toʻlganiga bogʻliq: boʻsh toʻda tez, toʻla toʻda sekin toʻldiriladi.", "Tanishtiruvda mashq darhol tugaydi."]
+  },
+  {
+   "id": 16, "level": 3, "xp": 15, "tab": "in", "action": "next",
+   "title": "Tier va qoʻshin sigʻimi",
+   "text": ["Askarlar 6 **tier**ga boʻlinadi: Yosh, Tajribali, Urushchi, Veteran, Elita, Afsonaviy. Har tier oldingisidan ~1.45 marta kuchli, lekin ~2 marta qimmat.", "Yangi tier har 4 darajada ochiladi (bino ham shu darajada boʻlishi kerak).", "**Qoʻshin sigʻimi** darajangga bogʻliq: 1–3 darajada 1 boʻri, 4-darajada 10, keyin har darajada +20%. Bu qadamdan keyin — **4-daraja**!"]
+  },
+  {
+   "id": 17, "level": 4, "xp": 20, "tab": "in", "action": "next", "reward": { "army": { "hunter": 2 } },
+   "title": "Endi sening toʻdang bor!",
+   "text": ["Boʻri yolgʻiz kuchsiz. 4-darajada **toʻda** paydo boʻladi — qoʻshin sigʻimi 10 ta. Sovgʻa: **2 ta ovchi** qoʻshildi.", "Jang maydoni, Razvedka qoyasi va Himoya devori ham ochildi — boshqa rollarni ham tayyorlay olasan.", "Yodda tut: har bir askar kuniga goʻsht va suv yeydi. Toʻda katta boʻlsa — ov ham koʻp kerak."]
+  },
+  {
+   "id": 18, "level": 4, "xp": 40, "tab": "ov", "target": "[data-hunt-card=\"0\"]", "action": "hunt", "reward": { "meat": 8 },
+   "title": "Ov xaritasi",
+   "text": ["Bu yerda har 4 soatda yangilanadigan **9 ta ov kartasi** bor — yuqori chapdan pastki oʻngga: yaqin va kichikdan, uzoq va kattaga.", "Har kartada oʻlja, masofa, ov vaqti va **xavf** bor. Oʻljaning **minimal toʻdasi**dan kam boʻri yuborsang — natija 3 baravar kam.", "Birinchi (eng yaqin, xavfsiz) kartani bos, ovchilarni tanla va **Ovga chiqish**ni bos."]
+  },
+  {
+   "id": 19, "level": 4, "xp": 20, "tab": "ov", "action": "next",
+   "title": "Xavf va yaradorlar",
+   "text": ["🟢 **Yaqin kartalar** xavfsiz. 🟡 **Oʻrta** — oʻlja +20%, lekin har bir boʻri 8% ehtimol bilan yarador, 1% halok boʻladi. 🔴 **Uzoq** — oʻlja +50%, 15% yarador, 4% halok.", "**Yarador** boʻri 3 soatda tuzaladi — bu vaqt ovga chiqmaydi, lekin ovqat yeydi. **Halok** boʻlgani butunlay ketadi.", "Ehtiyotkor oʻyinchi yaqinda kam, lekin kafolatli oladi; jasur oʻyinchi uzoqda koʻp, lekin xavf bilan."]
+  },
+  {
+   "id": 20, "level": 4, "xp": 20, "tab": "ov", "action": "next",
+   "title": "Oziqlanish va ochlik",
+   "text": ["Bir askar kuniga **0.6 kg + 0.1 kg × (daraja−1)** goʻsht yeydi. Ov boʻlimidagi **Zaxira** goʻsht necha kunga yetishini koʻrsatadi.", "Goʻsht tugasa — **ochlik**: ishlab chiqarish −50%, jang kuchi −30%. Birinchi 7 kun hech kim ketmaydi, keyin kuniga 1% askar ketadi.", "Oflaynda Oziq gʻori 2 baravar sigʻadi — yaxshi gʻor bilan toʻda bir necha kun bemalol yashaydi."]
+  },
+  {
+   "id": 21, "level": 4, "xp": 25, "tab": "in", "target": ".bw-tab[data-tab=\"vazifalar\"]", "action": "tab:vazifalar",
+   "title": "Vazifalar",
+   "text": ["**Vazifalar** tabini bos.", "**Kundalik, haftalik va oylik** vazifalar resurs mukofoti beradi. Kundalikning hammasini bajarsang — **kun sandigʻi**; ketma-ket kunlar **kun kombosi**ni oshiradi (×1.6 gacha).", "Har kuni kirsang — **kirish taqvimi** sovgʻasi. Vazifalar vaqt tejaydi, lekin kuch bermaydi."]
+  },
+  {
+   "id": 22, "level": 4, "xp": 25, "tab": "in", "action": "next",
+   "title": "Oldinda nima bor",
+   "text": ["**Jang maydoni, Razvedka qoyasi, Himoya devori** — hujumchi, razvedkachi va himoyachilar uchun. **Shifo gʻori** (6-daraja) yaradorlarni oʻt evaziga tezroq davolaydi. **Bozor** (9-daraja) resurs almashadi.", "Keyingi bosqichlarda: yovvoyi toʻdalarga hujum, 7-darajadan haqiqiy oʻyinchilar bilan jang, klan va mavsum.", "Bu qadamdan keyin — **5-daraja**!"]
+  },
+  {
+   "id": 23, "level": 5, "xp": 50, "tab": "in", "action": "next", "reward": { "meat": 60, "stone": 300, "wood": 200, "hide": 100, "bone": 100 },
+   "title": "Omad, alfa!",
+   "text": ["Sen endi oʻyinni bilasan. Boshlangʻich paket: **60 kg goʻsht, 300 tosh, 200 shox-shabba, 100 teri, 100 suyak**.", "Birinchi maqsadlar: Oziq gʻori va Ustaxonani darajangga yetkaz, ovchilarni koʻpaytir, har kuni vazifalarni bajar.", "Keyingi katta maqsad — **6-daraja: Shifo gʻori**. Koʻk Boʻri seni kutmoqda!"]
+  }
+ ]
+}

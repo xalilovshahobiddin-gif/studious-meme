@@ -1,4 +1,4 @@
-/* Blue Wolf Mini App — v0.0.8 (iqtisodiyot, qurilish, askarlar va ov)
+/* Blue Wolf Mini App — v0.0.9 (iqtisodiyot, qurilish, askarlar va ov)
    6 ta tab (In · Ov · Jang · Toʻda · Vazifalar · Profil), hash-router, Telegram WebApp integratsiyasi.
    Resurslar vaqt boʻyicha hisoblanadi (BWGame.advance — server bilan bir xil formula), Ustaxona buferi
    va taqsimoti, qurilish, askar mashqi va ov ishlaydi. Qolgan amallar (hujum, razvedka…) keyingi bosqichlarda ulanadi. */
@@ -59,6 +59,7 @@
     var wasOpen = $("#sheet").classList.contains("is-open");
     app.sheetRefresh = refresh || null;
     $("#sheet-body").innerHTML = html;
+    document.body.classList.add("sheet-open");
     $("#sheet").classList.add("is-open");
     $("#sheet").setAttribute("aria-hidden", "false");
     $("#sheet-backdrop").classList.add("is-open");
@@ -67,10 +68,15 @@
   }
   function closeSheet() {
     app.sheetRefresh = null;
+    document.body.classList.remove("sheet-open");
     $("#sheet").classList.remove("is-open");
     $("#sheet").setAttribute("aria-hidden", "true");
     $("#sheet-backdrop").classList.remove("is-open");
     if (tg && tg.BackButton) tg.BackButton.hide();
+    // Oyna ochiq paytda qadam bajarilgan boʻlsa — yangi qadamning tabiga endi oʻtiladi
+    var st = tutStep();
+    if (st && st.tab && st.tab !== app.tab) setTimeout(tutGoto, 50);
+    else renderCoach();
   }
 
   /* ---------------------------------------------------------------- Yuqori panel */
@@ -183,6 +189,7 @@
   }
 
   function resourceSheet(key) {
+    tutEvent("res:" + key);
     var cfg = app.config, p = app.state.player;
     var f = resourceFacts(key), r = f.meta;
     var groupName = { food: "Oziq resursi", build: "Qurilish resursi", premium: "Premium valyuta" }[r.group];
@@ -412,6 +419,7 @@
 
   /** Yangi taqsimot shu paytdan amal qiladi: avval eskisi boʻyicha hisob yopiladi. */
   function setAllocation(alloc) {
+    tutEvent("alloc");
     app.econ = G.advance(app.config, app.econ, now());
     app.econ.alloc = alloc;
     if (app.mode === "demo") { saveDemo(); return; }
@@ -790,7 +798,8 @@
       '<div class="bw-row">' + icon("info") + '<div class="bw-row__main"><div class="bw-row__title">Versiya</div><div class="bw-row__sub">v' + window.BWApi.VERSION + " · " +
       (app.mode === "live" ? "server bilan" : "demo rejim") + "</div></div></div>" +
       '<a class="bw-row" href="ui/" style="color:inherit;text-decoration:none">' + icon("palette") + '<div class="bw-row__main"><div class="bw-row__title">BlueWolf UI</div><div class="bw-row__sub">Dizayn tizimi koʻrgazmasi</div></div>' + icon("chevron", "bw-icon--sm") + "</a>" +
-      (app.mode === "demo" ? '<div class="bw-row bw-row--tap" data-action="demo-reset">' + icon("clock") + '<div class="bw-row__main"><div class="bw-row__title">Demoni qaytadan boshlash</div><div class="bw-row__sub">Resurslar boshlangʻich holatga qaytadi</div></div></div>' : "") +
+      (app.mode === "demo" ? '<div class="bw-row bw-row--tap" data-action="demo-new">' + icon("wolf") + '<div class="bw-row__main"><div class="bw-row__title">Yangi oʻyin (tanishtiruv bilan)</div><div class="bw-row__sub">1-darajadan, qadamma-qadam oʻrgatadi</div></div></div>' +
+        '<div class="bw-row bw-row--tap" data-action="demo-rich">' + icon("clock") + '<div class="bw-row__main"><div class="bw-row__title">Tayyor 5-daraja demo</div><div class="bw-row__sub">Binolar, toʻda va resurslar bilan</div></div></div>' : "") +
       (installPrompt ? '<div class="bw-row bw-row--tap" data-action="install">' + icon("download") + '<div class="bw-row__main"><div class="bw-row__title">Ilovani oʻrnatish</div><div class="bw-row__sub">Bosh ekranga qoʻshish (PWA)</div></div></div>' : "") +
       "</div>";
     return html;
@@ -1035,7 +1044,7 @@
     var card = app.huntCard, payload = huntPayload(app.huntSel), cfg = app.config, p = app.state.player;
     if (!card) return;
     var started = function () {
-      haptic("medium"); closeSheet(); app.huntSel = null;
+      haptic("medium"); closeSheet(); app.huntSel = null; tutEvent("hunt");
       toast("Toʻda ovga chiqdi — " + card.minutes + " daqiqada qaytadi", "paw");
     };
     if (app.mode === "live") { post("hunt", { slot: card.slot, payload: payload }, started); return; }
@@ -1064,7 +1073,8 @@
     if (soloReadyAt() > now()) return;
     var done = function (loot) {
       haptic("medium");
-      toast("Alfa ovladi: +" + fmtRate(loot.meat) + " kg goʻsht, +" + fmtRate(loot.xp) + " XP" + (loot.lost > 0 ? " (gʻor toʻla — " + fmtRate(loot.lost) + " kg chiridi)" : ""), "paw");
+      tutEvent("solo-hunt");
+      toast("Alfa ovladi: +" + fmtRate(loot.meat) + " kg goʻsht" + (tutActive() ? "" : ", +" + fmtRate(loot.xp) + " XP") + (loot.lost > 0 ? " (gʻor toʻla — " + fmtRate(loot.lost) + " kg chiridi)" : ""), "paw");
     };
     if (app.mode === "live") { post("hunt/solo", {}, function (d) { done(d.loot); }); return; }
     var kg = G.PREY[p.level][1], t = now();
@@ -1088,8 +1098,9 @@
   }
 
   /** Demo: XP va daraja koʻtarilishi (server ProgressService bilan bir xil). */
-  function addXp(xp) {
+  function addXp(xp, fromTutorial) {
     var p = app.state.player, cfg = app.config, levels = [];
+    if (!fromTutorial && tutActive()) return levels; // tanishtiruvda XP faqat qadamlardan
     p.xp = Math.round((p.xp + xp) * 100) / 100;
     while (p.level < 25 && p.xp >= G.totalXp(cfg, p.level + 1)) {
       p.level++;
@@ -1156,7 +1167,7 @@
     var sel = app.trainSel, cfg = app.config, p = app.state.player;
     if (!sel || sel.qty < 1) return;
     var meta = roleMeta(sel.role);
-    var started = function () { haptic("medium"); toast(sel.qty + " ta " + meta.name.toLowerCase() + " mashqqa kirdi", "clock"); };
+    var started = function () { haptic("medium"); tutEvent("train:" + sel.role); toast(sel.qty + " ta " + meta.name.toLowerCase() + " mashqqa kirdi", "clock"); };
     if (app.mode === "live") { post("army/train", { role: sel.role, tier: sel.tier, qty: sel.qty }, started); return; }
     var unit = G.trainCost(cfg, sel.tier), t = now();
     var b = buildingList().filter(function (x) { return x.type === meta.building; })[0];
@@ -1165,7 +1176,7 @@
     app.econ = G.advance(cfg, app.econ, t);
     app.econ.res.meat -= cost.meat; app.econ.res.bone -= cost.bone;
     app.state.queues = (app.state.queues || []).concat([{ id: t, kind: "train", role: sel.role, tier: sel.tier, qty: sel.qty, cost: cost,
-      started_at: t, ends_at: t + Math.round(secs * 1000) }]);
+      started_at: t, ends_at: tutActive() ? t : t + Math.round(secs * 1000) }]);
     questTrack("train", sel.qty);
     saveDemo(); syncResources(); render(); started();
   }
@@ -1179,6 +1190,118 @@
       (unlocks.length ? '<div class="bw-eyebrow" style="margin-top:16px">Ochildi</div><ul class="bw-resinfo__list">' +
         unlocks.map(function (u) { return "<li>" + esc(u) + "</li>"; }).join("") + "</ul>" : "") +
       '<button class="bw-btn bw-btn--accent bw-btn--block" style="margin-top:18px" data-action="close-sheet">Davom etish</button></div>');
+  }
+
+  /* ---------------------------------------------------------------- 🎓 Tanishtiruv */
+  // Qadamlar data/tutorial.json da (server TutorialService ham shuni oʻqiydi). Har qadam: matn, kerakli tab,
+  // belgilanadigan element (target) va harakat (action): "next" yoki oʻyindagi hodisa (masalan "solo-hunt").
+  function tutSteps() { return (app.tutorial && app.tutorial.steps) || []; }
+  function tutActive() { return !!app.state && tutSteps().length > 0 && (app.state.player.tutorial_step || 0) < tutSteps().length; }
+  function tutStep() { return tutActive() ? tutSteps()[app.state.player.tutorial_step || 0] : null; }
+
+  /** Oʻyindagi hodisa: joriy qadam shuni kutayotgan boʻlsa — qadam bajariladi. */
+  function tutEvent(name) {
+    var st = tutStep();
+    if (st && st.action === name) setTimeout(tutComplete, 350);
+  }
+
+  var tutBusy = false;
+  function tutComplete() {
+    var st = tutStep();
+    if (!st || tutBusy) return;
+    var done = function (d) {
+      haptic("medium");
+      var reward = st.reward ? tutRewardText(st.reward) : "";
+      toast("Qadam " + st.id + " bajarildi: +" + st.xp + " XP" + (reward ? " · " + reward : ""), "check");
+      announceFinished((d.levels || []).map(function (l) { return { kind: "level", level: l }; }));
+      tutGoto();
+    };
+    if (app.mode === "live") {
+      tutBusy = true;
+      window.BWApi.request("tutorial/step", { method: "POST", body: { step: st.id } }).then(function (res) {
+        applySnapshot(res); done(res.data);
+      }, function (err) { toast(err.message || "Xato", "info"); resync(); }).then(function () { tutBusy = false; });
+      return;
+    }
+    app.econ = G.advance(app.config, app.econ, now());
+    app.state.player.tutorial_step = st.id;
+    var r = st.reward || {};
+    Object.keys(r).forEach(function (k) {
+      if (k === "meat") addFood("meat", r.meat, false);
+      else if (k === "buf") Object.keys(r.buf).forEach(function (b) { app.econ.buf[b] = (app.econ.buf[b] || 0) + r.buf[b]; });
+      else if (k === "army") Object.keys(r.army).forEach(function (role) { app.state.army[role][0] += r.army[role]; app.econ.army += r.army[role]; });
+      else app.econ.res[k] = (app.econ.res[k] || 0) + r[k];
+    });
+    var levels = addXp(st.xp, true);
+    saveDemo(); syncResources(); render();
+    done({ levels: levels });
+  }
+
+  function tutRewardText(r) {
+    var parts = [];
+    Object.keys(r).forEach(function (k) {
+      if (k === "army") Object.keys(r.army).forEach(function (role) { parts.push(r.army[role] + " " + roleMeta(role).name.toLowerCase()); });
+      else if (k === "buf") parts.push("buferga resurs");
+      else parts.push(r[k] + " " + resMeta(k).short.toLowerCase());
+    });
+    return parts.join(", ");
+  }
+
+  /** Yangi qadam boshlanganda kerakli tabga oʻtish. */
+  function tutGoto() {
+    var st = tutStep();
+    if (st && st.tab && st.tab !== app.tab && !$("#sheet").classList.contains("is-open")) location.hash = "#/" + st.tab;
+    renderCoach();
+  }
+
+  function tutSkip() {
+    confirmAsk("Tanishtiruvni oʻtkazib yuborasizmi? Qolgan qadamlarning XP si beriladi, resurs sovgʻalari — yoʻq.", function () {
+      var done = function (d) { toast("Tanishtiruv yakunlandi: +" + d.xp + " XP", "check"); announceFinished((d.levels || []).map(function (l) { return { kind: "level", level: l }; })); };
+      if (app.mode === "live") { post("tutorial/skip", {}, done); return; }
+      var rest = tutSteps().slice(app.state.player.tutorial_step || 0).reduce(function (sum, x) { return sum + x.xp; }, 0);
+      app.state.player.tutorial_step = tutSteps().length;
+      var levels = addXp(rest, true);
+      saveDemo(); render(); done({ xp: rest, levels: levels });
+    });
+  }
+
+  function mdBold(text) { return esc(text).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
+
+  /** Yoʻriqchi kartasi (pastda; oyna ochiq boʻlsa — tepada) va belgilangan element. */
+  function renderCoach() {
+    var box = $("#coach"), st = tutStep();
+    document.querySelectorAll(".tut-target").forEach(function (el) { el.classList.remove("tut-target"); });
+    if (!box) return;
+    if (!st) { box.hidden = true; document.body.classList.remove("has-coach"); return; }
+    var total = tutSteps().length, idx = app.state.player.tutorial_step || 0, data = app.tutorial;
+    box.hidden = false;
+    document.body.classList.add("has-coach");
+    var wrongTab = st.tab && st.tab !== app.tab;
+    var html = '<div class="coach__head"><span class="bw-eyebrow">Tanishtiruv · ' + st.id + " / " + total + "</span>" +
+      '<button class="coach__min" type="button" data-action="tut-min" aria-label="Yigʻish">' + icon(app.coachMin ? "plus" : "close", "bw-icon--sm") + "</button></div>" +
+      '<div class="bw-progress bw-progress--sm" style="margin:6px 0 10px"><div class="bw-progress__bar" style="width:' + Math.round(idx / total * 100) + '%"></div></div>' +
+      '<div class="coach__title">' + esc(st.title) + "</div>";
+    if (!app.coachMin) {
+      html += '<div class="coach__text">' + st.text.map(function (t) { return "<p>" + mdBold(t) + "</p>"; }).join("") + "</div>" +
+        '<div class="coach__foot"><span class="bw-chip bw-chip--accent">+' + st.xp + " XP" + (st.reward ? " · " + esc(tutRewardText(st.reward)) : "") + "</span>" +
+        (st.action === "next" ? '<button class="bw-btn bw-btn--accent bw-btn--sm" data-action="tut-next">Davom ' + icon("chevron", "bw-icon--sm") + "</button>"
+          : wrongTab ? '<button class="bw-btn bw-btn--sm" data-action="tut-go">Oʻtish ' + icon("chevron", "bw-icon--sm") + "</button>"
+          : '<span class="coach__hint">' + icon("info", "bw-icon--sm") + " Belgilangan joyni bosing</span>") + "</div>" +
+        (idx >= (data.skip_from || 12) ? '<button class="coach__skip" type="button" data-action="tut-skip">Tanishtiruvni oʻtkazib yuborish</button>' : "");
+    }
+    box.innerHTML = html;
+    if (st.target && !wrongTab) {
+      var el = document.querySelector(st.target);
+      if (el) {
+        el.classList.add("tut-target");
+        // Qadam boshlanganda belgilangan joy yoʻriqchi kartasi ostida qolmasin — koʻrinadigan qismga suriladi
+        if (app.tutScrolled !== st.id && !el.closest(".topbar") && !el.closest(".bw-tabbar")) {
+          app.tutScrolled = st.id;
+          var top = document.querySelector(".topbar").getBoundingClientRect().height;
+          window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - top - 12), behavior: "smooth" });
+        }
+      }
+    }
   }
 
   /* ---------------------------------------------------------------- Qurilish navbati */
@@ -1295,7 +1418,7 @@
     var b = buildingList().filter(function (x) { return x.type === type; })[0];
     var check = upgradeCheck(b);
     if (!check.ok) { toast(check.reason, "info"); return; }
-    var started = function () { haptic("medium"); toast(b.meta.name + " → " + (b.level + 1) + "-daraja: qurilish boshlandi", "clock"); };
+    var started = function () { haptic("medium"); tutEvent("upgrade:" + type); toast(b.meta.name + " → " + (b.level + 1) + "-daraja: qurilish boshlandi", "clock"); };
     if (app.mode === "live") { post("buildings/upgrade", { type: type }, started); return; }
 
     app.econ = G.advance(app.config, app.econ, now());
@@ -1303,7 +1426,7 @@
     var t = now(), used = queues().map(function (q) { return q.slot; });
     app.state.queues = (app.state.queues || []).concat([{
       id: t, kind: "build", slot: used.indexOf(1) === -1 ? 1 : 2, building_type: type, target_level: b.level + 1, cost: check.cost,
-      started_at: t, ends_at: t + Math.round(G.buildingTime(app.config, type, b.level + 1) * 60) * 1000
+      started_at: t, ends_at: tutActive() ? t : t + Math.round(G.buildingTime(app.config, type, b.level + 1) * 60) * 1000
     }]);
     questTrack("build", 1);
     saveDemo(); syncResources(); render(); started();
@@ -1480,6 +1603,14 @@
   /** Server vaqti (live) yoki qurilma vaqti (demo), ms. */
   function now() { return Date.now() + app.offset; }
 
+  /** Demo turini almashtirish: yangi oʻyin (tanishtiruv) yoki tayyor 5-daraja. Saqlangan holat oʻchadi. */
+  function demoSwitch(mode) {
+    confirmAsk(mode === "new" ? "Yangi oʻyin tanishtiruv bilan boshlansinmi? Hozirgi demo holati oʻchadi." : "Tayyor 5-daraja demoga oʻtilsinmi? Hozirgi demo holati oʻchadi.", function () {
+      try { localStorage.removeItem(DEMO_KEY); localStorage.setItem("bw.demo.mode", mode); } catch (e) { /* ignore */ }
+      location.reload();
+    });
+  }
+
   function saveDemo() {
     var levels = {};
     (app.state.buildings || []).forEach(function (b) { levels[b.type] = b.level; });
@@ -1487,7 +1618,7 @@
       var p = app.state.player;
       localStorage.setItem(DEMO_KEY, JSON.stringify({ v: 4, econ: app.econ, queues: app.state.queues || [], marches: app.state.marches || [],
         buildings: levels, army: app.state.army, army_away: app.state.army_away, army_injured: app.state.army_injured, hunt_done: app.state.hunt_done || null, qd: app.state.qd || null,
-        player: { level: p.level, xp: p.xp, free_speedups: p.free_speedups, solo_hunt_at: p.solo_hunt_at } }));
+        player: { level: p.level, xp: p.xp, free_speedups: p.free_speedups, solo_hunt_at: p.solo_hunt_at, tutorial_step: p.tutorial_step } }));
     } catch (e) { /* xususiy rejim */ }
   }
 
@@ -1508,7 +1639,7 @@
         return saved.econ;
       }
     } catch (e) { /* buzilgan — yangisini yaratamiz */ }
-    var t = Date.now() - 2 * 3600000, res = {};
+    var t = Date.now() - (app.demoMode === "new" ? 0 : 2 * 3600000), res = {}; // yangi oʻyinda “siz yoʻqligingizda” yoʻq
     RES_KEYS.forEach(function (k) { res[k] = app.state.resources[k] || 0; });
     var alloc = prefs().alloc;
     return {
@@ -1587,6 +1718,7 @@
     if (!bufferTotal()) { toast("Bufer hali boʻsh", "info"); return; }
     var done = function (got) {
       haptic("medium");
+      tutEvent("collect");
       closeSheet();
       toast("Omborga olindi: " + G.BUILD.filter(function (k) { return got[k] > 0; }).map(function (k) {
         return "+" + G.fmt(got[k]) + " " + resMeta(k).short.toLowerCase();
@@ -1704,6 +1836,7 @@
     if (!SCREENS[tab]) tab = "in";
     if (tab !== app.tab) { haptic("select"); app.prevTab = app.tab; }
     app.tab = tab;
+    tutEvent("tab:" + tab);
     document.querySelectorAll(".bw-tab").forEach(function (a) {
       if (a.getAttribute("data-tab") === tab) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
     });
@@ -1716,6 +1849,7 @@
     $("#screen").innerHTML = SCREENS[app.tab]();
     if (app.tab === "in") bindAlloc();
     if (app.sheetRefresh) app.sheetRefresh();
+    renderCoach();
   }
 
   /* ---------------------------------------------------------------- Amallar */
@@ -1726,10 +1860,16 @@
     "train-tier": function (el) { app.trainSel.tier = +el.getAttribute("data-key"); app.sheetRefresh(); },
     "train-go": train,
     "close-sheet": closeSheet,
+    "tut-next": function () { tutComplete(); },
+    "tut-go": function () { closeSheet(); tutGoto(); },
+    "tut-skip": tutSkip,
+    "tut-min": function () { app.coachMin = !app.coachMin; renderCoach(); },
+    "demo-new": function () { demoSwitch("new"); },
+    "demo-rich": function () { demoSwitch("rich"); },
     upgrade: function (el) { upgrade(el.getAttribute("data-type")); },
     "q-speedup": function (el) { speedup(+el.getAttribute("data-q")); },
     "q-cancel": function (el) { cancelQueue(+el.getAttribute("data-q")); },
-    "q-open": function (el) { buildingSheet(el.getAttribute("data-type")); },
+    "q-open": function (el) { buildingSheet(el.getAttribute("data-type")); tutEvent("building:" + el.getAttribute("data-type")); },
     scout: function () { toast("Razvedka — " + ROADMAP, "eye"); },
     attack: function () { toast("Hujum — " + ROADMAP, "sword"); },
     "quest-claim": function (el) { questClaim(+el.getAttribute("data-q")); },
@@ -1739,10 +1879,7 @@
     vacation: function () { toast("Taʼtil rejimi — " + ROADMAP, "moon"); },
     shop: function () { toast("Doʻkon — " + ROADMAP, "moonstone"); },
     collect: collect,
-    "demo-reset": function () {
-      try { localStorage.removeItem(DEMO_KEY); } catch (e) { /* ignore */ }
-      location.reload();
-    },
+    "demo-reset": function () { demoSwitch(app.demoMode || "new"); },
     "goto-alloc": function () {
       closeSheet();
       if (app.tab !== "in") location.hash = "#/in";
@@ -1790,7 +1927,7 @@
     var hc = e.target.closest("[data-hunt-card]");
     if (hc) { huntCardSheet(+hc.getAttribute("data-hunt-card")); return; }
     var b = e.target.closest("[data-building]");
-    if (b) { buildingSheet(b.getAttribute("data-building")); return; }
+    if (b) { buildingSheet(b.getAttribute("data-building")); tutEvent("building:" + b.getAttribute("data-building")); return; }
     var s = e.target.closest("[data-seg]");
     if (s) { app.seg[app.tab] = s.getAttribute("data-seg"); haptic("select"); render(); return; }
     var a = e.target.closest("[data-action]");
@@ -1841,6 +1978,8 @@
       app.reason = res.reason;
       app.config = res.config;
       app.state = res.state;
+      app.tutorial = res.tutorial;
+      app.demoMode = res.demoMode;
       var away = startEconomy(res);
       setProgress(100);
       $("#app").hidden = false;

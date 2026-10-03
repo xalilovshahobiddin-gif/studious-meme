@@ -108,7 +108,8 @@ class BuildService
             'target_level' => $target,
             'cost' => $cost,
             'started_at' => $now,
-            'ends_at' => $now->addSeconds(self::seconds($cfg, $type, $target)),
+            // Tanishtiruvda navbat darhol tugaydi (GDD bo'lim 15)
+            'ends_at' => TutorialService::active($player) ? $now : $now->addSeconds(self::seconds($cfg, $type, $target)),
         ]);
     }
 

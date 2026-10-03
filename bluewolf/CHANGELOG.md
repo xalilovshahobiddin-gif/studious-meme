@@ -1,5 +1,18 @@
 # Blue Wolf — oʻzgarishlar tarixi
 
+## v0.0.9 — tanishtiruv
+- **23 qadamlik tanishtiruv** (yangi oʻyinchi, 1 → 5 daraja, ~14 daqiqa): resurslar paneli, goʻsht, suv / oʻt / oy nuri, XP va darajalar,
+  In, Oziq gʻori, Ustaxona, taqsimot, yigʻish, qurilish navbati va tezlashtirish, rol binolari, 4 rol va kuch uchburchagi, askar narxi va
+  mashq, tier va qoʻshin sigʻimi, toʻda, ov xaritasi, xavf va yaradorlar, oziqlanish va ochlik, vazifalar, kelajakdagi binolar.
+- **Yoʻriqchi kartasi** (pastda; oyna ochiq boʻlsa — tepada): qadam, progress, tushuntirish, mukofot; “Davom” yoki
+  “Belgilangan joyni bosing” — kerakli tugma sariq ramka bilan belgilanadi va koʻrinadigan joyga suriladi; boshqa tabda — “Oʻtish”;
+  kartani yigʻish mumkin; 12-qadamdan keyin “Oʻtkazib yuborish” (qolgan XP beriladi).
+- **Qoidalar:** tanishtiruvda qurilish va mashq darhol tugaydi, XP faqat qadamlardan (jami 330: 5 → 2-daraja, 12 → 3, 16 → 4, 22 → 5).
+- Server: `TutorialService`, `POST /tutorial/step`, `/tutorial/skip`; v0.0.9 dan oldingi 2+ darajali oʻyinchilar tanishtiruvni oʻtgan hisoblanadi.
+- Demo: Profil → “Yangi oʻyin (tanishtiruv bilan)” va “Tayyor 5-daraja demo”; yangi tashrif buyuruvchi tanishtiruvdan boshlaydi.
+- GDD bo'lim 15, Excel “Tanishtiruv” varagʻi (balans skripti `tutorial.json` bilan solishtiradi), API yangilandi.
+- Testlar: PHP 48 ta (toʻliq oʻtish, ketma-ketlik, oʻtkazib yuborish, XP va navbat qoidalari).
+
 ## v0.0.8 — vazifalar
 - **Vazifalar tabi** subtablar bilan: **‹ Orqaga** (oldingi tabga) · **Kundalik** · **Haftalik** · **Oylik**; har birida yangilanishgacha taymer,
   vazifalar (progress, mukofot, “Olish”), **sandiq** va “Hammasini olish”. Tabda — olish mumkin boʻlganlar soni.
