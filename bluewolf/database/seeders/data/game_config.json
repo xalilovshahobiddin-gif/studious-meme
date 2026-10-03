@@ -531,7 +531,7 @@
   "config_key": "pack_growth",
   "config_value": 1.2,
   "unit": "x",
-  "note": "Har darajada koʻpaytiriladi"
+  "note": "Muvozanat egri chizigʻi: askar birligi = toʻda hajmi ÷ (baza × shu^(daraja−4)); bitta askar ehtiyoji, narxi, vaqti, unumi shu birlikka boʻlinadi"
  },
  {
   "config_key": "cp_w_power",
@@ -1774,5 +1774,17 @@
   "config_value": 5.0,
   "unit": "soat",
   "note": "Kun/hafta/oy chegarasi: UTC+shu (Toshkent)"
+ },
+ {
+  "config_key": "pack_lin",
+  "config_value": 6.0,
+  "unit": "askar/daraja",
+  "note": "Toʻda hajmi = baza + shu × n + kvadrat × n², n = daraja − 4"
+ },
+ {
+  "config_key": "pack_quad",
+  "config_value": 2.1,
+  "unit": "askar/daraja²",
+  "note": "Toʻda hajmi formulasidagi n² koeffitsienti (25-darajada ~1060)"
  }
 ]

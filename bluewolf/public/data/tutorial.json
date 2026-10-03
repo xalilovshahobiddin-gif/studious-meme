@@ -75,12 +75,12 @@
   {
    "id": 15, "level": 3, "xp": 20, "tab": "in", "target": "[data-building=\"hunt_path\"]", "action": "train:hunter",
    "title": "Birinchi ovchi",
-   "text": ["Ov soʻqmogʻini och va **Tayyorlash** tugmasini bos.", "1 ta yosh (T1) askar = **20 kg goʻsht + 8 suyak**. Mashq vaqti qoʻshin qanchalik toʻlganiga bogʻliq: boʻsh toʻda tez, toʻla toʻda sekin toʻldiriladi.", "Tanishtiruvda mashq darhol tugaydi."]
+   "text": ["Ov soʻqmogʻini och va **Tayyorlash** tugmasini bos.", "1 ta yosh (T1) askar = **20 kg goʻsht + 8 suyak** (toʻda kattalashgani sari bitta askar arzonlashadi). Mashq vaqti qoʻshin qanchalik toʻlganiga bogʻliq: boʻsh toʻda tez, toʻla toʻda sekin toʻldiriladi.", "Tanishtiruvda mashq darhol tugaydi."]
   },
   {
    "id": 16, "level": 3, "xp": 15, "tab": "in", "action": "next",
    "title": "Tier va qoʻshin sigʻimi",
-   "text": ["Askarlar 6 **tier**ga boʻlinadi: Yosh, Tajribali, Urushchi, Veteran, Elita, Afsonaviy. Har tier oldingisidan ~1.45 marta kuchli, lekin ~2 marta qimmat.", "Yangi tier har 4 darajada ochiladi (bino ham shu darajada boʻlishi kerak).", "**Qoʻshin sigʻimi** darajangga bogʻliq: 1–3 darajada 1 boʻri, 4-darajada 10, keyin har darajada +20%. Bu qadamdan keyin — **4-daraja**!"]
+   "text": ["Askarlar 6 **tier**ga boʻlinadi: Yosh, Tajribali, Urushchi, Veteran, Elita, Afsonaviy. Har tier oldingisidan ~1.45 marta kuchli, lekin ~2 marta qimmat.", "Yangi tier har 4 darajada ochiladi (bino ham shu darajada boʻlishi kerak).", "**Qoʻshin sigʻimi** darajangga bogʻliq: 1–3 darajada 1 boʻri, 4-darajada 10, 5-darajada 18, 10-darajada 122, 25-darajada 1000 dan ortiq. Bu qadamdan keyin — **4-daraja**!"]
   },
   {
    "id": 17, "level": 4, "xp": 20, "tab": "in", "action": "next", "reward": { "army": { "hunter": 2 } },
@@ -100,7 +100,7 @@
   {
    "id": 20, "level": 4, "xp": 20, "tab": "ov", "action": "next",
    "title": "Oziqlanish va ochlik",
-   "text": ["Bir askar kuniga **0.6 kg + 0.1 kg × (daraja−1)** goʻsht yeydi. Ov boʻlimidagi **Zaxira** goʻsht necha kunga yetishini koʻrsatadi.", "Goʻsht tugasa — **ochlik**: ishlab chiqarish −50%, jang kuchi −30%. Birinchi 7 kun hech kim ketmaydi, keyin kuniga 1% askar ketadi.", "Oflaynda Oziq gʻori 2 baravar sigʻadi — yaxshi gʻor bilan toʻda bir necha kun bemalol yashaydi."]
+   "text": ["Bir askar kuniga **0.6 kg + 0.1 kg × (daraja−1)** goʻsht yeydi; 5-darajadan toʻda tez kattalashadi va bitta askar ulushi shunga boʻlinadi — jami ehtiyoj bir xil oʻsadi. Ov boʻlimidagi **Zaxira** goʻsht necha kunga yetishini koʻrsatadi.", "Goʻsht tugasa — **ochlik**: ishlab chiqarish −50%, jang kuchi −30%. Birinchi 7 kun hech kim ketmaydi, keyin kuniga 1% askar ketadi.", "Oflaynda Oziq gʻori 2 baravar sigʻadi — yaxshi gʻor bilan toʻda bir necha kun bemalol yashaydi."]
   },
   {
    "id": 21, "level": 4, "xp": 25, "tab": "in", "target": ".bw-tab[data-tab=\"vazifalar\"]", "action": "tab:vazifalar",

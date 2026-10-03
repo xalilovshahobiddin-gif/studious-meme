@@ -53,13 +53,34 @@ class Formula
         return $sum;
     }
 
+    /** Toʻda hajmi: baza + chiziqli × n + kvadrat × n², n = daraja − toʻda ochilish darajasi (GDD bo'lim 1). */
     public static function armyCap(array $cfg, int $level): int
     {
         if ($level < $cfg['pack_unlock_level']) {
             return (int) $cfg['pack_solo_size'];
         }
 
-        return (int) round($cfg['pack_base'] * $cfg['pack_growth'] ** ($level - $cfg['pack_unlock_level']));
+        return (int) self::jsRound(self::armyRaw($cfg, $level));
+    }
+
+    private static function armyRaw(array $cfg, int $level): float
+    {
+        $n = $level - $cfg['pack_unlock_level'];
+
+        return $cfg['pack_base'] + $cfg['pack_lin'] * $n + $cfg['pack_quad'] * $n * $n;
+    }
+
+    /**
+     * Askar birligi: toʻda hajmi ÷ muvozanat egri chizigʻi (baza × pack_growth^n).
+     * Bitta askarning ehtiyoji, narxi, mashq vaqti va ov unumi shunga boʻlinadi — jami balans oʻzgarmaydi.
+     */
+    public static function unitScale(array $cfg, int $level): float
+    {
+        if ($level < $cfg['pack_unlock_level']) {
+            return 1.0;
+        }
+
+        return self::armyRaw($cfg, $level) / ($cfg['pack_base'] * $cfg['pack_growth'] ** ($level - $cfg['pack_unlock_level']));
     }
 
     public static function maxTier(array $cfg, int $level, int $buildingLevel): int
@@ -67,9 +88,16 @@ class Formula
         return max(1, min(6, intdiv($level, (int) $cfg['tier_step_level']), intdiv($buildingLevel, (int) $cfg['tier_step_building'])));
     }
 
+    /** Bitta askarning kunlik goʻshti, kg. */
     public static function need(array $cfg, int $level): float
     {
-        return $cfg['need_base'] + $cfg['need_growth'] * ($level - 1);
+        return ($cfg['need_base'] + $cfg['need_growth'] * ($level - 1)) / self::unitScale($cfg, $level);
+    }
+
+    /** Bitta askarning kunlik suvi. */
+    public static function waterNeed(array $cfg, int $level): float
+    {
+        return ($cfg['water_need_base'] + $cfg['water_need_growth'] * ($level - 1)) / self::unitScale($cfg, $level);
     }
 
     /** Bitta ovchining unumi, kg/soat. */
@@ -78,22 +106,25 @@ class Formula
         return $cfg['hunter_yield_mult'] * self::need($cfg, $level) * (1 + $cfg['hunter_tier_bonus'] * ($tier - 1));
     }
 
-    /** Rol binosining askar sigʻimi. */
+    /** Rol binosining askar sigʻimi (bino darajasidagi askar birligi bilan). */
     public static function roleCap(array $cfg, int $buildingLevel): float
     {
-        return $cfg['role_cap_base'] * $cfg['role_cap_growth'] ** ($buildingLevel - 1);
+        return $cfg['role_cap_base'] * $cfg['role_cap_growth'] ** ($buildingLevel - 1) * self::unitScale($cfg, $buildingLevel);
     }
 
     /**
-     * Bitta yangi askar narxi: goʻsht va suyak, har tierda × tier_coef² (GDD bo'lim 6).
+     * Bitta yangi askar narxi: goʻsht va suyak, har tierda × tier_coef², askar birligiga boʻlinadi (GDD bo'lim 6).
      *
      * @return array{meat: int, bone: int}
      */
-    public static function trainCost(array $cfg, int $tier): array
+    public static function trainCost(array $cfg, int $tier, int $level): array
     {
-        $mult = $cfg['tier_coef'] ** (2 * ($tier - 1));
+        $mult = $cfg['tier_coef'] ** (2 * ($tier - 1)) / self::unitScale($cfg, $level);
 
-        return ['meat' => (int) round($cfg['train_meat_base'] * $mult), 'bone' => (int) round($cfg['train_bone_base'] * $mult)];
+        return [
+            'meat' => max(1, (int) self::jsRound($cfg['train_meat_base'] * $mult)),
+            'bone' => max(1, (int) self::jsRound($cfg['train_bone_base'] * $mult)),
+        ];
     }
 
     /**
@@ -107,7 +138,7 @@ class Formula
         $occupancy = max(0.5, ($fill / 0.6) ** $cfg['occupancy_exp']);
         $penalty = min($cfg['role_cap_penalty_max'], max(1, ($roleTotal / self::roleCap($cfg, $buildingLevel)) ** $cfg['role_cap_penalty_exp']));
         $speed = (1 + $cfg['train_speed_per_level'] * ($buildingLevel - 1)) * (1 + $cfg['den_speed_coef'] * ($playerLevel - 1));
-        $minutes = $cfg['train_time_min'] * $cfg['tier_coef'] ** ($tier - 1) * min($cfg['train_coef_max'], $penalty * $occupancy) / $speed;
+        $minutes = $cfg['train_time_min'] * $cfg['tier_coef'] ** ($tier - 1) * min($cfg['train_coef_max'], $penalty * $occupancy) / $speed / self::unitScale($cfg, $playerLevel);
 
         return $minutes * 60;
     }
@@ -155,6 +186,12 @@ class Formula
         return self::imul($playerId + 1, 2654435761) ^ self::imul($window + 7, 40503);
     }
 
+    /** Oʻljaga kerakli eng kam boʻri (askar birligi bilan). */
+    public static function minPack(array $cfg, int $level, float $preyKg): int
+    {
+        return max(1, (int) ceil(self::round2($preyKg / $cfg['prey_kg_per_wolf'] * self::unitScale($cfg, $level))));
+    }
+
     /** Tavsiya etilgan ovchilar soni (qoʻshinning share_hunter qismi, kamida 1). */
     public static function huntersRec(array $cfg, int $level): int
     {
@@ -185,7 +222,7 @@ class Formula
             $cards[] = [
                 'band' => $band, 'prey' => $prey, 'prey_kg' => $preyKg, 'count' => $count, 'herd_kg' => self::round2($count * $preyKg),
                 'km' => $km, 'minutes' => $minutes, 'bonus' => $bonus[$band], 'injury' => $injury[$band], 'death' => $death[$band],
-                'min_pack' => max(1, (int) ceil($preyKg / $cfg['prey_kg_per_wolf'])),
+                'min_pack' => self::minPack($cfg, $level, $preyKg),
             ];
         }
         usort($cards, fn ($a, $b) => [$a['minutes'], $a['herd_kg'], $a['km']] <=> [$b['minutes'], $b['herd_kg'], $b['km']]);

@@ -7,6 +7,7 @@ use App\Models\March;
 use App\Models\Player;
 use App\Models\PlayerResource;
 use App\Models\Queue;
+use App\Support\Formula;
 use Carbon\CarbonImmutable;
 
 /**
@@ -38,7 +39,8 @@ class EconomyService
         $meatH = self::need($cfg, $level) * $army / 24;
         $waterNetH = self::waterPerHour($cfg, $cave) - self::waterNeed($cfg, $level) * $army / 24;
         $moonOn = $level >= $cfg['moonlight_need_level'];
-        $moonNetH = $moonOn ? ($cave > 0 ? $cfg['moonlight_passive_base'] * $army : 0) - $cfg['moonlight_need'] * $army / 24 : 0;
+        $unit = Formula::unitScale($cfg, $level);
+        $moonNetH = $moonOn ? ($cave > 0 ? $cfg['moonlight_passive_base'] / $unit * $army : 0) - $cfg['moonlight_need'] / $unit * $army / 24 : 0;
         $prodH = self::workshopPerHour($cfg, (int) $e['workshop']);
 
         for ($guard = 0; $t < $t1 && $guard < 8; $guard++) {
@@ -318,13 +320,13 @@ class EconomyService
     /** @param  array<string, mixed>  $cfg */
     private static function need(array $cfg, int $level): float
     {
-        return $cfg['need_base'] + $cfg['need_growth'] * ($level - 1);
+        return Formula::need($cfg, $level);
     }
 
     /** @param  array<string, mixed>  $cfg */
     private static function waterNeed(array $cfg, int $level): float
     {
-        return $cfg['water_need_base'] + $cfg['water_need_growth'] * ($level - 1);
+        return Formula::waterNeed($cfg, $level);
     }
 
     /** @param  array<string, mixed>  $cfg */

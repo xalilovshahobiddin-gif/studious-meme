@@ -1,4 +1,4 @@
-# Blue Wolf — Telegram Mini App · v0.0.14
+# Blue Wolf — Telegram Mini App · v0.0.15
 
 Strategiya / omon qolish oʻyini: ov qil, in qur, toʻda yigʻ va Koʻk Boʻriga aylan.
 Dizayn hujjatlari: [`docs/blue_wolf/`](../docs/blue_wolf/) (GDD, API, sxema, balans jadvali). Oʻzgarishlar: [CHANGELOG.md](CHANGELOG.md).
@@ -113,6 +113,9 @@ vendor/bin/pint --test        # kod uslubi
 - **Mashq** (GDD bo'lim 6): rol binosida, 1 askar = 20 kg goʻsht + 8 suyak (har tierda ×2.1), vaqt — 4 daqiqa × tier,
   qoʻshin toʻlganligi va bino sigʻimiga qarab (boʻsh qoʻshinda ×0.5, toʻlganda sekinlashadi). Maks tier — daraja va bino ÷ 4.
   Har rolda bir vaqtda bitta mashq; qoʻshin sigʻimidan oshmaydi (`CAPACITY_FULL`).
+- **Qoʻshin sigʻimi va askar birligi** (v0.0.15): sigʻim = 10 + 6n + 2.1n² (n = daraja − 4) — 25-darajada 1062 boʻri.
+  Bitta askarning narxi, mashq vaqti, ehtiyoji, ovchi unumi va CP si askar birligiga boʻlinadi
+  (`Formula::unitScale` = `BWGame.unitScale`), shuning uchun toʻdaning jami balansi oʻzgarmaydi.
 - **Askarlar ovqat yeydi:** goʻsht, suv (20+ darajada oy nuri) qoʻshin hajmiga qarab sarflanadi; goʻsht tugasa — ochlik.
 - **Yolgʻiz ov** (1–3 daraja): alfa oʻzi ovlaydi — darajaning asosiy oʻljasi (0.5 / 1 / 2 kg), 2 daqiqa kutish.
 - **Ov xaritasi** (3+ daraja, ovchi bilan, v0.0.7): har oʻyinchiga 9 ta karta, har 4 soatda yangilanadi. Kartalar yaqindan uzoqqa:
@@ -201,7 +204,8 @@ Skript `database/seeders/data/game_config.json` va `public/data/game_config.json
 | v0.0.11 | Menyu tutqichi (chap chetda, menyu bilan birga suriladi), ixcham taymerlar (ikonka + vaqt) ✅ |
 | v0.0.12 | Ov taymeri, In dan navbat boʻlimi olib tashlandi, ov slayderlari faqat bor rollar uchun ✅ |
 | v0.0.13 | Profil → Qoʻshin: Kartalar, Medallar, Radar koʻrinishlari ✅ |
-| **v0.0.14** | Qoʻshin subtablari: Rollar · Tierlar · Radar ✅ |
+| v0.0.14 | Qoʻshin subtablari: Rollar · Tierlar · Radar ✅ |
+| **v0.0.15** | Katta toʻda: 25-darajada 1062 boʻri, askar birligi bilan balans saqlandi ✅ |
 | v0.4 | Tanishtiruv (20 qadam), kundalik vazifalar |
 | v0.5 | Botlarga hujum, razvedka, jang hisoblagichi, jarohat va davolash |
 | v0.6 | PvP (7–10 daraja), ov guruhlari, bildirishnomalar → **MVP** |
