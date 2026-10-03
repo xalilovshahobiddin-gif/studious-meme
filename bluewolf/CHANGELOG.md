@@ -1,5 +1,11 @@
 # Blue Wolf — oʻzgarishlar tarixi
 
+## v0.0.13 — Profil: qoʻshin koʻrinishlari
+- Qoʻshin jadvali oʻrniga uchta koʻrinish (subtablar): **Kartalar** (2×2 rol kartalari, tierlar boʻyicha sonlar),
+  **Medallar** (har rolda 6 ta tier medali, ramka rangi — tier), **Radar** (muvozanat diagrammasi va maslahat).
+- Sonlar endi ovdagi va yarador boʻrilarni ham oʻz ichiga oladi; pastda Inda · Ovda · Yarador holat belgilari.
+- GDD bo'lim 18 yangilandi.
+
 ## v0.0.12 — ov taymeri, In soddalashdi, ov slayderlari
 - **Ov taymeri** taymerlar panelida: yashil, panja ikonkasi, qaytishgacha vaqt va halqa; bosilsa Ov tabi ochiladi.
   Panel uchala turni (qurilish, mashq, ov) tugash vaqti boʻyicha tartiblaydi.
