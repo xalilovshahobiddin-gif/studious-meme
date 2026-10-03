@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\GameConfig;
 use App\Models\Player;
 use App\Models\PlayerResource;
+use App\Models\Queue;
 use Carbon\CarbonImmutable;
 
 /**
@@ -72,18 +73,37 @@ class EconomyService
 
     /**
      * Oʻyinchi resurslarini hozirgi vaqtgacha hisoblaydi va saqlaydi (qator qulflangan holda).
-     * Qaytaradi: oflayn qaytish boʻlsa — {seconds, gained} (salomlashish oynasi uchun), aks holda null.
+     * Muddati yetgan qurilish navbatlari shu yerda “dangasa” yopiladi: hisob har birining tugash
+     * paytigacha eski daraja bilan, keyin yangi daraja bilan davom etadi (texnik spec 4.1–4.2).
      *
-     * @return array{seconds: int, gained: array<string, int>}|null
+     * @return array{away: array{seconds: int, gained: array<string, int>}|null, finished: list<array<string, mixed>>}
      */
-    public function sync(Player $player, ?CarbonImmutable $now = null): ?array
+    public function sync(Player $player, ?CarbonImmutable $now = null): array
     {
         $now ??= CarbonImmutable::now();
         $cfg = GameConfig::allValues();
         $res = PlayerResource::query()->whereKey($player->id)->lockForUpdate()->firstOrFail();
 
         $before = $this->load($player, $res);
-        $after = self::advance($cfg, $before, self::ms($now));
+        $after = $before;
+        $finished = [];
+        $due = $player->queues()->where('kind', 'build')->where('state', 'running')
+            ->where('ends_at', '<=', $now->format('Y-m-d H:i:s.v'))->orderBy('ends_at')->get();
+        foreach ($due as $queue) {
+            // Ikki marta bajarilmasligi uchun shartli UPDATE
+            if (Queue::query()->whereKey($queue->id)->where('state', 'running')->update(['state' => 'done']) !== 1) {
+                continue;
+            }
+            $after = self::advance($cfg, $after, max($after['last_tick'], (float) $queue->ends_at->getTimestampMs()));
+            $player->buildings()->where('type', $queue->building_type)->update(['level' => $queue->target_level]);
+            if ($queue->building_type === 'food_cave') {
+                $after['cave'] = $queue->target_level;
+            } elseif ($queue->building_type === 'workshop') {
+                $after['workshop'] = $queue->target_level;
+            }
+            $finished[] = ['type' => $queue->building_type, 'level' => $queue->target_level];
+        }
+        $after = self::advance($cfg, $after, self::ms($now));
         $this->store($res, $after);
 
         $player->forceFill(['last_seen_at' => $now])->save();
@@ -91,7 +111,7 @@ class EconomyService
 
         $away = (self::ms($now) - $before['last_seen']) / 1000;
         if ($away < $cfg['offline_after_min'] * 60) {
-            return null;
+            return ['away' => null, 'finished' => $finished];
         }
         $gained = [];
         foreach (['water', 'moonlight', 'meat'] as $k) {
@@ -101,7 +121,7 @@ class EconomyService
             $gained[$k] = (int) floor($after['buf'][$k]) - (int) floor($before['buf'][$k]);
         }
 
-        return ['seconds' => (int) $away, 'gained' => array_filter($gained)];
+        return ['away' => ['seconds' => (int) $away, 'gained' => array_filter($gained)], 'finished' => $finished];
     }
 
     /**

@@ -1,10 +1,10 @@
-/* Blue Wolf — service worker (v0.0.2).
+/* Blue Wolf — service worker (v0.0.3).
    Ilova qobigʻi keshlanadi (oflayn ochiladi); API soʻrovlari hech qachon keshlanmaydi. */
-var CACHE = "bluewolf-v0.0.2";
+var CACHE = "bluewolf-v0.0.3";
 var SHELL = [
   "./", "index.html", "manifest.webmanifest",
-  "ui/bluewolf-ui.css?v=0.0.2", "ui/bluewolf-icons.js?v=0.0.2", "css/app.css?v=0.0.2",
-  "js/demo-data.js?v=0.0.2", "js/game.js?v=0.0.2", "js/api.js?v=0.0.2", "js/app.js?v=0.0.2",
+  "ui/bluewolf-ui.css?v=0.0.3", "ui/bluewolf-icons.js?v=0.0.3", "css/app.css?v=0.0.3",
+  "js/demo-data.js?v=0.0.3", "js/game.js?v=0.0.3", "js/api.js?v=0.0.3", "js/app.js?v=0.0.3",
   "data/game_config.json", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png"
 ];
 

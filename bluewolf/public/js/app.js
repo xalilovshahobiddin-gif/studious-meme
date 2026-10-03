@@ -1,7 +1,7 @@
-/* Blue Wolf Mini App — v0.0.2 (tirik iqtisodiyot)
+/* Blue Wolf Mini App — v0.0.3 (tirik iqtisodiyot + qurilish)
    5 ta tab (In · Jang · Toʻda · Vazifalar · Profil), hash-router, Telegram WebApp integratsiyasi.
    Resurslar vaqt boʻyicha hisoblanadi (BWGame.advance — server bilan bir xil formula), Ustaxona buferi
-   va taqsimoti ishlaydi. Qolgan amallar (qurish, ov, hujum…) keyingi bosqichlarda ulanadi. */
+   va taqsimoti, qurilish navbati ishlaydi. Qolgan amallar (ov, hujum…) keyingi bosqichlarda ulanadi. */
 (function () {
   "use strict";
 
@@ -55,15 +55,18 @@
     setTimeout(function () { el.remove(); }, 2600);
   }
 
-  function openSheet(html) {
+  function openSheet(html, refresh) {
+    var wasOpen = $("#sheet").classList.contains("is-open");
+    app.sheetRefresh = refresh || null;
     $("#sheet-body").innerHTML = html;
     $("#sheet").classList.add("is-open");
     $("#sheet").setAttribute("aria-hidden", "false");
     $("#sheet-backdrop").classList.add("is-open");
     if (tg && tg.BackButton) tg.BackButton.show();
-    haptic("light");
+    if (!wasOpen) haptic("light");
   }
   function closeSheet() {
+    app.sheetRefresh = null;
     $("#sheet").classList.remove("is-open");
     $("#sheet").setAttribute("aria-hidden", "true");
     $("#sheet-backdrop").classList.remove("is-open");
@@ -251,7 +254,7 @@
       var meta = G.BUILDINGS[type];
       var b = byType[type] || {};
       var level = type === "den" ? p.level : (b.level || 0);
-      return { type: type, meta: meta, level: level, locked: p.level < meta.unlock };
+      return { type: type, meta: meta, level: level, locked: p.level < meta.unlock, queue: queueFor(type) };
     });
   }
 
@@ -302,9 +305,7 @@
       (hunters ? hunters + " ovchi · 1 soat · ~" + G.fmt(perHunt) + " kg goʻsht" : "Yolgʻiz ov: alfa oʻzi ovlaydi") + "</div></div>" +
       '<button class="bw-btn bw-btn--accent bw-btn--sm" data-action="hunt">' + icon("paw", "bw-icon--sm") + " Ovga</button></div>";
 
-    html += sectionTitle("Qurilish navbati", '<span class="bw-chip">' + (p.level >= cfg.second_queue_free_level ? "2" : "1") + " slot</span>");
-    html += '<div class="bw-card bw-card--flat queue-slot"><span class="queue-slot__icon">' + icon("clock") +
-      '</span><div class="bw-grow"><div class="bw-row__title">Navbat boʻsh</div><div class="bw-row__sub">Binoni tanlang va kuchaytiring</div></div></div>';
+    html += queueSection();
 
     html += sectionTitle("Binolar", '<span class="bw-faint" style="font-size:12px">' + buildingList().filter(function (b) { return !b.locked; }).length + " / 9</span>");
     html += '<div class="bw-grid-3 bw-grid-3--wide">' + buildingList().map(function (b) {
@@ -312,9 +313,12 @@
         (b.locked ? '<span class="bw-building__lock">' + icon("lock", "bw-icon--sm") + "</span>" : "") +
         '<span class="bw-building__icon">' + icon(b.meta.icon, "bw-icon--lg") + '</span>' +
         '<span class="bw-building__name">' + esc(b.meta.name) + "</span>" +
+        (!b.locked && !b.queue && upgradeCheck(b).ok ? '<span class="bw-building__up" title="Kuchaytirish mumkin">' + icon("plus", "bw-icon--sm") + "</span>" : "") +
         '<span class="bw-building__lvl">' + (b.locked
           ? '<span class="bw-faint" style="font-size:11px">' + b.meta.unlock + "-darajada</span>"
-          : '<span class="bw-chip bw-chip--primary">' + b.level + "-daraja</span>") + "</span></button>";
+          : b.queue
+            ? '<span class="bw-chip bw-chip--accent">' + icon("clock", "bw-icon--sm") + ' <span data-live="q-' + b.queue.id + '">' + timeLeft(b.queue) + "</span></span>"
+            : '<span class="bw-chip bw-chip--primary">' + b.level + "-daraja</span>") + "</span></button>";
     }).join("") + "</div>";
 
     html += workshopSection();
@@ -439,13 +443,16 @@
     } else if (b.locked) {
       html += '<div class="bw-banner">' + icon("lock", "bw-icon--sm") + "<span>" + b.meta.unlock + "-darajaga yeting — bino 1-darajada bepul paydo boʻladi.</span></div>";
     } else {
-      var next = b.level + 1;
-      if (next > p.level) {
+      var next = b.level + 1, check = upgradeCheck(b);
+      if (b.queue) {
+        html += queueCard(b.queue, true);
+      } else if (next > p.level) {
         html += '<div class="bw-banner">' + icon("info", "bw-icon--sm") + "<span>Bino oʻyinchi darajasidan oshmaydi. Keyingi daraja — " + next + "-darajada.</span></div>";
       } else {
         html += '<div class="bw-eyebrow" style="margin-bottom:8px">' + next + "-darajaga koʻtarish</div>";
         html += '<div class="cost-row">' + costChips(G.buildingCost(cfg, type, next)) +
           '<span class="bw-chip">' + icon("clock", "bw-icon--sm") + " " + G.fmtMinutes(G.buildingTime(cfg, type, next)) + "</span></div>";
+        html += upgradeEffect(type, b.level, next);
       }
       if (type === "workshop") {
         html += '<div class="bw-grid-2" style="margin-top:14px">' + stat(G.fmt(G.workshopPerHour(cfg, b.level)) + "/soat", "Ishlab chiqarish") +
@@ -458,10 +465,13 @@
           '<div class="bw-stat"><span class="bw-stat__value">' + G.maxTier(cfg, p.level, b.level) + '</span><span class="bw-stat__label">Maks tier</span></div>' +
           '<div class="bw-stat"><span class="bw-stat__value">' + G.fmt(cfg.role_cap_base * Math.pow(cfg.role_cap_growth, b.level - 1)) + '</span><span class="bw-stat__label">Askar sigʻimi</span></div></div>';
       }
-      html += '<button class="bw-btn bw-btn--block" style="margin-top:18px" data-action="upgrade"' + (next > p.level ? " disabled" : "") + ">" +
-        icon("plus", "bw-icon--sm") + " Kuchaytirish</button>";
+      if (!b.queue) {
+        html += '<button class="bw-btn bw-btn--block" style="margin-top:18px" data-action="upgrade" data-type="' + type + '"' + (check.ok ? "" : " disabled") + ">" +
+          icon("plus", "bw-icon--sm") + " Kuchaytirish</button>";
+        if (!check.ok && next <= p.level) html += '<p class="bw-faint" style="margin:8px 0 0;font-size:12px;text-align:center">' + esc(check.reason) + "</p>";
+      }
     }
-    openSheet(html);
+    openSheet(html, function () { buildingSheet(type); });
   }
 
   /* ---------------------------------------------------------------- ⚔️ Jang */
@@ -593,6 +603,192 @@
     return html;
   }
 
+  /* ---------------------------------------------------------------- Qurilish navbati */
+  function queues() { return (app.state.queues || []).filter(function (q) { return q.kind === "build"; }); }
+  function queueFor(type) { return queues().filter(function (q) { return q.building_type === type; })[0] || null; }
+
+  /** Navbat slotlari: 1; 10-darajadan 2 (live — server aytadi). */
+  function buildSlots() {
+    var p = app.state.player;
+    if (p.build_slots) return p.build_slots;
+    return p.level >= app.config.second_queue_free_level ? 2 : 1;
+  }
+
+  /** Kuchaytirish mumkinmi — server bilan bir xil tekshiruvlar (BuildService::upgrade). */
+  function upgradeCheck(b) {
+    var p = app.state.player, next = b.level + 1;
+    if (b.meta.auto || b.locked) return { ok: false, reason: "" };
+    if (b.queue) return { ok: false, reason: "Bu bino qurilmoqda" };
+    if (next > p.level) return { ok: false, reason: "Bino oʻyinchi darajasidan oshmaydi" };
+    if (queues().length >= buildSlots()) return { ok: false, reason: "Qurilish navbati band" };
+    var cost = G.buildingCost(app.config, b.type, next), res = app.state.resources;
+    var missing = Object.keys(cost).filter(function (k) { return (res[k] || 0) < cost[k]; });
+    if (missing.length) {
+      return { ok: false, reason: "Yetmaydi: " + missing.map(function (k) { return G.fmt(cost[k] - (res[k] || 0)) + " " + resMeta(k).short.toLowerCase(); }).join(", ") };
+    }
+    return { ok: true, cost: cost };
+  }
+
+  /** Keyingi daraja nima beradi (qisqa). */
+  function upgradeEffect(type, from, to) {
+    var cfg = app.config, row = function (label, a, b) {
+      return '<div class="bw-between upgrade-fx"><span class="bw-muted">' + esc(label) + '</span><span class="bw-num">' + a + ' <span class="bw-faint">→</span> <b>' + b + "</b></span></div>";
+    };
+    var html = "";
+    if (type === "workshop") html = row("Ishlab chiqarish, /soat", G.fmt(G.workshopPerHour(cfg, from)), G.fmt(G.workshopPerHour(cfg, to)));
+    else if (type === "food_cave") html = row("Sigʻim (har oziq)", G.fmt(Math.round(G.caveCap(cfg, from))), G.fmt(Math.round(G.caveCap(cfg, to)))) +
+      row("Passiv suv, /soat", fmtRate(G.waterPerHour(cfg, from)), fmtRate(G.waterPerHour(cfg, to)));
+    else if (G.ROLES.some(function (r) { return r.building === type; })) {
+      var p = app.state.player;
+      html = row("Askar sigʻimi", G.fmt(cfg.role_cap_base * Math.pow(cfg.role_cap_growth, from - 1)), G.fmt(cfg.role_cap_base * Math.pow(cfg.role_cap_growth, to - 1))) +
+        row("Maks tier", G.maxTier(cfg, p.level, from), G.maxTier(cfg, p.level, to));
+    }
+    return html ? '<div class="bw-card bw-card--flat" style="margin-top:12px;padding:10px 14px">' + html + "</div>" : "";
+  }
+
+  function timeLeft(q) {
+    var sec = Math.max(0, Math.ceil((q.ends_at - now()) / 1000));
+    var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), ss = sec % 60;
+    var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+    return (h ? h + ":" + pad(m) : m) + ":" + pad(ss);
+  }
+
+  function queueRatio(q) {
+    return Math.max(0, Math.min(1, (now() - q.started_at) / Math.max(1, q.ends_at - q.started_at)));
+  }
+
+  /** Navbatdagi qurilish kartasi (In ekrani va bino oynasi uchun). */
+  function queueCard(q, inSheet) {
+    var meta = G.BUILDINGS[q.building_type], free = app.state.player.free_speedups || 0;
+    return '<div class="bw-card bw-card--flat queue-slot queue-slot--busy"' + (inSheet ? "" : ' data-action="q-open" data-type="' + q.building_type + '"') + ">" +
+      '<span class="queue-slot__icon">' + icon(meta.icon) + '</span><div class="bw-grow">' +
+      '<div class="bw-between"><span class="bw-row__title">' + esc(meta.name) + " → " + q.target_level + '</span><b class="bw-num" data-live="q-' + q.id + '">' + timeLeft(q) + "</b></div>" +
+      '<div class="bw-progress bw-progress--sm" style="margin:8px 0"><div class="bw-progress__bar" data-live="qbar-' + q.id + '" style="width:' + Math.round(queueRatio(q) * 100) + '%"></div></div>' +
+      '<div class="queue-slot__actions"><button class="bw-btn bw-btn--accent bw-btn--sm" data-action="q-speedup" data-q="' + q.id + '" title="Bepul tezlashtirish: −' + app.config.tutorial_speedup_min + ' daqiqa"' + (free ? "" : " disabled") + ">" +
+      icon("bolt", "bw-icon--sm") + " Tezlash · " + free + '</button><button class="bw-btn bw-btn--ghost bw-btn--sm" data-action="q-cancel" data-q="' + q.id + '">' +
+      icon("close", "bw-icon--sm") + " Bekor</button></div></div></div>";
+  }
+
+  function queueSection() {
+    var cfg = app.config, list = queues(), slots = buildSlots();
+    var html = sectionTitle("Qurilish navbati", '<span class="bw-chip">' + list.length + " / " + slots + " slot</span>");
+    html += '<div class="bw-stack">' + list.map(function (q) { return queueCard(q, false); }).join("");
+    for (var i = list.length; i < slots; i++) {
+      html += '<div class="bw-card bw-card--flat queue-slot"><span class="queue-slot__icon">' + icon("clock") +
+        '</span><div class="bw-grow"><div class="bw-row__title">Navbat boʻsh</div><div class="bw-row__sub">Binoni tanlang va kuchaytiring</div></div></div>';
+    }
+    if (slots < 2) {
+      html += '<div class="queue-slot queue-slot--locked">' + icon("lock", "bw-icon--sm") + "<span>2-navbat " + cfg.second_queue_free_level + "-darajada bepul ochiladi</span></div>";
+    }
+    return html + "</div>";
+  }
+
+  /** So‘rash: Telegram oynasi yoki brauzer confirm. */
+  function confirmAsk(text, cb) {
+    if (tg && tg.showConfirm && tg.isVersionAtLeast && tg.isVersionAtLeast("6.2")) { tg.showConfirm(text, function (ok) { if (ok) cb(); }); return; }
+    if (window.confirm(text)) cb();
+  }
+
+  var busy = false;
+  /** Live: POST, javobni qoʻllash; xato boʻlsa toast va qayta sinxron. */
+  function post(path, body, ok) {
+    if (busy) return;
+    busy = true;
+    window.BWApi.request(path, { method: "POST", body: body }).then(function (res) {
+      applySnapshot(res);
+      ok(res.data);
+      announceFinished(res.data.finished);
+    }, function (err) {
+      toast(err.message || "Xato", "info");
+      resync();
+    }).then(function () { busy = false; });
+  }
+
+  function upgrade(type) {
+    var b = buildingList().filter(function (x) { return x.type === type; })[0];
+    var check = upgradeCheck(b);
+    if (!check.ok) { toast(check.reason, "info"); return; }
+    var started = function () { haptic("medium"); toast(b.meta.name + " → " + (b.level + 1) + "-daraja: qurilish boshlandi", "clock"); };
+    if (app.mode === "live") { post("buildings/upgrade", { type: type }, started); return; }
+
+    app.econ = G.advance(app.config, app.econ, now());
+    Object.keys(check.cost).forEach(function (k) { app.econ.res[k] -= check.cost[k]; });
+    var t = now(), used = queues().map(function (q) { return q.slot; });
+    app.state.queues = (app.state.queues || []).concat([{
+      id: t, kind: "build", slot: used.indexOf(1) === -1 ? 1 : 2, building_type: type, target_level: b.level + 1, cost: check.cost,
+      started_at: t, ends_at: t + Math.round(G.buildingTime(app.config, type, b.level + 1) * 60) * 1000
+    }]);
+    saveDemo(); syncResources(); render(); started();
+  }
+
+  function speedup(id) {
+    var q = queues().filter(function (x) { return x.id === id; })[0];
+    if (!q || !(app.state.player.free_speedups > 0)) { toast("Bepul tezlashtirish qolmadi", "info"); return; }
+    var done = function () { haptic("medium"); toast("Tezlashtirildi: −" + app.config.tutorial_speedup_min + " daqiqa", "bolt"); };
+    if (app.mode === "live") { post("queue/speedup", { queue_id: id, use_free: true }, done); return; }
+    q.ends_at = Math.max(now(), q.ends_at - app.config.tutorial_speedup_min * 60000);
+    app.state.player.free_speedups--;
+    done();
+    tickQueues(now());
+    saveDemo(); render();
+  }
+
+  function cancelQueue(id) {
+    var q = queues().filter(function (x) { return x.id === id; })[0];
+    if (!q) return;
+    var pct = Math.round(app.config.queue_cancel_refund * 100);
+    confirmAsk(G.BUILDINGS[q.building_type].name + " qurilishini bekor qilasizmi? Resursning " + pct + "% i qaytadi.", function () {
+      var done = function (refund) {
+        toast("Bekor qilindi. Qaytdi: " + Object.keys(refund).map(function (k) { return "+" + G.fmt(refund[k]) + " " + resMeta(k).short.toLowerCase(); }).join(", "), "close");
+      };
+      if (app.mode === "live") { post("queue/cancel", { queue_id: id }, function (d) { done(d.refund || {}); }); return; }
+      var refund = {};
+      Object.keys(q.cost).forEach(function (k) { refund[k] = Math.floor(q.cost[k] * app.config.queue_cancel_refund); });
+      app.econ = G.advance(app.config, app.econ, now());
+      Object.keys(refund).forEach(function (k) { app.econ.res[k] += refund[k]; });
+      app.state.queues = app.state.queues.filter(function (x) { return x.id !== id; });
+      saveDemo(); syncResources(); render(); done(refund);
+    });
+  }
+
+  function announceFinished(list) {
+    (list || []).forEach(function (f) {
+      haptic("heavy");
+      toast(G.BUILDINGS[f.type].name + " " + f.level + "-darajaga koʻtarildi!", "check");
+    });
+  }
+
+  var finishing = false;
+  /** Har soniyada: taymerlar va tugagan navbatlar (demo — shu yerda, live — serverdan). */
+  function tickQueues(t) {
+    var due = queues().filter(function (q) { return q.ends_at <= t; }).sort(function (a, b) { return a.ends_at - b.ends_at; });
+    if (due.length) {
+      if (app.mode === "live") {
+        if (!finishing) { finishing = true; resync().then(function () { finishing = false; }); }
+      } else {
+        var finished = [];
+        due.forEach(function (q) {
+          // Resurs hisobi tugash paytigacha eski daraja bilan, keyin yangisi bilan (server bilan bir xil)
+          app.econ = G.advance(app.config, app.econ, Math.max(app.econ.last_tick, q.ends_at));
+          app.state.buildings.forEach(function (b) { if (b.type === q.building_type) b.level = q.target_level; });
+          if (q.building_type === "food_cave") app.econ.cave = q.target_level;
+          if (q.building_type === "workshop") app.econ.workshop = q.target_level;
+          finished.push({ type: q.building_type, level: q.target_level });
+        });
+        app.state.queues = app.state.queues.filter(function (q) { return due.indexOf(q) === -1; });
+        app.econ = G.advance(app.config, app.econ, t);
+        saveDemo(); syncResources(); render();
+        announceFinished(finished);
+        return;
+      }
+    }
+    queues().forEach(function (q) {
+      document.querySelectorAll('[data-live="q-' + q.id + '"]').forEach(function (el) { el.textContent = timeLeft(q); });
+      var bar = document.querySelector('[data-live="qbar-' + q.id + '"]');
+      if (bar) bar.style.width = Math.round(queueRatio(q) * 100) + "%";
+    });
+  }
+
   /* ---------------------------------------------------------------- Tirik iqtisodiyot */
   var DEMO_KEY = "bw.demo.econ";
   var RES_KEYS = ["meat", "water", "herb", "moonlight", "stone", "wood", "hide", "bone"];
@@ -601,14 +797,24 @@
   function now() { return Date.now() + app.offset; }
 
   function saveDemo() {
-    try { localStorage.setItem(DEMO_KEY, JSON.stringify({ v: 1, econ: app.econ })); } catch (e) { /* xususiy rejim */ }
+    var levels = {};
+    (app.state.buildings || []).forEach(function (b) { levels[b.type] = b.level; });
+    try {
+      localStorage.setItem(DEMO_KEY, JSON.stringify({ v: 2, econ: app.econ, queues: app.state.queues || [], buildings: levels,
+        free_speedups: app.state.player.free_speedups }));
+    } catch (e) { /* xususiy rejim */ }
   }
 
   /** Demo: saqlangan holat yoki BW_DEMO dan yangi (2 soat oldin “chiqib ketgan” — bufer va qaytish oynasini koʻrsatish uchun). */
   function demoEconomy() {
     try {
       var saved = JSON.parse(localStorage.getItem(DEMO_KEY) || "null");
-      if (saved && saved.v === 1 && saved.econ && saved.econ.res) return saved.econ;
+      if (saved && saved.v === 2 && saved.econ && saved.econ.res) {
+        app.state.queues = saved.queues || [];
+        app.state.player.free_speedups = saved.free_speedups;
+        (app.state.buildings || []).forEach(function (b) { if (saved.buildings[b.type] != null) b.level = saved.buildings[b.type]; });
+        return saved.econ;
+      }
     } catch (e) { /* buzilgan — yangisini yaratamiz */ }
     var t = Date.now() - 2 * 3600000, res = {};
     RES_KEYS.forEach(function (k) { res[k] = app.state.resources[k] || 0; });
@@ -633,6 +839,11 @@
     if (st.server_time) app.offset = Date.parse(st.server_time) - Date.now();
     app.econ = st.economy;
     app.state.resources = Object.assign(app.state.resources, st.resources);
+    if (st.queues) app.state.queues = st.queues;
+    if (st.free_speedups != null) app.state.player.free_speedups = st.free_speedups;
+    if (st.buildings) {
+      (app.state.buildings || []).forEach(function (b) { if (st.buildings[b.type] != null) b.level = st.buildings[b.type]; });
+    }
     syncResources();
     render();
     return body;
@@ -644,6 +855,7 @@
     return window.BWApi.request("state").then(function (body) {
       Object.assign(app.state, body.data);
       applySnapshot(body);
+      announceFinished(body.data.finished);
       if (body.data.away) awaySheet(body.data.away);
     }, function () { /* tarmoq yoʻq — keyingi urinishda */ });
   }
@@ -719,6 +931,7 @@
       if (t - lastSave > 5000) { saveDemo(); lastSave = t; }
     }
     syncResources();
+    tickQueues(t);
     var sig = RES_KEYS.map(function (k) { return app.state.resources[k]; }).join() + "|" + bufferTotal() + "|" + bufferStatus();
     if (sig === lastSig) return;
     lastSig = sig;
@@ -790,12 +1003,16 @@
     renderTop();
     $("#screen").innerHTML = SCREENS[app.tab]();
     if (app.tab === "in") bindAlloc();
+    if (app.sheetRefresh) app.sheetRefresh();
   }
 
   /* ---------------------------------------------------------------- Amallar */
   var ACTIONS = {
     hunt: function () { toast("Ov — " + ROADMAP, "paw"); },
-    upgrade: function () { toast("Qurilish navbati — " + ROADMAP, "clock"); },
+    upgrade: function (el) { upgrade(el.getAttribute("data-type")); },
+    "q-speedup": function (el) { speedup(+el.getAttribute("data-q")); },
+    "q-cancel": function (el) { cancelQueue(+el.getAttribute("data-q")); },
+    "q-open": function (el) { buildingSheet(el.getAttribute("data-type")); },
     scout: function () { toast("Razvedka — " + ROADMAP, "eye"); },
     attack: function () { toast("Hujum — " + ROADMAP, "sword"); },
     "party-create": function () { toast("Ov guruhi — " + ROADMAP, "pack"); },

@@ -1,9 +1,9 @@
-/* Blue Wolf — demo maʼlumotlar (v0.0.2).
+/* Blue Wolf — demo maʼlumotlar (v0.0.3).
    Server topilmaganda (GitHub Pages, oddiy brauzer) ilova shu bilan ochiladi.
    Raqamlar GDD dagi 5-darajali oʻyinchiga mos namuna.
    v0.0.2: resurslar qurilmada vaqt boʻyicha hisoblanadi (localStorage "bw.demo.econ"). */
 window.BW_DEMO = {
-  player: { id: 0, name: "Alfa", username: "demo", lang: "uz", level: 5, xp: 412, tutorial_step: 20 },
+  player: { id: 0, name: "Alfa", username: "demo", lang: "uz", level: 5, xp: 412, tutorial_step: 20, free_speedups: 5 },
   resources: { meat: 52, water: 41, herb: 12, moonlight: 0, stone: 820, wood: 610, hide: 240, bone: 305, moonstone: 0 },
   buildings: [
     { type: "den", level: 5 }, { type: "food_cave", level: 3 }, { type: "workshop", level: 4 },

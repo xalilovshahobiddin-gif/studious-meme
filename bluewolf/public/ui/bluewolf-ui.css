@@ -1,6 +1,6 @@
 /* ==========================================================================
    BlueWolf UI — Blue Wolf oʻyini uchun dizayn tizimi
-   v0.0.2
+   v0.0.3
 
    Tuzilishi:
      1. Tokenlar (palitra, semantik ranglar, rol va tier ranglari, shrift, oraliq, radius, soya, harakat)
@@ -364,6 +364,8 @@ button { font: inherit; color: inherit; }
 .bw-building--locked { opacity: .55; }
 .bw-building--locked .bw-building__icon { background: rgba(255, 255, 255, .05); color: var(--bw-text-3); }
 .bw-building__lock { position: absolute; top: 10px; right: 10px; color: var(--bw-text-3); }
+.bw-building__up { position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--bw-success); color: #04111f; }
+.bw-building__up .bw-icon { width: 12px; height: 12px; stroke-width: 3; }
 
 /* Roʻyxat */
 .bw-list { display: flex; flex-direction: column; }

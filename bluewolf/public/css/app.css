@@ -69,6 +69,12 @@
 /* Navbat slotlari */
 .queue-slot { display: flex; align-items: center; gap: 12px; }
 .queue-slot__icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--bw-surface-2); color: var(--bw-text-3); }
+.queue-slot--busy { align-items: flex-start; cursor: pointer; }
+.queue-slot--busy .queue-slot__icon { background: rgba(255, 181, 71, .14); color: var(--bw-accent); }
+.queue-slot__actions { display: flex; gap: 8px; }
+.queue-slot__actions .bw-btn { flex: 1; }
+.queue-slot--locked { display: flex; align-items: center; gap: 8px; padding: 0 4px; color: var(--bw-text-3); font-size: var(--bw-fs-xs); }
+.upgrade-fx { padding: 4px 0; font-size: var(--bw-fs-sm); }
 
 /* Raqib kartasi */
 .target { display: flex; align-items: center; gap: 12px; }

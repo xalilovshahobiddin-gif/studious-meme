@@ -17,10 +17,10 @@ class StateController extends Controller
     public function show(Request $request): JsonResponse
     {
         return DB::transaction(function () use ($request) {
-            [$player, $away] = $this->players->enter($request->attributes->get('tg_user'));
+            [$player, $sync] = $this->players->enter($request->attributes->get('tg_user'));
 
             return ApiResponse::ok(
-                $this->players->fullState($player) + ['away' => $away],
+                $this->players->fullState($player) + $sync,
                 $this->players->snapshot($player),
             );
         });
