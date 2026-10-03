@@ -82,7 +82,7 @@ class ArmyService
             throw new GameException('CAPACITY_FULL', 'Qoʻshin sigʻimi toʻlgan', 400, ['free' => max(0, $cap - $total - $queued)]);
         }
 
-        $unit = Formula::trainCost($cfg, $tier);
+        $unit = Formula::trainCost($cfg, $tier, $player->level);
         $cost = ['meat' => $unit['meat'] * $qty, 'bone' => $unit['bone'] * $qty];
         $res = $player->resources;
         $missing = [];

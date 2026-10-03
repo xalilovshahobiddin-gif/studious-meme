@@ -1,5 +1,16 @@
 # Blue Wolf — oʻzgarishlar tarixi
 
+## v0.0.15 — katta toʻda (1000+ boʻri) va askar birligi
+- **Qoʻshin sigʻimi** = 10 + 6 × n + 2.1 × n² (n = daraja − 4): 5-darajada 18, 10-da 122, 15-da 330, 20-da 644,
+  **25-darajada 1062** (oldin 460). Har darajada sezilarli oʻsish: +8 … +92.
+- **Askar birligi (maydalashtirish):** birlik = toʻda ÷ eski muvozanat egri chizigʻi (10 × 1.20^n); 4-darajada 1.00,
+  10–15-da ~4.1–4.5, 25-da 2.31. Bitta askarning goʻsht/suv/oy nuri ehtiyoji, mashq narxi va vaqti, ovchi unumi, CP —
+  birlikka boʻlinadi; ovdagi minimal toʻda va rol binosi sigʻimi — koʻpaytiriladi. Toʻdaning jami ehtiyoji, ovi va kuchi oʻzgarmadi.
+- Excel: `Sozlamalar` (+`pack_lin`, `pack_quad`, 298 parametr), `Darajalar` R ustuni “Askar birligi”, Oziqlanish, Binolar,
+  Profil, Umumiy bogʻlanish, Lager, Askar iqtisodi formulalari; balans skriptiga “25-darajada ≥ 1000, har darajada oʻsadi” tekshiruvi.
+- Server va klient: `Formula::unitScale` = `BWGame.unitScale`, `minPack`; `trainCost(cfg, tier, level)`; umumiy test holatlari yangilandi.
+- GDD (bo'lim 1, 4, 6, 10, 24), tanishtiruv matnlari (15, 16, 20-qadam), demo (5-daraja: 15 askar) yangilandi.
+
 ## v0.0.14 — subtab nomlari
 - Profil → Qoʻshin subtablari aniqroq nomlandi: **Kartalar → Rollar**, **Medallar → Tierlar**, Radar oʻzgarmadi.
 

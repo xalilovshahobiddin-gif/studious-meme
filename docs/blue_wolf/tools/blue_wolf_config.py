@@ -122,6 +122,8 @@ KEYS = {
     "Yolgʻiz bosqich toʻdasi": "pack_solo_size",
     "Bazaviy toʻda hajmi": "pack_base",
     "Toʻda oʻsish koeffitsienti": "pack_growth",
+    "Toʻda chiziqli oʻsishi": "pack_lin",
+    "Toʻda kvadrat oʻsishi": "pack_quad",
     "CP: kuch vazni": "cp_w_power",
     "CP: tezlik vazni": "cp_w_speed",
     "CP: chidam vazni": "cp_w_hp",
@@ -396,13 +398,23 @@ class Balance:
             return self.stage_normal
         return self.stage_late
 
+    def army_raw(self, L):
+        n = L - self.pack_unlock_level
+        return self.pack_base + self.pack_lin * n + self.pack_quad * n * n
+
     def army(self, L):
         if L < self.pack_unlock_level:
             return self.pack_solo_size
-        return round(self.pack_base * self.pack_growth ** (L - self.pack_unlock_level))
+        return math.floor(self.army_raw(L) + 0.5)
+
+    def unit(self, L):
+        """Askar birligi: toʻda hajmi ÷ muvozanat egri chizigʻi (baza × pack_growth^n)."""
+        if L < self.pack_unlock_level:
+            return 1
+        return self.army_raw(L) / (self.pack_base * self.pack_growth ** (L - self.pack_unlock_level))
 
     def need(self, L):
-        return self.need_base + self.need_growth * (L - 1)
+        return (self.need_base + self.need_growth * (L - 1)) / self.unit(L)
 
     def hunters(self, L):
         return max(1, math.floor(self.army(L) * self.share_hunter + 0.5))
@@ -435,7 +447,7 @@ def run_checks(b, wb):
     # 2. Askar narxi (goʻsht) tier ochilgan darajadagi Oziq gʻori sigʻimiga sigʻadi
     for t in range(1, 7):
         L = max(1, int(b.tier_step_level) * (t - 1))
-        cost = b.train_meat_base * b.tier_coef ** (2 * (t - 1))
+        cost = b.train_meat_base * b.tier_coef ** (2 * (t - 1)) / b.unit(L)
         check(cost <= b.cave_cap(L), f"{t}-tier askar ({cost:.0f} kg) L{L} gʻorga sigʻmaydi ({b.cave_cap(L):.0f})")
 
     # 3. Ov: kuniga 4 ov sarfning kamida 2× ini beradi; bitta ov gʻorga sigʻadi
@@ -447,14 +459,14 @@ def run_checks(b, wb):
 
     # 4. Suv: gʻor oʻyinchi darajasida boʻlsa ehtiyojni qoplaydi
     for L in range(4, 26):
-        need = (b.water_need_base + b.water_need_growth * (L - 1)) * b.army(L)
+        need = (b.water_need_base + b.water_need_growth * (L - 1)) / b.unit(L) * b.army(L)
         passive = b.water_passive_base * b.water_passive_growth ** (L - 1) * 24
         check(need <= passive <= 4 * need, f"L{L}: suv {passive:.0f}/kun, ehtiyoj {need:.0f} — 1×–4× oraligʻidan tashqarida")
 
     # 5. Oy nuri: passiv yetmaydi, Oy mehrobi bilan yetadi
     for L in range(int(b.moonlight_need_level), 26):
-        need = b.moonlight_need * b.army(L)
-        passive = b.moonlight_passive_base * 24 * b.army(L)
+        need = b.moonlight_need / b.unit(L) * b.army(L)
+        passive = b.moonlight_passive_base / b.unit(L) * 24 * b.army(L)
         check(passive < need <= passive * (1 + b.moon_altar_bonus) + 1e-9,
               f"L{L}: oy nuri passiv {passive:.1f}, ehtiyoj {need:.1f}, mehrob bilan {passive*(1+b.moon_altar_bonus):.1f}")
 
@@ -498,6 +510,12 @@ def run_checks(b, wb):
               f"Tanishtiruv {st['id']}-qadam: Excel va tutorial.json XP/daraja farq qiladi")
     check(xp >= total_xp[int(b.tutorial_end_level)],
           f"Tanishtiruv XP si {xp} — {int(b.tutorial_end_level)}-daraja uchun yetmaydi")
+
+    # 7b. Toʻda: har darajada oʻsadi, 25-darajada 1000 dan oshadi; birlik ≥ 1
+    for L in range(int(b.pack_unlock_level) + 1, 26):
+        check(b.army(L) > b.army(L - 1), f"L{L}: toʻda oʻsmadi ({b.army(L - 1)} → {b.army(L)})")
+        check(b.unit(L) >= 1, f"L{L}: askar birligi {b.unit(L):.2f} < 1")
+    check(b.army(25) >= 1000, f"25-darajada toʻda {b.army(25)} < 1000")
 
     # 8. Lager ulushi tavan bilan
     check(0 < b.camp_yield_share_max <= 0.6, "Lager tavani 0–60% oraligʻida boʻlishi kerak")

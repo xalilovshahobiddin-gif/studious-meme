@@ -93,7 +93,7 @@ INSERT INTO game_config (config_key, config_value, unit, note) VALUES
   ('clan_xp_growth', 1.32, 'x', 'Kerakli klan XP = baza × shu^(daraja−1)'),
   ('pack_solo_size', 1, 'bosh', '1–3 daraja: oʻyinchi yolgʻiz'),
   ('pack_base', 10, 'askar', 'Toʻda ochilgan darajada (4-daraja)'),
-  ('pack_growth', 1.2, 'x', 'Har darajada koʻpaytiriladi'),
+  ('pack_growth', 1.2, 'x', 'Muvozanat egri chizigʻi: askar birligi = toʻda hajmi ÷ (baza × shu^(daraja−4)); bitta askar ehtiyoji, narxi, vaqti, unumi shu birlikka boʻlinadi'),
   ('cp_w_power', 2, 'x', 'Jangovar quvvat formulasida'),
   ('cp_w_speed', 1.5, 'x', 'Jangovar quvvat formulasida'),
   ('cp_w_hp', 0.5, 'x', 'Jangovar quvvat formulasida'),
@@ -300,6 +300,8 @@ INSERT INTO game_config (config_key, config_value, unit, note) VALUES
   ('quest_monthly_chest', 0.3, 'ulush', 'Oyning hamma vazifasi bajarilganda'),
   ('login_gift_step', 0.01, 'ulush/kun', '7 kunlik taqvim: n-kun = shu × n'),
   ('quest_meat_ratio', 2, 'x', 'Goʻsht mukofoti = ulush × shu × toʻdaning kunlik goʻsht ehtiyoji'),
-  ('quest_tz_offset_h', 5, 'soat', 'Kun/hafta/oy chegarasi: UTC+shu (Toshkent)')
+  ('quest_tz_offset_h', 5, 'soat', 'Kun/hafta/oy chegarasi: UTC+shu (Toshkent)'),
+  ('pack_lin', 6, 'askar/daraja', 'Toʻda hajmi = baza + shu × n + kvadrat × n², n = daraja − 4'),
+  ('pack_quad', 2.1, 'askar/daraja²', 'Toʻda hajmi formulasidagi n² koeffitsienti (25-darajada ~1060)')
 AS new ON DUPLICATE KEY UPDATE
   config_value = new.config_value, unit = new.unit, note = new.note;

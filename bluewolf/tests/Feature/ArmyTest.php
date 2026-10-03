@@ -63,7 +63,7 @@ class ArmyTest extends TestCase
     {
         $cases = json_decode(file_get_contents(base_path('tests/fixtures/army_cases.json')), true);
         foreach ($cases['train'] as $c) {
-            $this->assertSame($c['cost'], Formula::trainCost($this->cfg(), $c['tier']));
+            $this->assertSame($c['cost'], Formula::trainCost($this->cfg(), $c['tier'], $c['level']));
             $this->assertEqualsWithDelta($c['seconds'], Formula::trainSeconds($this->cfg(), $c['tier'], $c['level'], $c['building'], $c['army'], $c['role']), 1e-5);
         }
         $hunt = json_decode(file_get_contents(base_path('tests/fixtures/hunt_board_cases.json')), true);

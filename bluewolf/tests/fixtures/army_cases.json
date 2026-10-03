@@ -32,10 +32,10 @@
    "army": 15,
    "role": 8,
    "cost": {
-    "meat": 42,
-    "bone": 17
+    "meat": 13,
+    "bone": 5
    },
-   "seconds": 347.762526
+   "seconds": 38.970304
   },
   {
    "tier": 3,
@@ -44,10 +44,10 @@
    "army": 40,
    "role": 30,
    "cost": {
-    "meat": 88,
-    "bone": 35
+    "meat": 20,
+    "bone": 8
    },
-   "seconds": 695.111204
+   "seconds": 35.275784
   },
   {
    "tier": 1,
@@ -56,10 +56,10 @@
    "army": 29,
    "role": 10,
    "cost": {
-    "meat": 20,
-    "bone": 8
+    "meat": 5,
+    "bone": 2
    },
-   "seconds": 463.866072
+   "seconds": 24.137408
   }
  ]
 }

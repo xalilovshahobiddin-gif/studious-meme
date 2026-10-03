@@ -43,9 +43,18 @@ test("tier: 1-tier har doim ochiq (GDD bo'lim 6)", () => {
 test("qoʻshin va ov (GDD bo'lim 4)", () => {
   assert.equal(G.armyCap(cfg, 3), 1);
   assert.equal(G.armyCap(cfg, 4), 10);
-  assert.equal(G.armyCap(cfg, 25), 460);
-  assert.ok(Math.abs(G.hunterYield(cfg, 10, 1) - 7.5) < 1e-9);
-  assert.ok(Math.abs(G.hunterYield(cfg, 25, 1) - 15) < 1e-9);
+  assert.equal(G.armyCap(cfg, 5), 18);
+  assert.equal(G.armyCap(cfg, 10), 122);
+  assert.equal(G.armyCap(cfg, 25), 1062);
+  for (let L = 5; L <= 25; L++) assert.ok(G.armyCap(cfg, L) > G.armyCap(cfg, L - 1), "toʻda har darajada oʻsadi");
+  // Askar birligi: bitta askar maydaroq, lekin toʻdaning jami ehtiyoji va ovi muvozanat egri chizigʻida qoladi
+  assert.equal(G.unitScale(cfg, 3), 1);
+  assert.equal(G.unitScale(cfg, 4), 1);
+  assert.ok(Math.abs(G.unitScale(cfg, 25) - 2.309) < 0.001);
+  assert.ok(Math.abs(G.hunterYield(cfg, 10, 1) * G.unitScale(cfg, 10) - 7.5) < 1e-9);
+  assert.ok(Math.abs(G.hunterYield(cfg, 25, 1) * G.unitScale(cfg, 25) - 15) < 1e-9);
+  assert.ok(Math.abs(G.need(cfg, 25) * G.armyCap(cfg, 25) - 1380) < 1, "25-darajada toʻda kuniga ~1380 kg");
+  assert.deepEqual(G.trainCost(cfg, 6, 25), { meat: 356, bone: 142 });
 });
 
 test("resurs paneli: sigʻim, suv, Ustaxona (GDD bo'lim 5)", () => {
@@ -54,7 +63,7 @@ test("resurs paneli: sigʻim, suv, Ustaxona (GDD bo'lim 5)", () => {
   assert.equal(Math.round(G.caveCap(cfg, 0)), 40); // gʻor yoʻq — 1-daraja sigʻimi
   assert.equal(G.waterPerHour(cfg, 0), 0);
   assert.ok(Math.abs(G.waterPerHour(cfg, 25) - 52.94) < 0.01);
-  assert.ok(Math.abs(G.waterNeed(cfg, 10) - 0.76) < 1e-9);
+  assert.ok(Math.abs(G.waterNeed(cfg, 10) * G.unitScale(cfg, 10) - 0.76) < 1e-9);
   assert.equal(G.workshopPerHour(cfg, 0), 0);
   assert.equal(Math.round(G.workshopPerHour(cfg, 25)), 2364);
 });
@@ -104,7 +113,7 @@ test("bufer yigʻish va taqsimot tekshiruvi", () => {
 test("askar formulalari (PHP bilan bir xil, GDD bo'lim 6)", () => {
   const cases = require(path.join(__dirname, "../fixtures/army_cases.json"));
   for (const c of cases.train) {
-    assert.deepEqual(G.trainCost(cfg, c.tier), c.cost);
+    assert.deepEqual(G.trainCost(cfg, c.tier, c.level), c.cost);
     assert.ok(Math.abs(G.trainSeconds(cfg, c.tier, c.level, c.building, c.army, c.role) - c.seconds) < 1e-5);
   }
   assert.deepEqual(G.trainCost(cfg, 1), { meat: 20, bone: 8 });

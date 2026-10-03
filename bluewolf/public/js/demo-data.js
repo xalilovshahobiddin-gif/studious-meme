@@ -1,4 +1,4 @@
-/* Blue Wolf — demo maʼlumotlar (v0.0.14).
+/* Blue Wolf — demo maʼlumotlar (v0.0.15).
    Server topilmaganda (GitHub Pages, oddiy brauzer) ilova shu bilan ochiladi.
    Raqamlar GDD dagi 5-darajali oʻyinchiga mos namuna.
    v0.0.2: resurslar qurilmada vaqt boʻyicha hisoblanadi (localStorage "bw.demo.econ"). */
@@ -11,7 +11,7 @@ window.BW_DEMO = {
     { type: "defense_wall", level: 1 }, { type: "hospital", level: 0 }, { type: "market", level: 0 }
   ],
   // rol → tier boʻyicha sogʻlom askarlar soni
-  army: { scout: [2, 0, 0, 0, 0, 0], attacker: [4, 0, 0, 0, 0, 0], defender: [2, 0, 0, 0, 0, 0], hunter: [2, 0, 0, 0, 0, 0] },
+  army: { scout: [3, 0, 0, 0, 0, 0], attacker: [6, 0, 0, 0, 0, 0], defender: [3, 0, 0, 0, 0, 0], hunter: [3, 0, 0, 0, 0, 0] },
   army_away: { scout: [0, 0, 0, 0, 0, 0], attacker: [0, 0, 0, 0, 0, 0], defender: [0, 0, 0, 0, 0, 0], hunter: [0, 0, 0, 0, 0, 0] },
   army_injured: { scout: [0, 0, 0, 0, 0, 0], attacker: [0, 0, 0, 0, 0, 0], defender: [0, 0, 0, 0, 0, 0], hunter: [0, 0, 0, 0, 0, 0] },
   marches: [],

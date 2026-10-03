@@ -185,8 +185,8 @@
      "key": "train",
      "metric": "train",
      "title": "Murabbiy",
-     "desc": "1 ta askar tayyorla",
-     "target": 1,
+     "desc": "2 ta askar tayyorla",
+     "target": 2,
      "reward": {
       "stone": 16,
       "wood": 12,

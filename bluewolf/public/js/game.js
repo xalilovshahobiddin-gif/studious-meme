@@ -116,13 +116,21 @@
     return Math.max(1, Math.min(6, byLevel, byBuilding));
   }
 
+  /** Toʻda hajmi: baza + chiziqli × n + kvadrat × n², n = daraja − toʻda ochilish darajasi. */
+  function armyRaw(cfg, L) { var n = L - cfg.pack_unlock_level; return cfg.pack_base + cfg.pack_lin * n + cfg.pack_quad * n * n; }
   function armyCap(cfg, L) {
     if (L < cfg.pack_unlock_level) return cfg.pack_solo_size;
-    return Math.round(cfg.pack_base * Math.pow(cfg.pack_growth, L - cfg.pack_unlock_level));
+    return Math.round(armyRaw(cfg, L));
+  }
+
+  /** Askar birligi: toʻda hajmi ÷ muvozanat egri chizigʻi; bitta askarning ehtiyoji, narxi, vaqti, unumi shunga boʻlinadi. */
+  function unitScale(cfg, L) {
+    if (L < cfg.pack_unlock_level) return 1;
+    return armyRaw(cfg, L) / (cfg.pack_base * Math.pow(cfg.pack_growth, L - cfg.pack_unlock_level));
   }
 
   /** Bir askarning kunlik goʻsht ehtiyoji, kg. */
-  function need(cfg, L) { return cfg.need_base + cfg.need_growth * (L - 1); }
+  function need(cfg, L) { return (cfg.need_base + cfg.need_growth * (L - 1)) / unitScale(cfg, L); }
 
   /** Bitta ovchining unumi, kg/soat. */
   function hunterYield(cfg, L, tier) { return cfg.hunter_yield_mult * need(cfg, L) * (1 + cfg.hunter_tier_bonus * ((tier || 1) - 1)); }
@@ -134,7 +142,7 @@
   function waterPerHour(cfg, caveLevel) { return caveLevel > 0 ? cfg.water_passive_base * Math.pow(cfg.water_passive_growth, caveLevel - 1) : 0; }
 
   /** Bir askarning kunlik suv ehtiyoji. */
-  function waterNeed(cfg, L) { return cfg.water_need_base + cfg.water_need_growth * (L - 1); }
+  function waterNeed(cfg, L) { return (cfg.water_need_base + cfg.water_need_growth * (L - 1)) / unitScale(cfg, L); }
 
   /** Ustaxonaning jami ishlab chiqarishi, birlik/soat (0 — qurilmagan). */
   function workshopPerHour(cfg, wsLevel) { return wsLevel > 0 ? cfg.prod_base * Math.pow(cfg.prod_growth, wsLevel - 1) : 0; }
@@ -159,14 +167,17 @@
     9: ["Bozor"], 10: ["Ikkinchi qurilish navbati"], 12: ["3-tier askarlar"], 16: ["4-tier askarlar"], 20: ["5-tier askarlar", "Oy nuri"], 24: ["6-tier askarlar"]
   };
 
-  /** Rol binosining askar sigʻimi. */
-  function roleCap(cfg, L) { return cfg.role_cap_base * Math.pow(cfg.role_cap_growth, L - 1); }
+  /** Rol binosining askar sigʻimi (bino darajasidagi askar birligi bilan). */
+  function roleCap(cfg, L) { return cfg.role_cap_base * Math.pow(cfg.role_cap_growth, L - 1) * unitScale(cfg, L); }
 
-  /** Bitta yangi askar narxi {meat, bone}: har tierda × tier_coef². */
-  function trainCost(cfg, tier) {
-    var m = Math.pow(cfg.tier_coef, 2 * (tier - 1));
-    return { meat: Math.round(cfg.train_meat_base * m), bone: Math.round(cfg.train_bone_base * m) };
+  /** Bitta yangi askar narxi {meat, bone}: har tierda × tier_coef², oʻyinchi darajasidagi askar birligiga boʻlinadi. */
+  function trainCost(cfg, tier, L) {
+    var m = Math.pow(cfg.tier_coef, 2 * (tier - 1)) / unitScale(cfg, L || 1);
+    return { meat: Math.max(1, Math.round(cfg.train_meat_base * m)), bone: Math.max(1, Math.round(cfg.train_bone_base * m)) };
   }
+
+  /** Oʻljaga kerakli eng kam boʻri (askar birligi bilan). */
+  function minPack(cfg, L, preyKg) { return Math.max(1, Math.ceil(round2(preyKg / cfg.prey_kg_per_wolf * unitScale(cfg, L)))); }
 
   /** Bitta askar mashqi, soniya: tier vaqti × MIN(5, bino jazosi × toʻlganlik) ÷ (mashq tezligi × In koeff.) */
   function trainSeconds(cfg, tier, L, bLevel, armyTotal, roleTotal) {
@@ -174,7 +185,7 @@
     var occupancy = Math.max(0.5, Math.pow(fill / 0.6, cfg.occupancy_exp));
     var penalty = Math.min(cfg.role_cap_penalty_max, Math.max(1, Math.pow(roleTotal / roleCap(cfg, bLevel), cfg.role_cap_penalty_exp)));
     var speed = (1 + cfg.train_speed_per_level * (bLevel - 1)) * (1 + cfg.den_speed_coef * (L - 1));
-    return cfg.train_time_min * Math.pow(cfg.tier_coef, tier - 1) * Math.min(cfg.train_coef_max, penalty * occupancy) / speed * 60;
+    return cfg.train_time_min * Math.pow(cfg.tier_coef, tier - 1) * Math.min(cfg.train_coef_max, penalty * occupancy) / speed / unitScale(cfg, L) * 60;
   }
 
   function round2(x) { return Math.round(x * 100) / 100; }
@@ -223,7 +234,7 @@
       var base = huntersRec(cfg, L) * hunterYield(cfg, L, 1) * minutes / 60 * (1 + bonus[band]);
       var count = Math.max(1, Math.round(base * (cfg.hunt_herd_min + r() * cfg.hunt_herd_spread) / prey[1]));
       cards.push({ band: band, prey: prey[0], prey_kg: prey[1], count: count, herd_kg: round2(count * prey[1]), km: km, minutes: minutes,
-        bonus: bonus[band], injury: injury[band], death: death[band], min_pack: Math.max(1, Math.ceil(prey[1] / cfg.prey_kg_per_wolf)) });
+        bonus: bonus[band], injury: injury[band], death: death[band], min_pack: minPack(cfg, L, prey[1]) });
     }
     cards.sort(function (a, b) { return a.minutes - b.minutes || a.herd_kg - b.herd_kg || a.km - b.km; });
     cards.forEach(function (c, i) {
@@ -336,7 +347,8 @@
     var meatH = need(cfg, L) * army / 24;
     var waterNetH = waterPerHour(cfg, o.cave) - waterNeed(cfg, L) * army / 24;
     var moonOn = L >= cfg.moonlight_need_level;
-    var moonNetH = moonOn ? (o.cave > 0 ? cfg.moonlight_passive_base * army : 0) - cfg.moonlight_need * army / 24 : 0;
+    var unit = unitScale(cfg, L);
+    var moonNetH = moonOn ? (o.cave > 0 ? cfg.moonlight_passive_base / unit * army : 0) - cfg.moonlight_need / unit * army / 24 : 0;
     var prodH = workshopPerHour(cfg, o.workshop);
 
     for (var guard = 0; t < t1 && guard < 8; guard++) {
@@ -414,7 +426,7 @@
     RESOURCES: RESOURCES, BUILDINGS: BUILDINGS, BUILDING_ORDER: BUILDING_ORDER, ROLES: ROLES, TIERS: TIERS,
     stage: stage, levelCost: levelCost, totalXp: totalXp, xpProgress: xpProgress,
     buildingCost: buildingCost, buildingTime: buildingTime, maxTier: maxTier, armyCap: armyCap,
-    need: need, hunterYield: hunterYield, caveCap: caveCap, waterPerHour: waterPerHour, waterNeed: waterNeed,
+    need: need, unitScale: unitScale, minPack: minPack, hunterYield: hunterYield, caveCap: caveCap, waterPerHour: waterPerHour, waterNeed: waterNeed,
     workshopPerHour: workshopPerHour, PREY: PREY, WOLVES: WOLVES, UNLOCKS: UNLOCKS, roleCap: roleCap,
     trainCost: trainCost, trainSeconds: trainSeconds, huntResult: huntResult, huntBoard: huntBoard, huntWindow: huntWindow,
     huntSeed: huntSeed, huntersRec: huntersRec, rng: rng, QUESTS: QUESTS, questsFor: questsFor, questReward: questReward,

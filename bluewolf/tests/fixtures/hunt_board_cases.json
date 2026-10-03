@@ -283,7 +283,7 @@
      "bonus": 0,
      "injury": 0,
      "death": 0,
-     "min_pack": 3,
+     "min_pack": 13,
      "slot": 0
     },
     {
@@ -297,7 +297,7 @@
      "bonus": 0,
      "injury": 0,
      "death": 0,
-     "min_pack": 3,
+     "min_pack": 13,
      "slot": 1
     },
     {
@@ -311,7 +311,7 @@
      "bonus": 0,
      "injury": 0,
      "death": 0,
-     "min_pack": 3,
+     "min_pack": 13,
      "slot": 2
     },
     {
@@ -325,7 +325,7 @@
      "bonus": 0.2,
      "injury": 0.08,
      "death": 0.01,
-     "min_pack": 3,
+     "min_pack": 13,
      "slot": 3
     },
     {
@@ -339,7 +339,7 @@
      "bonus": 0.2,
      "injury": 0.08,
      "death": 0.01,
-     "min_pack": 3,
+     "min_pack": 13,
      "slot": 4
     },
     {
@@ -353,7 +353,7 @@
      "bonus": 0.2,
      "injury": 0.08,
      "death": 0.01,
-     "min_pack": 3,
+     "min_pack": 13,
      "slot": 5
     },
     {
@@ -367,7 +367,7 @@
      "bonus": 0.5,
      "injury": 0.15,
      "death": 0.04,
-     "min_pack": 5,
+     "min_pack": 21,
      "slot": 6
     },
     {
@@ -381,7 +381,7 @@
      "bonus": 0.5,
      "injury": 0.15,
      "death": 0.04,
-     "min_pack": 5,
+     "min_pack": 21,
      "slot": 7
     },
     {
@@ -395,7 +395,7 @@
      "bonus": 0.5,
      "injury": 0.15,
      "death": 0.04,
-     "min_pack": 5,
+     "min_pack": 21,
      "slot": 8
     }
    ]
@@ -416,7 +416,7 @@
      "bonus": 0,
      "injury": 0,
      "death": 0,
-     "min_pack": 20,
+     "min_pack": 47,
      "slot": 0
     },
     {
@@ -430,7 +430,7 @@
      "bonus": 0,
      "injury": 0,
      "death": 0,
-     "min_pack": 20,
+     "min_pack": 47,
      "slot": 1
     },
     {
@@ -444,7 +444,7 @@
      "bonus": 0,
      "injury": 0,
      "death": 0,
-     "min_pack": 20,
+     "min_pack": 47,
      "slot": 2
     },
     {
@@ -458,7 +458,7 @@
      "bonus": 0.2,
      "injury": 0.08,
      "death": 0.01,
-     "min_pack": 20,
+     "min_pack": 47,
      "slot": 3
     },
     {
@@ -472,7 +472,7 @@
      "bonus": 0.2,
      "injury": 0.08,
      "death": 0.01,
-     "min_pack": 20,
+     "min_pack": 47,
      "slot": 4
     },
     {
@@ -486,7 +486,7 @@
      "bonus": 0.2,
      "injury": 0.08,
      "death": 0.01,
-     "min_pack": 20,
+     "min_pack": 47,
      "slot": 5
     },
     {
@@ -500,7 +500,7 @@
      "bonus": 0.5,
      "injury": 0.15,
      "death": 0.04,
-     "min_pack": 20,
+     "min_pack": 47,
      "slot": 6
     },
     {
@@ -514,7 +514,7 @@
      "bonus": 0.5,
      "injury": 0.15,
      "death": 0.04,
-     "min_pack": 20,
+     "min_pack": 47,
      "slot": 7
     },
     {
@@ -528,7 +528,7 @@
      "bonus": 0.5,
      "injury": 0.15,
      "death": 0.04,
-     "min_pack": 20,
+     "min_pack": 47,
      "slot": 8
     }
    ]
@@ -557,9 +557,9 @@
     }
    },
    "result": {
-    "meat": 3,
-    "herb": 0.3,
-    "xp": 1.5,
+    "meat": 1.99,
+    "herb": 0.2,
+    "xp": 0.99,
     "min_pack": 1,
     "sent": 2,
     "penalty": false
@@ -587,9 +587,9 @@
     }
    },
    "result": {
-    "meat": 1.41,
-    "herb": 0.14,
-    "xp": 0.7,
+    "meat": 0.93,
+    "herb": 0.09,
+    "xp": 0.47,
     "min_pack": 2,
     "sent": 1,
     "penalty": true
@@ -620,9 +620,9 @@
     }
    },
    "result": {
-    "meat": 9.4,
-    "herb": 0.94,
-    "xp": 4.7,
+    "meat": 6.23,
+    "herb": 0.62,
+    "xp": 3.12,
     "min_pack": 2,
     "sent": 3,
     "penalty": false

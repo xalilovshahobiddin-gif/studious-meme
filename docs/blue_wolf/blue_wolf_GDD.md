@@ -25,33 +25,33 @@ Oʻyinchi toʻdasini yoʻqotgan yolgʻiz boʻri sifatida boshlaydi. Ov qiladi, i
 
 Har daraja — alohida boʻri turi. 1–19 haqiqiy boʻrilar (eng zaifdan eng kuchligacha), 20–21 qadimgi, 22–25 mifologik.
 
-| # | Boʻri | Vazni | Bosqich koeff. | Daraja narxi (XP) | Jami XP | Kuch | Tezlik | Chidam | CP | Qoʻshin |
-|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | Honsyu boʻrisi | 15 kg | 0.40 | 0 | 0 | 11 | 11 | 60 | 69 | 1 |
-| 2 | Efiopiya boʻrisi | 16 kg | 0.40 | 30 | 30 | 13 | 13 | 71 | 81 | 1 |
-| 3 | Arab boʻrisi | 20 kg | 0.40 | 40 | 70 | 16 | 15 | 84 | 97 | 1 |
-| 4 | Hind boʻrisi | 25 kg | 0.40 | 60 | 130 | 20 | 16 | 99 | 114 | 10 |
-| 5 | Qizil boʻri | 30 kg | 0.70 | 150 | 280 | 25 | 18 | 116 | 135 | 12 |
-| 6 | Italyan boʻrisi | 32 kg | 0.70 | 200 | 480 | 30 | 20 | 137 | 159 | 14 |
-| 7 | Meksika boʻrisi | 33 kg | 0.70 | 280 | 760 | 37 | 22 | 162 | 188 | 17 |
-| 8 | Sharqiy boʻri | 35 kg | 0.70 | 390 | 1,150 | 45 | 25 | 191 | 223 | 21 |
-| 9 | Iberiya boʻrisi | 38 kg | 0.70 | 530 | 1,680 | 55 | 27 | 226 | 264 | 25 |
-| 10 | Dasht boʻrisi | 40 kg | 0.70 | 740 | 2,420 | 66 | 33 | 266 | 315 | 30 |
-| 11 | Himolay boʻrisi | 42 kg | 1.00 | 1,450 | 3,870 | 81 | 35 | 314 | 372 | 36 |
-| 12 | Ezo boʻrisi | 44 kg | 1.00 | 2,000 | 5,870 | 98 | 39 | 371 | 440 | 43 |
-| 13 | Tibet boʻrisi | 45 kg | 1.00 | 2,770 | 8,640 | 119 | 43 | 437 | 521 | 52 |
-| 14 | Arktika boʻrisi | 46 kg | 1.00 | 3,820 | 12,460 | 144 | 48 | 516 | 618 | 62 |
-| 15 | Buyuk tekislik boʻrisi | 48 kg | 1.00 | 5,270 | 17,730 | 176 | 55 | 609 | 739 | 74 |
-| 16 | Yevroosiyo kulrang boʻrisi | 55 kg | 1.25 | 9,080 | 26,810 | 214 | 62 | 718 | 880 | 89 |
-| 17 | Tundra boʻrisi | 57 kg | 1.25 | 12,540 | 39,350 | 262 | 69 | 848 | 1,052 | 107 |
-| 18 | Alyaska ichki boʻrisi | 60 kg | 1.25 | 17,300 | 56,650 | 319 | 77 | 1,000 | 1,254 | 128 |
-| 19 | Makkenzi vodiysi boʻrisi | 75 kg | 1.25 | 23,880 | 80,530 | 399 | 86 | 1,180 | 1,517 | 154 |
-| 20 | Beringiya boʻrisi | 65 kg | 1.25 | 32,950 | 113,480 | 673 | 129 | 1,880 | 2,480 | 185 |
-| 21 | Dahshatli boʻri | 70 kg | 1.25 | 45,470 | 158,950 | 869 | 140 | 2,219 | 3,058 | 222 |
-| 22 | Amarok | — | 1.25 | 62,750 | 221,700 | 1,491 | 234 | 3,491 | 5,079 | 266 |
-| 23 | Geri va Freki | — | 1.25 | 86,590 | 308,290 | 1,908 | 291 | 4,119 | 6,312 | 319 |
-| 24 | Fenrir | — | 1.25 | 119,490 | 427,780 | 2,576 | 284 | 4,861 | 8,009 | 383 |
-| 25 | Koʻk Boʻri | — | 1.25 | 164,900 | 592,680 | 3,434 | 355 | 5,736 | 10,269 | 460 |
+| # | Boʻri | Vazni | Bosqich koeff. | Daraja narxi (XP) | Jami XP | Kuch | Tezlik | Chidam | CP | Qoʻshin | Askar birligi |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | Honsyu boʻrisi | 15 kg | 0.40 | 0 | 0 | 11 | 11 | 60 | 69 | 1 | 1.00 |
+| 2 | Efiopiya boʻrisi | 16 kg | 0.40 | 30 | 30 | 13 | 13 | 71 | 81 | 1 | 1.00 |
+| 3 | Arab boʻrisi | 20 kg | 0.40 | 40 | 70 | 16 | 15 | 84 | 97 | 1 | 1.00 |
+| 4 | Hind boʻrisi | 25 kg | 0.40 | 60 | 130 | 20 | 16 | 99 | 114 | 10 | 1.00 |
+| 5 | Qizil boʻri | 30 kg | 0.70 | 150 | 280 | 25 | 18 | 116 | 135 | 18 | 1.51 |
+| 6 | Italyan boʻrisi | 32 kg | 0.70 | 200 | 480 | 30 | 20 | 137 | 159 | 30 | 2.11 |
+| 7 | Meksika boʻrisi | 33 kg | 0.70 | 280 | 760 | 37 | 22 | 162 | 188 | 47 | 2.71 |
+| 8 | Sharqiy boʻri | 35 kg | 0.70 | 390 | 1,150 | 45 | 25 | 191 | 223 | 68 | 3.26 |
+| 9 | Iberiya boʻrisi | 38 kg | 0.70 | 530 | 1,680 | 55 | 27 | 226 | 264 | 93 | 3.72 |
+| 10 | Dasht boʻrisi | 40 kg | 0.70 | 740 | 2,420 | 66 | 33 | 266 | 315 | 122 | 4.07 |
+| 11 | Himolay boʻrisi | 42 kg | 1.00 | 1,450 | 3,870 | 81 | 35 | 314 | 372 | 155 | 4.32 |
+| 12 | Ezo boʻrisi | 44 kg | 1.00 | 2,000 | 5,870 | 98 | 39 | 371 | 440 | 192 | 4.47 |
+| 13 | Tibet boʻrisi | 45 kg | 1.00 | 2,770 | 8,640 | 119 | 43 | 437 | 521 | 234 | 4.54 |
+| 14 | Arktika boʻrisi | 46 kg | 1.00 | 3,820 | 12,460 | 144 | 48 | 516 | 618 | 280 | 4.52 |
+| 15 | Buyuk tekislik boʻrisi | 48 kg | 1.00 | 5,270 | 17,730 | 176 | 55 | 609 | 739 | 330 | 4.44 |
+| 16 | Yevroosiyo kulrang boʻrisi | 55 kg | 1.25 | 9,080 | 26,810 | 214 | 62 | 718 | 880 | 384 | 4.31 |
+| 17 | Tundra boʻrisi | 57 kg | 1.25 | 12,540 | 39,350 | 262 | 69 | 848 | 1,052 | 443 | 4.14 |
+| 18 | Alyaska ichki boʻrisi | 60 kg | 1.25 | 17,300 | 56,650 | 319 | 77 | 1,000 | 1,254 | 506 | 3.94 |
+| 19 | Makkenzi vodiysi boʻrisi | 75 kg | 1.25 | 23,880 | 80,530 | 399 | 86 | 1,180 | 1,517 | 573 | 3.72 |
+| 20 | Beringiya boʻrisi | 65 kg | 1.25 | 32,950 | 113,480 | 673 | 129 | 1,880 | 2,480 | 644 | 3.48 |
+| 21 | Dahshatli boʻri | 70 kg | 1.25 | 45,470 | 158,950 | 869 | 140 | 2,219 | 3,058 | 719 | 3.24 |
+| 22 | Amarok | — | 1.25 | 62,750 | 221,700 | 1,491 | 234 | 3,491 | 5,079 | 798 | 3.00 |
+| 23 | Geri va Freki | — | 1.25 | 86,590 | 308,290 | 1,908 | 291 | 4,119 | 6,312 | 882 | 2.76 |
+| 24 | Fenrir | — | 1.25 | 119,490 | 427,780 | 2,576 | 284 | 4,861 | 8,009 | 970 | 2.53 |
+| 25 | Koʻk Boʻri | — | 1.25 | 164,900 | 592,680 | 3,434 | 355 | 5,736 | 10,269 | 1,062 | 2.31 |
 
 ### Formulalar
 
@@ -61,8 +61,11 @@ Kuch    = 12 × 1.20^(daraja-1) × toifa koeff. × kuch modifikatori
 Tezlik  = 10 × 1.13^(daraja-1) × toifa koeff. × tezlik modifikatori
 Chidam  = 60 × 1.18^(daraja-1) × toifa koeff.
 CP      = Kuch×2 + Tezlik×1.5 + Chidam×0.5
-Qoʻshin sigʻimi = 1 (1–3 daraja) yoki 10 × 1.20^(daraja-4)
+Qoʻshin sigʻimi = 1 (1–3 daraja) yoki 10 + 6 × n + 2.1 × n²,  n = daraja − 4
+Askar birligi   = qoʻshin sigʻimi ÷ (10 × 1.20^n)   (1–4 daraja: 1)
 ```
+
+**Askar birligi (maydalashtirish, v0.0.15).** Toʻda 25-darajada **1062** boʻriga yetadi (oldin 460), har darajada sezilarli oʻsadi (5-darajada +8, 10-darajada +29, 25-darajada +92). Iqtisodiyot va jang balansi buzilmasligi uchun bitta askar “maydaroq”: uning goʻsht, suv va oy nuri ehtiyoji, mashq narxi va vaqti, ovchi unumi, jangovar quvvati (CP) **askar birligiga boʻlinadi**, ovdagi minimal toʻda va rol binosi sigʻimi esa shunga koʻpaytiriladi. Natijada toʻdaning **jami** ehtiyoji, ovi va kuchi avvalgi muvozanat egri chizigʻida (10 × 1.20^n) qoladi — oʻyinchi koʻproq boʻri koʻradi, balans esa oʻzgarmaydi. Birlik 4-darajada 1.00, 10–15-darajalarda ~4.1–4.4 (eng yuqori), 25-darajada 2.31. Keyingi tizimlar ham shu qoidaga amal qiladi: davolash narxi (oʻt), oʻlja koʻtarish sigʻimi, lager yigʻimi va jangdagi yoʻqotishlar bitta askar uchun birlikka boʻlinib hisoblanadi.
 
 **Toifa koeffitsientlari:** haqiqiy ×1.00, qadimgi ×1.35, mifologik ×1.80
 
@@ -152,21 +155,21 @@ Jami **8 resurs** + 2 premium valyuta.
 ## 4. Oziqlanish va ov
 
 ```
-Bir askarning kunlik ehtiyoji = 0.6 + 0.1 × (daraja − 1)  kg
+Bir askarning kunlik ehtiyoji = (0.6 + 0.1 × (daraja − 1)) ÷ askar birligi  kg
 Toʻda kunlik sarfi = shu × qoʻshin soni
-Suv = (0.4 + 0.04 × (daraja−1)) × qoʻshin
-Oy nuri = 0.2 × qoʻshin (faqat 20+ daraja)
+Suv = (0.4 + 0.04 × (daraja−1)) ÷ askar birligi × qoʻshin
+Oy nuri = 0.2 ÷ askar birligi × qoʻshin (faqat 20+ daraja)
 Zaxira talabi = 3 kunlik sarf
 ```
 
 | Daraja | 1 askar | Qoʻshin | Kunlik goʻsht | Suv | Oy nuri | Asosiy oʻlja | Sarfga kerakli oʻlja/kun | 3 kunlik zaxira | Kerakli Oziq gʻori |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | 0.6 | 1 | 1 | 0 | — | Kemiruvchi (0.5 kg) | 2 | 3 | 1 |
-| 4 | 0.9 | 10 | 9 | 5 | — | Sugʻur (8 kg) | 2 | 27 | 1 |
-| 10 | 1.5 | 30 | 45 | 23 | — | Kiyik (60 kg) | 1 | 135 | 8 |
-| 15 | 2.0 | 74 | 148 | 71 | — | Yovvoyi ot (250 kg) | 1 | 444 | 14 |
-| 20 | 2.5 | 185 | 463 | 215 | 37 | Mamont bolasi (800 kg) | 1 | 1,389 | 19 |
-| 25 | 3.0 | 460 | 1,380 | 626 | 92 | Ruh oʻljasi (400 kg) | 4 | 4,140 | 25 |
+| 1 | 0.60 | 1 | 1 | 0 | — | Kemiruvchi (0.5 kg) | 2 | 3 | 1 |
+| 4 | 0.90 | 10 | 9 | 5 | — | Sugʻur (8 kg) | 2 | 27 | 1 |
+| 10 | 0.37 | 122 | 45 | 23 | — | Kiyik (60 kg) | 1 | 135 | 8 |
+| 15 | 0.45 | 330 | 149 | 71 | — | Yovvoyi ot (250 kg) | 1 | 444 | 14 |
+| 20 | 0.72 | 644 | 462 | 215 | 37 | Mamont bolasi (800 kg) | 1 | 1,389 | 19 |
+| 25 | 1.30 | 1,062 | 1,380 | 626 | 92 | Ruh oʻljasi (400 kg) | 4 | 4,140 | 25 |
 
 ### 🌙 Oy nuri — ikki qatlam
 
@@ -202,10 +205,10 @@ Quyidagi balans jadvali ovchilar kuniga **4 soat** ovda boʻlgani (masalan, 4 ta
 |---|---|---|---|---|---|---|
 | 1 | 1 | 1 | 3 kg | 12 kg | 1 kg | 12× |
 | 4 | 10 | 2 | 9 kg | 36 kg | 9 kg | 4.0× |
-| 10 | 30 | 5 | 38 kg | 150 kg | 45 kg | 3.3× |
-| 15 | 74 | 11 | 110 kg | 440 kg | 148 kg | 3.0× |
-| 20 | 185 | 28 | 350 kg | 1,400 kg | 463 kg | 3.0× |
-| 25 | 460 | 69 | 1,035 kg | 4,140 kg | 1,380 kg | 3.0× |
+| 10 | 122 | 18 | 33 kg | 133 kg | 45 kg | 3.0× |
+| 15 | 330 | 50 | 113 kg | 450 kg | 149 kg | 3.0× |
+| 20 | 644 | 97 | 348 kg | 1,393 kg | 462 kg | 3.0× |
+| 25 | 1,062 | 159 | 1,033 kg | 4,132 kg | 1,380 kg | 3.0× |
 
 Ovning ~1/3 qismi toʻdani boqadi, qolgani askar yollash va zaxiraga ketadi. Faol oʻyinchi (kuniga 4 ov) ochlikka tushmaydi; kuniga 1–2 marta kiradigan oʻyinchi ham sarfni qoplaydi.
 
@@ -213,7 +216,7 @@ Ovning ~1/3 qismi toʻdani boqadi, qolgani askar yollash va zaxiraga ketadi. Fao
 
 **Oʻlja zinapoyasi:** kemiruvchi 0.5 → qush 1 → quyon 2 → sugʻur 8 → jayron 25 → yovvoyi choʻchqa 50 → kiyik 60 → bugʻu 100 → arxar 120 → yovvoyi ot 250 → los 300 → bizon 500 → mamont bolasi 800 → mamont 1,200 → ruh oʻljasi 400
 
-**Oʻljaning minimal toʻdasi** = yuqoriga yaxlitlangan(oʻlja vazni ÷ 20), kamida 1 boʻri: sugʻur 1 · jayron 2 · kiyik 3 · yovvoyi ot 13 · mamont bolasi 40 · ruh oʻljasi 20. Ovchilar yetmasa, ovga hujumchi yoki boshqa askar qoʻshib yuboriladi — ular shu vaqt inni himoya qilmaydi (asosiy trade-off).
+**Oʻljaning minimal toʻdasi** = yuqoriga yaxlitlangan(oʻlja vazni ÷ 20 × askar birligi), kamida 1 boʻri: sugʻur (4-d.) 1 · jayron (5-d.) 2 · kiyik (10-d.) 13 · yovvoyi ot (15-d.) 56 · mamont bolasi (20-d.) 140 · ruh oʻljasi (25-d.) 47. Ovchilar yetmasa, ovga hujumchi yoki boshqa askar qoʻshib yuboriladi — ular shu vaqt inni himoya qilmaydi (asosiy trade-off).
 
 5-darajadan boshlab asosiy oʻlja jayron (25 kg) — bir boʻri uni ovlay olmaydi. **Toʻda ixtiyoriy emas, majburiy.**
 
@@ -338,7 +341,7 @@ Oʻyinchi soatlik ishlab chiqarishni 4 resurs orasida oʻzi taqsimlaydi (standar
 ### Rol binolari (Razvedka, Jang, Himoya, Ov)
 ```
 Ochadigan tier   = MAX(1, MIN(6, butun(bino darajasi / 4)))
-Askar sigʻimi(L) = 6 × 1.20^(L-1)
+Askar sigʻimi(L) = 6 × 1.20^(L-1) × askar birligi(L)
 Mashq tezligi(L) = 1 + 0.04 × (L-1)
 ```
 Narx koeffitsientlari: Razvedka 0.50 · Jang 0.70 · Himoya 0.60 · Ov 0.45
@@ -379,8 +382,9 @@ Ovchi 3-darajadan (Ov soʻqmogʻi bilan), qolgan 3 rol 4-darajadan ochiladi. Alf
 ```
 Tier CP = (Kuch×2 + Tezlik×1.5 + Chidam×0.5) × 1.45^(tier-1) × (1 + 0.03 × alfa darajasi)
 Maks tier = MAX(1, MIN(6, butun(alfa darajasi ÷ 4), butun(shu rol binosi ÷ 4)))
-Yangi askar narxi ≈ 20 kg goʻsht + 8 suyak, har tierda ×2.10 (= 1.45²)
-Yangi askar vaqti = 4 daqiqa × 1.45^(tier−1)
+Yangi askar narxi ≈ (20 kg goʻsht + 8 suyak) × 2.10^(tier−1) ÷ askar birligi   (2.10 = 1.45²)
+Yangi askar vaqti = 4 daqiqa × 1.45^(tier−1) ÷ askar birligi
+Askar CP (jangda) = tier CP ÷ askar birligi
 ```
 
 1-tier har doim ochiq (rol binosi qurilgan zahoti); 2-tier 8-darajada, 3-tier 12-da, 4-tier 16-da, 5-tier 20-da, 6-tier 24-darajada ochiladi (bino ham shu darajada boʻlishi kerak).
@@ -418,10 +422,10 @@ Strelka “ustun keladi” degani: himoyachi hujumchiga, hujumchi razvedkachiga,
 | Daraja | Qoʻshin | 🔍 | ⚔️ | 🛡 | 🥩 | Maks tier | Kerakli rol binosi | Toʻda CP |
 |---|---|---|---|---|---|---|---|---|
 | 4 | 10 | 2 | 4 | 2 | 2 | 1 | 4 | 822 |
-| 10 | 30 | 6 | 13 | 6 | 5 | 2 | 8 | 4,188 |
-| 15 | 74 | 15 | 33 | 15 | 11 | 3 | 12 | 16,775 |
-| 20 | 185 | 37 | 83 | 37 | 28 | 5 | 20 | 97,283 |
-| 25 | 460 | 92 | 207 | 92 | 69 | 6 | 24 | 383,763 |
+| 10 | 122 | 24 | 56 | 24 | 18 | 2 | 8 | 4,206 |
+| 15 | 330 | 66 | 148 | 66 | 50 | 3 | 12 | 16,835 |
+| 20 | 644 | 129 | 289 | 129 | 97 | 5 | 20 | 97,295 |
+| 25 | 1,062 | 212 | 479 | 212 | 159 | 6 | 24 | 383,829 |
 
 Ulushlar: razvedkachi 20% · hujumchi qoldiq · himoyachi 20% · ovchi 15% (eng kamida 1 ta)
 
@@ -650,21 +654,21 @@ Raqibda razvedkachi yoʻq boʻlsa (yoki bot boʻlsa) — natija har doim “Aniq
 ### 🏕 Lager
 
 ```
-Soatlik yigʻim (xom) = yuborilgan boʻrilar × Ustaxona soatlik ishlab chiqarishi × 0.10 × (1 + 0.05 × tier)
+Soatlik yigʻim (xom) = yuborilgan boʻrilar ÷ askar birligi × Ustaxona soatlik ishlab chiqarishi × 0.10 × (1 + 0.05 × tier)
 Lager ulushi (xom)   = (8 soatlik yigʻim) ÷ (Ustaxona kunlik ishlab chiqarishi)
 Lager ulushi         = MIN(0.60, Lager ulushi (xom))
 Soatlik yigʻim       = Lager ulushi × Ustaxona kunlik ishlab chiqarishi ÷ 8
 ```
 
-Formula Ustaxonani ham suratda, ham maxrajda saqlagani uchun xom ulush faqat qoʻshin hajmi bilan (×1.20/daraja) oʻsadi va 25-darajada 997% ga chiqardi. **60% tavan** Lagerni Ustaxonadan foydaliroq boʻlib ketishidan saqlaydi va faqat Lager tizimining ichida ishlaydi.
+Formula Ustaxonani ham suratda, ham maxrajda saqlagani uchun xom ulush faqat qoʻshin kuchi bilan (askar birligida ×1.20/daraja) oʻsadi va 25-darajada 997% ga chiqardi. **60% tavan** Lagerni Ustaxonadan foydaliroq boʻlib ketishidan saqlaydi va faqat Lager tizimining ichida ishlaydi.
 
 | Daraja | Yuboriladi (maks 50%) | 8 soatlik yigʻim | Ustaxona kunlik | Ulush (xom) | Ulush (tavan bilan) |
 |---|---|---|---|---|---|
-| 4 | 5 | 152 | 872 | 17% | 17% |
-| 8 | 11 | 776 | 1,931 | 40% | 40% |
-| 15 | 37 | 11,016 | 7,767 | 142% | **60%** (4,660) |
-| 19 | 77 | 53,000 | 17,208 | 308% | **60%** (10,325) |
-| 25 | 230 | 565,496 | 56,738 | 997% | **60%** (34,043) |
+| 4 | 5 | 153 | 872 | 17% | 17% |
+| 8 | 34 | 738 | 1,931 | 38% | 38% |
+| 15 | 165 | 11,058 | 7,767 | 142% | **60%** (4,660) |
+| 19 | 287 | 53,162 | 17,208 | 309% | **60%** (10,325) |
+| 25 | 531 | 565,503 | 56,738 | 997% | **60%** (34,043) |
 
 11-darajadan yuqorida tavan ishga tushadi (xom ulush 60% dan oshgach) — bu yerdan boshlab kemp yigʻimi mutlaq songa koʻra oʻsishda davom etadi (Ustaxona kunlik ishlab chiqarishi oʻsgani sari), lekin nisbat 60% da barqaror qoladi.
 
@@ -1244,7 +1248,7 @@ Batafsil art keyingi bosqichda qoʻshiladi.
 
 ## 24. Balans falsafasi — 7 qoida
 
-1. **Kuch qoʻshish orqali oʻsadi, koʻpaytirish orqali emas.** 1-darajadan 25-gacha **bitta boʻrining CP**si ~149× oshadi (69→10,269), lekin **butun toʻdaning jangovar quvvati** ~6,092× oshadi (63→383,763 — Excel "Umumiy bogʻlanish" varagʻi). Farq — 460× qoʻshin oʻsishidan (1→460), statdan emas. Shuning uchun matchmaking ishlaydi.
+1. **Kuch qoʻshish orqali oʻsadi, koʻpaytirish orqali emas.** 1-darajadan 25-gacha **bitta boʻrining CP**si ~149× oshadi (69→10,269), lekin **butun toʻdaning jangovar quvvati** ~6,093× oshadi (63→383,829 — Excel "Umumiy bogʻlanish" varagʻi). Farq — qoʻshin oʻsishidan (1→1062 boʻri; askar birligi hisobga olinganda ~460× kuch), statdan emas. Shuning uchun matchmaking ishlaydi.
 
 2. **Har tizimda uch qulf.** Askar tieri: alfa darajasi ÷ 4, rol binosi ÷ 4, maksimum 6 (1-tier har doim ochiq). Bitta yoʻl bilan tezlashtirib boʻlmaydi.
 

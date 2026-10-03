@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 | Blue Wolf API v1 — docs/blue_wolf/blue_wolf_api.md
-| v0.0.14: holat, Ustaxona, qurilish, askarlar mashqi, ov xaritasi, vazifalar, tanishtiruv. Qolganlari bosqichma-bosqich qoʻshiladi.
+| v0.0.15: holat, Ustaxona, qurilish, askarlar mashqi, ov xaritasi, vazifalar, tanishtiruv. Qolganlari bosqichma-bosqich qoʻshiladi.
 */
 Route::prefix('v1')->group(function () {
     Route::get('ping', [MetaController::class, 'ping']);

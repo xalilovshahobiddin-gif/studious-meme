@@ -1,4 +1,4 @@
-/* Blue Wolf Mini App — v0.0.14 (iqtisodiyot, qurilish, askarlar, ov, vazifalar, tanishtiruv, interfeys)
+/* Blue Wolf Mini App — v0.0.15 (iqtisodiyot, qurilish, askarlar, ov, vazifalar, tanishtiruv, interfeys)
    6 ta tab (In · Ov · Jang · Toʻda · Vazifalar · Profil), hash-router, Telegram WebApp integratsiyasi.
    Resurslar vaqt boʻyicha hisoblanadi (BWGame.advance — server bilan bir xil formula), Ustaxona buferi
    va taqsimoti, qurilish, askar mashqi va ov ishlaydi. Qolgan amallar (hujum, razvedka…) keyingi bosqichlarda ulanadi. */
@@ -245,8 +245,8 @@
         f.perHour = G.waterPerHour(cfg, cave);
         f.perDay = G.waterNeed(cfg, p.level) * army;
       } else if (key === "moonlight") {
-        f.perHour = p.level >= cfg.moonlight_need_level ? cfg.moonlight_passive_base * army : 0;
-        f.perDay = p.level >= cfg.moonlight_need_level ? cfg.moonlight_need * army : 0;
+        f.perHour = p.level >= cfg.moonlight_need_level ? cfg.moonlight_passive_base / G.unitScale(cfg, p.level) * army : 0;
+        f.perDay = p.level >= cfg.moonlight_need_level ? cfg.moonlight_need / G.unitScale(cfg, p.level) * army : 0;
       }
     } else if (r.group === "build") {
       var ws = buildingLevel("workshop");
@@ -1087,7 +1087,7 @@
       var key = G.PREY[L][0];
       if (seen[key]) continue;
       seen[key] = true;
-      ladder.push({ level: L, name: key, kg: G.PREY[L][1], pack: Math.max(1, Math.ceil(G.PREY[L][1] / cfg.prey_kg_per_wolf)) });
+      ladder.push({ level: L, name: key, kg: G.PREY[L][1], pack: G.minPack(cfg, L, G.PREY[L][1]) });
     }
     html += '<div class="bw-card bw-list" style="padding:0 16px">' + ladder.map(function (x, i) {
       var next = ladder[i + 1], current = p.level >= x.level && (!next || p.level < next.level);
@@ -1294,7 +1294,7 @@
     var maxTier = G.maxTier(cfg, p.level, b.level);
     sel.tier = Math.min(sel.tier, maxTier);
     var free = G.armyCap(cfg, p.level) - totalArmy() - queuedTrain();
-    var unit = G.trainCost(cfg, sel.tier), res = app.state.resources;
+    var unit = G.trainCost(cfg, sel.tier, p.level), res = app.state.resources;
     var afford = Math.floor(Math.min((res.meat || 0) / unit.meat, (res.bone || 0) / unit.bone));
     return { p: p, cfg: cfg, sel: sel, role: role, b: b, maxTier: maxTier, free: free, unit: unit, maxQty: Math.max(0, Math.min(free, afford)) };
   }
@@ -1339,7 +1339,7 @@
     var meta = roleMeta(sel.role);
     var started = function () { haptic("medium"); tutEvent("train:" + sel.role); toast(sel.qty + " ta " + meta.name.toLowerCase() + " mashqqa kirdi", "clock"); };
     if (app.mode === "live") { post("army/train", { role: sel.role, tier: sel.tier, qty: sel.qty }, started); return; }
-    var unit = G.trainCost(cfg, sel.tier), t = now();
+    var unit = G.trainCost(cfg, sel.tier, p.level), t = now();
     var b = buildingList().filter(function (x) { return x.type === meta.building; })[0];
     var secs = G.trainSeconds(cfg, sel.tier, p.level, b.level, totalArmy() + queuedTrain(), roleTotal(sel.role)) * sel.qty;
     var cost = { meat: unit.meat * sel.qty, bone: unit.bone * sel.qty };
