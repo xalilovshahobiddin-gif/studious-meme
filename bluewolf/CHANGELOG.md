@@ -1,5 +1,13 @@
 # Blue Wolf — oʻzgarishlar tarixi
 
+## v0.0.12 — ov taymeri, In soddalashdi, ov slayderlari
+- **Ov taymeri** taymerlar panelida: yashil, panja ikonkasi, qaytishgacha vaqt va halqa; bosilsa Ov tabi ochiladi.
+  Panel uchala turni (qurilish, mashq, ov) tugash vaqti boʻyicha tartiblaydi.
+- **In sahifasidan “Qurilish navbati” va “Mashq” boʻlimlari olib tashlandi** — ular taymerlar panelida koʻrinadi;
+  tezlashtirish va bekor qilish bino oynasida qoldi.
+- **Ov kartasida slayder faqat inda bor rollar uchun** chiqadi; ovchi yoʻq boʻlsa — “kamida 1 ovchi kerak” eslatmasi.
+- GDD bo'lim 18, texnik spec yangilandi.
+
 ## v0.0.11 — menyu tutqichi va ixcham taymerlar
 - **Menyu tutqichi:** yuqoridagi ☰ oʻrniga ekran oʻrtasida chap chetda yarmi koʻrinadigan tugma. Bosilganda menyu chiqadi,
   tutqich menyu ramkasiga ulangan holda u bilan birga suriladi (› → ‹); qayta bosilsa birga yopiladi.

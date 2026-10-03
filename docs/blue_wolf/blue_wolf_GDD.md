@@ -1174,8 +1174,9 @@ Ikkinchi qurilish navbati — erta ochish (4–9 daraja) 1,500 · Oflayn ombor +
 |---|---|---|
 | Qurilish | qahrabo (sariq) | bolgʻa |
 | Mashq | binafsha | rol ikonkasi |
+| Ov (toʻda ovda) | yashil | panja |
 
-  Taymerlar tugash vaqti boʻyicha tartiblanadi; toʻliq nomi bosib turganda (title) va ekran oʻquvchida. Bosilganda tegishli bino oynasi ochiladi. Keyin ov, davolash va boshqa taymerlar ham shu qatorga qoʻshiladi (har biri alohida rang va ikonka).
+  Taymerlar tugash vaqti boʻyicha tartiblanadi; toʻliq nomi bosib turganda (title) va ekran oʻquvchida. Bosilganda qurilish va mashq taymeri tegishli bino oynasini, ov taymeri Ov tabini ochadi. In sahifasida alohida “Qurilish navbati” boʻlimi yoʻq — navbat holati shu paneldan, tezlashtirish va bekor qilish bino oynasidan. Keyin davolash va boshqa taymerlar ham shu qatorga qoʻshiladi (har biri alohida rang va ikonka).
 
 ### Resurs olish animatsiyasi
 Vazifa, sandiq, kirish sovgʻasi, bufer yigʻish, ov va tanishtiruv mukofotida har bir resurs “+N” belgisi (resurs rangi va ikonkasi bilan) bosilgan joydan chiqib, yuqoridagi oʻz resurs katagiga uchib boradi; katak bir lahza yonib, kattalashadi. Ovdan qaytgan oʻlja Ov tabidan uchadi. “Harakatni kamaytirish” sozlamasi yoqilgan boʻlsa animatsiya oʻchadi.
