@@ -16,7 +16,7 @@ Pastda **5 ta asosiy tab**. Qolgan hamma narsa shu beshtasining ichida.
 - Yuqorida resurs paneli: goʻsht, suv, shifobaxsh oʻt, tosh, shox-shabba, teri, suyak, oy toshi; 20+ darajada oy nuri
 - Qurilish navbati (1 slot; 10-darajadan yoki erta xarid bilan 2 slot)
 - Ustaxona: taqsimot slayderi (4 resurs) va bufer + “Yigʻib olish” tugmasi
-- **Ov:** “Ovga chiqish” (ovchilar va qoʻshimcha askar tanlash, 1 soat), 1–3 darajada “Yolgʻiz ov” tugmasi, ov guruhlari roʻyxati
+- **Ov (alohida tab):** ov xaritasi — 9 karta (masofa, vaqt, oʻlja, xavf), kartada askar tanlash (slayderlar), yurishdagi ovlar, yaradorlar; 1–3 darajada “Yolgʻiz ov”
 - Bozor: almashinuv oynasi
 - Shifo gʻori: davolash navbati
 
@@ -142,7 +142,7 @@ Tanishtiruv davomida (`tutorial_step < 20`) navbatlar darhol tugaydi.
 ### 4.3 Yurishlar, ov va janglar
 
 Cron har daqiqa **va** dangasa (lazy) hisob — hujumchi yoki himoyachi soʻrov yuborganda ham:
-- `kind = hunt`, `arrives_at <= now` → ov natijasi hisoblanadi (ov guruhida — aʼzolarga ulush), `returns_at` qoʻyiladi
+- `kind = hunt`, `returns_at <= now` → goʻsht/oʻt omborga (gʻor sigʻimigacha), yaradorlar `injured` + tuzalish navbati (`queues.kind = 'heal'`), halok boʻlganlar oʻchiriladi
 - `kind = attack`, `arrives_at <= now` → jang hisoblanadi (himoyachining resurslari avval 4.1 boʻyicha `arrives_at` vaqtiga keltiriladi), natija `battles` ga, `returns_at` qoʻyiladi
 - `returns_at <= now` → askarlar `on_march` dan `alive`/`injured` ga, oʻlja omborga
 - Bot raqib (`target_bot`) uchun himoyachi tomoni yangilanmaydi — faqat hujumchi natijasi
@@ -176,7 +176,7 @@ Mini App `initData` imzosi har soʻrovda tekshiriladi (HMAC-SHA256, bot tokeni b
 
 Nima kiradi va nima v2 ga qoladi — **GDD, bo'lim 22** (yagona manba). Muddat: 10–12 hafta.
 Texnik jihatdan MVP uchun:
-- Barcha 32 jadval bir martada yaratiladi (v2 jadvallari boʻsh turadi — keyinroq migratsiya kerak boʻlmaydi)
+- Barcha 30 jadval bir martada yaratiladi (v2 jadvallari boʻsh turadi — keyinroq migratsiya kerak boʻlmaydi)
 - API dan 39 ta endpoint (`blue_wolf_api.md` oxiridagi roʻyxat)
 - Botlar (yovvoyi toʻdalar) — `match_offers.bot` va `marches.target_bot` orqali, alohida jadvalsiz
 - Monetizatsiya oʻchirilgan (faqat test oy toshi); `POST /bot/webhook` faqat buyruqlar uchun
@@ -194,13 +194,13 @@ Texnik jihatdan MVP uchun:
 
 | # | Ish | Holati |
 |---|---|---|
-| 1 | DB sxemasi | ✅ `blue_wolf_schema.sql` (32 jadval, MySQL 8.0 da tekshirilgan) |
+| 1 | DB sxemasi | ✅ `blue_wolf_schema.sql` (30 jadval, MySQL 8.0 da tekshirilgan) |
 | 2 | Balans modeli | ✅ `blue_wolf_darajalar.xlsx` (21 varaq, ~4 700 formula; kiritish — `Sozlamalar`, nomlangan kataklar) |
 | 3 | `game_config` ni jadvaldan toʻldirish | ✅ `tools/blue_wolf_config.py` → `blue_wolf_game_config.sql` (273 parametr + balans tekshiruvlari) |
 | 4 | Ekran xaritasi | ✅ Shu hujjatda |
 | 5 | Bildirishnomalar | ✅ Shu hujjatda |
 | 6 | Lokalizatsiya rejasi | ✅ Shu hujjatda |
-| 7 | API endpointlari | ✅ `blue_wolf_api.md` (70 endpoint, MVP — 39) |
+| 7 | API endpointlari | ✅ `blue_wolf_api.md` (67 endpoint, MVP — 36) |
 | 8 | Art yoʻnalishi | ⏳ Oddiy: bitta boʻri silueti + rol rangi + tier ramkasi |
 | 9 | Locales kalitlari (~600) | ⏳ |
 | 10 | Mini App frontend | ⏳ Repodagi hozirgi `index.html`/`js/game.js` — Phaser “Blue Wolf Run” yuguruvchi oʻyini; bu dizaynga mos emas. Undan faqat splash ekran va Telegram WebApp init qismi qayta ishlatiladi |

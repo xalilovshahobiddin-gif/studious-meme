@@ -101,19 +101,37 @@ test("bufer yigʻish va taqsimot tekshiruvi", () => {
   assert.ok(!G.validAlloc({ stone: 110, wood: -10, hide: 0, bone: 0 }));
 });
 
-test("askar va ov formulalari (PHP bilan bir xil, GDD bo'lim 4 va 6)", () => {
+test("askar formulalari (PHP bilan bir xil, GDD bo'lim 6)", () => {
   const cases = require(path.join(__dirname, "../fixtures/army_cases.json"));
   for (const c of cases.train) {
     assert.deepEqual(G.trainCost(cfg, c.tier), c.cost);
     assert.ok(Math.abs(G.trainSeconds(cfg, c.tier, c.level, c.building, c.army, c.role) - c.seconds) < 1e-5);
   }
-  for (const c of cases.hunt) assert.deepEqual(G.huntResult(cfg, c.level, c.payload), c.result);
   assert.deepEqual(G.trainCost(cfg, 1), { meat: 20, bone: 8 });
   assert.equal(G.trainSeconds(cfg, 1, 1, 1, 0, 0), 120); // boʻsh qoʻshin — 0.5× chegirma
-  assert.equal(G.huntResult(cfg, 4, { hunter: { 1: 2 } }).meat, 9);
-  assert.equal(G.huntResult(cfg, 5, { hunter: { 1: 1 } }).penalty, true); // jayronga kamida 2 boʻri
   assert.equal(G.PREY.length, 26);
   assert.equal(G.WOLVES[25], "Koʻk Boʻri");
+});
+
+test("ov xaritasi: PHP bilan bir xil, tartiblangan, shaxsiy, yangilanadi", () => {
+  const fx = require(path.join(__dirname, "../fixtures/hunt_board_cases.json"));
+  for (const b of fx.boards) assert.deepEqual(G.huntBoard(cfg, b.player, b.level, b.window), b.cards);
+  for (const c of fx.results) assert.deepEqual(G.huntResult(cfg, c.level, c.card, c.payload), c.result);
+  const a = G.huntBoard(cfg, 1, 10, 100);
+  assert.equal(a.length, 9);
+  for (let i = 1; i < 9; i++) {
+    assert.ok(a[i].minutes >= a[i - 1].minutes && a[i].herd_kg >= a[i - 1].herd_kg);
+  }
+  assert.ok(a[8].minutes <= 85, "eng uzoq ov 85 daqiqadan oshmaydi");
+  assert.equal(a[0].injury, 0);
+  assert.ok(a[8].death > 0);
+  assert.notDeepEqual(G.huntBoard(cfg, 2, 10, 100), a);
+  assert.notDeepEqual(G.huntBoard(cfg, 1, 10, 101), a);
+  assert.equal(G.huntWindow(cfg, 4 * 3600000 * 5 + 1), 5);
+  // Kichik toʻda jazosi va poda chegarasi
+  const card = Object.assign({}, a[0], { min_pack: 3, herd_kg: 1000 });
+  assert.equal(G.huntResult(cfg, 10, card, { hunter: { 1: 1 } }).penalty, true);
+  assert.equal(G.huntResult(cfg, 10, Object.assign({}, a[0], { herd_kg: 2 }), { hunter: { 1: 50 } }).meat, 2);
 });
 
 console.log(`\n${passed} ta test oʻtdi`);

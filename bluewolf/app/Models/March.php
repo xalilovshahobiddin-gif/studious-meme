@@ -30,7 +30,10 @@ class March extends Model
             'id' => $this->id,
             'kind' => $this->kind,
             'payload' => $this->payload,
-            'loot' => $this->loot,
+            'board_window' => $this->board_window,
+            'board_slot' => $this->board_slot,
+            // Yarador/halok qaytishgacha sir — faqat xavf ehtimoli kartada koʻrinadi
+            'loot' => array_diff_key($this->loot ?? [], ['casualties' => 1]),
             'departs_at' => $this->departs_at->getTimestampMs(),
             'returns_at' => $this->returns_at?->getTimestampMs(),
         ];

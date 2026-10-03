@@ -106,6 +106,27 @@
   .bw-tabbar { left: 50%; right: auto; width: var(--app-max); margin-left: calc(var(--app-max) / -2); border-radius: 18px 18px 0 0; border-left: 1px solid var(--bw-border); border-right: 1px solid var(--bw-border); }
 }
 
+/* Ov xaritasi: 3 × 3 karta, yaqindan (yuqori chap) uzoqqa (pastki oʻng) */
+.hunt-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.hunt-tile {
+  --risk: var(--bw-success);
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-height: 104px;
+  padding: 12px 10px 10px; border-radius: var(--bw-r-lg); border: 1px solid var(--bw-border); overflow: hidden;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--risk) 12%, var(--bw-surface)) 0%, var(--bw-surface) 70%);
+  color: var(--bw-text); text-align: left; cursor: pointer; font: inherit;
+  transition: transform var(--bw-fast) var(--bw-ease), border-color var(--bw-fast);
+}
+.hunt-tile::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--risk); }
+.hunt-tile:active { transform: scale(.96); }
+.hunt-tile--mid { --risk: var(--bw-accent); }
+.hunt-tile--far { --risk: var(--bw-danger); }
+.hunt-tile__prey { font-size: 12px; font-weight: 700; line-height: 1.2; color: var(--bw-text-2); }
+.hunt-tile__kg { font: 800 18px/1.1 var(--bw-font-num); letter-spacing: -.01em; }
+.hunt-tile__meta { font-size: 11px; color: var(--bw-text-3); }
+.hunt-tile__risk { margin-top: auto; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--risk); }
+.hunt-tile.is-off { opacity: .45; }
+.hunt-tile:disabled { cursor: default; }
+
 /* Oʻlja zinapoyasi */
 .prey-row.is-current .bw-row__title { color: var(--bw-accent); }
 .prey-row.is-future { opacity: .55; }

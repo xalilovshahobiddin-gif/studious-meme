@@ -120,6 +120,9 @@ class BuildService
     public function cancel(Player $player, int $queueId): array
     {
         $queue = $this->running($player, $queueId);
+        if ($queue->kind === 'heal') {
+            throw new GameException('VALIDATION', 'Tuzalishni bekor qilib boʻlmaydi', 422);
+        }
         $rate = GameConfig::value('queue_cancel_refund', 0.8);
         $refund = array_map(fn ($v) => (int) floor($v * $rate), $queue->cost);
 

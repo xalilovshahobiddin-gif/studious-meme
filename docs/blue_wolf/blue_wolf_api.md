@@ -64,7 +64,6 @@ Xato:
 | `INCOMING_ATTACK` | 400 | Iningizga hujum kelmoqda (qaytish tezlashtirishi, taʼtil) |
 | `OASIS_PROTECTED` | 400 | Oazis `hold_until` gacha daxlsiz |
 | `TUTORIAL_LOCKED` | 400 | Tanishtiruvning 1–12-qadamida faqat koʻrsatilgan amal ruxsat |
-| `PARTY_FULL` | 409 | Ov guruhi toʻla yoki yopilgan |
 | `IDEMPOTENCY_CONFLICT` | 409 | Bir xil `X-Request-Id`, boshqa tana |
 | `RATE_LIMITED` | 429 | Soʻrov chastotasi |
 | `VERSION_OUTDATED` | 426 | Klientni yangilash kerak |
@@ -146,25 +145,17 @@ Tekshiruv: kunlik chegara (`speedup_usage`), urush davom etmayotgani, progressiv
 
 ## 6. Ov
 
+### `GET /hunt/board`
+Joriy ov xaritasi (GDD bo'lim 4 “Ov xaritasi”): `{ window, refresh_at, cards: [...] }`. Karta: `slot` (0–8, vaqt boʻyicha tartibda), `band` (0 yaqin · 1 oʻrta · 2 uzoq), `prey`, `prey_kg`, `count`, `herd_kg`, `km`, `minutes`, `bonus`, `injury`, `death`, `min_pack`, `status` (`open` · `hunting` · `done`). Har `hunt_board_refresh_h` soatda yangilanadi, har oʻyinchida har xil. `/state` javobida ham bor.
+
 ### `POST /hunt/solo`
-Yolgʻiz ov (alfa) — faqat 1–3 daraja. Oniy natija: shu darajaning asosiy oʻljasi; 2 daqiqa kutish.
+Yolgʻiz ov (alfa) — faqat 1–3 daraja. Oniy natija: shu darajaning asosiy oʻljasi; 2 daqiqa kutish (`COOLDOWN`).
 
 ### `POST /hunt`
-`{ "payload": [{"role":"hunter","tier":1,"qty":2}, {"role":"attacker","tier":1,"qty":1}] }`
-1 soatlik ov yurishi (`marches.kind = 'hunt'`). Natija = Σ ovchi unumi × 1 soat; toʻda oʻljaning minimal hajmidan kichik boʻlsa ×0.30. Goʻshtdan tashqari 10% shifobaxsh oʻt.
-Javob: `march_id`, `arrives_at` (ov tugashi), `returns_at`.
-
-### `GET /hunt/parties`
-Ochiq ov guruhlari (oʻz darajasi ±1).
-
-### `POST /hunt/parties`
-Guruh yaratish `{ "payload": [...], "departs_in_min": 10 }` (4+ daraja).
-
-### `POST /hunt/parties/:id/join`
-`{ "payload": [...] }` — 2–4 oʻyinchi; toʻla boʻlsa `409 PARTY_FULL`. Har qoʻshimcha oʻyinchi +10%, oʻlja yuborilgan ovchi unumiga proporsional boʻlinadi.
-
-### `POST /hunt/parties/:id/leave`
-Guruh joʻnamasidan oldin.
+`{ "slot": 4, "payload": { "hunter": { "1": 3 }, "attacker": { "1": 1 } } }`
+Kartadagi ov (`marches.kind = 'hunt'`, `board_window`, `board_slot`). Natija = MIN(poda, Σ ovchi unumi × vaqt × (1 + bonus)); toʻda oʻljaning minimal hajmidan kichik boʻlsa ×0.30; +10% shifobaxsh oʻt. Yarador/halok shu paytda aniqlanadi, javobda koʻrsatilmaydi — qaytishda `finished` da.
+Xatolar: `QUEUE_BUSY` (karta ovlangan yoki ovda), `VALIDATION` (ovchi yoʻq, askar yetmaydi, notoʻgʻri slot).
+Javob: `march` (`returns_at`).
 
 ---
 
@@ -354,6 +345,6 @@ Oshsa → `429` va `Retry-After` sarlavhasi.
 
 ---
 
-**Jami: 70 endpoint.**
+**Jami: 67 endpoint.**
 
-**MVP uchun 39 tasi:** `/state`, `/profile`, `/profile/settings`, `/profile/allocation` · `/buildings`, `/buildings/upgrade`, `/buildings/collect`, `/hospital/heal` · `/army`, `/army/train`, `/army/promote`, `/army/promote/preview`, `/queue/cancel`, `/queue/speedup` (faqat bepul tezlashtirish) · `/hunt/solo`, `/hunt`, `/hunt/parties` (GET, POST), `/hunt/parties/:id/join`, `/hunt/parties/:id/leave` · `/pvp/targets`, `/pvp/targets/refresh`, `/pvp/scout`, `/pvp/scout/:slot`, `/pvp/attack`, `/march/:id`, `/march/:id/recall`, `/battles`, `/battles/:id` · `/quests`, `/quests/:id/claim` · `/tutorial/step`, `/tutorial/skip` · `/notifications`, `/notifications/settings`, `/events`, `/config`, `/locales/:lang`, `/bot/webhook`.
+**MVP uchun 36 tasi:** `/state`, `/profile`, `/profile/settings`, `/profile/allocation` · `/buildings`, `/buildings/upgrade`, `/buildings/collect`, `/hospital/heal` · `/army`, `/army/train`, `/army/promote`, `/army/promote/preview`, `/queue/cancel`, `/queue/speedup` (faqat bepul tezlashtirish) · `/hunt/board`, `/hunt/solo`, `/hunt` · `/pvp/targets`, `/pvp/targets/refresh`, `/pvp/scout`, `/pvp/scout/:slot`, `/pvp/attack`, `/march/:id`, `/march/:id/recall`, `/battles`, `/battles/:id` · `/quests`, `/quests/:id/claim` · `/tutorial/step`, `/tutorial/skip` · `/notifications`, `/notifications/settings`, `/events`, `/config`, `/locales/:lang`, `/bot/webhook`.

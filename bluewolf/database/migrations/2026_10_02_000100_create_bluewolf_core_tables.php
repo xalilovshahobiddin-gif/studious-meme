@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * v0.0.0 — oʻyin skeleti uchun asosiy jadvallar.
- * Toʻliq sxema: docs/blue_wolf/blue_wolf_schema.sql (32 jadval). Qolgan jadvallar
+ * Toʻliq sxema: docs/blue_wolf/blue_wolf_schema.sql (30 jadval). Qolgan jadvallar
  * tegishli bosqichlarda alohida migratsiyalar bilan qoʻshiladi.
  */
 return new class extends Migration

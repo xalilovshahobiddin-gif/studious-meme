@@ -18,6 +18,7 @@ class PlayerService
         private readonly EconomyService $economy,
         private readonly ArmyService $army,
         private readonly ProgressService $progress,
+        private readonly HuntService $hunts,
     ) {}
 
     /**
@@ -90,8 +91,10 @@ class PlayerService
             'economy' => $this->economy->clientState($player),
             'army' => $this->army->summary($player)['alive'],
             'army_away' => $this->army->summary($player)['away'],
+            'army_injured' => $this->army->summary($player)['injured'],
             'queues' => $this->queues($player),
             'marches' => $this->marches($player),
+            'hunt_board' => $this->hunts->board($player),
             'shield_until' => null,
             'hunger' => false,
         ];
@@ -112,6 +115,8 @@ class PlayerService
             'marches' => $this->marches($player),
             'army' => $this->army->summary($player)['alive'],
             'army_away' => $this->army->summary($player)['away'],
+            'army_injured' => $this->army->summary($player)['injured'],
+            'hunt_board' => $this->hunts->board($player),
             'player' => $this->progressState($player),
             'free_speedups' => $player->free_speedups,
             'server_time' => now()->format('Y-m-d\\TH:i:s.v\\Z'),

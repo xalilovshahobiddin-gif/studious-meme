@@ -95,7 +95,7 @@ Tanishtiruvdan keyin ov — asosiy va doimiy manba (kuniga ~4 ov × oʻlja kg ×
 | 1 | Ov / Iqtisod | Yolgʻiz ov (alfa oʻzi: kemiruvchi, qush), In |
 | 2 | Iqtisod | Oziq gʻori, Ustaxona qoyasi |
 | 3 | Ov | Ov soʻqmogʻi, birinchi ovchi, quyon ovi |
-| **4** | **Toʻda / Jang** | **🔓 Toʻda (qoʻshin 10 askar) · Jang maydoni, Razvedka qoyasi, Himoya devori · yovvoyi toʻdalarga (bot) hujum · ov guruhi (2–4 oʻyinchi) · 🏕 Lager (v2) · klan yaratish yoki qoʻshilish (v2)** |
+| **4** | **Toʻda / Jang** | **🔓 Toʻda (qoʻshin 10 askar) · Jang maydoni, Razvedka qoyasi, Himoya devori · yovvoyi toʻdalarga (bot) hujum · 🏕 Lager (v2) · klan yaratish yoki qoʻshilish (v2)** |
 | 5 | Ov | Yirik oʻlja — jayron (kamida 2 boʻri) |
 | 6 | Iqtisod | 🏥 Shifo gʻori · 💧 Suv oazisi (v2) |
 | **7** | **PvP** | **Haqiqiy oʻyinchilarga hujum (yangi oʻyinchi qalqoni tugaydi)** · reyting va liga (v2) |
@@ -187,16 +187,18 @@ Oziq gʻori oʻyinchi darajasida boʻlsa, suv ehtiyojning ~2× ini beradi; gʻor
 
 ### 🥩 Ov
 
-Ov — faol harakat: oʻyinchi ovchilarni (va xohlasa boshqa askarlarni) **1 soatlik ov yurishiga** yuboradi.
+Ov — faol harakat: oʻyinchi **ov xaritasidagi** kartalardan birini tanlab, ovchilarni (va xohlasa boshqa askarlarni) yuboradi (pastda “Ov xaritasi”).
 
 ```
 Ovchi unumi(L, tier) = 5 × bir askarning kunlik ehtiyoji(L) × (1 + 0.10 × (tier−1))   kg/soat
-Bir ov (kg)          = Σ ovchi unumi × ov davomiyligi (1 soat)
+Bir ov (kg)          = MIN(poda, Σ ovchi unumi × ov vaqti (soat) × (1 + masofa bonusi))
 Kichik oʻlja jazosi  = yuborilgan boʻrilar soni oʻljaning minimal toʻdasidan kam boʻlsa → natija × 0.30
 Shifobaxsh oʻt       = ov natijasining 10% i (birlik)
 ```
 
-| Daraja | Qoʻshin | Ovchi (15%) | Bir ov (1 soat) | Kuniga 4 ov | Kunlik sarf | Nisbat |
+Quyidagi balans jadvali ovchilar kuniga **4 soat** ovda boʻlgani (masalan, 4 ta ~1 soatlik yoki 8 ta ~30 daqiqalik ov, masofa bonusisiz) bilan hisoblangan (`hunt_duration_min` = 60 — faqat balans hisobi uchun).
+
+| Daraja | Qoʻshin | Ovchi (15%) | 1 soat ov | Kuniga 4 soat | Kunlik sarf | Nisbat |
 |---|---|---|---|---|---|---|
 | 1 | 1 | 1 | 3 kg | 12 kg | 1 kg | 12× |
 | 4 | 10 | 2 | 9 kg | 36 kg | 9 kg | 4.0× |
@@ -209,13 +211,41 @@ Ovning ~1/3 qismi toʻdani boqadi, qolgani askar yollash va zaxiraga ketadi. Fao
 
 **Yolgʻiz ov (1–3 daraja):** alfaning oʻzi bir bosishda ovlaydi — oʻlja = shu darajaning asosiy oʻljasi (0.5 / 1 / 2 kg), 2 daqiqa kutish. 4-darajadan keyin yolgʻiz ov yopiladi, ov faqat toʻda bilan.
 
-**Ov guruhi (4+ daraja):** 2–4 oʻyinchi bitta ovga birlashadi. Har qoʻshimcha oʻyinchi uchun natija +10%; oʻlja yuborilgan ovchi unumiga proporsional boʻlinadi. Bu rasmiy klan emas — bitta ov uchun vaqtinchalik guruh.
-
 **Oʻlja zinapoyasi:** kemiruvchi 0.5 → qush 1 → quyon 2 → sugʻur 8 → jayron 25 → yovvoyi choʻchqa 50 → kiyik 60 → bugʻu 100 → arxar 120 → yovvoyi ot 250 → los 300 → bizon 500 → mamont bolasi 800 → mamont 1,200 → ruh oʻljasi 400
 
 **Oʻljaning minimal toʻdasi** = yuqoriga yaxlitlangan(oʻlja vazni ÷ 20), kamida 1 boʻri: sugʻur 1 · jayron 2 · kiyik 3 · yovvoyi ot 13 · mamont bolasi 40 · ruh oʻljasi 20. Ovchilar yetmasa, ovga hujumchi yoki boshqa askar qoʻshib yuboriladi — ular shu vaqt inni himoya qilmaydi (asosiy trade-off).
 
 5-darajadan boshlab asosiy oʻlja jayron (25 kg) — bir boʻri uni ovlay olmaydi. **Toʻda ixtiyoriy emas, majburiy.**
+
+### 🗺 Ov xaritasi
+
+Ov tabida har oʻyinchiga **9 ta ov kartasi** (3 × 3) koʻrsatiladi. Kartalar **har 4 soatda** yangilanadi va **har bir oʻyinchida har xil** — urugʻ = oʻyinchi ID + davr raqami, generator server va klientda bir xil (deterministik), shuning uchun kartani “qayta aylantirib” boʻlmaydi. Har karta davr ichida **bir marta** ovlanadi; bir vaqtda bir nechta kartaga (askar yetsa) borish mumkin.
+
+Kartalar **yuqori chapdan pastki oʻngga** — eng qisqa va eng kam oʻljadan eng uzoq va eng koʻp oʻljaga qarab tartiblangan:
+
+| Kartalar | Masofa | Ov vaqti | Oʻlja | Masofa bonusi | Yarador / halok (har bir boʻri) |
+|---|---|---|---|---|---|
+| 1–3 · **yaqin** | 2–7 km | 16–31 daq | daraja − 1 oʻljasi | — | xavfsiz |
+| 4–6 · **oʻrta** | 7–15 km | 31–55 daq | daraja oʻljasi | +20% | 8% / 1% |
+| 7–9 · **uzoq** | 15–25 km | 55–85 daq | daraja + 1 oʻljasi | +50% | 15% / 4% |
+
+```
+Ov vaqti        = 10 daqiqa + 2 × masofa ÷ 40 km/soat        (eng uzoq ov ~85 daqiqa — oʻyinchi zerikmasligi uchun)
+Poda (kg)       = oʻlja vazni × soni;  soni = yaxlitlangan(tavsiya ovchilar × ovchi unumi × vaqt × (1 + bonus) × (0.7 … 1.6) ÷ oʻlja vazni), kamida 1
+                  keyingi kartadagi poda oldingisidan kichik boʻlmaydi
+Tavsiya ovchilar = MAX(1, yaxlitlangan(qoʻshin sigʻimi × 15%))
+Bir ov (kg)     = MIN(poda, Σ ovchi unumi × vaqt × (1 + bonus)),  kichik toʻda boʻlsa × 0.30
+XP              = olingan goʻsht × 0.5
+```
+
+**Xavf.** Oʻrta va uzoq kartalarda har bir yuborilgan boʻri (ovchi ham, yordamchi ham) alohida tasodif bilan **yarador** yoki **halok** boʻlishi mumkin. Natija ovga chiqishda server tomonida aniqlanadi va qaytishda maʼlum boʻladi (kartada faqat ehtimollar koʻrinadi).
+- **Yarador** boʻri qaytgach `injured` ga oʻtadi va **3 soatda** oʻzi tuzaladi (Shifo gʻori orqali davolash — keyingi bosqichda); bu vaqt ovga va jangga chiqmaydi, lekin ovqat yeydi.
+- **Halok** boʻlgan boʻri tieri bilan butunlay ketadi (qoʻshin kamayadi).
+- Yaqin kartalar doim xavfsiz — ehtiyotkor oʻyinchi kam, lekin kafolatlangan oʻlja oladi.
+
+**Misol (10-daraja, 5 ovchi T1, 7.5 kg/soat):** yaqin karta ~24 daq → ~15 kg · oʻrta ~43 daq → ~32 kg · uzoq ~70 daq → ~66 kg (podadan oshmaydi). Uzoq ovda kutilgan yoʻqotish ≈ 0.75 yarador + 0.2 halok boʻri.
+
+Parametrlar: `Sozlamalar` → “Ov xaritasi” (`hunt_board_refresh_h`, `hunt_base_min`, `hunt_speed_kmh`, `hunt_km_*`, `hunt_*_bonus`, `hunt_*_injury`, `hunt_*_death`, `hunt_herd_*`).
 
 ### Ochlik mexanikasi
 Ochlik — goʻsht zaxirasi 0 ga tushgan holat (bo'lim 16 da batafsil):
@@ -898,7 +928,7 @@ Xavfsiz chegara = 60%
 Ovchi (3 ov) · Quruvchi (1 bino) · Murabbiy (1 askar) · Jangchi (1 hujum, botlar ham hisoblanadi) · Kirish bonusi
 
 ### Haftalik (4)
-Katta ov (20 ov) · Sayohatchi (3 lager; MVP da — 3 razvedka) · Tajovuzkor (10 hujum, botlar ham hisoblanadi) · Toʻda aʼzosi (3 guruh ovi yoki toʻda jangi)
+Katta ov (20 ov) · Sayohatchi (3 lager; MVP da — 3 razvedka) · Tajovuzkor (10 hujum, botlar ham hisoblanadi) · Uzoq ov (3 ta uzoq kartadagi ov)
 
 ### Bosqichli (10 yoʻnalish)
 Quruvchi (5·15·40·80·150) · Toʻda alfasi (5·10·15·20·25 askar) · Murabbiy (birinchi 2/4/6-tier) · Ovchi (50·200·1000) · Toʻplovchi (10k·100k·1mln) · Jangchi (10·50·200) · Gʻolib (5·25·100) · Razvedkachi (20·100) · Egallovchi (1·3 oazis) · Sodiq (7·30·100 kun)
@@ -937,7 +967,7 @@ Quruvchi (5·15·40·80·150) · Toʻda alfasi (5·10·15·20·25 askar) · Mura
 | 12 | 4 | Toʻda bilan kattaroq oʻlja ovlash mumkin. | Ovchilarni ovga yuborish (sugʻur) | 8 kg goʻsht | 25 | 1 |
 | 13 | 4 | Jang qiladigan boʻrilar kerak. | Jang maydonini ochish | Jang maydoni 1-daraja | 25 | 0.5 |
 | 14 | 4 | Birinchi hujumchingni tayyorla. | Hujumchi mashqi | 1 hujumchi | 25 | 0.5 |
-| 15 | 4 | Yolgʻiz boʻri omon qolmaydi. Ov guruhiga qoʻshil. | Ov guruhiga qoʻshilish | Ov +10% (24 soat) | 25 | 1 |
+| 15 | 4 | Uzoqdagi oʻlja katta, lekin xavfli. | Oʻrta masofadagi kartaga ov | Ov +10% (24 soat) | 25 | 1 |
 | 16 | 4 | Endi birinchi jang. Qoʻrqma — bu yovvoyi toʻda. | Botga hujum | Gʻalaba + 50 tosh | 30 | 1.5 |
 | 17 | 5 | Raqibni oldindan koʻrish uchun razvedkachi kerak. | Razvedka qoyasini ochish | 1 razvedkachi | 10 | 0.5 |
 | 18 | 5 | Raqibni razvedka qilib koʻr. | Razvedka yuborish (botga) | Maʼlumot | 10 | 0.5 |
@@ -1118,9 +1148,9 @@ uz (asosiy), ru, en; barcha matn `locales` jadvalida, kodda faqat kalit. Batafsi
 
 ## 21. Texnik arxitektura
 
-- **DB:** MySQL 8, 32 jadval — `blue_wolf_schema.sql`
+- **DB:** MySQL 8, 30 jadval — `blue_wolf_schema.sql`
 - **Balans:** Excel `blue_wolf_darajalar.xlsx` — `Sozlamalar` varagʻidagi nomlangan kataklar (masalan `xp_base`) va ularga tayangan formulalar. `game_config` jadvali shu varaqdan `tools/blue_wolf_config.py` bilan generatsiya qilinadi (`blue_wolf_game_config.sql`); kalitlar Excel nomlari bilan bir xil. Kodda birorta balans raqami qattiq yozilmaydi
-- **API:** 70 endpoint — `blue_wolf_api.md`
+- **API:** 67 endpoint — `blue_wolf_api.md`
 - **Server mantiqi, cron, xavfsizlik:** `blue_wolf_texnik_spec.md`, 4-boʻlim
 
 ---
@@ -1131,11 +1161,11 @@ uz (asosiy), ru, en; barcha matn `locales` jadvalida, kodda faqat kalit. Batafsi
 - **1–10 daraja**
 - **Binolar:** In (avtomatik) + 6 ta — Oziq gʻori, Ustaxona qoyasi, Ov soʻqmogʻi, Jang maydoni, Razvedka qoyasi, Shifo gʻori
 - **Rollar:** ovchi, hujumchi, razvedkachi — **1–2 tier** (2-tier 8-darajada ochiladi)
-- **Ov:** yolgʻiz ov (1–3 daraja), toʻda ovi, ov guruhi (2–4 oʻyinchi)
+- **Ov:** yolgʻiz ov (1–3 daraja), ov xaritasi (9 karta, xavf va jarohat)
 - **Jang:** yovvoyi toʻdalar (botlar) 4-darajadan, PvP 1v1 7–10 darajada, oʻlja, razvedka, jarohat va davolash
 - Tanishtiruv (20 qadam) · kundalik vazifalar · oflayn hisob, ochlik · uz tili · oy toshi (faqat test uchun, sotuvsiz)
 
-> **Ov guruhi (MVP) va Klan (v2):** 5-darajadan boshlab asosiy oʻlja (jayron, 25 kg) yolgʻiz ovlanmaydi — “toʻda majburiy” qoidasi shundan kelib chiqadi. MVP da bu rasmiy klan tizimisiz, **vaqtinchalik ov guruhi** bilan qondiriladi: 2–4 oʻyinchi bitta ov uchun birlashadi, aʼzolik, lavozim, xazina va urush kerak emas. Texnik jihatdan — `hunt_parties` / `hunt_party_members` jadvallari va `marches.kind = 'hunt'`.
+> **Toʻda majburiy (MVP):** 5-darajadan boshlab asosiy oʻlja (jayron, 25 kg) yolgʻiz ovlanmaydi — oʻyinchi oʻz toʻdasini (ovchilar + yordamchilar) yuboradi. Oʻyinchilararo ov guruhlari olib tashlandi: ijtimoiy oʻyin klan (v2) orqali. Texnik jihatdan — `marches.kind = 'hunt'`, `board_window` / `board_slot`.
 
 ### v2 ga qoldiriladi
 11–25 daraja · Himoya devori va Bozor · himoyachi roli · 3–6 tier · **rasmiy klan tizimi** (aʼzolik, lavozim, xazina) va toʻda urushi · lager va oazis · mavsum va liga · monetizatsiya (Telegram Stars) · **pul mukofoti** · ru va en
@@ -1174,4 +1204,4 @@ Batafsil art keyingi bosqichda qoʻshiladi.
 
 ---
 
-*Hujjat Blue Wolf balans jadvali (`blue_wolf_darajalar.xlsx`, 21 varaq — kiritish `Sozlamalar` varagʻida), DB sxemasi (`blue_wolf_schema.sql`, 32 jadval), API spetsifikatsiyasi (`blue_wolf_api.md`) va texnik spetsifikatsiya (`blue_wolf_texnik_spec.md`) bilan birga ishlatiladi.*
+*Hujjat Blue Wolf balans jadvali (`blue_wolf_darajalar.xlsx`, 21 varaq — kiritish `Sozlamalar` varagʻida), DB sxemasi (`blue_wolf_schema.sql`, 30 jadval), API spetsifikatsiyasi (`blue_wolf_api.md`) va texnik spetsifikatsiya (`blue_wolf_texnik_spec.md`) bilan birga ishlatiladi.*
