@@ -1,6 +1,6 @@
 /* ==========================================================================
    BlueWolf UI — Blue Wolf oʻyini uchun dizayn tizimi
-   v0.0.5
+   v0.0.6
 
    Tuzilishi:
      1. Tokenlar (palitra, semantik ranglar, rol va tier ranglari, shrift, oraliq, radius, soya, harakat)
@@ -384,7 +384,7 @@ button { font: inherit; color: inherit; }
 /* Pastki tab panel */
 .bw-tabbar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
-  display: grid; grid-template-columns: repeat(5, 1fr);
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
   padding: 6px 6px calc(6px + var(--bw-safe-bottom));
   background: rgba(6, 11, 22, .86); border-top: 1px solid var(--bw-border);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
@@ -402,6 +402,8 @@ button { font: inherit; color: inherit; }
   background: var(--bw-primary-2); box-shadow: var(--bw-glow);
 }
 .bw-tab .bw-badge { position: absolute; top: 2px; left: 50%; margin-left: 6px; }
+/* Nuqta-belgi (son emas — “bu yerda qiladigan ish bor”) */
+.bw-badge--dot { min-width: 9px; width: 9px; height: 9px; padding: 0; margin-left: 8px !important; border-radius: 50%; background: var(--bw-accent); }
 
 /* Varaq (bottom sheet) */
 .bw-sheet-backdrop { position: fixed; inset: 0; z-index: 50; background: var(--bw-backdrop); opacity: 0; pointer-events: none; transition: opacity var(--bw-med); }

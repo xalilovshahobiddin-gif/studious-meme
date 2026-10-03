@@ -1,5 +1,15 @@
 # Blue Wolf — oʻzgarishlar tarixi
 
+## v0.0.6 — Ov tabi
+- Pastki menyuga **Ov** tabi qoʻshildi (In bilan Jang orasida). Ovga oid hamma narsa shu yerda:
+  yurishdagi ov (taymer), yolgʻiz ov, toʻda ovi — rollar boʻyicha slayderlar va kutilgan natija bilan (alohida oyna emas),
+  ovchilar soni va mashqi, goʻsht zaxirasi (sigʻim, kunlik sarf, necha kunga yetadi), ov guruhlari (Toʻda tabidan koʻchdi),
+  oʻlja zinapoyasi (har darajadagi oʻlja va kerakli boʻri soni).
+- Ovga chiqish mumkin boʻlsa (boʻsh ovchilar yoki yolgʻiz ov tayyor) Ov tabida sariq nuqta yonadi.
+- **Ov soʻqmogʻi** binosi In’da qoldi; Ov tabidan ham bir bosishda ochiladi.
+- In ekranidan ov kartasi olib tashlandi; goʻsht maʼlumot oynasidagi “Ovga chiqish” Ov tabiga olib boradi.
+- BlueWolf UI: tab panel ixtiyoriy sondagi tablarga moslashadi, `bw-badge--dot`.
+
 ## v0.0.5 — slayderlar
 - **Son tanlash endi “− slayder +”**: ov oynasida (har rol), askar tayyorlashda va Ustaxona taqsimotida. Slayderni surish yoki
   tugmalarni bosish — ikkalasi ham ishlaydi; natija (goʻsht, narx, vaqt) surish paytida darhol yangilanadi.
